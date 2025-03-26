@@ -1,9 +1,20 @@
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic")
+cmake_minimum_required(VERSION 3.14)
+project(MyProject LANGUAGES CXX)
 
-add_library(CinderPeak STATIC
-    src/GraphBase.hpp
-    src/Utils.hpp    
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-)
-target_include_directories(CinderPeak PUBLIC include)
+add_library(MyProject INTERFACE)
+target_include_directories(MyProject INTERFACE src/)
+
+option(BUILD_TESTS "Build tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+# Add Examples
+option(BUILD_EXAMPLES "Build examples" ON)
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
