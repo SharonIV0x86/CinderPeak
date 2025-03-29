@@ -1,7 +1,23 @@
-# Locate GoogleTest
-find_package(GTest REQUIRED)
+cmake_minimum_required(VERSION 3.14)
+project(MyProjectTests)
 
-# Add all test files in `tests/`
+include(FetchContent)
+
+# Try to find GTest first
+find_package(GTest QUIET)
+
+if (NOT GTest_FOUND)
+    message(STATUS "GTest not found. Fetching GoogleTest...")
+    
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    )
+    FetchContent_MakeAvailable(googletest)
+endif()
+
+enable_testing()
+
 file(GLOB TEST_SOURCES "*.cpp")
 
 foreach(TEST_FILE ${TEST_SOURCES})
