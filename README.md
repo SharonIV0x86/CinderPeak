@@ -3,7 +3,7 @@ CinderPeak is a high-performance, modern C++ graph library designed to support d
 
 
 ## Development Phases
-### Phase 1 : Initialization (1 week)
+### Phase 1 : Initialization (1 week) Completed ✅
 The phase one includes laying out the foundations of the project, phase 1 includes the following tasks.
 <br>
 1. **Project Structure**: We need to plan a scalable project structure which is easy to work with and is scalable in future, and can be easily intergated with a build system like **CMAKE**
@@ -14,6 +14,9 @@ The phase one includes laying out the foundations of the project, phase 1 includ
 6. **Testing, Documentation and examples**: This is one of the major parts and one of the easiest, writing documentation will be pretty straight forward, to host the documentation we will be using **docusaurus**. 
 <br>**Testing** is very important therefore we will be using and writing tests since the starting of the development for each feature that we feel is correct. Testing will make the development faster by ensuring that features A,B are not accidentally broken when working on the feature C. We will use **GTest** for writing tests.
 7. **Thread Safety**: Cinder Peak is meant to be portable and easy to be integrated into larger projects, we need to ensure that the library is thread safe, means we need to ensure our code runs correctly when multiple threads access shared resources simultaneously. In short our library should work well with some other asynchronous code.
+
+### Phase 2: Development of PeakStore (2 weeks)
+This phase involves the development of the core engine of CinderPeak for graph storage.
 
 # Possible Project Structure
 ```
