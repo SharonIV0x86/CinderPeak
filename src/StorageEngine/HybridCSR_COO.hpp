@@ -5,15 +5,14 @@ namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class HybridCSR_COO {
 public:
-  std::unique_ptr<GraphCreationOptions> graph_options = nullptr;
-  std::unique_ptr<GraphInternalMetadata> graph_metadata = nullptr;
-  HybridCSR_COO(const GraphCreationOptions &create_options,
-                const GraphInternalMetadata &metadata) {
-    graph_options = std::make_unique<GraphCreationOptions>(create_options);
-    graph_metadata = std::make_unique<GraphInternalMetadata>(metadata);
-  }
+  std::shared_ptr<GraphCreationOptions> graph_options = nullptr;
+  std::shared_ptr<GraphInternalMetadata> graph_metadata = nullptr;
 
-  bool hasOption(GraphType opt) const {
+  HybridCSR_COO(const std::shared_ptr<GraphInternalMetadata> &metadata,
+                const std::shared_ptr<GraphCreationOptions> &options)
+      : graph_metadata(metadata), graph_options(options) {}
+
+  bool hasOption(GraphCreationOptions::GraphType opt) const {
     return graph_options && graph_options->hasOption(opt);
   }
 };
