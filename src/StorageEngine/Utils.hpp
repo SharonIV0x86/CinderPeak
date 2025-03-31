@@ -1,32 +1,42 @@
 #pragma once
+#include <bitset>
 #include <iostream>
 #include <memory>
-
 namespace CinderPeak {
-namespace PeakStore {
-enum class GraphType : uint8_t {
-  Directed = 1 << 0,
-  Undirected = 1 << 1,
-  Weighted = 1 << 2,
-  Unweighted = 1 << 3,
-  SelfLoops = 1 << 4,
-  ParallelEdges = 1 << 5
-};
-class GraphInternalMetadata {
+class GraphCreationOptions {
 public:
-  size_t num_vertices;
-  size_t num_edges;
-};
-struct GraphCreationOptions {
-  uint8_t options = 0;
-
-  GraphCreationOptions(std::initializer_list<GraphType> opts) {
-    for (auto opt : opts)
-      options |= static_cast<uint8_t>(opt);
+  enum GraphType {
+    Directed = 0,
+    Weighted,
+    SelfLoops,
+    ParallelEdges,
+  };
+  GraphCreationOptions(std::initializer_list<GraphType> graph_types) {
+    for (auto type : graph_types) {
+      options.set(type);
+    }
   }
 
-  bool hasOption(GraphType opt) const {
-    return options & static_cast<uint8_t>(opt);
+  bool hasOption(GraphType type) const { return options.test(type); }
+
+private:
+  std::bitset<8> options;
+};
+
+namespace PeakStore {
+class GraphInternalMetadata {
+public:
+  size_t density;
+  size_t num_vertices;
+  size_t num_edges;
+  size_t num_self_loops;
+  size_t num_parallel_edges;
+  GraphInternalMetadata(){
+    num_vertices = 0;
+    num_edges = 0;
+    density = 0;
+    num_self_loops = 0;
+    num_parallel_edges = 0;
   }
 };
 } // namespace PeakStore
