@@ -15,19 +15,27 @@ public:
   AdjacencyList(const std::shared_ptr<GraphInternalMetadata> &metadata,
                 const std::shared_ptr<GraphCreationOptions> &options)
       : graph_metadata(metadata), create_options(options) {}
-
-  void impl_addEdge(const VertexType &src, const VertexType &dest,
-                    const EdgeType &weight) {
+  // TODO: combine two impl_addEdge overloads into one.
+  PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
+                          const EdgeType &weight) {
+    if (auto it = _adj_list.find(src); it == _adj_list.end())
+      return PeakStatus::VertexNotFound();
+    if (auto it = _adj_list.find(dest); it == _adj_list.end())
+      return PeakStatus::VertexNotFound();
     _adj_list[src].emplace_back(dest, weight);
-    std::cout << "Edge addition success\n";
+    return PeakStatus::OK();
   }
-  void impl_addEdge(const VertexType &src, const VertexType &dest) {
+  PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) {
+    if (auto it = _adj_list.find(src); it == _adj_list.end())
+      return PeakStatus::VertexNotFound();
+    if (auto it = _adj_list.find(dest); it == _adj_list.end())
+      return PeakStatus::VertexNotFound();
     _adj_list[src].emplace_back(dest, EdgeType());
-    std::cout << "Edge addition success\n";
+    return PeakStatus::OK();
   }
-  void impl_addVertex(const VertexType &src) {
+  const PeakStatus impl_addVertex(const VertexType &src) {
     _adj_list[src] = std::vector<std::pair<VertexType, EdgeType>>();
-    std::cout << "Vertex addition success\n";
+    return PeakStatus::OK();
   }
   const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) const {
