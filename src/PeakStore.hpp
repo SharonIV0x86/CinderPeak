@@ -46,6 +46,13 @@ public:
   void addVertex(const VertexType &src) {
     adjacency_storage->impl_addVertex(src);
   }
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> getNeighbors(const VertexType &src) const {
+    auto peakResponse = adjacency_storage->impl_getNeighbors(src);
+    if (!peakResponse.second.isOK()) {
+      std::cout << peakResponse.second.message() << "\n";
+    }
+    return peakResponse;
+  }
 };
 
 } // namespace PeakStore

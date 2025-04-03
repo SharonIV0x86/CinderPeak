@@ -37,9 +37,20 @@ int main()
   std::cout << "ADJ Num Parallel Edges : " << store.adjacency_storage->graph_metadata->num_parallel_edges << "\n";
   store.addVertex(1);
   store.addVertex(2);
-  store.addEdge(1, 9, 4);
+  store.addVertex(3);
+  store.addVertex(4);
+  store.addEdge(1, 2, 4);
+  store.addEdge(1, 3, 5);
+  store.addEdge(1, 4, 8);
   int egde = store.getEdge(1, 2);
+  std::pair<std::vector<std::pair<int, int>>, PeakStatus> neighbors = store.getNeighbors(1);
   std::cout << "Edge between: 1 and 2: " << egde << "\n";
+  std::vector<std::pair<int, int>> nn = neighbors.first;
+  for(const auto&[dest, edge]: nn){
+    std::cout << dest << " ";
+  }
+  neighbors.second = PeakStatus::OK();
+  std::cout << "\n";
   return 0;
 
 }
