@@ -9,7 +9,6 @@ int main()
   GraphInternalMetadata metadata;
   // metadata.num_edges = 4;
   // metadata.num_vertices = 2;
-
   std::shared_ptr<GraphInternalMetadata> mt = std::make_shared<GraphInternalMetadata>(metadata);
   std::shared_ptr<GraphCreationOptions> opt = std::make_shared<GraphCreationOptions>(options);
   CinderPeak::PeakStore::PeakStore<int, int> store(metadata);
