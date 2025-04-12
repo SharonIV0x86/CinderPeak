@@ -39,9 +39,18 @@ int main()
   store.addVertex(2);
   store.addVertex(3);
   store.addVertex(4);
-  store.addEdge(1, 2, 4);
-  store.addEdge(1, 3, 5);
-  store.addEdge(1, 4, 8);
+  PeakStatus response = store.addEdge(1, 2, 4);
+  if(response.isOK()){
+    std::cout << "Edge 1->2 added successfully\n";
+  }
+  response = store.addEdge(1, 3, 5);
+  if(response.isOK()){
+    std::cout << "Edge 1->3 added successfully\n";
+  }
+  response = store.addEdge(1, 4, 8);
+  if(response.isOK()){
+    std::cout << "Edge 1->4 added successfully\n";
+  }
   int egde = store.getEdge(1, 2);
   std::pair<std::vector<std::pair<int, int>>, PeakStatus> neighbors = store.getNeighbors(1);
   std::cout << "Edge between: 1 and 2: " << egde << "\n";

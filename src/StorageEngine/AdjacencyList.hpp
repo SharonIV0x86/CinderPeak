@@ -51,14 +51,16 @@ public:
     }
     return std::make_pair(EdgeType(), PeakStatus::EdgeNotFound());
   }
-  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> impl_getNeighbors(const VertexType& vertex) const {
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
+  impl_getNeighbors(const VertexType &vertex) const {
     auto it = _adj_list.find(vertex);
     if (it == _adj_list.end()) {
-        static const std::vector<std::pair<VertexType, EdgeType>> empty_vec;
-        return std::make_pair(empty_vec, PeakStatus::VertexNotFound());
+      static const std::vector<std::pair<VertexType, EdgeType>> empty_vec;
+      return std::make_pair(empty_vec, PeakStatus::VertexNotFound());
     }
     return std::make_pair(it->second, CinderPeak::PeakStatus::OK());
-}
+  }
+  const auto &getAdjList() { return _adj_list; }
 };
 } // namespace PeakStore
 
