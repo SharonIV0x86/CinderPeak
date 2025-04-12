@@ -1,20 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(MyProjectTests)
 
-include(FetchContent)
-
-# Try to find GTest first
-find_package(GTest QUIET)
-
-if (NOT GTest_FOUND)
-    message(STATUS "GTest not found. Fetching GoogleTest...")
-    
-    FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-    )
-    FetchContent_MakeAvailable(googletest)
-endif()
+find_package(GTest REQUIRED)
 
 enable_testing()
 

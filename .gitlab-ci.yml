@@ -1,0 +1,48 @@
+stages:
+  - build
+  - test
+
+default:
+  image: gcc:12
+
+variables:
+  BUILD_DIR: build
+
+before_script:
+  - apt-get update -y
+  - apt-get install -y cmake git libgtest-dev build-essential
+  - cd /usr/src/gtest
+  - cmake .
+  - make
+  - cp lib/*.a /usr/lib
+  - cd $CI_PROJECT_DIR
+
+build_job:
+  stage: build
+  script:
+    - echo "Creating build directory..."
+    - mkdir -p $BUILD_DIR
+    - cd $BUILD_DIR
+    - echo "Running CMake configuration..."
+    - cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+    - echo "Building the project..."
+    - cmake --build .
+  artifacts:
+    paths:
+      - $BUILD_DIR
+    expire_in: 1 week
+  when: manual
+  only:
+    - merge_requests 
+
+test_job:
+  stage: test
+  dependencies:
+    - build_job
+  script:
+    - echo "Running tests..."
+    - cd $BUILD_DIR
+    - ./tests/tests
+  when: manual 
+  only:
+    - merge_requests
