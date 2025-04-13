@@ -1,5 +1,8 @@
+#pragma once
 #include "StorageEngine/AdjacencyList.hpp"
+#include "StorageEngine/CoordinateList.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
+#include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
@@ -8,45 +11,43 @@
 #include <vector>
 namespace CinderPeak {
 namespace PeakStore {
+
 const CinderPeak::GraphCreationOptions
     DEFAULT_GRAPH_OPTIONS({CinderPeak::GraphCreationOptions::Directed,
                            CinderPeak::GraphCreationOptions::SelfLoops});
 template <typename VertexType, typename EdgeType> class PeakStore {
 public:
-  std::unique_ptr<HybridCSR_COO<VertexType, EdgeType>> hybrid_storage = nullptr;
-  std::shared_ptr<GraphInternalMetadata> graph_metadata = nullptr;
-  std::shared_ptr<GraphCreationOptions> create_options = nullptr;
-  std::unique_ptr<AdjacencyList<VertexType, EdgeType>> adjacency_storage =
-      nullptr;
-
+  std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
   PeakStore(const GraphInternalMetadata &metadata,
             const GraphCreationOptions &options = DEFAULT_GRAPH_OPTIONS) {
-    graph_metadata = std::make_shared<GraphInternalMetadata>(metadata);
-    create_options = std::make_shared<GraphCreationOptions>(options);
-    hybrid_storage = std::make_unique<HybridCSR_COO<VertexType, EdgeType>>(
-        graph_metadata, create_options);
-    adjacency_storage = std::make_unique<AdjacencyList<VertexType, EdgeType>>(
-        graph_metadata, create_options);
-
-    hybrid_storage->impl_buildStructures(adjacency_storage);
+    ctx = std::make_shared<GraphContext<VertexType, EdgeType>>();
+    ctx->graph_metadata = std::make_shared<GraphInternalMetadata>(metadata);
+    ctx->create_options = std::make_shared<GraphCreationOptions>(options);
+    ctx->hybrid_storage =
+        std::make_shared<HybridCSR_COO<VertexType, EdgeType>>(ctx);
+    ctx->adjacency_storage =
+        std::make_shared<AdjacencyList<VertexType, EdgeType>>(ctx);
+    ctx->coordinate_list =
+        std::make_shared<CoordinateList<VertexType, EdgeType>>(ctx);
+    // ctx->hybrid_storage->impl_buildStructures(adjacency_storage);
   }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight) {
 
     PeakStatus adj_response =
-        adjacency_storage->impl_addEdge(src, dest, weight);
+        ctx->adjacency_storage->impl_addEdge(src, dest, weight);
     if (adj_response.isOK())
-      graph_metadata->num_edges++;
+      ctx->graph_metadata->num_edges++;
     return adj_response;
   }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest) {
-    PeakStatus adj_response = adjacency_storage->impl_addEdge(src, dest);
+    PeakStatus adj_response = ctx->adjacency_storage->impl_addEdge(src, dest);
     if (adj_response.isOK())
-      graph_metadata->num_edges++;
+      ctx->graph_metadata->num_edges++;
     return adj_response;
   }
   EdgeType getEdge(const VertexType &src, const VertexType &dest) {
-    auto peakResponse = adjacency_storage->impl_getEdge(src, dest);
+    auto peakResponse = ctx->adjacency_storage->impl_getEdge(src, dest);
     if (!peakResponse.second.isOK()) {
       std::cout << peakResponse.second.message() << "\n";
       return EdgeType();
@@ -54,11 +55,11 @@ public:
     return peakResponse.first;
   }
   void addVertex(const VertexType &src) {
-    adjacency_storage->impl_addVertex(src);
+    ctx->adjacency_storage->impl_addVertex(src);
   }
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
-    auto peakResponse = adjacency_storage->impl_getNeighbors(src);
+    auto peakResponse = ctx->adjacency_storage->impl_getNeighbors(src);
     if (!peakResponse.second.isOK()) {
       std::cout << peakResponse.second.message() << "\n";
     }

@@ -1,5 +1,7 @@
 #pragma once
+#include "StorageEngine/GraphContext.hpp"
 #include "Utils.hpp"
+#include <memory>
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class AdjacencyList {
@@ -9,13 +11,11 @@ private:
       _adj_list;
 
 public:
-  std::shared_ptr<GraphInternalMetadata> graph_metadata = nullptr;
-  std::shared_ptr<GraphCreationOptions> create_options = nullptr;
-
-  AdjacencyList(const std::shared_ptr<GraphInternalMetadata> &metadata,
-                const std::shared_ptr<GraphCreationOptions> &options)
-      : graph_metadata(metadata), create_options(options) {}
   // TODO: combine two impl_addEdge overloads into one.
+  std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
+  AdjacencyList(const std::shared_ptr<GraphContext<VertexType, EdgeType>> &ctx)
+      : ctx(ctx) {}
+  AdjacencyList() {}
   PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
@@ -43,7 +43,6 @@ public:
     if (it == _adj_list.end()) {
       return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
     }
-
     for (const auto &[neighbor, edge] : it->second) {
       if (neighbor == dest) {
         return std::make_pair(edge, PeakStatus::OK());

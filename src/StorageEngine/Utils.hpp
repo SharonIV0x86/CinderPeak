@@ -77,3 +77,24 @@ public:
 } // namespace PeakStore
 
 } // namespace CinderPeak
+
+// future use.
+//  namespace Types {
+//    template <typename VertexType, typename EdgeType>
+//    using HybridStoragePtr =
+//        std::unique_ptr<CinderPeak::PeakStore::HybridCSR_COO<VertexType,
+//        EdgeType>>;
+
+//   template <typename VertexType, typename EdgeType>
+//   using AdjacencyListPtr =
+//       std::unique_ptr<CinderPeak::PeakStore::AdjacencyList<VertexType,
+//       EdgeType>>;
+
+//   template <typename VertexType, typename EdgeType>
+//   using GraphMetadataPtr =
+//   std::shared_ptr<CinderPeak::PeakStore::GraphInternalMetadata>;
+
+//   template <typename VertexType, typename EdgeType>
+//   using CreateOptionsPtr = std::shared_ptr<CinderPeak::GraphCreationOptions>;
+
+//   } // namespace Types
