@@ -5,7 +5,7 @@
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class HybridCSR_COO {
-public:
+private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx;
   std::vector<size_t> csr_row_offsets;
   std::vector<const VertexType *> csr_col_ptrs;
@@ -15,6 +15,7 @@ public:
   std::vector<const VertexType *> coo_dest_ptrs;
   std::vector<const EdgeType *> coo_weight_ptrs;
 
+public:
   HybridCSR_COO(const std::shared_ptr<GraphContext<VertexType, EdgeType>> &ctx)
       : ctx(ctx) {}
   HybridCSR_COO() {}

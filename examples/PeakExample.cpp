@@ -14,28 +14,7 @@ int main()
   std::shared_ptr<GraphCreationOptions> opt = std::make_shared<GraphCreationOptions>(options);
   CinderPeak::PeakStore::PeakStore<int, int> store(metadata);
   std::cout << store.ctx->graph_metadata->num_edges << "\n";
-  std::cout << "\t---Testing AJD\n";
-  std::cout << "ADJ Density: " << store.ctx->adjacency_storage->ctx->graph_metadata->density << "\n";
-  std::cout << "SET Density to: 3\n";
-  store.ctx->adjacency_storage->ctx->graph_metadata->density = 3;
-  std::cout << "ADJ Density: " << store.ctx->adjacency_storage->ctx->graph_metadata->density << "\n";
-
-  std::cout << "\t---Testing HYBRID\n";
-  std::cout << "HYBRID Density: " << store.ctx->hybrid_storage->ctx->graph_metadata->density << "\n";
-  std::cout << "SET Num Vetices: 24\n";
-  store.ctx->hybrid_storage->ctx->graph_metadata->num_vertices = 24;
-
-  std::cout << "\n---Testing PEAK\n";
-  std::cout << "PEAK Num Vertices: " << store.ctx->graph_metadata->num_vertices << "\n";
-  std::cout << "SET Num Parallel Edges: " << store.ctx->graph_metadata->num_parallel_edges << "\n";
-  store.ctx->graph_metadata->num_parallel_edges = 91;
-
-  std::cout << "\n---Final Test from ADJ\n";
-  std::cout << "ADJ Density : " << store.ctx->adjacency_storage->ctx->graph_metadata->density << "\n";
-  std::cout << "ADJ Num Vertices : " << store.ctx->adjacency_storage->ctx->graph_metadata->num_vertices << "\n";
-  std::cout << "ADJ Num Edges : " << store.ctx->adjacency_storage->ctx->graph_metadata->num_edges << "\n";
-  std::cout << "ADJ Num Self Loops : " << store.ctx->adjacency_storage->ctx->graph_metadata->num_self_loops << "\n";
-  std::cout << "ADJ Num Parallel Edges : " << store.ctx->adjacency_storage->ctx->graph_metadata->num_parallel_edges << "\n";
+  
   store.addVertex(1);
   store.addVertex(2);
   store.addVertex(3);
