@@ -6,18 +6,19 @@
 #include <unordered_set>
 
 namespace CinderPeak {
+  template <typename, typename>
+class PeakStorageInterface;
 namespace PeakStore {
-template <typename VertexType, typename EdgeType> class CoordinateList {
+template <typename VertexType, typename EdgeType> 
+class CoordinateList : public CinderPeak::PeakStorageInterface<VertexType, EdgeType> {
 private:
   std::vector<VertexType> coo_src;
   std::vector<VertexType> coo_dest;
   std::vector<EdgeType> coo_weights;
-  std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx;
   std::unordered_set<VertexType, VertexHasher<VertexType>> vertices;
 
 public:
-  CoordinateList(const std::shared_ptr<GraphContext<VertexType, EdgeType>> &ctx)
-      : ctx(ctx) {
+  CoordinateList(){
     impl_BuildCoordinateList();
   }
   void impl_BuildCoordinateList() {
@@ -26,10 +27,14 @@ public:
     coo_weights.clear();
     vertices.clear();
   }
-  PeakStatus impl_addVertex(const VertexType &vertex) {
-    vertices.insert(vertex);
+  const PeakStatus impl_addVertex(const VertexType &vertex) {
+    auto [_, inserted] = vertices.insert(vertex);
+    if (!inserted) {
+        return PeakStatus::AlreadyExists();
+    }
     return PeakStatus::OK();
   }
+
   PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) {
     EdgeType defaultWeight = EdgeType();
     return impl_addEdge(src, dest, defaultWeight);

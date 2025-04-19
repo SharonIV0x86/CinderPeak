@@ -3,19 +3,18 @@
 #include "Utils.hpp"
 #include <memory>
 namespace CinderPeak {
+  template <typename, typename>
+class PeakStorageInterface;
+
 namespace PeakStore {
-template <typename VertexType, typename EdgeType> class AdjacencyList {
+template <typename VertexType, typename EdgeType> 
+class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeType>{
 private:
   std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
                      VertexHasher<VertexType>>
       _adj_list;
-
-  std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
-
 public:
   // TODO: combine two impl_addEdge overloads into one.
-  AdjacencyList(const std::shared_ptr<GraphContext<VertexType, EdgeType>> &ctx)
-      : ctx(ctx) {}
   AdjacencyList() {}
   PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) {
@@ -61,6 +60,9 @@ public:
     return std::make_pair(it->second, CinderPeak::PeakStatus::OK());
   }
   const auto &getAdjList() { return _adj_list; }
+  void exc() const{
+    std::cout << "Meow\n";
+  }
 };
 } // namespace PeakStore
 

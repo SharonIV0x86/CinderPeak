@@ -7,7 +7,7 @@ enum class StatusCode {
   OK,
   NOT_FOUND,
   INVALID_ARGUMENT,
-  ALREADY_EXISTS,
+  VERTEX_ALREADY_EXISTS,
   INTERNAL_ERROR,
   EDGE_NOT_FOUND,
   VERTEX_NOT_FOUND
@@ -30,7 +30,7 @@ public:
     return PeakStatus(StatusCode::INVALID_ARGUMENT, std::move(msg));
   }
   static PeakStatus AlreadyExists(std::string msg = "Already Exists") {
-    return PeakStatus(StatusCode::ALREADY_EXISTS, std::move(msg));
+    return PeakStatus(StatusCode::VERTEX_ALREADY_EXISTS, std::move(msg));
   }
   static PeakStatus InternalError(std::string msg = "Internal Error") {
     return PeakStatus(StatusCode::INTERNAL_ERROR, std::move(msg));

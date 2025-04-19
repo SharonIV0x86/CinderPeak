@@ -1,12 +1,17 @@
 #pragma once
 #include "StorageEngine/GraphContext.hpp"
+// #include "StorageInterface.hpp"
 #include "Utils.hpp"
 #include <memory>
 namespace CinderPeak {
+  template <typename, typename>
+class PeakStorageInterface;
+
 namespace PeakStore {
-template <typename VertexType, typename EdgeType> class HybridCSR_COO {
+template <typename VertexType, typename EdgeType> 
+class HybridCSR_COO : public CinderPeak::PeakStorageInterface<VertexType, EdgeType>{
 private:
-  std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx;
+  // std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx;
   std::vector<size_t> csr_row_offsets;
   std::vector<const VertexType *> csr_col_ptrs;
   std::vector<const EdgeType *> csr_weight_ptrs;
@@ -16,13 +21,19 @@ private:
   std::vector<const EdgeType *> coo_weight_ptrs;
 
 public:
-  HybridCSR_COO(const std::shared_ptr<GraphContext<VertexType, EdgeType>> &ctx)
-      : ctx(ctx) {}
   HybridCSR_COO() {}
+  void exc() const {
+    std::cout << "Meow\n";
+  }
+  const PeakStatus impl_addVertex(const VertexType& src){
+    std::cout << "Meow from hybrid storage\n";
+    LOG_INFO("Inside Adjacency List addVertex");
+    return PeakStatus::OK();
+  }
   // void impl_buildStructures(
   //     const std::unique_ptr<AdjacencyList<VertexType, EdgeType>>
   //         &adj_storage_obj) {
-  // const size_t num_vertices = adj_storage_obj->graph_metadata->num_vertices;
+  // const size_t num_vertices = adj_storage_obj->metadata->num_vertices;
   // csr_row_offsets.clear();
   // csr_col_ptrs.clear();
   // csr_weight_ptrs.clear();
