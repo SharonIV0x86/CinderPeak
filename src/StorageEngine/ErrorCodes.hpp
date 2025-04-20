@@ -10,7 +10,9 @@ enum class StatusCode {
   VERTEX_ALREADY_EXISTS,
   INTERNAL_ERROR,
   EDGE_NOT_FOUND,
-  VERTEX_NOT_FOUND
+  VERTEX_NOT_FOUND,
+  UNIMPLEMENTED,
+  ALREADY_EXISTS,
 };
 
 class PeakStatus {
@@ -29,6 +31,9 @@ public:
   static PeakStatus InvalidArgument(std::string msg = "Invalid Argument") {
     return PeakStatus(StatusCode::INVALID_ARGUMENT, std::move(msg));
   }
+  static PeakStatus VertexAlreadyExists(std::string msg = "Vertex Already Exists") {
+    return PeakStatus(StatusCode::VERTEX_ALREADY_EXISTS, std::move(msg));
+  }
   static PeakStatus AlreadyExists(std::string msg = "Already Exists") {
     return PeakStatus(StatusCode::VERTEX_ALREADY_EXISTS, std::move(msg));
   }
@@ -40,6 +45,9 @@ public:
   }
   static PeakStatus VertexNotFound(std::string msg = "Vertex Not Found") {
     return PeakStatus(StatusCode::VERTEX_NOT_FOUND, std::move(msg));
+  }
+  static PeakStatus MethodNotImplemented(std::string msg = "Method is not implemented, there has been an error."){
+    return PeakStatus(StatusCode::UNIMPLEMENTED, std::move(msg));
   }
   bool isOK() const { return code_ == StatusCode::OK; }
   StatusCode code() const { return code_; }

@@ -21,11 +21,14 @@ public:
   }
   void addVertex(const VertexType &src) {
     auto resp = peak_store->addVertex(src);
-    if(!resp.isOK()){
+    if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
+      return;
+    }
+    if(auto s = peak_store->ctx->hybrid_storage->impl_addEdge(src, src); !s.isOK()){
+      Exceptions::handle_exception_map(s);
       return ;
     }
-    
   }
 };
 } // namespace CinderPeak

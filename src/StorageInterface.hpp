@@ -8,15 +8,12 @@ namespace CinderPeak {
 template <typename VertexType, typename EdgeType> class PeakStorageInterface {
 public:
   // virtual void exc() const = 0;
-  virtual const PeakStatus impl_addVertex(const VertexType& src) = 0; 
-  //   virtual PeakStatus impl_addEdge(const VertexType &src,
-  //                                   const VertexType &dest) = 0;
-  //   virtual PeakStatus impl_addEdge(const VertexType &src, const VertexType
-  //   &dest,
-  //                                   const EdgeType &weight) = 0;
-  //   virtual PeakStatus impl_addVertex(const VertexType &src) = 0;
-  //   virtual const std::pair<EdgeType, PeakStatus>
-  //   impl_getEdge(const VertexType &src, const VertexType &dest) const = 0;
-  //   virtual ~PeakStorageInterface() = default;
+  virtual const PeakStatus impl_addVertex(const VertexType &src) = 0;
+  virtual const PeakStatus impl_addEdge(const VertexType &src,
+                                        const VertexType &dest) = 0;
+  virtual const PeakStatus impl_addEdge(const VertexType &src,
+                                        const VertexType &dest,
+                                        const EdgeType &weight) = 0;
+  virtual ~PeakStorageInterface() = default;
 };
 } // namespace CinderPeak

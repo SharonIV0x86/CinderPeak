@@ -3,82 +3,127 @@
 // #include "StorageInterface.hpp"
 #include "Utils.hpp"
 #include <memory>
-namespace CinderPeak {
-  template <typename, typename>
-class PeakStorageInterface;
+namespace CinderPeak
+{
+  template <typename VertexType, typename EgdeType>
+  class PeakStorageInterface;
+  namespace PeakStore
+  {
+    template <typename VertexType, typename EdgeType>
+    class HybridCSR_COO : public CinderPeak::PeakStorageInterface<VertexType, EdgeType>
+    {
+    private:
+      std::vector<size_t> csr_row_offsets;
+      std::vector<VertexType> csr_col_vals;
+      std::vector<EdgeType> csr_weights;
 
-namespace PeakStore {
-template <typename VertexType, typename EdgeType> 
-class HybridCSR_COO : public CinderPeak::PeakStorageInterface<VertexType, EdgeType>{
-private:
-  // std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx;
-  std::vector<size_t> csr_row_offsets;
-  std::vector<const VertexType *> csr_col_ptrs;
-  std::vector<const EdgeType *> csr_weight_ptrs;
+      std::vector<VertexType> vertex_order;
+      std::unordered_map<VertexType, size_t, VertexHasher<VertexType>> vertex_to_index;
 
-  std::vector<const VertexType *> coo_src_ptrs;
-  std::vector<const VertexType *> coo_dest_ptrs;
-  std::vector<const EdgeType *> coo_weight_ptrs;
+    public:
+      HybridCSR_COO() = default;
 
-public:
-  HybridCSR_COO() {}
-  void exc() const {
-    std::cout << "Meow\n";
-  }
-  const PeakStatus impl_addVertex(const VertexType& src){
-    std::cout << "Meow from hybrid storage\n";
-    LOG_INFO("Inside Adjacency List addVertex");
-    return PeakStatus::OK();
-  }
-  // void impl_buildStructures(
-  //     const std::unique_ptr<AdjacencyList<VertexType, EdgeType>>
-  //         &adj_storage_obj) {
-  // const size_t num_vertices = adj_storage_obj->metadata->num_vertices;
-  // csr_row_offsets.clear();
-  // csr_col_ptrs.clear();
-  // csr_weight_ptrs.clear();
-  // coo_src_ptrs.clear();
-  // coo_dest_ptrs.clear();
-  // coo_weight_ptrs.clear();
-  // csr_row_offsets.resize(num_vertices + 1, 0);
+      const PeakStatus impl_addVertex(const VertexType &vtx) override
+      {
+        if (vertex_to_index.count(vtx))
+        {
+          return PeakStatus::AlreadyExists();
+        }
 
-  // const auto &adj_list = adj_storage_obj->getAdjList();
-  // size_t total_edges = 0;
-  // size_t row = 0;
+        vertex_to_index[vtx] = vertex_order.size();
+        vertex_order.push_back(vtx);
+        return PeakStatus::OK();
+      }
 
-  // for (const auto &[src, neighbors] : adj_list) {
-  //   csr_row_offsets[row] = total_edges;
+      const PeakStatus impl_removeVertex(const VertexType &vtx)
+      {
+        if (!vertex_to_index.count(vtx))
+        {
+          return PeakStatus::VertexNotFound();
+        }
 
-  //   for (const auto &[dest, weight] : neighbors) {
-  //     csr_col_ptrs.push_back(&dest);
-  //     csr_weight_ptrs.push_back(&weight);
-  //     coo_src_ptrs.push_back(&src);
-  //     coo_dest_ptrs.push_back(&dest);
-  //     coo_weight_ptrs.push_back(&weight);
-  //     ++total_edges;
-  //   }
-  //   ++row;
-  // }
-  // csr_row_offsets[row] = total_edges;
-  // }
-  void impl_addEdgePointer(const VertexType *src, const VertexType *dest,
-                           const EdgeType *weight) {
-    // PBuf_pending_additions_w.emplace_back(src, dest, weight);
-  }
-  void impl_addEdgePointer(const VertexType *src, const VertexType *dest) {
-    // PBuf_pending_additions.emplace_back(src, dest);
-  }
-  // we dont have to worry about the weightedness here as the PeakStore will be
-  // an mediatery and will call this method appropriately only if the graph is
-  // weighted.
-  void impl_removeEdgePointer(const VertexType *src, const VertexType *dest) {
-    // PBuf_pending_deletions.emplace_back(src, dest);
-  }
-  bool hasOption(GraphCreationOptions::GraphType opt) const {
-    return false;
-    // return graph_options && graph_options->hasOption(opt);
-  }
-};
-} // namespace PeakStore
+        size_t idx = vertex_to_index[vtx];
+        vertex_order.erase(vertex_order.begin() + idx);
+        vertex_to_index.clear();
+
+        for (size_t i = 0; i < vertex_order.size(); ++i)
+        {
+          vertex_to_index[vertex_order[i]] = i;
+        }
+
+        return PeakStatus::OK();
+      }
+      const PeakStatus impl_addEdge(const VertexType& src, const VertexType& dest)override{
+        LOG_WARNING("Called an Unimplemented method");
+        return PeakStatus::MethodNotImplemented();
+      } 
+      const PeakStatus impl_addEdge(const VertexType& src, const VertexType& dest, const EdgeType &weight) override{
+        LOG_WARNING("Called an Unimplemented method");
+        return PeakStatus::MethodNotImplemented();
+      }
+      void buildStructures(const std::vector<VertexType> &coo_srcs,
+                           const std::vector<VertexType> &coo_dests,
+                           const std::vector<EdgeType> &coo_weights)
+      {
+        const size_t num_vertices = vertex_order.size();
+        csr_row_offsets.assign(num_vertices + 1, 0);
+        csr_col_vals.clear();
+        csr_weights.clear();
+
+        for (const auto &src : coo_srcs)
+        {
+          if (vertex_to_index.count(src))
+          {
+            size_t idx = vertex_to_index[src];
+            csr_row_offsets[idx + 1]++;
+          }
+        }
+
+        for (size_t i = 1; i <= num_vertices; ++i)
+        {
+          csr_row_offsets[i] += csr_row_offsets[i - 1];
+        }
+
+        // Allocate space for column + weight
+        size_t total_edges = coo_srcs.size();
+        csr_col_vals.resize(total_edges);
+        csr_weights.resize(total_edges);
+
+        // Temp array to track current write positions
+        std::vector<size_t> insert_offsets = csr_row_offsets;
+
+        for (size_t i = 0; i < total_edges; ++i)
+        {
+          const VertexType &src = coo_srcs[i];
+          const VertexType &dest = coo_dests[i];
+          const EdgeType &weight = coo_weights[i];
+
+          if (!vertex_to_index.count(src))
+            continue;
+
+          size_t row = vertex_to_index[src];
+          size_t pos = insert_offsets[row]++;
+
+          csr_col_vals[pos] = dest;
+          csr_weights[pos] = weight;
+        }
+      }
+
+      void exc() const
+      {
+        std::cout << "CSR Built: \n";
+        for (size_t i = 0; i < vertex_order.size(); ++i)
+        {
+          std::cout << vertex_order[i] << " -> ";
+          for (size_t j = csr_row_offsets[i]; j < csr_row_offsets[i + 1]; ++j)
+          {
+            std::cout << "(" << csr_col_vals[j] << ", " << csr_weights[j] << ") ";
+          }
+          std::cout << "\n";
+        }
+      }
+    };
+
+  } // namespace PeakStore
 
 } // namespace CinderPeak

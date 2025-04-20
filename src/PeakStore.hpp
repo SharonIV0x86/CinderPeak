@@ -42,19 +42,20 @@ public:
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight) {
 
-    LOG_INFO("Called weighted adjacency:addEdge");
-    PeakStatus adj_response =
-        ctx->adjacency_storage->impl_addEdge(src, dest, weight);
-    if (adj_response.isOK())
-      ctx->metadata->num_edges++;
-    return adj_response;
+    LOG_INFO("Called weighted PeakStore:addEdge");
+    if (auto status = ctx->active_storage->impl_addEdge(src, dest, weight);
+        !status.isOK()) {
+      return status;
+    }
+    return PeakStatus::OK();
   }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest) {
-    LOG_INFO("Called unweighted adjacency:addEdge");
-    PeakStatus adj_response = ctx->adjacency_storage->impl_addEdge(src, dest);
-    if (adj_response.isOK())
-      ctx->metadata->num_edges++;
-    return adj_response;
+    LOG_INFO("Called unweighted PeakStore:addEdge");
+    if (auto status = ctx->active_storage->impl_addEdge(src, dest);
+        !status.isOK()) {
+      return status;
+    }
+    return PeakStatus::OK();
   }
   EdgeType getEdge(const VertexType &src, const VertexType &dest) {
     LOG_INFO("Called adjacency:getEdge()");
@@ -67,9 +68,9 @@ public:
   }
   PeakStatus addVertex(const VertexType &src) {
     LOG_INFO("Called peakStore:addVertex");
-      if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
-          !resp.isOK())
-        return resp;
+    if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
+        !resp.isOK())
+      return resp;
     ctx->metadata->num_vertices++;
     return PeakStatus::OK();
   }

@@ -1,6 +1,7 @@
 #pragma once
 #include "ErrorCodes.hpp"
 #include "CinderExceptions.hpp"
+#include "PeakLogger.hpp"
 #include <bitset>
 #include <iostream>
 #include <memory>
@@ -170,21 +171,33 @@ namespace CinderPeak
       GraphInternalMetadata() {}
     };
   } // namespace PeakStore
-  namespace Exceptions {
-    inline void handle_exception_map(const PeakStatus& status) {
-      switch (static_cast<int>(status.code())) {  
-      //not needed, not severe, breaks the program.
-        // case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS): 
+  namespace Exceptions
+  {
+    inline void handle_exception_map(const PeakStatus &status)
+    {
+      switch (static_cast<int>(status.code()))
+      {
+      // not needed, not severe, breaks the program.
+      //  case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
       //     throw DuplicateVertexException("Vertex Already Exists");
       //     break;
-      case static_cast<int>(StatusCode::NOT_FOUND): 
-          std::cout << "Not Found!" << std::endl;
-          break;
+      case static_cast<int>(StatusCode::NOT_FOUND):
+        LOG_INFO("Resource Not Found");
+        break;
+      case static_cast<int>(StatusCode::UNIMPLEMENTED):
+        LOG_WARNING("Called an Unimplemented method");
+        break;
+      case static_cast<int>(StatusCode::ALREADY_EXISTS):
+        LOG_INFO("Resource Already Exists");
+        break;
+      case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
+        LOG_INFO("Vertex Already Exists");
+        break;
       default:
-          std::cout << "Default case!" << std::endl;
-          break;
+        LOG_CRITICAL("Unhandled Exception Occurred");
+        break;
       }
+    }
   }
-}
 
 } // namespace CinderPeak
