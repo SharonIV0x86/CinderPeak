@@ -24,6 +24,8 @@ namespace CinderPeak
       Weighted,
       SelfLoops,
       ParallelEdges,
+      Undirected,
+      Unweighted,
     };
     GraphCreationOptions(std::initializer_list<GraphType> graph_types)
     {
@@ -78,6 +80,15 @@ namespace CinderPeak
              (EdgeHasher<EdgeType>{}(p.second) << 1);
     }
   };
+  template <typename T>
+  struct is_primitive_or_string : std::disjunction<
+                                      std::is_arithmetic<T>,
+                                      std::is_same<T, std::string>>
+  {
+  };
+  template <typename T>
+  inline constexpr bool is_primitive_or_string_v = is_primitive_or_string<T>::value;
+
   std::string __generate_vertex_name()
   {
     std::random_device rd;
@@ -94,6 +105,15 @@ namespace CinderPeak
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
     ss << "_" << duration;
     return ss.str();
+  }
+  template <typename T>
+  bool isTypePrimitive()
+  {
+    if constexpr (is_primitive_or_string_v<T>)
+    {
+      return true;
+    }
+    return false;
   }
   class CinderVertex
   {
@@ -158,8 +178,10 @@ namespace CinderPeak
       size_t num_self_loops;
       size_t num_parallel_edges;
       const std::string graph_type;
-      GraphInternalMetadata(const std::string &graph_type)
-          : graph_type(graph_type)
+      bool is_vertex_type_primitive;
+      bool is_edge_type_primitive;
+      GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p, bool edge_tp_p)
+          : graph_type(graph_type), is_vertex_type_primitive(vertex_tp_p), is_edge_type_primitive(edge_tp_p)
       {
         num_vertices = 0;
         num_edges = 0;
@@ -192,6 +214,12 @@ namespace CinderPeak
         break;
       case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
         LOG_INFO("Vertex Already Exists");
+        break;
+      case static_cast<int>(StatusCode::VERTEX_NOT_FOUND):
+        LOG_ERROR("Vertex does not exist");
+        break;
+      case static_cast<int>(StatusCode::EDGE_ALREADY_EXISTS):
+        LOG_INFO("Edge Already Exists");
         break;
       default:
         LOG_CRITICAL("Unhandled Exception Occurred");

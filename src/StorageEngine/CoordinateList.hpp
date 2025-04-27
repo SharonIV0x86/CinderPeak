@@ -28,7 +28,7 @@ public:
     coo_weights.clear();
     vertices.clear();
   }
-  const PeakStatus impl_addVertex(const VertexType &vertex) {
+  const PeakStatus impl_addVertex(const VertexType &vertex) override {
     LOG_INFO("Inside COO:addVertex");
     auto [_, inserted] = vertices.insert(vertex);
     if (!inserted) {
@@ -36,8 +36,12 @@ public:
     }
     return PeakStatus::OK();
   }
+  bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest, const EdgeType& weight)  override {
+    LOG_WARNING("Called unimplemented doesEdgeExist");
+    return false;
+  }
 
-  const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) {
+  const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) override {
     LOG_INFO("Inside unweighted COO:addEdge");
     vertices.insert(src);
     vertices.insert(dest);
@@ -49,7 +53,7 @@ public:
   }
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) {
+                          const EdgeType &weight) override {
 
     LOG_INFO("Inside weighted COO:addEdge");
     vertices.insert(src);
@@ -62,16 +66,16 @@ public:
     return PeakStatus::OK();
   }
 
-  std::pair<PeakStatus, EdgeType> impl_getEdge(const VertexType &src,
-                                               const VertexType &dest) {
+  const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType &src,
+                                               const VertexType &dest) override{
     
     LOG_INFO("Inside COO:getEdge");
     for (size_t i = 0; i < coo_src.size(); ++i) {
       if (coo_src[i] == src && coo_dest[i] == dest) {
-        return {PeakStatus::OK(), coo_weights[i]};
+        return {coo_weights[i], PeakStatus::OK()};
       }
     }
-    return {PeakStatus::NotFound("Edge not found"), EdgeType()};
+    return {EdgeType(), PeakStatus::NotFound("Edge not found")};
   }
 
   std::pair<PeakStatus, std::vector<std::pair<VertexType, EdgeType>>>

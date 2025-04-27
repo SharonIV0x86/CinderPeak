@@ -6,7 +6,7 @@ int main()
   GraphCreationOptions options({GraphCreationOptions::Directed,
                                 GraphCreationOptions::Weighted,
                                 GraphCreationOptions::SelfLoops});
-  GraphInternalMetadata metadata("graph_matrix");
+  GraphInternalMetadata metadata("graph_matrix", isTypePrimitive<int>(), isTypePrimitive<int>());
   // metadata.num_edges = 4;s
   // metadata.num_vertices = 2;
 
@@ -14,8 +14,9 @@ int main()
   std::shared_ptr<GraphCreationOptions> opt = std::make_shared<GraphCreationOptions>(options);
   CinderPeak::PeakStore::PeakStore<int, int> store(metadata);
   store.addVertex(1);
-  std::cout << store.ctx->metadata->num_edges << "\n";
-  std::cout << store.ctx->metadata->num_vertices << "\n";
+  store.addVertex(1);
+  std::cout << store.getContext()->metadata->num_edges << "\n";
+  std::cout << store.getContext()->metadata->num_vertices << "\n";
   
   // store.addVertex(1);
   // store.addVertex(2);

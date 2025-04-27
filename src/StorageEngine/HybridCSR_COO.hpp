@@ -21,7 +21,10 @@ namespace CinderPeak
       std::unordered_map<VertexType, size_t, VertexHasher<VertexType>> vertex_to_index;
 
     public:
-      HybridCSR_COO() = default;
+      HybridCSR_COO()
+      {
+        LOG_INFO("Initialized CSR object");
+      };
 
       const PeakStatus impl_addVertex(const VertexType &vtx) override
       {
@@ -33,6 +36,11 @@ namespace CinderPeak
         vertex_to_index[vtx] = vertex_order.size();
         vertex_order.push_back(vtx);
         return PeakStatus::OK();
+      }
+      bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest, const EdgeType& weight) override
+      {
+        LOG_WARNING("Called unimplemented doesEdgeExist");
+        return false;
       }
 
       const PeakStatus impl_removeVertex(const VertexType &vtx)
@@ -53,11 +61,13 @@ namespace CinderPeak
 
         return PeakStatus::OK();
       }
-      const PeakStatus impl_addEdge(const VertexType& src, const VertexType& dest)override{
+      const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) override
+      {
         LOG_WARNING("Called an Unimplemented method");
         return PeakStatus::MethodNotImplemented();
-      } 
-      const PeakStatus impl_addEdge(const VertexType& src, const VertexType& dest, const EdgeType &weight) override{
+      }
+      const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight) override
+      {
         LOG_WARNING("Called an Unimplemented method");
         return PeakStatus::MethodNotImplemented();
       }
@@ -122,6 +132,11 @@ namespace CinderPeak
           std::cout << "\n";
         }
       }
+   const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType& src, const VertexType& dest) override{
+    LOG_WARNING("Called Unimplemented method, impl_getEdge");
+    return {EdgeType(), PeakStatus::InternalError()};
+   }
+
     };
 
   } // namespace PeakStore
