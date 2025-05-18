@@ -1,48 +1,65 @@
 # Building CinderPeak
 
-CinderPeak uses SFML (Simple Fast Multimedia Library) as a dependency for its visualization engine. Additionally Google's Testing Framework (GTest) is also used for extensive testing.
+CinderPeak uses SFML (Simple and Fast Multimedia Library) for its interactive visualization engine and integrates Google Test (GTest) for robust unit testing.
+
+The project uses CMake as the primary build system, but alternative build tools like Ninja can also be used seamlessly.
 
 
-CinderPeak uses CMake as a build system, however any other build system like Ninja can also be used.
+## Setting Up the Build Directory
 
-## Building with Tests
-First make sure you have created a build directory in the root level of the project.
-
+Before building, create a separate ``build`` directory in the root of the project:
 ```sh
 mkdir build
 cd build
 ```
 
-Once you have entered in the build folder you can choose whether to build the tests and examples or not.
+This keeps all build artifacts cleanly separated from the source code.
 
 ---
 
-### Building with Examples and Tests
+# Build Configurations
+
+You can customize your build to include examples and/or tests by passing the appropriate flags to CMake.
+
+### Build with Tests and Examples
+
 ```js
 cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
 cmake --build .
 ```
-Executing above commands will build the CinderPeak with both tests and examples.
+
+This will build everything: core library, tests, and example applications.
 
 ---
 
-### Building with Tests only
+
+
+## Build with Tests Only
+
 ```js
 cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF
 cmake --build .
 ```
-Executing above commands will build the CinderPeak with only examples
+
+This builds just the example programs—great for trying out features without running tests.
 
 ---
 
-### Building with Examples only
+## Build with Core Library Only
+
 ```js
 cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=ON
 cmake --build .
 ```
 
-Executing above commands will build examples only.
+This configuration is ideal for using CinderPeak as a library dependency in other projects.
 
 ---
 
-Once you have built the CinderPeak with your desired configuration the tests and examples are stored in the folder ``build/examples`` and ``build/tests``
+## Output Structure
+
+After building, the compiled binaries can be found in the following directories:
+- **Examples**: build/examples/
+- **Tests**: build/tests/
+
+Make sure all dependencies like SFML and GTest are correctly installed or discoverable by CMake.
