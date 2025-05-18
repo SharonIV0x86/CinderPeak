@@ -137,6 +137,9 @@ namespace CinderPeak
     {
       return __id_ == other.__id_;
     }
+    const std::string __to_vertex_string(){
+      return __v___name;
+    }
   };
   class CinderEdge
   {
@@ -163,6 +166,9 @@ namespace CinderPeak
     {
       return __id_ == other.__id_;
     }
+    const std::string __to_edge_string(){
+      return __e___name;
+    } 
   };
   size_t CinderPeak::CinderVertex::nextId = 1;
   size_t CinderPeak::CinderEdge::nextId = 1;

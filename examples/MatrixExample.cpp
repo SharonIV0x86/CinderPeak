@@ -4,50 +4,40 @@
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
-class Vertex : public CinderVertex
+class CustomVertex : public CinderVertex
 {
 public:
   int data;
 
 public:
-  Vertex() {}
+  CustomVertex() {}
 };
-class Edge : public CinderEdge
+class CustomEdge : public CinderEdge
 {
 public:
   int dd;
 
 public:
-  Edge() {}
+  CustomEdge() {}
 };
 int main()
 {
   GraphCreationOptions options({GraphCreationOptions::Undirected,
                                 GraphCreationOptions::Weighted,
                                 GraphCreationOptions::SelfLoops});
-  GraphInternalMetadata metadata("graph_matrix", isTypePrimitive<Vertex>(), isTypePrimitive<Edge>());
 
-  GraphMatrix<Vertex, Edge> gm(options);
+  GraphMatrix<CustomVertex, CustomEdge> myGraph(options);
 
-  Vertex v1;
-  Vertex v2;
-  Edge e;
+  CustomVertex v1;
+  CustomVertex v2;
+  CustomEdge e;
   e.dd = 1290;
-  // try
-  // {
-  gm.addVertex(v1);
-  gm.addVertex(v1);
-  gm.addVertex(v2);
-  gm.addEdge(v1, v2, e);
-  gm.addEdge(v1, v2, e);
-  Edge edge = gm.getEdge(v1, v2);
-  std::cout << "MEOW: " << edge.dd << "\n";
-  // }
-  // catch (const GraphException &e)
-  // {
-  //   std::cerr << e.what() << '\n';
-  // }
-
-  // Vertex vv(v);
+  myGraph.addVertex(v1);
+  myGraph.addVertex(v1);
+  myGraph.addVertex(v2);
+  myGraph.addEdge(v1, v2, e);
+  myGraph.addEdge(v1, v2, e);
+  CustomEdge edge = myGraph.getEdge(v1, v2);
+  std::cout << "Edge between v1 and v2: " << edge.dd << "\n";
   return 0;
 }

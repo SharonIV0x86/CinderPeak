@@ -16,8 +16,7 @@ public:
                   CinderPeak::PeakStore::DEFAULT_GRAPH_OPTIONS) {
     CinderPeak::PeakStore::GraphInternalMetadata metadata("graph_matrix", isTypePrimitive<VertexType>(), isTypePrimitive<EdgeType>());
     peak_store = std::make_unique<
-        CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>(metadata,
-                                                                options);
+        CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>(metadata,options);
   }
   void addVertex(const VertexType &src) {
     auto resp = peak_store->addVertex(src);
