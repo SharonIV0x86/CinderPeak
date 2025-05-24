@@ -37,7 +37,12 @@ namespace CinderPeak
         vertex_order.push_back(vtx);
         return PeakStatus::OK();
       }
-      bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest, const EdgeType& weight) override
+      bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest, const EdgeType &weight) override
+      {
+        LOG_WARNING("Called unimplemented doesEdgeExist");
+        return false;
+      }
+      bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest) override
       {
         LOG_WARNING("Called unimplemented doesEdgeExist");
         return false;
@@ -132,11 +137,11 @@ namespace CinderPeak
           std::cout << "\n";
         }
       }
-   const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType& src, const VertexType& dest) override{
-    LOG_WARNING("Called Unimplemented method, impl_getEdge");
-    return {EdgeType(), PeakStatus::InternalError()};
-   }
-
+      const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType &src, const VertexType &dest) override
+      {
+        LOG_WARNING("Called Unimplemented method, impl_getEdge");
+        return {EdgeType(), PeakStatus::InternalError()};
+      }
     };
 
   } // namespace PeakStore

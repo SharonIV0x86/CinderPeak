@@ -5,11 +5,13 @@
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+// #include "Visualizer.hpp"
 #include <iostream>
 #include <memory>
 #include <type_traits>
 #include <vector>
 namespace CinderPeak {
+  template <typename VertexType, typename EdgeType> class GraphVisualizer;
 namespace PeakStore {
 
 const CinderPeak::GraphCreationOptions
@@ -63,11 +65,12 @@ public:
         !status.isOK()) {
       return status;
     }
+    
     ctx->metadata->num_edges++;
     return PeakStatus::OK();
   }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest) {
-    if(ctx->active_storage->impl_doesEdgeExist(src, dest)){
+    if (ctx->active_storage->impl_doesEdgeExist(src, dest)) {
       return PeakStatus::EdgeAlreadyExists();
     }
     LOG_INFO("Called unweighted PeakStore:addEdge");
@@ -107,6 +110,19 @@ public:
   const std::shared_ptr<GraphContext<VertexType, EdgeType>> &
   getContext() const {
     return ctx;
+  }
+  void visualize() {
+    GraphVisualizer<VertexType, EdgeType> g(
+        ctx->adjacency_storage->getAdjList());
+
+      if(isTypePrimitive<VertexType>() && isTypePrimitive<EdgeType>()){
+        // g.print_adj_list();
+        ctx->adjacency_storage->print_adj_list();
+        g.visualize_primitives_graph();
+      }else{
+        LOG_CRITICAL("Primitive type checking failed");
+        // g.visualize();
+      }
   }
 };
 

@@ -39,5 +39,11 @@ int main()
   myGraph.addEdge(v1, v2, e);
   CustomEdge edge = myGraph.getEdge(v1, v2);
   std::cout << "Edge between v1 and v2: " << edge.dd << "\n";
+  // myGraph.visualize();
+  GraphMatrix<int, int> mock(options);
+  mock.addVertex(1);
+  mock.addVertex(2);
+  mock.addEdge(1, 2 ,10);
+  // mock.visualize();
   return 0;
 }

@@ -7,13 +7,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(MyProject INTERFACE)
 target_include_directories(MyProject INTERFACE src/)
 
+option(USE_SFML "Enable SFML support" ON)
+
+if(USE_SFML)
+    set(SFML_STATIC_LIBRARIES ON)  
+    find_package(SFML 3 REQUIRED COMPONENTS Graphics Window Audio System Network REQUIRED)
+    target_link_libraries(MyProject INTERFACE SFML::Graphics SFML::Audio SFML::Network)
+endif()
+
 option(BUILD_TESTS "Build tests" ON)
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
 
-# Add Examples
 option(BUILD_EXAMPLES "Build examples" ON)
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)

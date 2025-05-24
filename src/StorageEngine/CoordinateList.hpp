@@ -40,6 +40,10 @@ public:
     LOG_WARNING("Called unimplemented doesEdgeExist");
     return false;
   }
+  bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest)  override {
+    LOG_WARNING("Called unimplemented doesEdgeExist");
+    return false;
+  }
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) override {
     LOG_INFO("Inside unweighted COO:addEdge");

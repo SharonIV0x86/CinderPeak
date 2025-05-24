@@ -58,6 +58,10 @@ public:
     _adj_list[src] = std::vector<std::pair<VertexType, EdgeType>>();
     return PeakStatus::OK();
 }
+  bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest) override {
+    LOG_WARNING("Called unimplemented doesEdgeExist");
+    return false;
+  }
 
   const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
@@ -81,10 +85,10 @@ public:
     }
     return std::make_pair(it->second, CinderPeak::PeakStatus::OK());
   }
-  const auto &getAdjList() { return _adj_list; }
+  auto getAdjList() { return _adj_list; }
   void exc() const { std::cout << "Meow\n"; }
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight = EdgeType()) override {
+                          const EdgeType &weight) override {
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) {
       return false;
@@ -95,11 +99,22 @@ public:
         if (isTypePrimitive<EdgeType>()) {
           LOG_CRITICAL("ID EQUAL");
         }
+        return true;
       }
-      return true;
     }
     return false;
   }
+  void print_adj_list()
+    {
+      for (const auto &[first, second] : _adj_list)
+      {
+        std::cout << "Vertex: " << first << "'s adj list:\n";
+        for (const auto &pr : second)
+        {
+          std::cout << "  Neighbor: " << pr.first << " Weight: " << pr.second << "\n";
+        }
+      }
+    }
 };
 } // namespace PeakStore
 

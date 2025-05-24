@@ -62,6 +62,9 @@ namespace CinderPeak
       return std::hash<int>{}(v.__id_) ^
              (std::hash<std::string>{}(v.__v___name) << 1);
     }
+    VertexHasher() = default;
+    VertexHasher(const VertexHasher &) = default;
+    VertexHasher &operator=(const VertexHasher &) = default;
   };
   template <typename T>
   struct EdgeHasher<
@@ -137,7 +140,8 @@ namespace CinderPeak
     {
       return __id_ == other.__id_;
     }
-    const std::string __to_vertex_string(){
+    const std::string __to_vertex_string()
+    {
       return __v___name;
     }
   };
@@ -166,9 +170,10 @@ namespace CinderPeak
     {
       return __id_ == other.__id_;
     }
-    const std::string __to_edge_string(){
+    const std::string __to_edge_string()
+    {
       return __e___name;
-    } 
+    }
   };
   size_t CinderPeak::CinderVertex::nextId = 1;
   size_t CinderPeak::CinderEdge::nextId = 1;

@@ -33,7 +33,7 @@ build_job:
     expire_in: 1 week
   when: manual
   only:
-    - merge_requests 
+    - merge_requests
 
 test_job:
   stage: test
@@ -43,6 +43,6 @@ test_job:
     - echo "Running tests..."
     - cd $BUILD_DIR
     - ./tests/tests
-  when: manual 
+  when: manual
   only:
     - merge_requests
