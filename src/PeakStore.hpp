@@ -5,18 +5,16 @@
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+#include "CinderPeak.hpp"
 // #include "Visualizer.hpp"
 #include <iostream>
 #include <memory>
 #include <type_traits>
 #include <vector>
 namespace CinderPeak {
-  template <typename VertexType, typename EdgeType> class GraphVisualizer;
+template <typename VertexType, typename EdgeType> class GraphVisualizer;
 namespace PeakStore {
 
-const CinderPeak::GraphCreationOptions
-    DEFAULT_GRAPH_OPTIONS({CinderPeak::GraphCreationOptions::Directed,
-                           CinderPeak::GraphCreationOptions::SelfLoops});
 template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx;
@@ -46,7 +44,7 @@ private:
 
 public:
   PeakStore(const GraphInternalMetadata &metadata,
-            const GraphCreationOptions &options = DEFAULT_GRAPH_OPTIONS)
+            const GraphCreationOptions &options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     Logger::enableConsoleLogging = true;
     initializeContext(metadata, options);
@@ -65,7 +63,7 @@ public:
         !status.isOK()) {
       return status;
     }
-    
+
     ctx->metadata->num_edges++;
     return PeakStatus::OK();
   }
@@ -115,14 +113,14 @@ public:
     GraphVisualizer<VertexType, EdgeType> g(
         ctx->adjacency_storage->getAdjList());
 
-      if(isTypePrimitive<VertexType>() && isTypePrimitive<EdgeType>()){
-        // g.print_adj_list();
-        ctx->adjacency_storage->print_adj_list();
-        g.visualize_primitives_graph();
-      }else{
-        LOG_CRITICAL("Primitive type checking failed");
-        // g.visualize();
-      }
+    if (isTypePrimitive<VertexType>() && isTypePrimitive<EdgeType>()) {
+      // g.print_adj_list();
+      ctx->adjacency_storage->print_adj_list();
+      g.visualize_primitives_graph();
+    } else {
+      LOG_CRITICAL("Primitive type checking failed");
+      // g.visualize();
+    }
   }
 };
 

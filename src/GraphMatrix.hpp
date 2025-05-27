@@ -1,7 +1,7 @@
+#pragma once
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
 #include <memory>
-
 namespace CinderPeak
 {
   namespace PeakStore
@@ -9,6 +9,7 @@ namespace CinderPeak
     template <typename VertexType, typename EdgeType>
     class PeakStore;
   }
+  class CinderGraph;
 
   template <typename VertexType, typename EdgeType>
   class GraphMatrix;
@@ -31,8 +32,8 @@ namespace CinderPeak
       VertexType src, dest;
 
     public:
-      EdgeReference(GraphMatrix<VertexType, EdgeType> &g,
-                    const VertexType &s, const VertexType &d)
+      EdgeReference(GraphMatrix<VertexType, EdgeType> &g, const VertexType &s,
+                    const VertexType &d)
           : graph(g), src(s), dest(d) {}
 
       EdgeReference &operator=(const EdgeType &weight)
@@ -40,10 +41,7 @@ namespace CinderPeak
         graph.addEdge(src, dest, weight);
         return *this;
       }
-      operator EdgeType() const
-      {
-        return graph.getEdge(src, dest);
-      }
+      operator EdgeType() const { return graph.getEdge(src, dest); }
     };
     EdgeReference operator[](const VertexType &dest)
     {
@@ -59,11 +57,11 @@ namespace CinderPeak
   class GraphMatrix
   {
   private:
-    std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>> peak_store;
+    std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
+        peak_store;
 
   public:
-    GraphMatrix(const GraphCreationOptions &options =
-                    CinderPeak::PeakStore::DEFAULT_GRAPH_OPTIONS)
+    GraphMatrix(const GraphCreationOptions &options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
     {
       CinderPeak::PeakStore::GraphInternalMetadata metadata(
           "graph_matrix", isTypePrimitive<VertexType>(),
@@ -139,9 +137,11 @@ namespace CinderPeak
     {
       return EdgeAccessor<VertexType, EdgeType>(*this, src);
     }
-    const EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) const
+    const EdgeAccessor<VertexType, EdgeType>
+    operator[](const VertexType &src) const
     {
-      return EdgeAccessor<VertexType, EdgeType>(const_cast<GraphMatrix &>(*this), src);
+      return EdgeAccessor<VertexType, EdgeType>(const_cast<GraphMatrix &>(*this),
+                                                src);
     }
     friend class EdgeAccessor<VertexType, EdgeType>;
   };

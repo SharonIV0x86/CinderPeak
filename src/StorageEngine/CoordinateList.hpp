@@ -52,9 +52,10 @@ public:
 
     coo_src.push_back(src);
     coo_dest.push_back(dest);
+    // Add default weight
+    coo_weights.push_back(EdgeType());//  this has to be changed later for complex types or primitives, ow lawd.
     return PeakStatus::OK();
-
-  }
+}
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {

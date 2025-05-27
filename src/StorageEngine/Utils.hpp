@@ -34,6 +34,14 @@ namespace CinderPeak
         options.set(type);
       }
     }
+    static GraphCreationOptions getDefaultCreateOptions()
+    {
+      const GraphCreationOptions DEFAULT_GRAPH_OPTIONS(
+          {GraphCreationOptions::Directed,
+           GraphCreationOptions::SelfLoops});
+
+      return DEFAULT_GRAPH_OPTIONS;
+    }
 
     bool hasOption(GraphType type) const { return options.test(type); }
 
