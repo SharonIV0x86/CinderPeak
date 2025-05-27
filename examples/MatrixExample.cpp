@@ -35,8 +35,8 @@ int main()
   myGraph.addVertex(v1);
   myGraph.addVertex(v1);
   myGraph.addVertex(v2);
-  myGraph.addEdge(v1, v2, e);
-  myGraph.addEdge(v1, v2, e);
+  // myGraph.addEdge(v1, v2, e);
+  myGraph[v1][v2] = e;
   CustomEdge edge = myGraph.getEdge(v1, v2);
   std::cout << "Edge between v1 and v2: " << edge.dd << "\n";
   // myGraph.visualize();
