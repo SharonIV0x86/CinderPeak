@@ -1,6 +1,7 @@
 #include <iostream>
-#include "PeakStore.hpp"
-#include "GraphMatrix.hpp"
+#include "CinderPeak.hpp"
+// #include "PeakStore.hpp"
+// #include "GraphMatrix.hpp"
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
