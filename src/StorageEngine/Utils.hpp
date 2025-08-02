@@ -88,7 +88,7 @@ std::string __generate_vertex_name() {
   const std::string charset =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const size_t name_length = 10;
-  std::uniform_int_distribution<> dist(0, charset.size() - 1);
+  std::uniform_int_distribution<size_t> dist(0, charset.size() - 1);
   std::stringstream ss;
   for (size_t i = 0; i < name_length; ++i) {
     ss << charset[dist(gen)];
@@ -147,7 +147,7 @@ public:
 size_t CinderPeak::CinderVertex::nextId = 1;
 size_t CinderPeak::CinderEdge::nextId = 1;
 
-namespace PeakStore {
+namespace PeakNamespace {
 class GraphInternalMetadata {
 public:
   size_t density;
@@ -171,7 +171,7 @@ public:
   // default ctor for basic testing, this has to be removed later on.
   GraphInternalMetadata() {}
 };
-} // namespace PeakStore
+} // namespace PeakNamespace
 namespace Exceptions {
 inline void handle_exception_map(const PeakStatus &status) {
   switch (static_cast<int>(status.code())) {

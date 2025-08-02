@@ -129,13 +129,17 @@ TEST_F(AdjacencyListTest, GetNeighborsNonExistentVertex) {
 
 TEST_F(AdjacencyListTest, EdgeExistence) {
     intGraph.impl_addEdge(1, 2, 5);
-    //bad practice, need to be changed later on
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 2));
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 2));
-
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 3));
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(2, 1));
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(99, 1));
+    
+    // Test the properly implemented version with weight parameter
+    EXPECT_TRUE(intGraph.impl_doesEdgeExist(1, 2, 5));
+    
+    // Test edge that doesn't exist
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 3, 10));
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(2, 1, 5));
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(99, 1, 0));
+    
+    // Test with wrong weight
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 2, 10));
 }
 
 //

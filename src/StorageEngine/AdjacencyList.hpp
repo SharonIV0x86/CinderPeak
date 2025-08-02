@@ -98,7 +98,7 @@ public:
     }
     const auto &neighbors = it->second;
     for (const auto &[neighbor, edge] : neighbors) {
-      if (neighbor == dest) {
+      if (neighbor == dest && edge == weight) {
         if (isTypePrimitive<EdgeType>()) {
           LOG_CRITICAL("ID EQUAL");
         }

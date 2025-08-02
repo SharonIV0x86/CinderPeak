@@ -17,9 +17,9 @@ namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
-  void initializeContext(const GraphInternalMetadata &metadata,
+  void initializeContext(const PeakNamespace::GraphInternalMetadata &metadata,
                          const GraphCreationOptions &options) {
-    ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
+    ctx->metadata = std::make_shared<PeakNamespace::GraphInternalMetadata>(metadata);
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
     ctx->hybrid_storage =
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
@@ -42,7 +42,7 @@ private:
   }
 
 public:
-  PeakStore(const GraphInternalMetadata &metadata,
+  PeakStore(const PeakNamespace::GraphInternalMetadata &metadata,
             const GraphCreationOptions &options =
                 CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {

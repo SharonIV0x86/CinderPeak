@@ -1,24 +1,27 @@
 #pragma once
+#include "PeakStore.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
 namespace CinderPeak {
-namespace PeakStore {
-template <typename VertexType, typename EdgeType> class PeakStore;
-}
+
+// Type alias to resolve namespace conflicts
+template <typename VertexType, typename EdgeType>
+using PeakStoreType = PeakStore::PeakStore<VertexType, EdgeType>;
+
 class CinderGraph;
 template <typename VertexType, typename EdgeType> class GraphList {
 private:
-  std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
+  std::unique_ptr<PeakStoreType<VertexType, EdgeType>>
       peak_store;
 
 public:
   GraphList(const GraphCreationOptions &options =
                 CinderPeak::GraphCreationOptions::getDefaultCreateOptions()) {
-    CinderPeak::PeakStore::GraphInternalMetadata metadata(
+    CinderPeak::PeakNamespace::GraphInternalMetadata metadata(
         "graph_list", isTypePrimitive<VertexType>(),
         isTypePrimitive<EdgeType>());
     peak_store = std::make_unique<
-        CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>(metadata,
+        PeakStoreType<VertexType, EdgeType>>(metadata,
                                                                 options);
   }
 

@@ -2,7 +2,7 @@
 
 #pragma once
 #include "ArialFontDataEmbed.hpp"
-#include <SFML/Graphics.hpp>
+// #include <SFML/Graphics.hpp>  // Commented out - SFML not available in CI
 #include <cmath> // for std::cos, std::sin
 #include <iostream>
 #include <optional>
@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <vector>
 namespace CinderPeak {
+// GraphVisualizer disabled due to SFML dependency not available in CI
+#ifdef SFML_AVAILABLE
 template <typename VertexType, typename EdgeType> class GraphVisualizer {
 public:
   using AdjListType =
@@ -252,5 +254,6 @@ public:
 private:
   AdjListType _adj_list;
 };
+#endif // SFML_AVAILABLE
 
 } // namespace CinderPeak
