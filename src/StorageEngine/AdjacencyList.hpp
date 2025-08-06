@@ -62,7 +62,17 @@ public:
   }
   bool impl_doesEdgeExist(const VertexType &src,
                           const VertexType &dest) override {
-    LOG_WARNING("Called unimplemented doesEdgeExist");
+    auto it = _adj_list.find(src);
+    if (it == _adj_list.end()) { // Vertex 'src' not found
+        return false;
+    }
+    
+    const auto &neighbors = it->second;
+    for (const auto &[neighbor, edge] : neighbors) {
+        if (neighbor == dest) {// Edge exists
+            return true;
+        }
+    }
     return false;
   }
 

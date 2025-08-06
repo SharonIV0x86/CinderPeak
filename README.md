@@ -1,21 +1,43 @@
-# CinderPeak: A Modern C++ Graph Library (Work in Progress)
+# CinderPeak: A Modern C++ Graph Library
 
-CinderPeak is a fast and efficient, open-source C++ graph library designed to handle directed, undirected, and mixed graphs with customizable vertex and edge types. Built with modern C++ (C++17/C++20), it offers a flexible, templated API for graph manipulation and analysis. The library includes an integrated visualization engine powered by SFML, enabling intuitive graph rendering for visual insights. CinderPeak is thread-safe, portable, and optimized for integration into larger projects, making it ideal for graph theory applications, data analysis, and network modeling.
+A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. It provides a flexible, templated API for graph manipulation, analysis, and visualization.
 
-## Key Features
-- **Flexible Graph Representations**: Supports adjacency lists, adjacency matrices, and hybrid CSR/COO formats for efficient storage and computation.
-- **Customizable and Templated**: Fully templated design allows users to define custom vertex and edge types for maximum flexibility.
-- **Visualization Engine**: Integrated SFML-based visualizer for rendering graphs in real-time.
-- **Thread Safety**: Designed to work seamlessly with multi-threaded applications, ensuring safe access to shared resources.
-- **High Performance**: Leverages modern C++ features like smart pointers, STL containers, and optimized algorithms for fast execution.
-- **Comprehensive Testing**: Built with Google Test (GTest) to ensure reliability and robustness across features.
-- **Documentation**: Extensive documentation hosted with Docusaurus, including usage guides, examples, and API references.
+![License](https://img.shields.io/badge/license-MIT-green)
+![C++](https://img.shields.io/badge/Built%20with-C%2B%2B17%2FC%2B%2B20-blue)
+![Dependencies](https://img.shields.io/badge/Dependencies-SFML%2CGTest-red)
 
-## Development Notice
+---
 
-CinderPeak is actively under development, with ongoing enhancements to its documentation, CI/CD, issues and pull requests, and overall structure. We are committed to delivering a polished and comprehensive release. The stable version, including complete documentation and refined functionalities, is scheduled to be available by **June 12, 2025**. Thank you for your patience and support as we continue to improve the library.
+## 📑 Table of Contents
+- 🚀 Key Features
+- 🗓️ Development Notice
+- 📂 Project Structure
+- ⚙️ Getting Started
+- 🛠️ Technology Stack
+- ❓ Why CinderPeak?
+- 🧑‍💻 Community & Contributions
+- 📄 License
 
-## Project Structure
+---
+
+## 🚀 Key Features
+- **Flexible Graph Representations** - Supports adjacency lists, adjacency matrices, and hybrid CSR/COO formats for efficient storage.
+- **Customizable & Templated** - Fully templated design allows you to define custom vertex and edge types.
+- **Integrated Visualization** - An integrated SFML-based engine for real-time graph rendering, making it easy to visualize your data.
+- **Thread Safety** - Designed to work seamlessly in multi-threaded applications.
+- **High Performance** - Leverages modern C++ features like smart pointers and STL containers for optimized execution.
+- **Comprehensive Testing** - Built with Google Test (GTest) to ensure reliability and robustness.
+- **Extensive Documentation** - Detailed usage guides, examples, and API references are hosted with Docusaurus.
+
+---
+
+## 🗓️ Development Notice
+
+CinderPeak is currently under active development. We are committed to delivering a polished and comprehensive release. The stable version, with refined functionalities and complete documentation, is scheduled to be available soon.
+
+---
+
+## 📂Project Structure
 ```
 /CinderPeak
 ├── CMakeLists.txt              # Build system configuration
@@ -62,25 +84,40 @@ CinderPeak is actively under development, with ongoing enhancements to its docum
 ├── README.md                   # Project overview and setup
 └── LICENSE                     # License file
 ```
+---
 
-## Getting Started
+## ⚙️ Getting Started
 1. **Installation**: Follow the [installation guide](docs/installation.md) to set up CinderPeak with CMake.
 2. **Usage**: Check the [usage guide](docs/usage.md) for API details and the [examples](examples/) directory for sample code.
 3. **Documentation**: Explore the full documentation hosted with Docusaurus in the [docs](docs/) directory.
-4. **Contributing**: Contributions are welcome! See the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines.
 
-## Build System
-CinderPeak uses CMake for cross-platform compilation, ensuring seamless integration across different environments. The build system is configured to support both development and production workflows, with separate targets for tests, examples, and benchmarks.
+---
 
-## Technology Stack
-- **C++17/C++20**: Leverages modern C++ features like smart pointers, templates, and concepts for performance and flexibility.
-- **SFML**: Powers the visualization engine for rendering graphs.
-- **Google Test**: Ensures robust unit testing for all features.
+## 🛠️ Technology Stack
+- **C++17/C++20**: Leverages modern C++ features for performance and flexibility.
+- **SFML**: Powers the integrated visualization engine.
+- **Google Test**: Provides the framework for robust unit testing.
 - **Docusaurus**: Hosts comprehensive documentation with examples and API references.
+- **CMake**: Used for the cross-platform build system.
 
-## Why CinderPeak?
-CinderPeak stands out for its balance of performance, flexibility, and ease of use. Whether you're building complex network models, analyzing graph-based data, or visualizing relationships, CinderPeak provides a robust and intuitive solution. Its open-source nature encourages community contributions, and its modular design makes it easy to extend for specialized use cases.
+---
 
+## ❓ Why CinderPeak?
+CinderPeak strikes a balance between **performance, flexibility, and ease of use**. Whether you're building complex network models, analyzing graph-based data, or visualizing relationships, CinderPeak provides a robust and intuitive solution. Its open-source nature encourages community contributions, and its modular design makes it easy to extend for specialized use cases.
 
-## Community
-Join the CinderPeak community on [GitHub](https://github.com/SharonIV0X86/CinderPeak) to report issues, suggest features, or contribute code. Check out the [examples](examples/) directory to see CinderPeak in action!
+---
+
+## 🧑‍💻 Community & Contributions
+We welcome contributions! See the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to get involved. Join the CinderPeak community on [GitHub](https://github.com/SharonIV0X86/CinderPeak) to report issues, suggest features, or contribute code.
+
+---
+
+## 🌟 Contributors
+<a href="https://github.com/SharonIV0X86/CinderPeak/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=SharonIV0X86/CinderPeak" />
+</a>
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
