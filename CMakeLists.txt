@@ -39,13 +39,9 @@ endif()
 # === Build Examples ===
 option(BUILD_EXAMPLES "Build example programs" ON)
 if(BUILD_EXAMPLES)
-    file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/examples/*.cpp)
-
-    # Add the new HybridCSR_COO examples
-    list(APPEND EXAMPLE_SOURCES
-        ${CMAKE_SOURCE_DIR}/examples/extras/HybridCSRExample1.cpp
-        ${CMAKE_SOURCE_DIR}/examples/extras/HybridCSRExample2.cpp
-        ${CMAKE_SOURCE_DIR}/examples/extras/HybridCSRExample3.cpp
+    # Recursively find all example files
+    file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS
+        ${CMAKE_SOURCE_DIR}/examples/*.cpp
     )
 
     foreach(example ${EXAMPLE_SOURCES})

@@ -1,33 +1,39 @@
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-#include "CinderPeak.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
+#include "StorageEngine/ErrorCodes.hpp"
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <string>
 
-using namespace CinderPeak::PeakStore; // Assuming HybridCSR_COO is in this namespace
+using namespace CinderPeak::PeakStore;
 
 int main() {
-    std::cout << "--- HybridCSR_COO Example 2: String Vertices, Double Weights ---" << std::endl;
+    std::cout << "--- HybridCSR_COO Example 2: String Vertices, Unweighted ---" << std::endl;
 
-    // Dummy Adjacency List:
-    // "A" -> ("B", 1.5), ("C", 2.0)
-    // "B" -> ("D", 3.7)
-    // "C" -> ("D", 0.9), ("A", 4.1)
-    std::map<std::string, std::vector<std::pair<std::string, double>>> adjList;
-    adjList["A"].push_back({"B", 1.5});
-    adjList["A"].push_back({"C", 2.0});
-    adjList["B"].push_back({"D", 3.7});
-    adjList["C"].push_back({"D", 0.9});
-    adjList["C"].push_back({"A", 4.1});
+    // Dummy unweighted adjacency list (vertex -> vector of (neighbor, weight))
+    // We use a dummy weight (0) for an unweighted graph
+    std::unordered_map<std::string, std::vector<std::pair<std::string, int>>> adjList = {
+        {"A", {{"B", 0}, {"C", 0}}},
+        {"B", {{"C", 0}}},
+        {"C", {{"A", 0}}}
+    };
 
-    HybridCSR_COO<std::string, double> hybridStorage;
-    hybridStorage.populateFromAdjList(adjList);
+    HybridCSR_COO<std::string, int> hybridGraph;
+    hybridGraph.populateFromAdjList(adjList);
 
-    std::cout << "Graph populated with string vertices and double weights." << std::endl;
-    // Further operations/queries would go here, similar to Example 1,
-    // once a public query API for HybridCSR_COO is known or implemented.
-    std::cout << "Successfully populated a graph with string vertices and double weights." << std::endl;
+    std::cout << "HybridCSR_COO populated with string vertices (unweighted)." << std::endl;
+    
+    // Demonstrate a query using an impl function
+    std::string src = "A";
+    std::string dest = "B";
+    auto [edge_data, status] = hybridGraph.impl_getEdge(src, dest);
+
+    if (status.isOK()) {
+        std::cout << "Edge from " << src << " to " << dest << " exists." << std::endl;
+    } else {
+        std::cout << "Edge from " << src << " to " << dest << " not found." << std::endl;
+        std::cout << "Error: " << status.message() << std::endl;
+    }
 
     return 0;
 }
