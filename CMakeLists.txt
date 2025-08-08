@@ -39,7 +39,11 @@ endif()
 # === Build Examples ===
 option(BUILD_EXAMPLES "Build example programs" ON)
 if(BUILD_EXAMPLES)
-    file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/examples/*.cpp)
+    # Recursively find all example files
+    file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS
+        ${CMAKE_SOURCE_DIR}/examples/*.cpp
+    )
+
     foreach(example ${EXAMPLE_SOURCES})
         get_filename_component(example_name ${example} NAME_WE)
         add_executable(${example_name}_example ${example})
