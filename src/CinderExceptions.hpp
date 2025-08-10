@@ -25,8 +25,6 @@ std::string toString(const T& /*value*/) {
 
 /** @brief Base class for all user-facing CinderPeak exceptions.
   Base class for all CinderPeak exceptions with consistent messages. */
-
- 
 class GraphException : public std::exception {
 public:
     explicit GraphException(std::string message)
@@ -45,8 +43,6 @@ protected:
 
 /** @brief Exception thrown when a vertex is not found in the graph.
   Thrown when a vertex with the given ID is missing. */
-
-
 class VertexNotFoundException : public GraphException {
 public:
     explicit VertexNotFoundException(const std::string& vertexId)
@@ -78,7 +74,6 @@ public:
 
 /** @brief Exception thrown for invalid edge operations.
 Occurs with non-existent vertices or invalid constraints (e.g., self-loops). */
-
 class InvalidEdgeOperationException : public GraphException {
 public:
     InvalidEdgeOperationException(const std::string& source,
@@ -91,7 +86,6 @@ public:
 
 /** @brief General-purpose exception for graph operation failures.
  Covers miscellaneous failures not addressed by specific exception types.*/
-
 class GraphOperationException : public GraphException {
 public:
     GraphOperationException(const std::string& operation,
