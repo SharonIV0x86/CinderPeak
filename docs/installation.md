@@ -30,11 +30,8 @@ cmake --build .
 
 This will build everything: core library, tests, and example applications.
 
----
 
-
-
-## Build with Tests Only
+### Build with Tests Only
 
 ```js
 cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF
@@ -45,7 +42,7 @@ This builds just the example programs—great for trying out features without ru
 
 ---
 
-## Build with Core Library Only
+### Build with Core Library Only
 
 ```js
 cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=ON
@@ -55,6 +52,76 @@ cmake --build .
 This configuration is ideal for using CinderPeak as a library dependency in other projects.
 
 ---
+
+## Build Configurations for Windows
+
+### System and Compiler requirements
+- C++17-compatible compiler, GCC 12+, MSVC (with C++17 enabled), or Clang with C++17 support.
+- Build system, CMake (latest stable version recommended) or any compatible C++ toolchain.
+
+#### First set up the build directory
+   ```js
+   mkdir build
+   ```
+#### Enter the build directory.
+   ```js
+   cd build
+   ```
+
+### Build options :
+- **Using NMake** :
+
+   ```js
+   cmake .. -G "NMake Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+   ```
+   to build the files , run:
+   ```js
+   nmake
+   ```
+
+- **Using MinGW** : 
+
+   ```js
+   cmake .. -G "MinGW Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+   ```
+
+   To build the files, run:
+   ```js
+   mingw32-make
+   ```
+
+- **Using Visual Studio** :
+
+   ```js
+   cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+   cmake --build .
+   ```
+   
+### Possible errors:
+
+   If you encounter :
+   ```js
+   'nmake'  '-?'
+   failed with :
+   no such file or directory
+   ```
+   Remove the current build directory
+   ```js
+   cd ..
+   rmdir /s build
+   ```
+   Recreate the build directory and enter it.
+   ```js
+   mkdir build
+   cd build
+   ```
+   Now you can build using another build option. 
+
+
+
+
+
+
 
 ## Output Structure
 
