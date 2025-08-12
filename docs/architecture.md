@@ -6,34 +6,16 @@ CinderPeak follows the Separation of Concerns design principle and a layered arc
 
 Each layer follows a set of design patterns as shown in the diagram below:
 
-```
-Layer 1                  Layer 2                  Layer 3
-(Facade Design)          (Mediator Pattern)       (Strategy Pattern)
-                        (Dependency Injection)     (Bridge Pattern)
-+----------------+      +----------------+        +----------------+
-|                |      |                |        |     CSR       |
-| Graph Matrix   |      |                |        |   Storage     |
-|                |----->|   PeakStore    |------->|              |
-| Graph List     |      |                |        |     COO      |
-|                |      |                |        |   Storage     |
-+----------------+      +----------------+        |              |
-                                                 | Adj List      |
-                                                 |   Storage     |
-                                                 +----------------+
-```
+![Design pattern](assets/design_pattern.png)
+*<center>Fig 1.1: Design Pattern of each layer</center>*
+
 
 ### Layer Communication Flow
 
 Each layer can follow a unidirectional or bidirectional communication pattern:
 
-```
-Layer 0 <----------------> Layer 1
-           Bidirectional
-Layer 1 <----------------> Layer 2
-           Bidirectional
-Layer 2 <----------------> Layer 3
-           Bidirectional
-```
+![Layer Communication Diagram](assets/layer_communication_diagram.png)
+*<center>Fig 1.1: Bidirectional layer communication flow</center>*
 
 Flow of data is sequentially from left to right, or right to left layer-by-layer, e.g., Layer 1 cannot directly communicate with layer 3.
 
@@ -43,6 +25,9 @@ Flow of data is sequentially from left to right, or right to left layer-by-layer
 
 Layer 1 serves as the entry point for users interacting with the library. It communicates directly with Layer 0 and vice versa, which represents the user-facing code. This layer exposes the core API that users interact with such as creating graphs, adding vertices or edges, and performing graph operations. It acts as a bridge between the user and the internal storage or processing layers, ensuring a clean and intuitive interface while abstracting away low-level implementation details.
 
+![Layer 1 Design](assets/layer_1.png)
+*<center>Fig 1.2: Layer 1 facade implementation</center>*
+
 Layer 1 follows the Facade design pattern by encapsulating internal logic and delegating responsibilities to deeper layers (Layer 2 and 3) in the context of CinderPeak. This layer exposes a clean and intuitive API for users, abstracting the complexity of underlying storage engines, data structures, and graph operations.
 
 ### 1.2 Layer 2
@@ -50,6 +35,9 @@ Layer 1 follows the Facade design pattern by encapsulating internal logic and de
 This layer is one of the most critical components in the architectural design of CinderPeak, as it implements the internal storage engine known as PeakStore.
 
 The PeakStore acts as the orchestrator for all underlying storage formats present in Layer 3. It is responsible for managing the instantiation, lifecycle, and communication between these storage engines.
+
+![Layer 2 Design](assets/layer_2.png)
+*<center>Fig 1.2: Layer 2 internal storage</center>*
 
 Layer 2 adheres to two prominent design patterns:
 1. The Mediator Pattern
@@ -70,6 +58,9 @@ Acting as a mediator, Layer 2 simplifies the interaction between Layer 1 and Lay
 Layer 3 is responsible for implementing the three core storage backends in CinderPeak and provides a unified interface through which PeakStore (Layer 2) interacts with the actual graph data. This layer encapsulates the specific logic and data structures for each storage format.
 
 To ensure consistency and flexibility, all storage classes in Layer 3 inherit from a common abstract base class called StorageInterface. This interface defines the essential methods required for graph manipulation and querying, and each storage class provides its own concrete implementation by overriding these virtual methods.
+
+![Layer 3 Storage](assets/layer_3.png)
+*<center>Fig 1.3: Storage implementations with Strategy+Bridge patterns</center>*
 
 Layer 3 is designed using a combination of the Strategy Pattern and the Bridge Pattern. The Strategy Pattern enables PeakStore to dynamically select the appropriate storage engine at runtime based on the graph's characteristics or depending on implementation chosen by the user. This allows the system to adapt its internal representation to optimize for performance and memory efficiency.
 
@@ -92,21 +83,7 @@ Pipeline Shards:
 
 Shards 1,2 and 3 can be run in parallel for faster execution but shards 4,5 will only be executed if shards 1,2 and 3 passed.
 
-```
-                                 CinderPeak Testing Pipeline
-
-[Initialization] --> [Parallel Execution] -----------------------> [Exit]
-       |                     |                    |
-       |                     |                    |
-       v                     v                    v
-   [Shard 1]            [Shard 2]            [Shard 4]
-  (Adj List)              (CSR)            (Graph Matrix)
-       |                     |                    |
-       |                     |                    |
-       |                [Shard 3]            [Shard 5]
-       |                  (COO)             (Graph List)
-       |                     |                    |
-       +---------------------+--------------------+
-```
+![Testing Pipeline](assets/testing_pipeline.png)
+*<center>Fig 6.1: Parallel test execution workflow</center>*
 
 All five pipeline shards will be orchestrated and managed by a unified testing orchestrator called CinderFlow.
