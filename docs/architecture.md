@@ -64,7 +64,7 @@ Design Pattern:
 Layer 1 follows the Facade Pattern, meaning it serves as a “single doorway” into the system. The internal complexity of graph storage and operations is completely hidden from the user.
 
 Example in action:
-When a user calls graph.addEdge(1, 2), Layer 1 will:
+When a user calls ``graph.addEdge(1, 2)``, Layer 1 will:
 
 1. Validate inputs (e.g., check that both vertices exist).
 
