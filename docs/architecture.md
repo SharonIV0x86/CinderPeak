@@ -91,7 +91,7 @@ Key responsibilities:
 
   - Graph-level configuration
 
-  - Graph metadata (e.g., directed/undirected, weighted/unweighted)
+  - Graph metadata (e.g., directed/undirected, weighted/unweighted), number of edges, vertices etc.
 
 - Translate generic graph operations into backend-specific calls.
 
