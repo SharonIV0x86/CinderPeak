@@ -2,7 +2,7 @@
 
 ## 1. High Level Design
 
-inderPeak follows the Separation of Concerns principle and implements a layered architecture, ensuring that each component has a clearly defined responsibility. This applies to both the user-facing API and the storage engine (PeakStore). The design aims to make the system modular, extensible, and easy to maintain, while also enabling targeted optimizations.
+CinderPeak follows the Separation of Concerns principle and implements a layered architecture, ensuring that each component has a clearly defined responsibility. This applies to both the user-facing API and the storage engine (PeakStore). The design aims to make the system modular, extensible, and easy to maintain, while also enabling targeted optimizations.
 
 The communication model consists of three layers, each with distinct roles, data flow constraints, and synchronized operations.
 
