@@ -74,7 +74,7 @@ This configuration is ideal for using CinderPeak as a library dependency in othe
    ```js
    cmake .. -G "NMake Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
    ```
-   to build the files , run:
+   To build the files , run:
    ```js
    nmake
    ```
@@ -95,6 +95,10 @@ This configuration is ideal for using CinderPeak as a library dependency in othe
    ```js
    cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
    cmake --build .
+   ```
+   To build the files, run:
+   ```js
+   make -j
    ```
    
 ### Possible errors:
