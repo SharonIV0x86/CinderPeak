@@ -4,6 +4,9 @@ CinderPeak uses SFML (Simple and Fast Multimedia Library) for its interactive vi
 
 The project uses CMake as the primary build system, but alternative build tools like Ninja can also be used seamlessly.
 
+## System and Compiler requirements
+- C++17-compatible compiler, GCC 12+, MSVC (with C++17 enabled), or Clang with C++17 support.
+- Build system, CMake (latest stable version recommended) or any compatible C++ toolchain.
 
 ## Setting Up the Build Directory
 
@@ -42,7 +45,7 @@ This builds just the example programs—great for trying out features without ru
 
 ---
 
-### Build with Core Library Only
+### Build with Examples Only
 
 ```js
 cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=ON
@@ -55,9 +58,6 @@ This configuration is ideal for using CinderPeak as a library dependency in othe
 
 ## Build Configurations for Windows
 
-### System and Compiler requirements
-- C++17-compatible compiler, GCC 12+, MSVC (with C++17 enabled), or Clang with C++17 support.
-- Build system, CMake (latest stable version recommended) or any compatible C++ toolchain.
 
 #### First set up the build directory
    ```js
@@ -110,7 +110,7 @@ This configuration is ideal for using CinderPeak as a library dependency in othe
    cd ..
    rmdir /s build
    ```
-   Recreate the build directory and enter it.
+   Recreate the build directory and enter in it.
    ```js
    mkdir build
    cd build
