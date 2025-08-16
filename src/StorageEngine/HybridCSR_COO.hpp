@@ -17,15 +17,17 @@ private:
   alignas(64) std::vector<VertexType> csr_col_vals;
   alignas(64) std::vector<EdgeType> csr_weights;
 
-  std::vector<VertexType> coo_src;
-  std::vector<VertexType> coo_dest;
-  std::vector<EdgeType> coo_weights;
+  // Added alignment to COO arrays for consistency
+  alignas(64) std::vector<VertexType> coo_src;
+  alignas(64) std::vector<VertexType> coo_dest;
+  alignas(64) std::vector<EdgeType> coo_weights;
 
   std::vector<VertexType> vertex_order;
   std::unordered_map<VertexType, size_t, VertexHasher<VertexType>>
       vertex_to_index;
 
   bool is_built{false};
+  size_t COO_BUFFER_THRESHOLD{1024}; // Threshold for COO Buffer
 
   void buildStructures() {
     if (is_built)
@@ -72,12 +74,7 @@ private:
       }
     }
 
-    coo_src.clear();
-    coo_dest.clear();
-    coo_weights.clear();
-    coo_src.shrink_to_fit();
-    coo_dest.shrink_to_fit();
-    coo_weights.shrink_to_fit();
+    clearCOOArrays(); // Used helper function instead of inline clearing
   }
 
   void incrementalUpdate() {
@@ -135,6 +132,11 @@ private:
     csr_col_vals = std::move(new_col_vals);
     csr_weights = std::move(new_weights);
 
+    clearCOOArrays(); // Used helper function instead of inline clearing
+  }
+
+  // Added helper function to clear and shrink COO arrays to reduce redundacy
+  void clearCOOArrays() {
     coo_src.clear();
     coo_dest.clear();
     coo_weights.clear();
@@ -160,9 +162,7 @@ public:
                                std::vector<std::pair<VertexType, EdgeType>>,
                                VertexHasher<VertexType>> &adj_list) {
     is_built = false;
-    coo_src.clear();
-    coo_dest.clear();
-    coo_weights.clear();
+    clearCOOArrays(); // Used helper function instead of inline clearing
     vertex_order.clear();
     vertex_to_index.clear();
 
@@ -217,7 +217,9 @@ public:
     coo_src.push_back(src);
     coo_dest.push_back(dest);
     coo_weights.push_back(weight);
-    if (is_built) {
+    if (is_built &&
+        coo_src.size() >= COO_BUFFER_THRESHOLD) { // Batched incremental updates
+                                                  // based on threshold value
       incrementalUpdate();
     }
     return PeakStatus::OK();
@@ -241,6 +243,14 @@ public:
 
   const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
+
+    // First check COO buffer for recent edges (most recent edges have priority)
+    for (size_t i = coo_src.size(); i > 0; --i) {
+      if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
+        return {coo_weights[i - 1], PeakStatus::OK()};
+      }
+    }
+
     if (!is_built) {
       buildStructures();
     }
