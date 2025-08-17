@@ -327,3 +327,11 @@ int main() {
 - Custom vertex and edge types must be carefully designed to work with `PeakStore` operations.
 
 This documentation provides a complete reference for using the `GraphMatrix` and `EdgeAccessor` classes, with examples covering common use cases and edge cases.
+
+
+
+<p align="center">
+  <a href="#top" style="font-size: 16px; padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; text-decoration: none;">
+    ⬆️ Back to Top
+  </a>
+</p>
