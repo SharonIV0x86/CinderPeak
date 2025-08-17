@@ -68,3 +68,11 @@ CinderPeak is a seriously complex and high-impact project. Contributions are wel
 - Maintain consistent indentation and formatting (4 spaces per indentation level is recommended).
 - Document all public-facing methods using comments or docstrings.
 - Ensure code compiles without warnings and passes all tests before submission.
+
+
+
+<p align="center">
+  <a href="#top" style="font-size: 16px; padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; text-decoration: none;">
+    ⬆️ Back to Top
+  </a>
+</p>
