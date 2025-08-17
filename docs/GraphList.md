@@ -214,7 +214,7 @@ int main() {
 ## Limitations
 - The `EdgeType` parameter is required even for unweighted graphs, though it is unused in such cases.
 - Error messages are logged but not propagated to the caller, relying on `Exceptions::handle_exception_map`.
-- 
+- This documentation provides a complete reference for using the `GraphList` class, with examples covering common use cases and edge cases.
 
 
 
@@ -223,6 +223,3 @@ int main() {
     ⬆️ Back to Top
   </a>
 </p>
-
-
-This documentation provides a complete reference for using the `GraphList` class, with examples covering common use cases and edge cases.
