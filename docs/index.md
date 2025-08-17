@@ -46,3 +46,11 @@ For questions, reach out via issues.
 ---
 
 Happy graphing! 🧠📊
+
+
+
+<p align="center">
+  <a href="#top" style="font-size: 16px; padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; text-decoration: none;">
+    ⬆️ Back to Top
+  </a>
+</p>
