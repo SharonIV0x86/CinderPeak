@@ -110,9 +110,7 @@ Layer 3 contains concrete implementations for different graph storage formats:
 
 - Adjacency List
 
-- CSR (Compressed Sparse Row)
-
-- COO (Coordinate List)
+- Hybrid CSR (Compressed Sparse Row) - COO (Coordinate List)
 
 Future formats can be added without touching higher layers.
 
@@ -132,8 +130,6 @@ Core Principles:
   - removeEdge
 
   - getNeighbors
-
-  - runQuery
 
 Design Patterns Used:
 
