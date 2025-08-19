@@ -5,6 +5,7 @@
 #include "Visualizer.hpp"
 #include <memory>
 namespace CinderPeak {
+template <typename, typename> class PeakStorageInterface;
 namespace PeakStore {
 
 // Forward declarations
