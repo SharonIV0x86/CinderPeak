@@ -210,7 +210,7 @@ public:
   }
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                const EdgeType &weight) override {
+                                const EdgeType &weight = EdgeType()) override {
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return PeakStatus::VertexNotFound();
     }
@@ -225,10 +225,11 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_addEdge(const VertexType &src,
-                                const VertexType &dest) override {
-    return impl_addEdge(src, dest, EdgeType{});
-  }
+  // No longer needed as the weighted overload handles unweighted edges via default EdgeType().
+  // const PeakStatus impl_addEdge(const VertexType &src,
+  //                               const VertexType &dest) override {
+  //   return impl_addEdge(src, dest, EdgeType{});
+  // }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {
