@@ -15,10 +15,12 @@ private:
       _adj_list;
 
 public:
-  // TODO: combine two impl_addEdge overloads into one.
+  
   AdjacencyList() { LOG_INFO("Initialized Adjacency List object"); }
+
+  // Combined two impl_addEdge overloads into one.
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                const EdgeType &weight) {
+                                const EdgeType &weight = EdgeType()) {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
     if (auto it = _adj_list.find(dest); it == _adj_list.end())
@@ -26,15 +28,8 @@ public:
     _adj_list[src].emplace_back(dest, weight);
     return PeakStatus::OK();
   }
-  const PeakStatus impl_addEdge(const VertexType &src,
-                                const VertexType &dest) override {
-    if (auto it = _adj_list.find(src); it == _adj_list.end())
-      return PeakStatus::VertexNotFound();
-    if (auto it = _adj_list.find(dest); it == _adj_list.end())
-      return PeakStatus::VertexNotFound();
-    _adj_list[src].emplace_back(dest, EdgeType());
-    return PeakStatus::OK();
-  }
+
+
   const PeakStatus impl_addVertex(const VertexType &src) override {
     if constexpr (is_primitive_or_string_v<VertexType>) {
       auto it = _adj_list.find(src);

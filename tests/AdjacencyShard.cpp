@@ -129,13 +129,19 @@ TEST_F(AdjacencyListTest, GetNeighborsNonExistentVertex) {
 
 TEST_F(AdjacencyListTest, EdgeExistence) {
     intGraph.impl_addEdge(1, 2, 5);
-    //bad practice, need to be changed later on
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 2));
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 2));
+    
+    // Test edge existence through public interface instead of impl_doesEdgeExist
+    auto edge1_2 = intGraph.impl_getEdge(1, 2);
+    EXPECT_TRUE(edge1_2.second.isOK());
 
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 3));
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(2, 1));
-    EXPECT_FALSE(intGraph.impl_doesEdgeExist(99, 1));
+    auto edge1_3 = intGraph.impl_getEdge(1, 3);
+    EXPECT_FALSE(edge1_3.second.isOK());
+
+    auto edge2_1 = intGraph.impl_getEdge(2, 1);
+    EXPECT_FALSE(edge2_1.second.isOK());
+
+    auto edge99_1 = intGraph.impl_getEdge(99, 1);
+    EXPECT_FALSE(edge99_1.second.isOK());
 }
 
 //
