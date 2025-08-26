@@ -18,7 +18,7 @@ CinderPeak's public API is modular, with components split into separate headers.
 | Header File | Key Classes/Structures | Purpose |
 | :---- | :---- | :---- |
 | CinderPeak.hpp | (Convenience Header) | Includes all necessary public headers for basic use. This should be your default choice. |
-| GraphMatrix.hpp | GraphMatrix | The concrete implementation of a graph using an adjacency matrix data structure. |
+| GraphMatrix.hpp | GraphMatrix | The concrete implementation of a graph using an adjacency matrix data structure. |Offering matrix like edge and vertex access.
 | GraphList.hpp | GraphList | The concrete implementation of a graph using an adjacency list data structure. |
 | PeakStore.hpp | PeakStore | Core storage engine that manages graph data internally. |
 | StorageEngine/Utils.hpp | GraphCreationOptions, CinderVertex, CinderEdge | Contains utility functions, graph creation options, and base classes for custom types. |
