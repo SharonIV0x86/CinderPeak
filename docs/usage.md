@@ -48,7 +48,7 @@ If you want to include specific components only:
 ```
 
 **Purpose and Importance:**  
-- `GraphMatrix.hpp`: Best for dense graphs, where checking edge existence is frequent
+- `GraphMatrix.hpp`: Best for dense graphs, where checking edge existence is frequent, supports parallel edges.
 - `GraphList.hpp`: Adjacency list implementation. Efficient for sparse graphs, supports directed/undirected edges, allows dynamic updates, and suits DFS/BFS/shortest paths
 - `StorageEngine/Utils.hpp`: Provides common utilities for the library, including type checks, graph creation options, metadata, and constants
 
