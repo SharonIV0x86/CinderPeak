@@ -5,7 +5,6 @@
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
-// #include "Visualizer.hpp"
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -17,6 +16,7 @@ namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
+
   void initializeContext(const GraphInternalMetadata &metadata,
                          const GraphCreationOptions &options) {
     ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
@@ -25,8 +25,6 @@ private:
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>();
-    // ctx->coordinate_list =
-    //     std::make_shared<CoordinateList<VertexType, EdgeType>>();
 
     if (ctx->metadata->graph_type == "graph_matrix") {
       ctx->active_storage = ctx->adjacency_storage;
@@ -46,9 +44,12 @@ public:
             const GraphCreationOptions &options =
                 CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
-    Logger::enableConsoleLogging = true;
     initializeContext(metadata, options);
     LOG_INFO("Successfully initialized context object.");
+  }
+
+  static void togglePLogging(bool enable) {
+    Logger::enableConsoleLogging = enable;
   }
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
@@ -67,6 +68,7 @@ public:
     ctx->metadata->num_edges++;
     return PeakStatus::OK();
   }
+
   PeakStatus addEdge(const VertexType &src, const VertexType &dest) {
     if (ctx->active_storage->impl_doesEdgeExist(src, dest)) {
       return PeakStatus::EdgeAlreadyExists();
@@ -79,6 +81,7 @@ public:
     ctx->metadata->num_edges++;
     return PeakStatus::OK();
   }
+
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
     LOG_INFO("Called adjacency:getEdge()");
@@ -88,6 +91,7 @@ public:
     }
     return status;
   }
+
   PeakStatus addVertex(const VertexType &src) {
     LOG_INFO("Called peakStore:addVertex");
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
@@ -96,6 +100,7 @@ public:
     ctx->metadata->num_vertices++;
     return PeakStatus::OK();
   }
+
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
     LOG_INFO("Called adjacency:getNeighbors()");
@@ -105,17 +110,18 @@ public:
     }
     return status;
   }
+
   const std::shared_ptr<GraphContext<VertexType, EdgeType>> &
   getContext() const {
     return ctx;
   }
+
   void visualize() {
     LOG_WARNING("Unimplemented function: visualize");
     // GraphVisualizer<VertexType, EdgeType> g(
     //     ctx->adjacency_storage->getAdjList());
 
     // if (isTypePrimitive<VertexType>() && isTypePrimitive<EdgeType>()) {
-    //   // g.print_adj_list();
     //   ctx->adjacency_storage->print_adj_list();
     //   g.visualize_primitives_graph();
     // } else {
