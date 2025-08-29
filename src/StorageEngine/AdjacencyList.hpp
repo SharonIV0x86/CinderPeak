@@ -100,7 +100,7 @@ public:
     
     for (const auto& vertex : vertices) {
       if constexpr (is_primitive_or_string_v<VertexType>) {
-        if (auto it = adj_list.find(vertex); it != adj_list.end()) {
+        if (auto it =  _adj_list.find(vertex); it != _adj_list.end()) {
           LOG_WARNING("Vertex " + std::to_string(vertex) + " already exists with primitive type.");
           peak_status = PeakStatus::VertexAlreadyExists();
           continue;
@@ -108,7 +108,7 @@ public:
         LOG_DEBUG("Unmatched vertices");
         LOG_INFO("Inside primitive block");
       } else {
-        if (auto it = adj_list.find(vertex); it != adj_list.end()) {
+        if (auto it = _adj_list.find(vertex); it != _adj_list.end()) {
           const VertexType &existingVertex = it->first;
           if (existingVertex.__id_ == vertex.__id_) {
             LOG_DEBUG("Matching vertex IDs");
@@ -120,7 +120,7 @@ public:
         LOG_INFO("Inside non primitive block");
       }
         
-      adj_list[vertex] = std::vector<std::pair<VertexType, EdgeType>>();
+      _adj_list[vertex] = std::vector<std::pair<VertexType, EdgeType>>();
     }
     
     return peak_status;
