@@ -52,12 +52,12 @@ public:
       }
         
       if (auto it = _adj_list.find(src); it == _adj_list.end()){
-        LOG_WARNING("The vertex " + std::to_string(src) + " does not exist.");
+        LOG_WARNING((std::ostringstream() << "The vertex " << src << " does not exist.").str());
         peak_status = PeakStatus::VertexNotFound();
         continue;
       }
       if (auto it = _adj_list.find(dest); it == _adj_list.end()){
-        LOG_WARNING("The vertex " + std::to_string(dest) + " does not exist.");
+        LOG_WARNING((std::ostringstream() << "The vertex " << src << " does not exist.").str());
         peak_status = PeakStatus::VertexNotFound();
         continue;
       }
@@ -100,7 +100,7 @@ public:
     for (const auto& vertex : vertices) {
       if constexpr (is_primitive_or_string_v<VertexType>) {
         if (auto it =  _adj_list.find(vertex); it != _adj_list.end()) {
-          LOG_WARNING("Vertex " + std::to_string(vertex) + " already exists with primitive type.");
+          LOG_WARNING((std::ostringstream() << "Vertex " << vertex << " already exists with primitive type.").str());
           peak_status = PeakStatus::VertexAlreadyExists();
           continue;
         }
@@ -111,7 +111,8 @@ public:
           const VertexType &existingVertex = it->first;
           if (existingVertex.__id_ == vertex.__id_) {
             LOG_DEBUG("Matching vertex IDs");
-            LOG_WARNING("Non primitive vertex " + std::to_string(vertex) + " already exists.");
+            LOG_WARNING((std::ostringstream() << "Non primitive vertex " << vertex << " already exists.").str());
+
             peak_status = PeakStatus::VertexAlreadyExists();
             continue;
           }
@@ -154,6 +155,7 @@ public:
     }
     return std::make_pair(EdgeType(), PeakStatus::EdgeNotFound());
   }
+
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
     auto it = _adj_list.find(vertex);
@@ -163,7 +165,9 @@ public:
     }
     return std::make_pair(it->second, CinderPeak::PeakStatus::OK());
   }
+
   auto getAdjList() { return _adj_list; }
+
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {
     auto it = _adj_list.find(src);
@@ -181,6 +185,7 @@ public:
     }
     return false;
   }
+  
   void print_adj_list() {
     for (const auto &[first, second] : _adj_list) {
       std::cout << "Vertex: " << first << "'s adj list:\n";
