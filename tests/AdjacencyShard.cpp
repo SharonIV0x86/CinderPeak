@@ -14,9 +14,12 @@ protected:
         intGraph.impl_addVertex(1);
         intGraph.impl_addVertex(2);
         intGraph.impl_addVertex(3);
+        intGraph.impl_addVertex(4);
+        intGraph.impl_addVertex(5);
 
         stringGraph.impl_addVertex("A");
         stringGraph.impl_addVertex("B");
+        stringGraph.impl_addVertex("C");
     }
 };
 
@@ -25,7 +28,7 @@ protected:
 //
 
 TEST_F(AdjacencyListTest, AddVertexPrimitive) {
-    EXPECT_TRUE(intGraph.impl_addVertex(4).isOK());
+    EXPECT_TRUE(intGraph.impl_addVertex(6).isOK());
 
     auto status = intGraph.impl_addVertex(1);
     EXPECT_FALSE(status.isOK());
@@ -33,11 +36,58 @@ TEST_F(AdjacencyListTest, AddVertexPrimitive) {
 }
 
 TEST_F(AdjacencyListTest, AddVertexString) {
-    EXPECT_TRUE(stringGraph.impl_addVertex("C").isOK());
+    EXPECT_TRUE(stringGraph.impl_addVertex("D").isOK());
 
     auto status = stringGraph.impl_addVertex("A");
     EXPECT_FALSE(status.isOK());
     EXPECT_EQ(status.message(), "Primitive Vertex Already Exists");
+}
+
+TEST_F(AdjacencyListTest, AddVerticesBatch) {
+    std::vector<int> newVertices = {6, 7, 8, 9, 10};
+    
+    auto status = intGraph.impl_addVerticesBatch(newVertices);
+    EXPECT_TRUE(status.isOK());
+    
+    // Verify all vertices were added
+    for (int vertex : newVertices) {
+        auto neighbors = intGraph.impl_getNeighbors(vertex);
+        EXPECT_TRUE(neighbors.second.isOK());
+        EXPECT_TRUE(neighbors.first.empty()); // New vertices should have no neighbors
+    }
+}
+
+TEST_F(AdjacencyListTest, AddVerticesBatchDuplicates) {
+    std::vector<int> verticesWithDups = {6, 1, 7, 2, 8}; // 1 and 2 already exist
+    
+    auto status = intGraph.impl_addVerticesBatch(verticesWithDups);
+    EXPECT_FALSE(status.isOK());
+    EXPECT_EQ(status.code(), StatusCode::VERTEX_ALREADY_EXISTS);
+    
+    // Verify new vertices were still added
+    EXPECT_TRUE(intGraph.impl_getNeighbors(6).second.isOK());
+    EXPECT_TRUE(intGraph.impl_getNeighbors(7).second.isOK());
+    EXPECT_TRUE(intGraph.impl_getNeighbors(8).second.isOK());
+}
+
+TEST_F(AdjacencyListTest, AddVerticesBatchEmpty) {
+    std::vector<int> emptyVertices = {};
+    
+    auto status = intGraph.impl_addVerticesBatch(emptyVertices);
+    EXPECT_TRUE(status.isOK());
+}
+
+TEST_F(AdjacencyListTest, AddVerticesBatchString) {
+    std::vector<std::string> newVertices = {"D", "E", "F"};
+    
+    auto status = stringGraph.impl_addVerticesBatch(newVertices);
+    EXPECT_TRUE(status.isOK());
+    
+    // Verify vertices were added
+    for (const auto& vertex : newVertices) {
+        auto neighbors = stringGraph.impl_getNeighbors(vertex);
+        EXPECT_TRUE(neighbors.second.isOK());
+    }
 }
 
 //
@@ -73,6 +123,76 @@ TEST_F(AdjacencyListTest, AddEdgeInvalidVertices) {
     auto status2 = intGraph.impl_addEdge(1, 99);
     EXPECT_FALSE(status2.isOK());
     EXPECT_EQ(status2.code(), StatusCode::VERTEX_NOT_FOUND);
+}
+
+TEST_F(AdjacencyListTest, AddEdgesBatchPairs) {
+    std::vector<std::pair<int, int>> edges = {
+        {1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}
+    };
+    
+    auto status = intGraph.impl_addEdgesBatch(edges);
+    EXPECT_TRUE(status.isOK());
+    
+    // Verify all edges were added
+    for (const auto& edge : edges) {
+        auto result = intGraph.impl_getEdge(edge.first, edge.second);
+        EXPECT_TRUE(result.second.isOK());
+        EXPECT_EQ(result.first, 0); // Default weight
+    }
+}
+
+TEST_F(AdjacencyListTest, AddEdgesBatchTuples) {
+    std::vector<std::tuple<int, int, int>> edges = {
+        {1, 2, 10}, {2, 3, 20}, {3, 4, 30}, {4, 5, 40}
+    };
+    
+    auto status = intGraph.impl_addEdgesBatch(edges);
+    EXPECT_TRUE(status.isOK());
+    
+    // Verify all edges with correct weights
+    EXPECT_EQ(intGraph.impl_getEdge(1, 2).first, 10);
+    EXPECT_EQ(intGraph.impl_getEdge(2, 3).first, 20);
+    EXPECT_EQ(intGraph.impl_getEdge(3, 4).first, 30);
+    EXPECT_EQ(intGraph.impl_getEdge(4, 5).first, 40);
+}
+
+TEST_F(AdjacencyListTest, AddEdgesBatchInvalidVertices) {
+    std::vector<std::pair<int, int>> edgesWithInvalid = {
+        {1, 2}, {99, 3}, {4, 5}, {1, 100} // 99 and 100 don't exist
+    };
+    
+    auto status = intGraph.impl_addEdgesBatch(edgesWithInvalid);
+    EXPECT_FALSE(status.isOK());
+    EXPECT_EQ(status.code(), StatusCode::VERTEX_NOT_FOUND);
+    
+    // Verify valid edges were still added
+    EXPECT_TRUE(intGraph.impl_getEdge(1, 2).second.isOK());
+    EXPECT_TRUE(intGraph.impl_getEdge(4, 5).second.isOK());
+    
+    // Verify invalid edges were not added
+    EXPECT_FALSE(intGraph.impl_getEdge(99, 3).second.isOK());
+    EXPECT_FALSE(intGraph.impl_getEdge(1, 100).second.isOK());
+}
+
+TEST_F(AdjacencyListTest, AddEdgesBatchEmpty) {
+    std::vector<std::pair<int, int>> emptyEdges = {};
+    
+    auto status = intGraph.impl_addEdgesBatch(emptyEdges);
+    EXPECT_TRUE(status.isOK());
+}
+
+TEST_F(AdjacencyListTest, AddEdgesBatchMixedTypes) {
+    // Test with string graph
+    std::vector<std::tuple<std::string, std::string, float>> edges = {
+        {"A", "B", 1.5f}, {"B", "C", 2.7f}, {"A", "C", 3.14f}
+    };
+    
+    auto status = stringGraph.impl_addEdgesBatch(edges);
+    EXPECT_TRUE(status.isOK());
+    
+    EXPECT_FLOAT_EQ(stringGraph.impl_getEdge("A", "B").first, 1.5f);
+    EXPECT_FLOAT_EQ(stringGraph.impl_getEdge("B", "C").first, 2.7f);
+    EXPECT_FLOAT_EQ(stringGraph.impl_getEdge("A", "C").first, 3.14f);
 }
 
 //
@@ -152,10 +272,12 @@ TEST_F(AdjacencyListTest, AdjacencyListStructure) {
     intGraph.impl_addEdge(1, 2, 5);
     intGraph.impl_addEdge(1, 3, 10);
     intGraph.impl_addEdge(2, 3, 15);
+    intGraph.impl_addEdge(4, 4, 4);
+    intGraph.impl_addEdge(2, 5, 1);
 
     auto adjList = intGraph.getAdjList();
 
-    EXPECT_EQ(adjList.size(), 3);
+    EXPECT_EQ(adjList.size(), 5);
 
     auto it1 = adjList.find(1);
     ASSERT_NE(it1, adjList.end());
@@ -163,11 +285,21 @@ TEST_F(AdjacencyListTest, AdjacencyListStructure) {
 
     auto it2 = adjList.find(2);
     ASSERT_NE(it2, adjList.end());
-    EXPECT_EQ(it2->second.size(), 1);
+    EXPECT_EQ(it2->second.size(), 2);
 
     auto it3 = adjList.find(3);
     ASSERT_NE(it3, adjList.end());
     EXPECT_TRUE(it3->second.empty());
+
+    // Test for vertex 4
+    auto it4 = adjList.find(4);
+    ASSERT_NE(it4, adjList.end());
+    EXPECT_EQ(it4->second.size(), 1);  // vertex 4 has a self-loop
+    
+    // Test for vertex 5
+    auto it5 = adjList.find(5);
+    ASSERT_NE(it5, adjList.end());
+    EXPECT_TRUE(it5->second.empty()); // vertex 5 has no outgoing edges
 }
 
 //
