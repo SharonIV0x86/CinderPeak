@@ -27,6 +27,49 @@ public:
     return PeakStatus::OK();
   }
 
+<<<<<<< HEAD
+=======
+
+  // Added method for bulk edges insertion
+  template<typename EdgeContainer>
+  const PeakStatus impl_addEdgesBatch(const EdgeContainer& edges) {
+    PeakStatus peak_status = PeakStatus::OK();
+
+    for (const auto& edge : edges) {
+      VertexType src, dest;
+      EdgeType weight = EdgeType(); // default weight
+      
+        
+      // Extract values based on container type at compile time
+      if constexpr (std::is_same_v<typename EdgeContainer::value_type, std::pair<VertexType, VertexType>>) {
+        src = edge.first;
+        dest = edge.second;
+      }
+      else if constexpr (std::is_same_v<typename EdgeContainer::value_type, std::tuple<VertexType, VertexType, EdgeType>>) {
+        src = std::get<0>(edge);
+        dest = std::get<1>(edge);
+        weight = std::get<2>(edge);
+      }
+        
+      if (auto it = _adj_list.find(src); it == _adj_list.end()){
+        LOG_WARNING("The vertex " + std::to_string(src) + " does not exist.");
+        peak_status = PeakStatus::VertexNotFound();
+        continue;
+      }
+      if (auto it = _adj_list.find(dest); it == _adj_list.end()){
+        LOG_WARNING("The vertex " + std::to_string(dest) + " does not exist.");
+        peak_status = PeakStatus::VertexNotFound();
+        continue;
+      }
+
+      _adj_list[src].emplace_back(dest, weight);
+    }
+        
+    return peak_status;
+  }
+
+
+>>>>>>> b1fac80 (feature added for bulk edge insertion)
   const PeakStatus impl_addVertex(const VertexType &src) override {
     if constexpr (is_primitive_or_string_v<VertexType>) {
       auto it = _adj_list.find(src);
