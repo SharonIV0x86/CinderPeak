@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-linux
-        path: build/test/
+        path: build/bin/test/
 
   build-macos:
     runs-on: macos-latest
@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-macos
-        path: build/test/
+        path: build/bin/test/
 
   build-windows:
     runs-on: windows-latest
@@ -81,7 +81,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-windows
-        path: build/test/
+        path: build/bin/test/
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -97,7 +97,12 @@ jobs:
         path: ./test/
 
     - name: Run Linux Tests
-      run: ./test/test-linux
+      run: |
+        chmod +x ./test/test-macos
+        for file in ./test/test-macos; do
+          echo Running $file
+          $file
+        done
     
   test-macos:
     runs-on: macos-latest
@@ -113,7 +118,12 @@ jobs:
         path: ./test/
 
     - name: Run MacOS Tests
-      run: ./test/test-macos
+      run: |
+        chmod +x ./test/test-macos
+        for file in ./test/test-macos; do
+          echo Running $file
+          $file
+        done
 
   test-windows:
     runs-on: windows-latest
@@ -129,4 +139,9 @@ jobs:
         path: ./test/
 
     - name: Run Windows Tests
-      run: ./test/test-windows
+      run: |
+        for %%f in (./test/test-windows.exe) do (
+          echo Running %%f
+          %%f
+        )
+      shell: cmd
