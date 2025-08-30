@@ -99,8 +99,8 @@ jobs:
       run: ls -l ./tests
     - name: Run Linux Tests
       run: |
-        chmod +x ./tests/*
-        for file in ./tests/*; do
+        chmod +x ./tests/*_test
+        for file in ./tests/*_test; do
           echo Running $file
           $file
         done
@@ -120,8 +120,8 @@ jobs:
 
     - name: Run MacOS Tests
       run: |
-        chmod +x ./tests/*
-        for file in ./tests/*; do
+        chmod +x ./tests/*_test
+        for file in ./tests/*_test; do
           echo Running $file
           $file
         done
@@ -141,7 +141,7 @@ jobs:
 
     - name: Run Windows Tests
       run: |
-        for %%f in (./tests/*) do (
+        for %%f in (./tests/*_test) do (
           echo Running %%f
           %%f
         )
