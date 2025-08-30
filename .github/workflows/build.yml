@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-linux
-        path: build/bin/test/
+        path: bin/test/
 
   build-macos:
     runs-on: macos-latest
@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-macos
-        path: build/bin/test/
+        path: bin/test/
 
   build-windows:
     runs-on: windows-latest
@@ -81,7 +81,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-windows
-        path: build/bin/test/
+        path: bin/test/
 
   test-ubuntu:
     runs-on: ubuntu-latest
