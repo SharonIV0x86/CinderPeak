@@ -98,8 +98,8 @@ jobs:
 
     - name: Run Linux Tests
       run: |
-        chmod +x ./tests/test-macos
-        for file in ./tests/test-macos; do
+        chmod +x ./tests/*
+        for file in ./tests/*; do
           echo Running $file
           $file
         done
@@ -119,8 +119,8 @@ jobs:
 
     - name: Run MacOS Tests
       run: |
-        chmod +x ./tests/test-macos
-        for file in ./tests/test-macos; do
+        chmod +x ./tests/*
+        for file in ./tests/*; do
           echo Running $file
           $file
         done
@@ -140,7 +140,7 @@ jobs:
 
     - name: Run Windows Tests
       run: |
-        for %%f in (./tests/test-windows.exe) do (
+        for %%f in (./tests/*) do (
           echo Running %%f
           %%f
         )
