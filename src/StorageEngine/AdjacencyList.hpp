@@ -27,12 +27,13 @@ public:
     return PeakStatus::OK();
   }
 
-<<<<<<< HEAD
-=======
 
   // Added method for bulk edges insertion
+  // Usage:
+  // For unweighted graph: graph.addEdges({ {1, 2}, {2, 3}, {3, 4} });
+  // For weighted graph: graph.addEdges({ {1, 2, 5}, {2, 3, 7}, {3, 4, 9} });
   template<typename EdgeContainer>
-  const PeakStatus impl_addEdgesBatch(const EdgeContainer& edges) {
+  const PeakStatus impl_addEdges(const EdgeContainer& edges) {
     PeakStatus peak_status = PeakStatus::OK();
 
     for (const auto& edge : edges) {
@@ -68,8 +69,6 @@ public:
     return peak_status;
   }
 
-
->>>>>>> b1fac80 (feature added for bulk edge insertion)
   const PeakStatus impl_addVertex(const VertexType &src) override {
     if constexpr (is_primitive_or_string_v<VertexType>) {
       if (auto it = _adj_list.find(src); it != _adj_list.end()) {
@@ -95,7 +94,8 @@ public:
   }
 
   // Added method for bulk vertices insertion
-  const PeakStatus impl_addVerticesBatch(const std::vector<VertexType>& vertices) {
+  // Usage: graph.addVertices({1, 2, 3, 4, 5});
+  const PeakStatus impl_addVertices(const std::vector<VertexType>& vertices) {
     PeakStatus peak_status = PeakStatus::OK();
     
     for (const auto& vertex : vertices) {

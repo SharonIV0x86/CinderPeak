@@ -43,10 +43,10 @@ TEST_F(AdjacencyListTest, AddVertexString) {
     EXPECT_EQ(status.message(), "Primitive Vertex Already Exists");
 }
 
-TEST_F(AdjacencyListTest, AddVerticesBatch) {
+TEST_F(AdjacencyListTest, AddVertices) {
     std::vector<int> newVertices = {6, 7, 8, 9, 10};
     
-    auto status = intGraph.impl_addVerticesBatch(newVertices);
+    auto status = intGraph.impl_addVertices(newVertices);
     EXPECT_TRUE(status.isOK());
     
     // Verify all vertices were added
@@ -57,10 +57,10 @@ TEST_F(AdjacencyListTest, AddVerticesBatch) {
     }
 }
 
-TEST_F(AdjacencyListTest, AddVerticesBatchDuplicates) {
+TEST_F(AdjacencyListTest, AddVerticesDuplicates) {
     std::vector<int> verticesWithDups = {6, 1, 7, 2, 8}; // 1 and 2 already exist
     
-    auto status = intGraph.impl_addVerticesBatch(verticesWithDups);
+    auto status = intGraph.impl_addVertices(verticesWithDups);
     EXPECT_FALSE(status.isOK());
     EXPECT_EQ(status.code(), StatusCode::VERTEX_ALREADY_EXISTS);
     
@@ -70,17 +70,17 @@ TEST_F(AdjacencyListTest, AddVerticesBatchDuplicates) {
     EXPECT_TRUE(intGraph.impl_getNeighbors(8).second.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddVerticesBatchEmpty) {
+TEST_F(AdjacencyListTest, AddVerticesEmpty) {
     std::vector<int> emptyVertices = {};
     
-    auto status = intGraph.impl_addVerticesBatch(emptyVertices);
+    auto status = intGraph.impl_addVertices(emptyVertices);
     EXPECT_TRUE(status.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddVerticesBatchString) {
+TEST_F(AdjacencyListTest, AddVerticesString) {
     std::vector<std::string> newVertices = {"D", "E", "F"};
     
-    auto status = stringGraph.impl_addVerticesBatch(newVertices);
+    auto status = stringGraph.impl_addVertices(newVertices);
     EXPECT_TRUE(status.isOK());
     
     // Verify vertices were added
@@ -125,12 +125,12 @@ TEST_F(AdjacencyListTest, AddEdgeInvalidVertices) {
     EXPECT_EQ(status2.code(), StatusCode::VERTEX_NOT_FOUND);
 }
 
-TEST_F(AdjacencyListTest, AddEdgesBatchPairs) {
+TEST_F(AdjacencyListTest, AddEdgesPairs) {
     std::vector<std::pair<int, int>> edges = {
         {1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}
     };
     
-    auto status = intGraph.impl_addEdgesBatch(edges);
+    auto status = intGraph.impl_addEdges(edges);
     EXPECT_TRUE(status.isOK());
     
     // Verify all edges were added
@@ -141,12 +141,12 @@ TEST_F(AdjacencyListTest, AddEdgesBatchPairs) {
     }
 }
 
-TEST_F(AdjacencyListTest, AddEdgesBatchTuples) {
+TEST_F(AdjacencyListTest, AddEdgesTuples) {
     std::vector<std::tuple<int, int, int>> edges = {
         {1, 2, 10}, {2, 3, 20}, {3, 4, 30}, {4, 5, 40}
     };
     
-    auto status = intGraph.impl_addEdgesBatch(edges);
+    auto status = intGraph.impl_addEdges(edges);
     EXPECT_TRUE(status.isOK());
     
     // Verify all edges with correct weights
@@ -156,12 +156,12 @@ TEST_F(AdjacencyListTest, AddEdgesBatchTuples) {
     EXPECT_EQ(intGraph.impl_getEdge(4, 5).first, 40);
 }
 
-TEST_F(AdjacencyListTest, AddEdgesBatchInvalidVertices) {
+TEST_F(AdjacencyListTest, AddEdgesInvalidVertices) {
     std::vector<std::pair<int, int>> edgesWithInvalid = {
         {1, 2}, {99, 3}, {4, 5}, {1, 100} // 99 and 100 don't exist
     };
     
-    auto status = intGraph.impl_addEdgesBatch(edgesWithInvalid);
+    auto status = intGraph.impl_addEdges(edgesWithInvalid);
     EXPECT_FALSE(status.isOK());
     EXPECT_EQ(status.code(), StatusCode::VERTEX_NOT_FOUND);
     
@@ -174,20 +174,20 @@ TEST_F(AdjacencyListTest, AddEdgesBatchInvalidVertices) {
     EXPECT_FALSE(intGraph.impl_getEdge(1, 100).second.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddEdgesBatchEmpty) {
+TEST_F(AdjacencyListTest, AddEdgesEmpty) {
     std::vector<std::pair<int, int>> emptyEdges = {};
     
-    auto status = intGraph.impl_addEdgesBatch(emptyEdges);
+    auto status = intGraph.impl_addEdges(emptyEdges);
     EXPECT_TRUE(status.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddEdgesBatchMixedTypes) {
+TEST_F(AdjacencyListTest, AddEdgesMixedTypes) {
     // Test with string graph
     std::vector<std::tuple<std::string, std::string, float>> edges = {
         {"A", "B", 1.5f}, {"B", "C", 2.7f}, {"A", "C", 3.14f}
     };
     
-    auto status = stringGraph.impl_addEdgesBatch(edges);
+    auto status = stringGraph.impl_addEdges(edges);
     EXPECT_TRUE(status.isOK());
     
     EXPECT_FLOAT_EQ(stringGraph.impl_getEdge("A", "B").first, 1.5f);
