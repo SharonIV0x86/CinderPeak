@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-linux
-        path: bin/test/
+        path: bin/tests/
 
   build-macos:
     runs-on: macos-latest
@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-macos
-        path: bin/test/
+        path: bin/tests/
 
   build-windows:
     runs-on: windows-latest
@@ -81,7 +81,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: test-windows
-        path: bin/test/
+        path: bin/tests/
 
   test-ubuntu:
     runs-on: ubuntu-latest
@@ -94,12 +94,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: test-linux
-        path: ./test/
+        path: ./tests/
 
     - name: Run Linux Tests
       run: |
-        chmod +x ./test/test-macos
-        for file in ./test/test-macos; do
+        chmod +x ./tests/test-macos
+        for file in ./tests/test-macos; do
           echo Running $file
           $file
         done
@@ -115,12 +115,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: test-macos
-        path: ./test/
+        path: ./tests/
 
     - name: Run MacOS Tests
       run: |
-        chmod +x ./test/test-macos
-        for file in ./test/test-macos; do
+        chmod +x ./tests/test-macos
+        for file in ./tests/test-macos; do
           echo Running $file
           $file
         done
@@ -136,11 +136,11 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: test-windows
-        path: ./test/
+        path: ./tests/
 
     - name: Run Windows Tests
       run: |
-        for %%f in (./test/test-windows.exe) do (
+        for %%f in (./tests/test-windows.exe) do (
           echo Running %%f
           %%f
         )
