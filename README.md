@@ -6,12 +6,12 @@ A fast and efficient, open-source C++ graph library built to handle a wide range
 ![C++](https://img.shields.io/badge/Built%20with-C%2B%2B17%2FC%2B%2B20-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-SFML%2CGTest-red)
 
----
+---   
 
 ## 📑 Table of Contents
 - 🚀 Key Features
 - 🗓️ Development Notice
-- 📂 Project Structure
+- 📂 Project Structure       
 - ⚙️ Getting Started
 - 🛠️ Technology Stack
 - ❓ Why CinderPeak?
