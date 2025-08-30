@@ -1,14 +1,7 @@
-﻿name: Build
+﻿name: Build and Test
 
 on:
-  push:
-    branches:
-      - main
-      - 'feat/**'
   pull_request:
-    branches:
-      - main
-
 jobs:
   build-linux:
     runs-on: ubuntu-latest

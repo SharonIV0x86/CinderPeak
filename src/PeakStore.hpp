@@ -5,7 +5,6 @@
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
-// #include "Visualizer.hpp"
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -25,9 +24,6 @@ private:
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>();
-    // ctx->coordinate_list =
-    //     std::make_shared<CoordinateList<VertexType, EdgeType>>();
-
     if (ctx->metadata->graph_type == "graph_matrix") {
       ctx->active_storage = ctx->adjacency_storage;
       LOG_DEBUG("Set active storage to Adjacency Storage (matrix).");
@@ -109,19 +105,7 @@ public:
   getContext() const {
     return ctx;
   }
-  void visualize() {
-    LOG_WARNING("Unimplemented function: visualize");
-    // GraphVisualizer<VertexType, EdgeType> g(
-    //     ctx->adjacency_storage->getAdjList());
-
-    // if (isTypePrimitive<VertexType>() && isTypePrimitive<EdgeType>()) {
-    //   // g.print_adj_list();
-    //   ctx->adjacency_storage->print_adj_list();
-    //   g.visualize_primitives_graph();
-    // } else {
-    //   LOG_CRITICAL("Primitive type checking failed");
-    // }
-  }
+  void visualize() { LOG_WARNING("Unimplemented function: visualize"); }
 };
 
 } // namespace PeakStore
