@@ -95,7 +95,8 @@ jobs:
       with:
         name: test-linux
         path: ./tests/
-
+    - name: List downloaded files
+      run: ls -l ./tests
     - name: Run Linux Tests
       run: |
         chmod +x ./tests/*
