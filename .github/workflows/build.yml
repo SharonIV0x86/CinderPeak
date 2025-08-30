@@ -1,6 +1,8 @@
 ﻿name: Build and Test
 
 on:
+  push:
+    branches: [ main ]
   pull_request:
 jobs:
   build-linux:
@@ -137,7 +139,7 @@ jobs:
 
     - name: Run Windows Tests
       run: |
-        for %%f in (./tests/*_test) do (
+        for %%f in (.\tests\*_test.exe) do (
           echo Running %%f
           %%f
         )
