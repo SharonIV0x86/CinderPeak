@@ -52,16 +52,19 @@ public:
     _adj_list[src] = std::vector<std::pair<VertexType, EdgeType>>();
     return PeakStatus::OK();
   }
-  bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
+
+  bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
+                          const EdgeType &weight = EdgeType()) override {
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) { // Vertex 'src' not found
       return false;
     }
-
     const auto &neighbors = it->second;
     for (const auto &[neighbor, edge] : neighbors) {
       if (neighbor == dest) { // Edge exists
+        if (isTypePrimitive<EdgeType>()) {
+          LOG_CRITICAL("ID EQUAL");
+        }
         return true;
       }
     }
@@ -91,23 +94,7 @@ public:
     return std::make_pair(it->second, CinderPeak::PeakStatus::OK());
   }
   auto getAdjList() { return _adj_list; }
-  bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
-    auto it = _adj_list.find(src);
-    if (it == _adj_list.end()) {
-      return false;
-    }
-    const auto &neighbors = it->second;
-    for (const auto &[neighbor, edge] : neighbors) {
-      if (neighbor == dest) {
-        if (isTypePrimitive<EdgeType>()) {
-          LOG_CRITICAL("ID EQUAL");
-        }
-        return true;
-      }
-    }
-    return false;
-  }
+
   void print_adj_list() {
     for (const auto &[first, second] : _adj_list) {
       std::cout << "Vertex: " << first << "'s adj list:\n";

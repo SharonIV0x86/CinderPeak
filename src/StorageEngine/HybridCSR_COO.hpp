@@ -221,15 +221,14 @@ public:
     return PeakStatus::OK();
   }
 
+  // Combined two overloads into one.
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
+                          const EdgeType &weight = EdgeType()) override {
     auto edge = impl_getEdge(src, dest);
+    
+    if (weight==EdgeType())
+      return edge.second.isOK();
     return edge.second.isOK() && edge.first == weight;
-  }
-
-  bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
-    return impl_getEdge(src, dest).second.isOK();
   }
 
   const std::pair<EdgeType, PeakStatus>
