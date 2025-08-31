@@ -21,6 +21,12 @@ jobs:
     - name: Build
       run: cmake --build build --config Release
 
+    - name: Upload test Binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-linux
+        path: build/bin/tests/*
+
   build-macos:
     runs-on: macos-latest
     
@@ -38,6 +44,12 @@ jobs:
 
     - name: Build
       run: cmake --build build --config Release
+
+    - name: Upload test Binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-macos
+        path: build/bin/tests/*
 
   build-windows:
     runs-on: windows-latest
@@ -62,3 +74,71 @@ jobs:
 
     - name: Build
       run: cmake --build build
+
+    - name: Upload test Binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-windows
+        path: build/bin/tests/*
+
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    needs: [build-linux]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download test Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: test-linux
+        path: ./tests/
+    - name: Run Linux Tests
+      run: |
+        chmod +x ./tests/*_test
+        for file in ./tests/*_test; do
+          echo Running $file
+          $file || exit 1
+        done
+    
+  test-macos:
+    runs-on: macos-latest
+    needs: [build-macos]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download test Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: test-macos
+        path: ./tests/
+
+    - name: Run MacOS Tests
+      run: |
+        chmod +x ./tests/*_test
+        for file in ./tests/*_test; do
+          echo Running $file
+          $file || exit 1
+        done
+
+  test-windows:
+    runs-on: windows-latest
+    needs: [build-windows]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download test Binaries
+      uses: actions/download-artifact@v4
+      with:
+        name: test-windows
+        path: ./tests/
+
+    - name: Run Windows Tests
+      run: |
+        for %%f in (.\tests\*_test.exe) do (
+          echo Running %%f
+          %%f || exit /b 1
+        )
+      shell: cmd
