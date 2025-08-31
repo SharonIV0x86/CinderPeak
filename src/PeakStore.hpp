@@ -25,7 +25,10 @@ private:
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 52efd98858750519dc22cb6aad9535df125be839
     if (ctx->metadata->graph_type == "graph_matrix") {
       ctx->active_storage = ctx->adjacency_storage;
       LOG_DEBUG("Set active storage to Adjacency Storage (matrix).");
@@ -115,6 +118,7 @@ public:
   getContext() const {
     return ctx;
   }
+<<<<<<< HEAD
 
   void visualize() {
     LOG_WARNING("Unimplemented function: visualize");
@@ -128,6 +132,9 @@ public:
     //   LOG_CRITICAL("Primitive type checking failed");
     // }
   }
+=======
+  void visualize() { LOG_WARNING("Unimplemented function: visualize"); }
+>>>>>>> 52efd98858750519dc22cb6aad9535df125be839
 };
 
 } // namespace PeakStore
