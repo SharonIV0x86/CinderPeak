@@ -47,34 +47,36 @@ public:
     LOG_INFO("Successfully initialized context object.");
   }
 
+  // Comibined addEdge() overloads into one.
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
-                     const EdgeType &weight) {
-    if (ctx->active_storage->impl_doesEdgeExist(src, dest, weight)) {
-      LOG_DEBUG("Edge already exists");
-      if (!ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges))
-        return PeakStatus::EdgeAlreadyExists();
+                   const EdgeType &weight = EdgeType()) {
+    bool isWeighted = !(weight == EdgeType());
+    
+    bool edgeExists = isWeighted ? 
+        ctx->active_storage->impl_doesEdgeExist(src, dest, weight) :
+        ctx->active_storage->impl_doesEdgeExist(src, dest);
+    
+    if (edgeExists) {
+        if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
+            LOG_DEBUG("Edge already exists");
+            return PeakStatus::EdgeAlreadyExists();
+        }
     }
-    LOG_INFO("Called weighted PeakStore:addEdge");
-    if (auto status = ctx->active_storage->impl_addEdge(src, dest, weight);
-        !status.isOK()) {
-      return status;
+    
+    LOG_INFO(isWeighted ? "Called weighted PeakStore:addEdge" : "Called unweighted PeakStore:addEdge");
+    
+    auto status = isWeighted ? 
+        ctx->active_storage->impl_addEdge(src, dest, weight) :
+        ctx->active_storage->impl_addEdge(src, dest);
+    
+    if (!status.isOK()) {
+        return status;
     }
+    
+    ctx->metadata->num_edges++;
+    return PeakStatus::OK();
+}
 
-    ctx->metadata->num_edges++;
-    return PeakStatus::OK();
-  }
-  PeakStatus addEdge(const VertexType &src, const VertexType &dest) {
-    if (ctx->active_storage->impl_doesEdgeExist(src, dest)) {
-      return PeakStatus::EdgeAlreadyExists();
-    }
-    LOG_INFO("Called unweighted PeakStore:addEdge");
-    if (auto status = ctx->active_storage->impl_addEdge(src, dest);
-        !status.isOK()) {
-      return status;
-    }
-    ctx->metadata->num_edges++;
-    return PeakStatus::OK();
-  }
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
     LOG_INFO("Called adjacency:getEdge()");

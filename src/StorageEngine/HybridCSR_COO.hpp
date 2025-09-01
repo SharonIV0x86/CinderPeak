@@ -221,7 +221,7 @@ public:
     return PeakStatus::OK();
   }
 
-  // Combined two overloads into one.
+  // Combined impl_doesEdgeExist() overloads into one.
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight = EdgeType()) override {
     auto edge = impl_getEdge(src, dest);
