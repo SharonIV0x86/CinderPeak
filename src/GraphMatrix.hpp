@@ -80,7 +80,7 @@ public:
     } 
     if (!(isWeighted || weight == EdgeType())) {
       LOG_CRITICAL(
-        "Cannot call unweighted addEdge on a weighted graph, missing weight");
+        "Cannot call weighted addEdge on a unweighted graph, extra weight");
       return;
     } 
 
@@ -92,7 +92,6 @@ public:
       return;
     }
   }
-
 
   EdgeType getEdge(const VertexType &src, const VertexType &dest) const {
     auto [data, status] = peak_store->getEdge(src, dest);
