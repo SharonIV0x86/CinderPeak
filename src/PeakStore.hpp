@@ -51,10 +51,12 @@ public:
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                    const EdgeType &weight = EdgeType()) {
     bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
-    
-    bool edgeExists = isWeighted ? 
-      ctx->active_storage->impl_doesEdgeExist(src, dest, weight) :
-      ctx->active_storage->impl_doesEdgeExist(src, dest);
+    bool edgeExists; PeakStatus status = PeakStatus::OK();
+    if (isWeighted) {
+      edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest, weight);
+    } else {
+      edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
+    }
     
     if (edgeExists) {
       if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
@@ -62,19 +64,21 @@ public:
         return PeakStatus::EdgeAlreadyExists();
       }
     }
-    
-    LOG_INFO(isWeighted ? "Called weighted PeakStore:addEdge" : "Called unweighted PeakStore:addEdge");
-    
-    auto status = isWeighted ? 
-      ctx->active_storage->impl_addEdge(src, dest, weight) :
-      ctx->active_storage->impl_addEdge(src, dest);
+
+    if (isWeighted) {
+      LOG_INFO("Called weighted PeakStore:addEdge");
+      status = ctx->active_storage->impl_addEdge(src, dest, weight);
+    } else {
+      LOG_INFO("Called unweighted PeakStore:addEdge");
+      status = ctx->active_storage->impl_addEdge(src, dest);
+    }
     
     if (!status.isOK()) {
       return status;
     }
     
     ctx->metadata->num_edges++;
-    return PeakStatus::OK();
+    return status;
 }
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,

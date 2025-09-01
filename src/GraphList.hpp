@@ -30,11 +30,10 @@ public:
     }
   }
 
-
   // Combined addEdge() overloads into one
   void addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight = EdgeType()) {
-    auto ctx = peak_store->getContext();
+    auto ctx = peak_store->getContext(); PeakStatus resp = PeakStatus::OK();
     
     bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
     if (isWeighted && weight == EdgeType()) {
@@ -48,9 +47,12 @@ public:
       return;
     } 
 
-    auto resp = isWeighted? 
-      peak_store->addEdge(src, dest, weight) :
-      peak_store->addEdge(src, dest);
+    if (isWeighted) {
+      resp = peak_store->addEdge(src, dest, weight);
+    } else {
+      resp = peak_store->addEdge(src, dest);
+    }
+
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
       return;
