@@ -67,34 +67,32 @@ public:
     }
   }
 
-  void addEdge(const VertexType &src, const VertexType &dest) {
+  // Combined addEdge() overloads into one
+  void addEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &weight = EdgeType()) {
     auto ctx = peak_store->getContext();
-    if (ctx->create_options->hasOption(GraphCreationOptions::Weighted)) {
+    
+    bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
+    if (isWeighted && weight == EdgeType()) {
       LOG_CRITICAL(
-          "Cannot call unweighted addEdge on a weighted graph, missing weight");
+        "Cannot call unweighted addEdge on a weighted graph, missing weight");
       return;
-    }
-    auto resp = peak_store->addEdge(src, dest);
+    } 
+    if (!(isWeighted || weight == EdgeType())) {
+      LOG_CRITICAL(
+        "Cannot call unweighted addEdge on a weighted graph, missing weight");
+      return;
+    } 
+
+    auto resp = isWeighted? 
+      peak_store->addEdge(src, dest, weight) :
+      peak_store->addEdge(src, dest);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
       return;
     }
   }
 
-  void addEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &weight) {
-    auto ctx = peak_store->getContext();
-    if (ctx->create_options->hasOption(GraphCreationOptions::Unweighted)) {
-      LOG_CRITICAL(
-          "Cannot call weighted addEdge on a unweighted graph, extra weight");
-      return;
-    }
-    auto resp = peak_store->addEdge(src, dest, weight);
-    if (!resp.isOK()) {
-      Exceptions::handle_exception_map(resp);
-      return;
-    }
-  }
 
   EdgeType getEdge(const VertexType &src, const VertexType &dest) const {
     auto [data, status] = peak_store->getEdge(src, dest);

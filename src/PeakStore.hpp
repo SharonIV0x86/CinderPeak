@@ -47,30 +47,30 @@ public:
     LOG_INFO("Successfully initialized context object.");
   }
 
-  // Comibined addEdge() overloads into one.
+  // Combined addEdge() overloads into one.
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                    const EdgeType &weight = EdgeType()) {
-    bool isWeighted = !(weight == EdgeType());
+    bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
     
     bool edgeExists = isWeighted ? 
-        ctx->active_storage->impl_doesEdgeExist(src, dest, weight) :
-        ctx->active_storage->impl_doesEdgeExist(src, dest);
+      ctx->active_storage->impl_doesEdgeExist(src, dest, weight) :
+      ctx->active_storage->impl_doesEdgeExist(src, dest);
     
     if (edgeExists) {
-        if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
-            LOG_DEBUG("Edge already exists");
-            return PeakStatus::EdgeAlreadyExists();
-        }
+      if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
+        LOG_DEBUG("Edge already exists");
+        return PeakStatus::EdgeAlreadyExists();
+      }
     }
     
     LOG_INFO(isWeighted ? "Called weighted PeakStore:addEdge" : "Called unweighted PeakStore:addEdge");
     
     auto status = isWeighted ? 
-        ctx->active_storage->impl_addEdge(src, dest, weight) :
-        ctx->active_storage->impl_addEdge(src, dest);
+      ctx->active_storage->impl_addEdge(src, dest, weight) :
+      ctx->active_storage->impl_addEdge(src, dest);
     
     if (!status.isOK()) {
-        return status;
+      return status;
     }
     
     ctx->metadata->num_edges++;
