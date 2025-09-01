@@ -106,6 +106,11 @@ public:
   }
   void visualize() { LOG_INFO("Called GraphMatrix:visualize"); }
 
+  // Helper method to call getGraphStatistics() from Peakstore
+  std::string getGraphStatistics() {
+    return peak_store->getGraphStatistics();
+  }
+
   EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) {
     return EdgeAccessor<VertexType, EdgeType>(*this, src);
   }
