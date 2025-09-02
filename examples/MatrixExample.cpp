@@ -25,7 +25,11 @@ int main() {
 
   GraphMatrix<CustomVertex, CustomEdge> myGraph(options);
 
+<<<<<<< HEAD
   myGraph.setConsoleLogging(false); // Disabling log display
+=======
+  myGraph.togglePLogging(false); // Disabling log display
+>>>>>>> 9b19174 (Examples updated to test toggling functionality)
 
   CustomVertex v1;
   CustomVertex v2;

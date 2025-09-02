@@ -20,7 +20,11 @@ int main() {
   GraphCreationOptions opts({GraphCreationOptions::Directed});
   GraphList<int, int> graph(opts);
 
+<<<<<<< HEAD
   GraphList<int, int>::setConsoleLogging(true); // Enabling log display
+=======
+  graph.togglePLogging(true); // Enabling log display
+>>>>>>> 9b19174 (Examples updated to test toggling functionality)
 
   graph.addVertex(1);
   graph.addVertex(2);
