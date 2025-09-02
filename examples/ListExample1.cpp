@@ -5,6 +5,9 @@ int main() {
       {GraphCreationOptions::Directed, GraphCreationOptions::Weighted});
 
   GraphList<int, int> graph(opts);
+
+  graph.togglePLogging(true); // Enabling log display
+
   graph.addVertex(1);
   graph.addVertex(2);
   graph.addVertex(3);
