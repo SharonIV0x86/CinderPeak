@@ -47,39 +47,49 @@ public:
     LOG_INFO("Successfully initialized context object.");
   }
 
-  PeakStatus addEdge(const VertexType &src, const VertexType &dest,
-                     const EdgeType &weight) {
-    if (ctx->active_storage->impl_doesEdgeExist(src, dest, weight)) {
-      LOG_DEBUG("Edge already exists");
-      if (!ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges))
-        return PeakStatus::EdgeAlreadyExists();
-    }
-    LOG_INFO("Called weighted PeakStore:addEdge");
-    if (auto status = ctx->active_storage->impl_addEdge(src, dest, weight);
-        !status.isOK()) {
-      return status;
+PeakStatus addEdge(const VertexType &src, const VertexType &dest,
+                   const EdgeType &weight = EdgeType()) {
+    bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
+    bool edgeExists;
+    PeakStatus status = PeakStatus::OK();
+
+    if (isWeighted) {
+        edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest, weight);
+    } else {
+        edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
     }
 
-    if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {ctx->metadata->num_parallel_edges++;}
-    if (src == dest) {ctx->metadata->num_self_loops++;}
-    ctx->metadata->num_edges++;
-    return PeakStatus::OK();
-  }
-  PeakStatus addEdge(const VertexType &src, const VertexType &dest) {
-    if (ctx->active_storage->impl_doesEdgeExist(src, dest)) {
-      return PeakStatus::EdgeAlreadyExists();
-    }
-    LOG_INFO("Called unweighted PeakStore:addEdge");
-    if (auto status = ctx->active_storage->impl_addEdge(src, dest);
-        !status.isOK()) {
-      return status;
+    if (edgeExists) {
+        if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
+            LOG_DEBUG("Edge already exists");
+            return PeakStatus::EdgeAlreadyExists();
+        }
     }
 
-    if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {ctx->metadata->num_parallel_edges++;}
-    if (src == dest) {ctx->metadata->num_self_loops++;}
+    if (isWeighted) {
+        LOG_INFO("Called weighted PeakStore::addEdge");
+        status = ctx->active_storage->impl_addEdge(src, dest, weight);
+    } else {
+        LOG_INFO("Called unweighted PeakStore::addEdge");
+        status = ctx->active_storage->impl_addEdge(src, dest);
+    }
+
+    if (!status.isOK()) {
+        return status;
+    }
+
+    if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {
+        ctx->metadata->num_parallel_edges++;
+    }
+    if (src == dest) {
+        ctx->metadata->num_self_loops++;
+    }
     ctx->metadata->num_edges++;
-    return PeakStatus::OK();
-  }
+
+    return status;
+}
+
+
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
     LOG_INFO("Called adjacency:getEdge()");
