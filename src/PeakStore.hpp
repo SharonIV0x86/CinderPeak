@@ -60,6 +60,8 @@ public:
       return status;
     }
 
+    if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {ctx->metadata->num_parallel_edges++;}
+    if (src == dest) {ctx->metadata->num_self_loops++;}
     ctx->metadata->num_edges++;
     return PeakStatus::OK();
   }
@@ -72,6 +74,9 @@ public:
         !status.isOK()) {
       return status;
     }
+
+    if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {ctx->metadata->num_parallel_edges++;}
+    if (src == dest) {ctx->metadata->num_self_loops++;}
     ctx->metadata->num_edges++;
     return PeakStatus::OK();
   }
@@ -105,6 +110,27 @@ public:
   getContext() const {
     return ctx;
   }
+  
+  // Method to get a summary string of statistics
+  std::string getGraphStatistics() {  
+    std::stringstream ss;
+
+    if (ctx->metadata->num_vertices > 1) {
+      float directed_density = (float)ctx->metadata->num_edges / (ctx->metadata->num_vertices * (ctx->metadata->num_vertices - 1));
+      if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
+        ctx->metadata->density = directed_density;
+      if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
+        ctx->metadata->density = 2*directed_density;
+    }  
+    ss << "=== Graph Statistics ===" << std::endl;
+    ss << "Vertices: " << ctx->metadata->num_vertices << std::endl;
+    ss << "Edges: " << ctx->metadata->num_edges << std::endl;     
+    ss << "Density: " << std::fixed << std::setprecision(2) << ctx->metadata->density << std::endl;
+    ss << "Self-loops: " << ctx->metadata->num_self_loops << std::endl;
+    ss << "Parallel edges: " << ctx->metadata->num_parallel_edges << std::endl;
+    return ss.str();
+  }
+
   void visualize() { LOG_WARNING("Unimplemented function: visualize"); }
 };
 
