@@ -150,7 +150,7 @@ size_t CinderPeak::CinderEdge::nextId = 1;
 namespace PeakStore {
 class GraphInternalMetadata {
 public:
-  size_t density;
+  float density; // Updated datatype for density as it ranges from 0 to 1
   size_t num_vertices;
   size_t num_edges;
   size_t num_self_loops;
@@ -164,12 +164,12 @@ public:
         is_edge_type_primitive(edge_tp_p) {
     num_vertices = 0;
     num_edges = 0;
-    density = 0;
+    density = 0.0; // Initialized with float value
     num_self_loops = 0;
     num_parallel_edges = 0;
   }
-  // default ctor for basic testing, this has to be removed later on.
-  GraphInternalMetadata() {}
+  // // default ctor for basic testing, this has to be removed later on.
+  // GraphInternalMetadata() {}
 };
 } // namespace PeakStore
 namespace Exceptions {
