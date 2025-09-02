@@ -111,6 +111,11 @@ public:
     return peak_store->getGraphStatistics();
   }
 
+  // Helper method to call togglePLogging function from Peakstore
+  static void togglePLogging(const bool toggle) {
+    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::togglePLogging(toggle);
+  }
+
   EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) {
     return EdgeAccessor<VertexType, EdgeType>(*this, src);
   }
