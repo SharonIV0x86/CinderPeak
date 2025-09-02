@@ -69,9 +69,9 @@ public:
     return data;
   }
 
-  // Helper method to call togglePLogging function from Peakstore
-  static void togglePLogging(const bool toggle) {
-    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::togglePLogging(toggle);
+  // Helper method to call setConsoleLogging function from Peakstore
+  static void setConsoleLogging(const bool toggle) {
+    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
   }
 
   void visualize() {

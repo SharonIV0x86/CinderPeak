@@ -26,7 +26,7 @@ int main() {
 
   GraphMatrix<CustomVertex, CustomEdge> myGraph(options);
 
-  myGraph.togglePLogging(false); // Disabling log display
+  myGraph.setConsoleLogging(false); // Disabling log display
 
   CustomVertex v1;
   CustomVertex v2;

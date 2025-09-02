@@ -121,7 +121,7 @@ PeakStatus addEdge(const VertexType &src, const VertexType &dest,
   }
 
   // Method to enable and disable logs in terminal
-  static void togglePLogging(const bool toggle) {
+  static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
   

@@ -6,7 +6,7 @@ int main() {
 
   GraphList<int, int> graph(opts);
 
-  graph.togglePLogging(true); // Enabling log display
+  GraphList<int, int>::setConsoleLogging(true); // Enabling log display
 
   graph.addVertex(1);
   graph.addVertex(2);
