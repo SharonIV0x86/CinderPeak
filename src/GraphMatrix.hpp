@@ -1,7 +1,9 @@
 #pragma once
+#include "Concepts.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
 #include <memory>
+#include <type_traits>
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;
@@ -52,8 +54,10 @@ public:
   GraphMatrix(const GraphCreationOptions &options =
                   CinderPeak::GraphCreationOptions::getDefaultCreateOptions()) {
     CinderPeak::PeakStore::GraphInternalMetadata metadata(
-        "graph_matrix", isTypePrimitive<VertexType>(),
-        isTypePrimitive<EdgeType>());
+        "graph_matrix", CinderPeak::Traits::isTypePrimitive<VertexType>(),
+        CinderPeak::Traits::isTypePrimitive<EdgeType>(),
+        CinderPeak::Traits::isGraphWeighted<EdgeType>(),
+        !CinderPeak::Traits::isGraphWeighted<EdgeType>());
     peak_store = std::make_unique<
         CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>(metadata,
                                                                 options);
@@ -66,34 +70,20 @@ public:
       return;
     }
   }
-
-  // Combined addEdge() overloads into one
-  void addEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &weight = EdgeType()) {
-    auto ctx = peak_store->getContext(); PeakStatus resp = PeakStatus::OK();
-
-    bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
-    if (isWeighted && weight == EdgeType()) {
-      LOG_CRITICAL(
-        "Cannot call unweighted addEdge on a weighted graph, missing weight");
-      return;
-    } 
-    if (!(isWeighted || weight == EdgeType())) {
-      LOG_CRITICAL(
-        "Cannot call weighted addEdge on a unweighted graph, extra weight");
-      return;
-    } 
-
-    if (isWeighted) {
-      resp = peak_store->addEdge(src, dest, weight);
-    } else {
-      resp = peak_store->addEdge(src, dest);
-    }
-
-    if (!resp.isOK()) {
+  template <typename E = EdgeType>
+  auto addEdge(const VertexType &src, const VertexType &dest)
+      -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>, void> {
+    auto resp = peak_store->addEdge(src, dest);
+    if (!resp.isOK())
       Exceptions::handle_exception_map(resp);
-      return;
-    }
+  }
+  template <typename E = EdgeType>
+  auto addEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &weight)
+      -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>, void> {
+    auto resp = peak_store->addEdge(src, dest, weight);
+    if (!resp.isOK())
+      Exceptions::handle_exception_map(resp);
   }
 
   EdgeType getEdge(const VertexType &src, const VertexType &dest) const {
@@ -107,9 +97,7 @@ public:
   void visualize() { LOG_INFO("Called GraphMatrix:visualize"); }
 
   // Helper method to call getGraphStatistics() from Peakstore
-  std::string getGraphStatistics() {
-    return peak_store->getGraphStatistics();
-  }
+  std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
 
   EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) {
     return EdgeAccessor<VertexType, EdgeType>(*this, src);
