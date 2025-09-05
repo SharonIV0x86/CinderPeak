@@ -49,8 +49,7 @@ public:
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
-    bool isWeighted =
-        ctx->create_options->hasOption(GraphCreationOptions::Weighted);
+    bool isWeighted = ctx->metadata->isGraphWeighted();
     bool edgeExists;
     PeakStatus status = PeakStatus::OK();
 
@@ -59,7 +58,6 @@ public:
     } else {
       edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
     }
-
     if (edgeExists) {
       if ((isWeighted && !ctx->create_options->hasOption(
                              GraphCreationOptions::ParallelEdges)) ||

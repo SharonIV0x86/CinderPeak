@@ -50,7 +50,7 @@ protected:
 
 // Simple large dense graph test - 1000 vertices, lots of edges
 TEST_F(GraphStatisticsTest, LargeDenseGraph) {
-    GraphCreationOptions opts({GraphCreationOptions::Weighted, GraphCreationOptions::Undirected});
+    GraphCreationOptions opts({GraphCreationOptions::Undirected});
     GraphMatrix<int, int> graph(opts);
     
     const int num_vertices = 1000;
@@ -130,7 +130,7 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
     };
     
     for (auto config : configs) {
-        GraphCreationOptions opts({GraphCreationOptions::Weighted, GraphCreationOptions::Undirected});
+        GraphCreationOptions opts({GraphCreationOptions::Undirected});
         GraphMatrix<int, int> graph(opts);
         
         int vertices = config.first;
@@ -167,7 +167,7 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
 
 // Original test case (kept for regression)
 TEST_F(GraphStatisticsTest, OriginalTest) {
-    GraphCreationOptions opts({GraphCreationOptions::Weighted, GraphCreationOptions::Undirected});
+    GraphCreationOptions opts({GraphCreationOptions::Undirected});
     GraphMatrix<int, int> graph(opts);
     
     for (int i = 1; i <= 8; ++i) {
@@ -200,7 +200,7 @@ TEST_F(GraphStatisticsTest, OriginalTest) {
 TEST_F(GraphStatisticsTest, EdgeCases) {
     // Empty graph
     {
-        GraphCreationOptions opts({GraphCreationOptions::Weighted, GraphCreationOptions::Undirected});
+        GraphCreationOptions opts({GraphCreationOptions::Undirected});
         GraphMatrix<int, int> empty_graph(opts);
         
         std::string stats = empty_graph.getGraphStatistics();
@@ -210,7 +210,7 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
     
     // Single vertex with self-loop
     {
-        GraphCreationOptions opts({GraphCreationOptions::Weighted, GraphCreationOptions::Undirected});
+        GraphCreationOptions opts({GraphCreationOptions::Undirected});
         GraphMatrix<int, int> single_graph(opts);
         
         single_graph.addVertex(1);

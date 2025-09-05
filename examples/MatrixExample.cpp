@@ -21,7 +21,6 @@ public:
 };
 int main() {
   GraphCreationOptions options({GraphCreationOptions::Undirected,
-                                GraphCreationOptions::Weighted,
                                 GraphCreationOptions::SelfLoops});
 
   GraphMatrix<CustomVertex, CustomEdge> myGraph(options);

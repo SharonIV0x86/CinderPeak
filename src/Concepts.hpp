@@ -109,6 +109,12 @@ template <typename T> constexpr bool isTypePrimitive() {
   }
   return false;
 }
+template <typename T> constexpr bool isGraphWeighted() {
+  if constexpr (is_weighted_v<T>) {
+    return true;
+  }
+  return false;
+}
 
 #define STATIC_ASSERT_WEIGHTED(E)                                              \
   static_assert(CinderPeak::Traits::is_weighted_v<E>,                          \

@@ -55,7 +55,9 @@ public:
                   CinderPeak::GraphCreationOptions::getDefaultCreateOptions()) {
     CinderPeak::PeakStore::GraphInternalMetadata metadata(
         "graph_matrix", CinderPeak::Traits::isTypePrimitive<VertexType>(),
-        CinderPeak::Traits::isTypePrimitive<EdgeType>());
+        CinderPeak::Traits::isTypePrimitive<EdgeType>(),
+        CinderPeak::Traits::isGraphWeighted<EdgeType>(),
+        !CinderPeak::Traits::isGraphWeighted<EdgeType>());
     peak_store = std::make_unique<
         CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>(metadata,
                                                                 options);

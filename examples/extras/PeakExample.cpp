@@ -4,10 +4,9 @@ using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 int main() {
   GraphCreationOptions options({GraphCreationOptions::Directed,
-                                GraphCreationOptions::Weighted,
                                 GraphCreationOptions::SelfLoops});
   GraphInternalMetadata metadata("graph_matrix", Traits::isTypePrimitive<int>(),
-                                 Traits::isTypePrimitive<int>());
+                                 Traits::isTypePrimitive<int>(), Traits::isGraphWeighted<int>(), !Traits::isGraphWeighted<int>());
   // metadata.num_edges = 4;s
   // metadata.num_vertices = 2;
 
