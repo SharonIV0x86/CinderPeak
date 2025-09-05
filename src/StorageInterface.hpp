@@ -9,7 +9,7 @@ public:
   virtual const PeakStatus impl_addVertex(const VertexType &src) = 0;
 
   // No longer needed as the weighted overload handles unweighted edges via
-  // default EdgeType(). 
+  // default EdgeType().
   // virtual const PeakStatus impl_addEdge(const VertexType &src,
   //                                       const VertexType &dest) = 0;
 

@@ -6,12 +6,14 @@
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
-int main() {
+int main()
+{
   GraphCreationOptions opts(
-      {GraphCreationOptions::Weighted, GraphCreationOptions::Undirected});
+      {GraphCreationOptions::Undirected});
   GraphMatrix<int, int> graph(opts);
 
-  for (int i = 1; i <= 8; ++i) {
+  for (int i = 1; i <= 8; ++i)
+  {
     graph.addVertex(i);
   }
 
@@ -34,8 +36,4 @@ int main() {
   // graph.addEdge(4, 8, 180);
 
   graph.visualize();
-
-  //For testing unusual behaviour (inserting unweighted edge to weighted graph)
-  graph.addEdge(1, 5);
-  graph.addEdge(6, 2);
 }

@@ -18,11 +18,9 @@ class GraphCreationOptions {
 public:
   enum GraphType {
     Directed = 0,
-    Weighted,
     SelfLoops,
     ParallelEdges,
     Undirected,
-    Unweighted,
   };
   GraphCreationOptions(std::initializer_list<GraphType> graph_types) {
     for (auto type : graph_types) {
@@ -75,12 +73,13 @@ template <typename VertexType, typename EdgeType> struct PairHasher {
            (EdgeHasher<EdgeType>{}(p.second) << 1);
   }
 };
-template <typename T>
-struct is_primitive_or_string
-    : std::disjunction<std::is_arithmetic<T>, std::is_same<T, std::string>> {};
-template <typename T>
-inline constexpr bool is_primitive_or_string_v =
-    is_primitive_or_string<T>::value;
+// template <typename T>
+// struct is_primitive_or_string
+//     : std::disjunction<std::is_arithmetic<T>, std::is_same<T, std::string>>
+//     {};
+// template <typename T>
+// inline constexpr bool is_primitive_or_string_v =
+//     is_primitive_or_string<T>::value;
 
 std::string __generate_vertex_name() {
   std::random_device rd;
@@ -100,12 +99,12 @@ std::string __generate_vertex_name() {
   ss << "_" << duration;
   return ss.str();
 }
-template <typename T> bool isTypePrimitive() {
-  if constexpr (is_primitive_or_string_v<T>) {
-    return true;
-  }
-  return false;
-}
+// template <typename T> bool isTypePrimitive() {
+//   if constexpr (is_primitive_or_string_v<T>) {
+//     return true;
+//   }
+//   return false;
+// }
 class CinderVertex {
 public:
   size_t __id_;
@@ -158,8 +157,10 @@ public:
   const std::string graph_type;
   bool is_vertex_type_primitive;
   bool is_edge_type_primitive;
+  bool is_graph_weighted;
+  bool is_graph_unweighted;
   GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p,
-                        bool edge_tp_p)
+                        bool edge_tp_p, bool weighted, bool unweighted)
       : graph_type(graph_type), is_vertex_type_primitive(vertex_tp_p),
         is_edge_type_primitive(edge_tp_p) {
     num_vertices = 0;
@@ -167,7 +168,11 @@ public:
     density = 0.0; // Initialized with float value
     num_self_loops = 0;
     num_parallel_edges = 0;
+    is_graph_weighted = weighted;
+    is_graph_unweighted = unweighted;
   }
+  const bool isGraphWeighted() { return is_graph_weighted; }
+  const bool isGraphUnweighted() { return is_graph_unweighted; }
   // // default ctor for basic testing, this has to be removed later on.
   // GraphInternalMetadata() {}
 };
@@ -203,5 +208,11 @@ inline void handle_exception_map(const PeakStatus &status) {
   }
 }
 } // namespace Exceptions
+struct Unweighted {};
+
+// Always equal, since weights don’t matter
+inline bool operator==(const Unweighted &, const Unweighted &) noexcept {
+  return true;
+}
 
 } // namespace CinderPeak
