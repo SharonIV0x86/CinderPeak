@@ -47,48 +47,50 @@ public:
     LOG_INFO("Successfully initialized context object.");
   }
 
-PeakStatus addEdge(const VertexType &src, const VertexType &dest,
-                   const EdgeType &weight = EdgeType()) {
-    bool isWeighted = ctx->create_options->hasOption(GraphCreationOptions::Weighted);
+  PeakStatus addEdge(const VertexType &src, const VertexType &dest,
+                     const EdgeType &weight = EdgeType()) {
+    bool isWeighted =
+        ctx->create_options->hasOption(GraphCreationOptions::Weighted);
     bool edgeExists;
     PeakStatus status = PeakStatus::OK();
 
     if (isWeighted) {
-        edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest, weight);
+      edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest, weight);
     } else {
-        edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
+      edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
     }
 
     if (edgeExists) {
-        if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
-            LOG_DEBUG("Edge already exists");
-            return PeakStatus::EdgeAlreadyExists();
-        }
+      if ((isWeighted && !ctx->create_options->hasOption(
+                             GraphCreationOptions::ParallelEdges)) ||
+          !isWeighted) {
+        LOG_DEBUG("Edge already exists");
+        return PeakStatus::EdgeAlreadyExists();
+      }
     }
 
     if (isWeighted) {
-        LOG_INFO("Called weighted PeakStore::addEdge");
-        status = ctx->active_storage->impl_addEdge(src, dest, weight);
+      LOG_INFO("Called weighted PeakStore::addEdge");
+      status = ctx->active_storage->impl_addEdge(src, dest, weight);
     } else {
-        LOG_INFO("Called unweighted PeakStore::addEdge");
-        status = ctx->active_storage->impl_addEdge(src, dest);
+      LOG_INFO("Called unweighted PeakStore::addEdge");
+      status = ctx->active_storage->impl_addEdge(src, dest);
     }
 
     if (!status.isOK()) {
-        return status;
+      return status;
     }
 
     if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {
-        ctx->metadata->num_parallel_edges++;
+      ctx->metadata->num_parallel_edges++;
     }
     if (src == dest) {
-        ctx->metadata->num_self_loops++;
+      ctx->metadata->num_self_loops++;
     }
     ctx->metadata->num_edges++;
 
     return status;
-}
-
+  }
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
@@ -120,22 +122,25 @@ PeakStatus addEdge(const VertexType &src, const VertexType &dest,
   getContext() const {
     return ctx;
   }
-  
+
   // Method to get a summary string of statistics
-  std::string getGraphStatistics() {  
+  std::string getGraphStatistics() {
     std::stringstream ss;
 
     if (ctx->metadata->num_vertices > 1) {
-      float directed_density = (float)ctx->metadata->num_edges / (ctx->metadata->num_vertices * (ctx->metadata->num_vertices - 1));
+      float directed_density =
+          (float)ctx->metadata->num_edges /
+          (ctx->metadata->num_vertices * (ctx->metadata->num_vertices - 1));
       if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
         ctx->metadata->density = directed_density;
       if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
-        ctx->metadata->density = 2*directed_density;
-    }  
+        ctx->metadata->density = 2 * directed_density;
+    }
     ss << "=== Graph Statistics ===" << std::endl;
     ss << "Vertices: " << ctx->metadata->num_vertices << std::endl;
-    ss << "Edges: " << ctx->metadata->num_edges << std::endl;     
-    ss << "Density: " << std::fixed << std::setprecision(2) << ctx->metadata->density << std::endl;
+    ss << "Edges: " << ctx->metadata->num_edges << std::endl;
+    ss << "Density: " << std::fixed << std::setprecision(2)
+       << ctx->metadata->density << std::endl;
     ss << "Self-loops: " << ctx->metadata->num_self_loops << std::endl;
     ss << "Parallel edges: " << ctx->metadata->num_parallel_edges << std::endl;
     return ss.str();

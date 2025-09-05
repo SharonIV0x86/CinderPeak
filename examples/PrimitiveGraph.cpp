@@ -35,7 +35,4 @@ int main() {
 
   graph.visualize();
 
-  //For testing unusual behaviour (inserting unweighted edge to weighted graph)
-  graph.addEdge(1, 5);
-  graph.addEdge(6, 2);
 }

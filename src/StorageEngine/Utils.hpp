@@ -75,12 +75,13 @@ template <typename VertexType, typename EdgeType> struct PairHasher {
            (EdgeHasher<EdgeType>{}(p.second) << 1);
   }
 };
-template <typename T>
-struct is_primitive_or_string
-    : std::disjunction<std::is_arithmetic<T>, std::is_same<T, std::string>> {};
-template <typename T>
-inline constexpr bool is_primitive_or_string_v =
-    is_primitive_or_string<T>::value;
+// template <typename T>
+// struct is_primitive_or_string
+//     : std::disjunction<std::is_arithmetic<T>, std::is_same<T, std::string>>
+//     {};
+// template <typename T>
+// inline constexpr bool is_primitive_or_string_v =
+//     is_primitive_or_string<T>::value;
 
 std::string __generate_vertex_name() {
   std::random_device rd;
@@ -100,12 +101,12 @@ std::string __generate_vertex_name() {
   ss << "_" << duration;
   return ss.str();
 }
-template <typename T> bool isTypePrimitive() {
-  if constexpr (is_primitive_or_string_v<T>) {
-    return true;
-  }
-  return false;
-}
+// template <typename T> bool isTypePrimitive() {
+//   if constexpr (is_primitive_or_string_v<T>) {
+//     return true;
+//   }
+//   return false;
+// }
 class CinderVertex {
 public:
   size_t __id_;
@@ -203,5 +204,11 @@ inline void handle_exception_map(const PeakStatus &status) {
   }
 }
 } // namespace Exceptions
+struct Unweighted {};
+
+// Always equal, since weights don’t matter
+inline bool operator==(const Unweighted &, const Unweighted &) noexcept {
+  return true;
+}
 
 } // namespace CinderPeak
