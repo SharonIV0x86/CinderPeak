@@ -60,6 +60,10 @@ public:
     return data;
   }
 
+  size_t numEdges() const {
+    return peak_store->numEdges();
+  }
+
   void visualize() {
     LOG_INFO("Called GraphList:visualize");
     peak_store->visualize();

@@ -177,6 +177,15 @@ public:
     return std::make_pair(it->second, CinderPeak::PeakStatus::OK());
   }
 
+  size_t impl_numEdges() const override
+  {
+    size_t num_edges = 0;
+    for (const auto &[first, second] : _adj_list) {
+      num_edges += second.size();
+    }
+    return num_edges;
+  }
+
   auto getAdjList() { return _adj_list; }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
