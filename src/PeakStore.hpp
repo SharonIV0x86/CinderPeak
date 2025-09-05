@@ -123,7 +123,12 @@ public:
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
-  
+
+
+  size_t numEdges() const {
+    return ctx->active_storage->impl_numEdges();
+  }
+
   // Method to get a summary string of statistics
   std::string getGraphStatistics() {
     std::stringstream ss;

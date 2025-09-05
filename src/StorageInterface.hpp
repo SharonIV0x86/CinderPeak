@@ -26,6 +26,8 @@ public:
   virtual const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) = 0;
 
+  virtual size_t impl_numEdges() const = 0;
+
   virtual ~PeakStorageInterface() = default;
 };
 } // namespace CinderPeak

@@ -259,6 +259,11 @@ public:
     }
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
+
+  size_t impl_numEdges() const override {
+    return coo_src.size();
+  }
+
 };
 
 } // namespace PeakStore
