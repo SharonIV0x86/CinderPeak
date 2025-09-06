@@ -126,7 +126,7 @@ public:
 
 
   size_t numEdges() const {
-    return ctx->active_storage->impl_numEdges();
+    return ctx->metadata->num_edges;
   }
 
   // Method to get a summary string of statistics
