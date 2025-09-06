@@ -556,7 +556,6 @@ TEST_F(AdjacencyListThreadTest, ConcurrentReadWriteOperations) {
         thread.join();
     }
     
-    // Verify operations completed without errors
     EXPECT_EQ(readOperations.load(), numReaderThreads * operationsPerThread * 2);
     EXPECT_EQ(writeOperations.load(), numWriterThreads * operationsPerThread);
     EXPECT_EQ(readErrors.load(), 0);
@@ -601,6 +600,5 @@ TEST_F(AdjacencyListThreadTest, ConcurrentBulkOperations) {
         thread.join();
     }
     
-    // Each thread should have 2 successful operations (vertices + edges)
     EXPECT_EQ(successCount.load(), numThreads * 2);
 }
