@@ -259,7 +259,6 @@ public:
     }
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
-
 };
 
 } // namespace PeakStore
