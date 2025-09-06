@@ -224,3 +224,46 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
         EXPECT_EQ(extractValue(stats, "Self-loops: "), 1);
     }
 }
+
+TEST_F(GraphStatisticsTest, NumEdgesEmptyGraph) {
+    GraphList<int, int> graph;
+
+    EXPECT_EQ(graph.numEdges(), 0);
+
+    // Add vertices but no edges
+    for (int i = 1; i <= 3; ++i) {
+        graph.addVertex(i);
+    }
+    EXPECT_EQ(graph.numEdges(), 0);
+}
+
+TEST_F(GraphStatisticsTest, NumEdgesWithEdges) {
+    GraphList<int, int> graph;
+
+    // Add vertices
+    for (int i = 1; i <= 4; ++i) {
+        graph.addVertex(i);
+    }
+
+    // Add edges and verify count
+    graph.addEdge(1, 2, 10);
+    EXPECT_EQ(graph.numEdges(), 1);
+
+    graph.addEdge(2, 3, 20);
+    EXPECT_EQ(graph.numEdges(), 2);
+
+    graph.addEdge(3, 4, 30);
+    EXPECT_EQ(graph.numEdges(), 3);
+}
+
+TEST_F(GraphStatisticsTest, NumEdgesWithSelfLoop) {
+    GraphList<int, int> graph;
+
+    graph.addVertex(1);
+    graph.addVertex(2);
+
+    graph.addEdge(1, 2, 10);
+    graph.addEdge(1, 1, 20); // Self-loop
+
+    EXPECT_EQ(graph.numEdges(), 2);
+}
