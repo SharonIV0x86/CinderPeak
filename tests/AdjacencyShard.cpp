@@ -1,5 +1,6 @@
 #include "StorageEngine/AdjacencyList.hpp"
 #include <gtest/gtest.h>
+#include <thread>
 
 using namespace CinderPeak;
 using namespace PeakStore;
@@ -398,4 +399,208 @@ TEST(AdjacencyListCustomTest, CustomVertexType) {
   auto edge = customGraph.impl_getEdge(v1, v2);
   EXPECT_TRUE(edge.second.isOK());
   EXPECT_FLOAT_EQ(edge.first, 3.14f);
+}
+
+//
+// 8. Thread Safety Tests
+//
+
+class AdjacencyListThreadTest : public ::testing::Test {
+protected:
+    AdjacencyList<int, int> threadGraph;
+    
+    void SetUp() override {
+        // Initialize with some vertices for testing
+        for (int i = 1; i <= 100; ++i) {
+            threadGraph.impl_addVertex(i);
+        }
+    }
+};
+
+TEST_F(AdjacencyListThreadTest, ConcurrentVertexAddition) {
+    const int numThreads = 10;
+    const int verticesPerThread = 50;
+    std::vector<std::thread> threads;
+    std::atomic<int> successCount{0};
+    std::atomic<int> failureCount{0};
+    
+    // Each thread adds vertices in a different range to avoid conflicts
+    for (int t = 0; t < numThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            int startVertex = 1000 + t * verticesPerThread;
+            for (int i = 0; i < verticesPerThread; ++i) {
+                auto status = threadGraph.impl_addVertex(startVertex + i);
+                if (status.isOK()) {
+                    successCount++;
+                } else {
+                    failureCount++;
+                }
+            }
+        });
+    }
+    
+    // Wait for all threads to complete
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    
+    // All vertex additions should succeed since ranges don't overlap
+    EXPECT_EQ(successCount.load(), numThreads * verticesPerThread);
+    EXPECT_EQ(failureCount.load(), 0);
+    
+    // Verify vertices were actually added
+    for (int t = 0; t < numThreads; ++t) {
+        int startVertex = 1000 + t * verticesPerThread;
+        for (int i = 0; i < verticesPerThread; ++i) {
+            auto neighbors = threadGraph.impl_getNeighbors(startVertex + i);
+            EXPECT_TRUE(neighbors.second.isOK());
+        }
+    }
+}
+
+TEST_F(AdjacencyListThreadTest, ConcurrentEdgeAddition) {
+    const int numThreads = 8;
+    const int edgesPerThread = 100;
+    std::vector<std::thread> threads;
+    std::atomic<int> successCount{0};
+    std::atomic<int> failureCount{0};
+    
+    // Each thread adds edges between different vertex pairs
+    for (int t = 0; t < numThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            for (int i = 0; i < edgesPerThread; ++i) {
+                // Create unique edge pairs for each thread
+                int src = (t * edgesPerThread + i) % 100 + 1;
+                int dest = ((t + 1) * edgesPerThread + i) % 100 + 1;
+                int weight = t * 1000 + i;
+                
+                auto status = threadGraph.impl_addEdge(src, dest, weight);
+                if (status.isOK()) {
+                    successCount++;
+                } else {
+                    failureCount++;
+                }
+            }
+        });
+    }
+    
+    // Wait for all threads to complete
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    
+    // All edge additions should succeed
+    EXPECT_EQ(successCount.load(), numThreads * edgesPerThread);
+    EXPECT_EQ(failureCount.load(), 0);
+}
+
+TEST_F(AdjacencyListThreadTest, ConcurrentReadWriteOperations) {
+    // Add some initial edges
+    for (int i = 1; i <= 50; ++i) {
+        threadGraph.impl_addEdge(i, (i % 50) + 1, i * 10);
+    }
+    
+    const int numReaderThreads = 6;
+    const int numWriterThreads = 4;
+    const int operationsPerThread = 200;
+    
+    std::vector<std::thread> threads;
+    std::atomic<int> readOperations{0};
+    std::atomic<int> writeOperations{0};
+    std::atomic<int> readErrors{0};
+    std::atomic<int> writeErrors{0};
+    
+    // Reader threads - perform getEdge and getNeighbors operations
+    for (int t = 0; t < numReaderThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            for (int i = 0; i < operationsPerThread; ++i) {
+                int vertex1 = (i % 50) + 1;
+                int vertex2 = ((i + 1) % 50) + 1;
+                
+                // Read edge
+                auto edge = threadGraph.impl_getEdge(vertex1, vertex2);
+                readOperations++;
+                if (!edge.second.isOK() && edge.second.code() != StatusCode::EDGE_NOT_FOUND) {
+                    readErrors++;
+                }
+                
+                // Read neighbors
+                auto neighbors = threadGraph.impl_getNeighbors(vertex1);
+                readOperations++;
+                if (!neighbors.second.isOK()) {
+                    readErrors++;
+                }
+            }
+        });
+    }
+    
+    // Writer threads - perform addEdge operations
+    for (int t = 0; t < numWriterThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            for (int i = 0; i < operationsPerThread; ++i) {
+                int src = (t * operationsPerThread + i) % 50 + 1;
+                int dest = ((t + 2) * operationsPerThread + i) % 50 + 1;
+                int weight = (t + 1) * 1000 + i;
+                
+                auto status = threadGraph.impl_addEdge(src, dest, weight);
+                writeOperations++;
+                if (!status.isOK()) {
+                    writeErrors++;
+                }
+            }
+        });
+    }
+    
+    // Wait for all threads to complete
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    
+    // Verify operations completed without errors
+    EXPECT_EQ(readOperations.load(), numReaderThreads * operationsPerThread * 2);
+    EXPECT_EQ(writeOperations.load(), numWriterThreads * operationsPerThread);
+    EXPECT_EQ(readErrors.load(), 0);
+    EXPECT_EQ(writeErrors.load(), 0);
+}
+
+TEST_F(AdjacencyListThreadTest, ConcurrentBulkOperations) {
+    const int numThreads = 6;
+    std::vector<std::thread> threads;
+    std::atomic<int> successCount{0};
+    
+    // Each thread performs bulk vertex and edge additions
+    for (int t = 0; t < numThreads; ++t) {
+        threads.emplace_back([&, t]() {
+            // Bulk vertex addition
+            std::vector<int> vertices;
+            int startVertex = 2000 + t * 100;
+            for (int i = 0; i < 50; ++i) {
+                vertices.push_back(startVertex + i);
+            }
+            
+            auto vertexStatus = threadGraph.impl_addVertices(vertices);
+            if (vertexStatus.isOK()) {
+                successCount++;
+            }
+            
+            // Bulk edge addition
+            std::vector<std::tuple<int, int, int>> edges;
+            for (int i = 0; i < 25; ++i) {
+                edges.emplace_back(startVertex + i, startVertex + i + 1, i * 10);
+            }
+            
+            auto edgeStatus = threadGraph.impl_addEdges(edges);
+            if (edgeStatus.isOK()) {
+                successCount++;
+            }
+        });
+    }
+    
+    // Wait for all threads to complete
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    
+    // Each thread should have 2 successful operations (vertices + edges)
+    EXPECT_EQ(successCount.load(), numThreads * 2);
 }
