@@ -60,6 +60,11 @@ public:
     return data;
   }
 
+  // Helper method to call setConsoleLogging function from Peakstore
+  static void setConsoleLogging(const bool toggle) {
+    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
+  }
+
   void visualize() {
     LOG_INFO("Called GraphList:visualize");
     peak_store->visualize();

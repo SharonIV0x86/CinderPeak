@@ -42,7 +42,6 @@ public:
             const GraphCreationOptions &options =
                 CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
-    Logger::enableConsoleLogging = true;
     initializeContext(metadata, options);
     LOG_INFO("Successfully initialized context object.");
   }
@@ -120,7 +119,11 @@ public:
   getContext() const {
     return ctx;
   }
-
+  // Method to enable and disable logs in terminal
+  static void setConsoleLogging(const bool toggle) {
+    Logger::enableConsoleLogging = toggle;
+  }
+  
   // Method to get a summary string of statistics
   std::string getGraphStatistics() {
     std::stringstream ss;
