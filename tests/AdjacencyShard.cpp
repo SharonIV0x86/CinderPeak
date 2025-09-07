@@ -27,6 +27,40 @@ protected:
         stringGraph.impl_addVertex("C");
     }
 };
+// Base Fixture for Complex Types
+class ComplexAdjVertex : public CinderVertex {
+public:
+    int vertexData;
+    std::string nodeName;
+    ComplexAdjVertex(int vertexData, std::string node_name) : vertexData{vertexData}, nodeName{node_name} {}
+    ComplexAdjVertex(){};
+};
+
+class ComplexAdjEdge : public CinderEdge {
+public:
+    float edgeValue;
+    ComplexAdjEdge(float edgeValue) : edgeValue{edgeValue} {}
+    ComplexAdjEdge(){};
+};
+
+class ComplexGraph : public ::testing::Test {
+public:
+    ComplexAdjVertex v1,v2,v3;
+    ComplexAdjEdge e1, e2;
+    AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph;
+    ComplexGraph() {
+        v1 = ComplexAdjVertex(1, "Vertex1");
+        v2 = ComplexAdjVertex(2, "Vertex2");
+        v3 = ComplexAdjVertex(3, "Vertex3");
+
+        e1 = ComplexAdjEdge(12.34);
+        e2 = ComplexAdjEdge(76.45);
+
+        complexGraph.impl_addVertex(v1);
+        complexGraph.impl_addVertex(v2);
+        complexGraph.impl_addVertex(v3);
+    }
+};
 
 //
 // 1. Vertex Operations
@@ -127,7 +161,19 @@ TEST_F(AdjacencyListTest, UpdateEdgeWithWeight) {
 
     auto edge2 = intGraph.impl_getEdge(103, 102);
     EXPECT_TRUE(edge2.second.isOK());
-    EXPECT_EQ(edge2.first, 1);
+    EXPECT_EQ(edge2.first, 1);    
+}
+TEST_F(ComplexGraph, UpdateEdgeOnComplexGraph){
+    ComplexAdjEdge newEdgeValue1(4.3);
+    ComplexAdjEdge newEdgeValue2(467.32);
+    EXPECT_TRUE(complexGraph.impl_addEdge(v1, v2, e1).isOK());
+    EXPECT_TRUE(complexGraph.impl_addEdge(v2, v3, e2).isOK());
+
+    complexGraph.impl_updateEdge(v1, v2, newEdgeValue1);
+    EXPECT_EQ(complexGraph.impl_getEdge(v1, v2).first, newEdgeValue1);
+
+    complexGraph.impl_updateEdge(v2, v3, newEdgeValue2);
+    EXPECT_EQ(complexGraph.impl_getEdge(v2, v3).first, newEdgeValue2);
 }
 
 TEST_F(AdjacencyListTest, AddEdgeWithoutWeight) {
@@ -328,7 +374,6 @@ TEST_F(AdjacencyListTest, AdjacencyListStructure) {
 //
 // 7. Complex Type Tests (CustomVertex)
 //
-
 struct CustomVertex : public CinderVertex {
     int vertex_value;
     std::string name;
