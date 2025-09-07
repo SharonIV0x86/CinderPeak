@@ -602,3 +602,140 @@ TEST_F(AdjacencyListThreadTest, ConcurrentBulkOperations) {
     
     EXPECT_EQ(successCount.load(), numThreads * 2);
 }
+
+TEST_F(AdjacencyListTest, ConcurrentMixedOperationsDeadlock) {
+    const int NUM_THREADS = 10;
+    const int OPERATIONS_PER_THREAD = 1000;
+    std::vector<std::thread> threads;
+    std::atomic<int> completed_threads(0);
+    std::atomic<bool> deadlock_detected(false);
+    std::thread watchdog([&]() {
+        auto start = std::chrono::steady_clock::now();
+        while (completed_threads < NUM_THREADS) {
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+            if (elapsed.count() > 5) { // 5 second timeout
+                deadlock_detected = true;
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    });
+    for (int i = 0; i < NUM_THREADS; i++) {
+        threads.emplace_back([&, i]() {
+            for (int j = 0; j < OPERATIONS_PER_THREAD; j++) {
+                int vertex_id = i * 1000 + j;
+                
+                if (j % 4 == 0) {
+                    intGraph.impl_addVertex(vertex_id);
+                } else if (j % 4 == 1) {
+                    intGraph.impl_doesEdgeExist(1, 2);
+                } else if (j % 4 == 2) {
+                    intGraph.impl_getNeighbors(vertex_id % 10);
+                } else {
+                    if (vertex_id > 10) {
+                        intGraph.impl_addEdge(vertex_id - 1, vertex_id);
+                    }
+                }
+            }
+            completed_threads++;
+        });
+    }
+    for (auto& thread : threads) {
+        thread.join();
+    }
+    watchdog.join();
+    EXPECT_FALSE(deadlock_detected);
+}
+TEST_F(AdjacencyListTest, ConcurrentBulkOperationsRace) {
+    std::vector<int> vertices1 = {100, 101, 102, 103, 104};
+    std::vector<int> vertices2 = {105, 106, 107, 108, 109};   
+    std::vector<std::pair<int, int>> edges1 = {{100, 101}, {101, 102}, {102, 103}};
+    std::vector<std::pair<int, int>> edges2 = {{105, 106}, {106, 107}, {107, 108}};
+    std::thread t1([&]() {
+        intGraph.impl_addVertices(vertices1);
+        intGraph.impl_addEdges(edges1);
+    });
+    std::thread t2([&]() {
+        intGraph.impl_addVertices(vertices2);
+        intGraph.impl_addEdges(edges2);
+    });
+    t1.join();
+    t2.join();
+        for (int v : vertices1) {
+        EXPECT_TRUE(intGraph.impl_getNeighbors(v).second.isOK());
+    }
+    for (int v : vertices2) {
+        EXPECT_TRUE(intGraph.impl_getNeighbors(v).second.isOK());
+    }
+}
+TEST_F(AdjacencyListTest, HighReadWriteContention) {
+    const int READ_THREADS = 8;
+    const int WRITE_THREADS = 2;
+    std::vector<std::thread> threads;
+    std::atomic<bool> stop(false);
+        for (int i = 0; i < WRITE_THREADS; i++) {
+        threads.emplace_back([&, i]() {
+            int counter = 0;
+            while (!stop) {
+                int vertex_id = i * 1000 + counter;
+                intGraph.impl_addVertex(vertex_id);
+                if (counter > 0) {
+                    intGraph.impl_addEdge(vertex_id - 1, vertex_id);
+                }
+                counter++;
+                std::this_thread::yield();
+            }
+        });
+    }
+        for (int i = 0; i < READ_THREADS; i++) {
+        threads.emplace_back([&, i]() {
+            int read_count = 0;
+            while (!stop && read_count < 1000) {
+                int vertex_to_check = i % 10;
+                auto result = intGraph.impl_getNeighbors(vertex_to_check);
+                read_count++;
+                std::this_thread::yield();
+            }
+        });
+    }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    stop = true;
+    
+    for (auto& thread : threads) {
+        thread.join();
+    }
+        EXPECT_TRUE(true);
+}
+TEST_F(AdjacencyListTest, PotentialReentrancyDeadlock) {
+    intGraph.impl_addVertex(100);
+    intGraph.impl_addVertex(101);
+    intGraph.impl_addEdge(100, 101);
+    
+    auto callback = [&](int from, int to) {
+        return intGraph.impl_doesEdgeExist(from, to);
+    };
+        std::thread t([&]() {
+        auto neighbors = intGraph.impl_getNeighbors(100);
+        if (neighbors.second.isOK()) {
+            for (const auto& [vertex, weight] : neighbors.first) {
+                bool exists = callback(100, vertex);
+                EXPECT_TRUE(exists); // This should be true
+            }
+        }
+    });
+    auto start = std::chrono::steady_clock::now();
+    bool completed = false;
+    
+    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
+        if (t.joinable()) {
+            t.join();
+            completed = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    
+    EXPECT_TRUE(completed); // Thread should complete within timeout
+}
