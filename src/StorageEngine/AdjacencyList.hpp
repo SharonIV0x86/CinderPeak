@@ -137,7 +137,7 @@ public:
     return peak_status;
   }
 
-  // Added method for updating weight of an edge
+  // Method for updating weight of an edge
   const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest, 
                                   const EdgeType &newWeight) {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
