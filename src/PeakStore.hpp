@@ -89,6 +89,16 @@ public:
     return status;
   }
 
+  // Helper method to call impl_updateEdge method from AdjacencyList
+  PeakStatus updateEdge(const VertexType &src, const VertexType &dest,
+                     const EdgeType &newWeight) {
+    LOG_INFO("Called adjacency:updateEdge()");
+    if (PeakStatus resp = ctx->active_storage->impl_updateEdge(src, dest, newWeight);
+        !resp.isOK())
+      return resp;
+    return PeakStatus::OK();
+  }
+
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
     LOG_INFO("Called adjacency:getEdge()");
