@@ -9,6 +9,9 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+
 namespace CinderPeak {
 template <typename VertexType, typename EdgeType> class GraphVisualizer;
 namespace PeakStore {
@@ -16,6 +19,7 @@ namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
+
   void initializeContext(const GraphInternalMetadata &metadata,
                          const GraphCreationOptions &options) {
     ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
@@ -98,6 +102,7 @@ public:
     }
     return status;
   }
+
   PeakStatus addVertex(const VertexType &src) {
     LOG_INFO("Called peakStore:addVertex");
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
@@ -106,6 +111,7 @@ public:
     ctx->metadata->num_vertices++;
     return PeakStatus::OK();
   }
+
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
     LOG_INFO("Called adjacency:getNeighbors()");
@@ -115,16 +121,16 @@ public:
     }
     return status;
   }
+
   const std::shared_ptr<GraphContext<VertexType, EdgeType>> &
   getContext() const {
     return ctx;
   }
-  // Method to enable and disable logs in terminal
+
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
-  
-  // Method to get a summary string of statistics
+
   std::string getGraphStatistics() {
     std::stringstream ss;
 
@@ -148,6 +154,18 @@ public:
   }
 
   void visualize() { LOG_WARNING("Unimplemented function: visualize"); }
+
+  // ✅ NEW METHOD
+  PeakStatus clearEdges() {
+    LOG_INFO("Called PeakStore::clearEdges");
+    auto status = ctx->adjacency_storage->impl_clearEdges();
+    if (status.isOK()) {
+      ctx->metadata->num_edges = 0;
+      ctx->metadata->num_self_loops = 0;
+      ctx->metadata->num_parallel_edges = 0;
+    }
+    return status;
+  }
 };
 
 } // namespace PeakStore
