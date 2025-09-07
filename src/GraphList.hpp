@@ -33,6 +33,11 @@ public:
     }
   }
 
+  // Helper method to call doesVertexExist from PeakStore
+  bool doesVertexExist(const VertexType &v) {
+    return peak_store->doesVertexExist(v);
+  }
+
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>, void> {
