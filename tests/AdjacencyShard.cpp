@@ -129,6 +129,14 @@ TEST_F(AdjacencyListTest, AddVerticesString) {
     }
 }
 
+// Test to validate impl_doesVertexExist functionality
+TEST_F(AdjacencyListTest, CheckVertexExistence) {
+    EXPECT_TRUE(intGraph.impl_doesVertexExist(2));
+    EXPECT_TRUE(intGraph.impl_doesVertexExist(5));
+    EXPECT_FALSE(intGraph.impl_doesVertexExist(200));
+}
+
+
 //
 // 2. Edge Operations
 //
