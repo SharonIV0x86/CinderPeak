@@ -54,9 +54,12 @@ public:
   template <typename E = EdgeType>
   auto updateEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &newWeight)
-    -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>, PeakStatus> {
-  return peak_store->updateEdge(src, dest, newWeight);
-}
+    -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>, bool> {
+    auto resp = peak_store->updateEdge(src, dest, newWeight);
+    if (!resp.isOK())
+      return false;
+    return true;
+  }
 
   EdgeType getEdge(const VertexType &src, const VertexType &dest) {
     LOG_INFO("Called getEdge");
