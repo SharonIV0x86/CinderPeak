@@ -8,6 +8,14 @@ namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
 
 namespace PeakStore {
+
+/**
+ * @brief Thread safety note: This class uses a single shared mutex for synchronization.
+ *        Do not call these methods from within code that already holds locks
+ *        on this object, as it may cause deadlocks.
+ *        For nested operations, use the provided bulk methods instead.
+ *        E.g do not try to call addEdge from addEdges, it will cause a deadlock.
+ */
 template <typename VertexType, typename EdgeType>
 class AdjacencyList
     : public CinderPeak::PeakStorageInterface<VertexType, EdgeType> {
