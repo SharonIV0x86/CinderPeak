@@ -57,6 +57,18 @@ TEST_F(HybridCSRCOOTest, SingleVertexOperations) {
   EXPECT_EQ(weight, 100);
 }
 
+TEST_F(HybridCSRCOOTest, CheckVertexExistence) {
+  auto status = graph->impl_addVertex(40);
+  EXPECT_TRUE(status.isOK());
+  auto status1 = graph->impl_addVertex(49);
+  EXPECT_TRUE(status1.isOK());
+
+  // Check for vertex existence
+  EXPECT_TRUE(graph->impl_doesVertexExist(40));
+  EXPECT_TRUE(graph->impl_doesVertexExist(49));
+  EXPECT_FALSE(graph->impl_doesVertexExist(404));
+}
+
 TEST_F(HybridCSRCOOTest, VertexAdditionSequential) {
   std::vector<int> vertices = {1, 5, 3, 9, 2, 7};
   

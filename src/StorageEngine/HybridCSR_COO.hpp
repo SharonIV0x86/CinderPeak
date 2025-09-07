@@ -259,6 +259,9 @@ public:
   // Method to check whether a vertex exists or not
   bool impl_doesVertexExist(const VertexType &v)
                             override {
+    if (!vertex_to_index.count(v)) {
+      return false;
+    }
     return true;
   }
 
