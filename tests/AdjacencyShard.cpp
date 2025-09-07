@@ -17,6 +17,11 @@ protected:
         intGraph.impl_addVertex(4);
         intGraph.impl_addVertex(5);
 
+        // New vertices added to validate updateEdge functionality
+        intGraph.impl_addVertex(101);
+        intGraph.impl_addVertex(102);
+        intGraph.impl_addVertex(103);
+
         stringGraph.impl_addVertex("A");
         stringGraph.impl_addVertex("B");
         stringGraph.impl_addVertex("C");
@@ -105,6 +110,24 @@ TEST_F(AdjacencyListTest, AddEdgeWithWeight) {
     auto edge2 = intGraph.impl_getEdge(2, 3);
     EXPECT_TRUE(edge2.second.isOK());
     EXPECT_EQ(edge2.first, 10);
+}
+
+// Added test to validate impl_updateEdge functionality
+TEST_F(AdjacencyListTest, UpdateEdgeWithWeight) {
+    EXPECT_TRUE(intGraph.impl_addEdge(101, 102, 7).isOK());
+    EXPECT_TRUE(intGraph.impl_addEdge(103, 102, 5).isOK());
+
+    EXPECT_TRUE(intGraph.impl_updateEdge(101, 102, 10).isOK());
+    EXPECT_TRUE(intGraph.impl_updateEdge(103, 102, 1).isOK());
+    EXPECT_FALSE(intGraph.impl_updateEdge(400, 102, 1).isOK());
+
+    auto edge1 = intGraph.impl_getEdge(101, 102);
+    EXPECT_TRUE(edge1.second.isOK());
+    EXPECT_EQ(edge1.first, 10);
+
+    auto edge2 = intGraph.impl_getEdge(103, 102);
+    EXPECT_TRUE(edge2.second.isOK());
+    EXPECT_EQ(edge2.first, 1);
 }
 
 TEST_F(AdjacencyListTest, AddEdgeWithoutWeight) {
@@ -277,7 +300,7 @@ TEST_F(AdjacencyListTest, AdjacencyListStructure) {
 
     auto adjList = intGraph.getAdjList();
 
-    EXPECT_EQ(adjList.size(), 5);
+    EXPECT_EQ(adjList.size(), 8); // Updated value due to newer vertex additions
 
     auto it1 = adjList.find(1);
     ASSERT_NE(it1, adjList.end());
