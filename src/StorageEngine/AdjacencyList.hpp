@@ -28,9 +28,39 @@ public:
         return PeakStatus::OK();
     }
 
+
     PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest) {
         adjacency_map[src].push_back({dest, EdgeType()});
         return PeakStatus::OK();
+        
+    return peak_status;
+  }
+
+  // Method for updating weight of an edge
+  const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest, 
+                                  const EdgeType &newWeight) {
+    if (auto it = _adj_list.find(src); it == _adj_list.end())
+      return PeakStatus::VertexNotFound();
+    
+    // Search for the edge in source Adjacency list
+    auto &edges = _adj_list.find(src)->second;
+    for (auto &edge : edges) {
+      if (edge.first == dest) {
+        edge.second = newWeight; // Update the weight if edge exists
+        return PeakStatus::OK();
+      }
+    }
+
+    // If edge does not exists
+    return PeakStatus::EdgeNotFound();    
+  }
+
+  bool impl_doesEdgeExist(const VertexType &src,
+                          const VertexType &dest) override {
+    auto it = _adj_list.find(src);
+    if (it == _adj_list.end()) { // Vertex 'src' not found
+      return false;
+
     }
 
     bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest) {
