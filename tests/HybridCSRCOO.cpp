@@ -96,7 +96,32 @@ TEST_F(HybridCSRCOOTest, EdgeAdditionBasic) {
   EXPECT_EQ(w2, 25);
 }
 
+TEST_F(HybridCSRCOOTest, EdgeWeightUpdation) {
+  // Setup vertices
+  std::vector<int> vertices = {1, 2, 3, 4, 5};
+  for (int v : vertices) {
+    graph->impl_addVertex(v);
+  }
+  
+  // Add edges 
+  EXPECT_TRUE(graph->impl_addEdge(1, 2, 10).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(2, 3, 20).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(1, 3, 15).isOK());
 
+
+  // Edge updation
+  EXPECT_TRUE(graph->impl_updateEdge(1, 2, 15).isOK());
+  EXPECT_TRUE(graph->impl_updateEdge(2, 3, 10).isOK());
+  EXPECT_FALSE(graph->impl_updateEdge(547, 3, 15).isOK());
+
+  auto [w1, s1] = graph->impl_getEdge(1, 2);
+  EXPECT_TRUE(s1.isOK());
+  EXPECT_EQ(w1, 15);
+  
+  auto [w2, s2] = graph->impl_getEdge(2, 3);
+  EXPECT_TRUE(s2.isOK());
+  EXPECT_EQ(w2, 10);
+}
 
 TEST_F(HybridCSRCOOTest, EdgeAdditionWithNonExistentVertices) {
   graph->impl_addVertex(1);
