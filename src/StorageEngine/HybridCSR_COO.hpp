@@ -256,6 +256,12 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to check whether a vertex exists or not
+  bool impl_doesVertexExist(const VertexType &v)
+                            override {
+    return true;
+  }
+
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {
     auto edge = impl_getEdge(src, dest);

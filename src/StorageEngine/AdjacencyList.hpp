@@ -156,6 +156,16 @@ public:
     return PeakStatus::EdgeNotFound();    
   }
 
+  // Method to check whether a vertex exists or not
+  bool impl_doesVertexExist(const VertexType &v)
+                            override {
+    auto it = _adj_list.find(v);
+    if (it == _adj_list.end()) {
+      return false;
+    }
+    return true;
+  }
+
   bool impl_doesEdgeExist(const VertexType &src,
                           const VertexType &dest) override {
     auto it = _adj_list.find(src);

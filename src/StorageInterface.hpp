@@ -22,6 +22,9 @@ public:
   impl_updateEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &newWeight) = 0;
 
+  // Method to check whether a Vertex exists or not
+  virtual bool impl_doesVertexExist(const VertexType &v) = 0;
+
   virtual bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                                   const EdgeType &weight) = 0;
 
