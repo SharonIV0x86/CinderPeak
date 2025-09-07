@@ -60,6 +60,10 @@ public:
     return data;
   }
 
+  size_t numEdges() const {
+    return peak_store->numEdges();
+  }
+
   // Helper method to call setConsoleLogging function from Peakstore
   static void setConsoleLogging(const bool toggle) {
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
