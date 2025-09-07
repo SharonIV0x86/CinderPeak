@@ -142,8 +142,6 @@ public:
                                   const EdgeType &newWeight) {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
-    if (auto it = _adj_list.find(dest); it == _adj_list.end())
-      return PeakStatus::VertexNotFound();
     
     // Search for the edge in source Adjacency list
     auto &edges = _adj_list.find(src)->second;
@@ -154,7 +152,7 @@ public:
       }
     }
 
-    // If edge not found
+    // If edge does not exists
     return PeakStatus::EdgeNotFound();    
   }
 

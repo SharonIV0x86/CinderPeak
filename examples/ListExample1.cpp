@@ -13,6 +13,7 @@ int main() {
   graph.addVertex(4);
   graph.addVertex(5);
   graph.addEdge(1, 3, 5);
+  graph.updateEdge(1, 3, 10);
 
   GraphCreationOptions opts1(
   {GraphCreationOptions::Directed});

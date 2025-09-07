@@ -221,6 +221,12 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method for updating weight of an edge
+  const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
+                                   const EdgeType &newWeight) override {
+    return PeakStatus::OK();                                    
+  }
+
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {
     auto edge = impl_getEdge(src, dest);

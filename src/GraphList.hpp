@@ -50,6 +50,14 @@ public:
       Exceptions::handle_exception_map(resp);
   }
 
+  // Helper method to call updateEdge method from PeakStore
+  template <typename E = EdgeType>
+  auto updateEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &newWeight)
+    -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>, PeakStatus> {
+  return peak_store->updateEdge(src, dest, newWeight);
+}
+
   EdgeType getEdge(const VertexType &src, const VertexType &dest) {
     LOG_INFO("Called getEdge");
     auto [data, status] = peak_store->getEdge(src, dest);
