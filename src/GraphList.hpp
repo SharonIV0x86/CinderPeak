@@ -2,14 +2,24 @@
 #include "Concepts.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
-
+#include <memory>
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;
 }
-class CinderGraph;
+struct GraphCreationOptions {
+    enum Type { Undirected, Directed };
+    GraphCreationOptions(std::initializer_list<Type> t) {}
+    static GraphCreationOptions getDefaultCreateOptions() { return GraphCreationOptions({Undirected}); }
+};
+namespace Traits {
+    template<typename T> constexpr bool is_unweighted_v = false;
+    template<typename T> constexpr bool is_weighted_v = true;
+    template<typename T> constexpr bool isTypePrimitive() { return std::is_fundamental<T>::value; }
+    template<typename T> constexpr bool isGraphWeighted() { return true; }
+}
 
-template <typename VertexType, typename EdgeType> 
+template <typename VertexType, typename EdgeType>
 class GraphList {
 private:
   std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
@@ -53,7 +63,6 @@ public:
       Exceptions::handle_exception_map(resp);
   }
 
-  // Helper method to call updateEdge method from PeakStore
   template <typename E = EdgeType>
   auto updateEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &newWeight)
@@ -78,8 +87,6 @@ public:
     return peak_store->numEdges();
   }
 
-  // Helper method to call setConsoleLogging function from Peakstore
-
   static void setConsoleLogging(const bool toggle) {
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
   }
@@ -89,7 +96,6 @@ public:
     peak_store->visualize();
   }
 
-  // ✅ NEW METHOD
   void clearEdges() {
     auto resp = peak_store->clearEdges();
     if (!resp.isOK()) {
