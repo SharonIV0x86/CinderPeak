@@ -16,6 +16,10 @@ namespace CinderPeak {
 template <typename VertexType, typename EdgeType> class GraphVisualizer;
 namespace PeakStore {
 
+// Make sure to use fully qualified names for these types
+using GraphInternalMetadata = ::CinderPeak::PeakStore::GraphInternalMetadata;
+using GraphCreationOptions = ::CinderPeak::PeakStore::GraphCreationOptions;
+
 template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
@@ -44,7 +48,7 @@ private:
 public:
   PeakStore(const GraphInternalMetadata &metadata,
             const GraphCreationOptions &options =
-                CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
+                GraphCreationOptions::getDefaultCreateOptions())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options);
     LOG_INFO("Successfully initialized context object.");
@@ -140,7 +144,6 @@ public:
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
-
 
   size_t numEdges() const {
     return ctx->metadata->num_edges;
