@@ -2,12 +2,25 @@
 #include "Concepts.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
+#include <memory>
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;
 }
-class CinderGraph;
-template <typename VertexType, typename EdgeType> class GraphList {
+struct GraphCreationOptions {
+    enum Type { Undirected, Directed };
+    GraphCreationOptions(std::initializer_list<Type> t) {}
+    static GraphCreationOptions getDefaultCreateOptions() { return GraphCreationOptions({Undirected}); }
+};
+namespace Traits {
+    template<typename T> constexpr bool is_unweighted_v = false;
+    template<typename T> constexpr bool is_weighted_v = true;
+    template<typename T> constexpr bool isTypePrimitive() { return std::is_fundamental<T>::value; }
+    template<typename T> constexpr bool isGraphWeighted() { return true; }
+}
+
+template <typename VertexType, typename EdgeType>
+class GraphList {
 private:
   std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
       peak_store;
@@ -50,7 +63,6 @@ public:
       Exceptions::handle_exception_map(resp);
   }
 
-  // Helper method to call updateEdge method from PeakStore
   template <typename E = EdgeType>
   auto updateEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &newWeight)
@@ -66,7 +78,7 @@ public:
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
-      return EdgeType(); // Return default-constructed EdgeType on error
+      return EdgeType(); 
     }
     return data;
   }
@@ -75,7 +87,6 @@ public:
     return peak_store->numEdges();
   }
 
-  // Helper method to call setConsoleLogging function from Peakstore
   static void setConsoleLogging(const bool toggle) {
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
   }
@@ -83,6 +94,13 @@ public:
   void visualize() {
     LOG_INFO("Called GraphList:visualize");
     peak_store->visualize();
+  }
+
+  void clearEdges() {
+    auto resp = peak_store->clearEdges();
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+    }
   }
 };
 
