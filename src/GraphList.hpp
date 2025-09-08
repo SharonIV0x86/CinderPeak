@@ -33,9 +33,9 @@ public:
     }
   }
 
-  // Helper method to call doesVertexExist from PeakStore
-  bool doesVertexExist(const VertexType &v) {
-    return peak_store->doesVertexExist(v);
+  // Helper method to call hasVertex from PeakStore
+  bool hasVertex(const VertexType &v) {
+    return peak_store->hasVertex(v);
   }
 
   template <typename E = EdgeType>

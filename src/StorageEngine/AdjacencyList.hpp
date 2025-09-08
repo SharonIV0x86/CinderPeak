@@ -157,7 +157,7 @@ public:
   }
 
   // Method to check whether a vertex exists or not
-  bool impl_doesVertexExist(const VertexType &v)
+  bool impl_hasVertex(const VertexType &v)
                             override {
     auto it = _adj_list.find(v);
     if (it == _adj_list.end()) {

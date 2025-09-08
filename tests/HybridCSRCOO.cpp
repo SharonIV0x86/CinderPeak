@@ -64,9 +64,9 @@ TEST_F(HybridCSRCOOTest, CheckVertexExistence) {
   EXPECT_TRUE(status1.isOK());
 
   // Check for vertex existence
-  EXPECT_TRUE(graph->impl_doesVertexExist(40));
-  EXPECT_TRUE(graph->impl_doesVertexExist(49));
-  EXPECT_FALSE(graph->impl_doesVertexExist(404));
+  EXPECT_TRUE(graph->impl_hasVertex(40));
+  EXPECT_TRUE(graph->impl_hasVertex(49));
+  EXPECT_FALSE(graph->impl_hasVertex(404));
 }
 
 TEST_F(HybridCSRCOOTest, VertexAdditionSequential) {

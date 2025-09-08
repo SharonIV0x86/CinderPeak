@@ -29,8 +29,8 @@ int main() {
   graph.addVertex(5);
   graph.addEdge(1, 3, 5);
   graph.updateEdge(1, 3, 10);
-  graph.doesVertexExist(5); // Check vertex existence
-  graph.doesVertexExist(6); // Check vertex existence
+  graph.hasVertex(5); // Check vertex existence
+  graph.hasVertex(6); // Check vertex existence
 
   // Graph 2
   GraphCreationOptions opts1({GraphCreationOptions::Directed});
