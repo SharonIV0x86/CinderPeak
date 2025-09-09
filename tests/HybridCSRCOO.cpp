@@ -643,3 +643,59 @@ TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
   
   std::cout << "Verified correctness for " << expected_edges.size() << " edges\n";
 }
+
+//=============EDGE REMOVAL TESTS=================
+TEST_F(HybridCSRCOOTest, RemoveNonExistentVertex) {
+  auto status = graph->impl_removeVertex(99);
+  EXPECT_FALSE(status.isOK());
+}
+
+TEST_F(HybridCSRCOOTest, RemoveVertexNoEdges) {
+  graph->impl_addVertex(1);
+  auto status = graph->impl_removeVertex(1);
+  EXPECT_TRUE(status.isOK());
+
+  // Should be able to re-add
+  EXPECT_TRUE(graph->impl_addVertex(1).isOK());
+}
+
+TEST_F(HybridCSRCOOTest, RemoveVertexWithOutgoingEdges) {
+  graph->impl_addVertex(1);
+  graph->impl_addVertex(2);
+  graph->impl_addVertex(3);
+
+  graph->impl_addEdge(1, 2, 10);
+  graph->impl_addEdge(1, 3, 20);
+
+  EXPECT_TRUE(graph->impl_removeVertex(1).isOK());
+
+  // Check that edges from 1 are gone
+  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2));
+  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 3));
+
+  // But vertex 2 and 3 should still exist
+  EXPECT_FALSE(graph->impl_addVertex(2).isOK()); // already exists
+  EXPECT_FALSE(graph->impl_addVertex(3).isOK()); // already exists
+}
+
+TEST_F(HybridCSRCOOTest, RemoveVertexWithIncomingEdges) {
+  graph->impl_addVertex(1);
+  graph->impl_addVertex(2);
+  graph->impl_addVertex(3);
+
+  graph->impl_addEdge(2, 1, 15);
+  graph->impl_addEdge(3, 1, 25);
+
+  EXPECT_TRUE(graph->impl_removeVertex(1).isOK());
+
+  EXPECT_FALSE(graph->impl_doesEdgeExist(2, 1));
+  EXPECT_FALSE(graph->impl_doesEdgeExist(3, 1));
+}
+
+TEST_F(HybridCSRCOOTest, RemoveVertexSelfLoop) {
+  graph->impl_addVertex(5);
+  graph->impl_addEdge(5, 5, 42);
+
+  EXPECT_TRUE(graph->impl_removeVertex(5).isOK());
+  EXPECT_FALSE(graph->impl_doesEdgeExist(5, 5));
+}

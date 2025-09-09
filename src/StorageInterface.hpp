@@ -7,6 +7,7 @@ namespace CinderPeak {
 template <typename VertexType, typename EdgeType> class PeakStorageInterface {
 public:
   virtual const PeakStatus impl_addVertex(const VertexType &src) = 0;
+  virtual const PeakStatus impl_removeVertex(const VertexType &vtx) = 0;
 
   // No longer needed as the weighted overload handles unweighted edges via
   // default EdgeType().
