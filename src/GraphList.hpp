@@ -58,6 +58,17 @@ public:
       Exceptions::handle_exception_map(resp);
   }
 
+  // Helper method to call updateEdge method from PeakStore
+  template <typename E = EdgeType>
+  auto updateEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &newWeight)
+    -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>, bool> {
+    auto resp = peak_store->updateEdge(src, dest, newWeight);
+    if (!resp.isOK())
+      return false;
+    return true;
+  }
+
   EdgeType getEdge(const VertexType &src, const VertexType &dest) {
     LOG_INFO("Called getEdge");
     auto [data, status] = peak_store->getEdge(src, dest);
@@ -66,6 +77,10 @@ public:
       return EdgeType(); // Return default-constructed EdgeType on error
     }
     return data;
+  }
+
+  size_t numEdges() const {
+    return peak_store->numEdges();
   }
 
   // Helper method to call setConsoleLogging function from Peakstore
