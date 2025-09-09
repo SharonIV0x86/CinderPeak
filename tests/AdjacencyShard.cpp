@@ -332,3 +332,65 @@ TEST(AdjacencyListCustomTest, CustomVertexType) {
     EXPECT_TRUE(edge.second.isOK());
     EXPECT_FLOAT_EQ(edge.first, 3.14f);
 }
+
+//
+// 8. Vertex Removal Tests
+//
+
+TEST_F(AdjacencyListTest, RemoveExistingVertex) {
+    auto status = intGraph.impl_removeVertex(2);
+    EXPECT_TRUE(status.isOK());
+
+    // Vertex should be removed
+    auto neighbors = intGraph.impl_getNeighbors(2);
+    EXPECT_FALSE(neighbors.second.isOK());
+    EXPECT_EQ(neighbors.second.code(), StatusCode::VERTEX_NOT_FOUND);
+
+    // Edges connected to vertex 2 should also be removed
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(1, 2));
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(2, 3));
+    EXPECT_FALSE(intGraph.impl_doesEdgeExist(2, 5));
+}
+
+TEST_F(AdjacencyListTest, RemoveNonExistentVertex) {
+    auto status = intGraph.impl_removeVertex(99);
+    EXPECT_FALSE(status.isOK());
+    EXPECT_EQ(status.code(), StatusCode::VERTEX_NOT_FOUND);
+}
+
+TEST_F(AdjacencyListTest, RemoveVertexSelfLoop) {
+    auto status = intGraph.impl_removeVertex(4);
+    EXPECT_TRUE(status.isOK());
+
+    auto neighbors = intGraph.impl_getNeighbors(4);
+    EXPECT_FALSE(neighbors.second.isOK());
+    EXPECT_EQ(neighbors.second.code(), StatusCode::VERTEX_NOT_FOUND);
+}
+
+TEST_F(AdjacencyListTest, RemoveVertexStringGraph) {
+    auto status = stringGraph.impl_removeVertex("B");
+    EXPECT_TRUE(status.isOK());
+
+    EXPECT_FALSE(stringGraph.impl_doesEdgeExist("A", "B"));
+    EXPECT_FALSE(stringGraph.impl_doesEdgeExist("B", "C"));
+
+    // Other edges still exist
+    EXPECT_TRUE(stringGraph.impl_doesEdgeExist("A", "B") == false);
+    EXPECT_TRUE(stringGraph.impl_doesEdgeExist("A", "C") == false);
+}
+
+TEST_F(AdjacencyListTest, RemoveAllVertices) {
+    std::vector<int> vertices = {1, 2, 3, 4, 5};
+    for (auto v : vertices) {
+        intGraph.impl_removeVertex(v);
+    }
+
+    for (auto v : vertices) {
+        auto neighbors = intGraph.impl_getNeighbors(v);
+        EXPECT_FALSE(neighbors.second.isOK());
+        EXPECT_EQ(neighbors.second.code(), StatusCode::VERTEX_NOT_FOUND);
+    }
+
+    // Adjacency list should be empty
+    EXPECT_TRUE(intGraph.getAdjList().empty());
+}
