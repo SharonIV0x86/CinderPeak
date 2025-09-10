@@ -6,6 +6,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
 namespace PeakStore {
