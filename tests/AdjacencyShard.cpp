@@ -34,14 +34,14 @@ public:
   std::string nodeName;
   ComplexAdjVertex(int vertexData, std::string node_name)
       : vertexData{vertexData}, nodeName{node_name} {}
-  ComplexAdjVertex() {};
+  ComplexAdjVertex() = default;
 };
 
 class ComplexAdjEdge : public CinderEdge {
 public:
   float edgeValue;
   ComplexAdjEdge(float edgeValue) : edgeValue{edgeValue} {}
-  ComplexAdjEdge() {};
+  ComplexAdjEdge() = default;
 };
 
 class ComplexGraph : public ::testing::Test {
