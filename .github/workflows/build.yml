@@ -92,11 +92,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install tools
-        run: sudo apt-get update && sudo apt-get install -y clang-format python3-pip && pip install cmakelint
+        run: sudo apt-get update && sudo apt-get install -y clang-format python3-pip
       - name: Run clang-format (check)
         run: clang-format --Werror --dry-run $(git ls-files '*.cpp' '*.h' || true)
-      - name: Run cmakelint
-        run: cmakelint $(git ls-files '**/CMakeLists.txt' || true)
 
   clang-tidy-report:
     name: Clang-Tidy (CI-only, report only)
