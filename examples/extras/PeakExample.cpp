@@ -1,12 +1,14 @@
-#include "PeakStore.hpp"
 #include "Concepts.hpp"
+#include "PeakStore.hpp"
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 int main() {
-  GraphCreationOptions options({GraphCreationOptions::Directed,
-                                GraphCreationOptions::SelfLoops});
+  GraphCreationOptions options(
+      {GraphCreationOptions::Directed, GraphCreationOptions::SelfLoops});
   GraphInternalMetadata metadata("graph_matrix", Traits::isTypePrimitive<int>(),
-                                 Traits::isTypePrimitive<int>(), Traits::isGraphWeighted<int>(), !Traits::isGraphWeighted<int>());
+                                 Traits::isTypePrimitive<int>(),
+                                 Traits::isGraphWeighted<int>(),
+                                 !Traits::isGraphWeighted<int>());
   // metadata.num_edges = 4;s
   // metadata.num_vertices = 2;
 

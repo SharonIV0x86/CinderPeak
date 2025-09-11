@@ -1,8 +1,8 @@
 ﻿@echo off
 REM Install pre-commit hooks for CinderPeak (Windows batch version)
-REM This script sets up clang-format and clang-tidy as pre-commit hooks
+REM This script sets up clang-format as a pre-commit hook
 
-echo Installing pre-commit hooks for CinderPeak...
+echo Installing pre-commit hook for CinderPeak...
 
 REM Check if we're in a git repository
 if not exist ".git" (
@@ -16,12 +16,6 @@ if %errorlevel% neq 0 (
     echo Warning: clang-format not found. Please install LLVM from https://llvm.org/builds/
 )
 
-REM Check if clang-tidy is available
-where clang-tidy >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Warning: clang-tidy not found. Please install LLVM from https://llvm.org/builds/
-)
-
 REM Create hooks directory if it doesn't exist
 if not exist ".git\hooks" mkdir ".git\hooks"
 
@@ -29,7 +23,7 @@ REM Create pre-commit hook (Windows batch version)
 (
 echo @echo off
 echo REM Pre-commit hook for CinderPeak
-echo REM Runs clang-format and clang-tidy on staged C++ files
+echo REM Runs clang-format on staged C++ files
 echo.
 echo echo Running pre-commit checks...
 echo.
@@ -56,11 +50,10 @@ echo.
 echo echo ✅ All pre-commit checks passed!
 ) > ".git\hooks\pre-commit.bat"
 
-echo ✅ Pre-commit hooks installed successfully!
+echo ✅ Pre-commit hook installed successfully!
 echo.
-echo The following checks will run on each commit:
+echo The following check will run on each commit:
 echo   - clang-format: Ensures code formatting consistency
-echo   - clang-tidy: Performs static analysis and linting
 echo.
-echo To bypass hooks (not recommended^): git commit --no-verify
-echo To run hooks manually: .git\hooks\pre-commit.bat
+echo To bypass hook (not recommended^): git commit --no-verify
+echo To run hook manually: .git\hooks\pre-commit.bat
