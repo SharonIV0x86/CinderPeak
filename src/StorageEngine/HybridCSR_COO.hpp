@@ -223,7 +223,8 @@ public:
   }
 
   // Method for updating weight of an edge
-  const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
+  const PeakStatus impl_updateEdge(const VertexType &src,
+                                   const VertexType &dest,
                                    const EdgeType &newWeight) override {
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return PeakStatus::VertexNotFound();
@@ -250,7 +251,7 @@ public:
     size_t end = csr_row_offsets[row + 1];
 
     auto it = std::lower_bound(csr_col_vals.begin() + start,
-                              csr_col_vals.begin() + end, dest);
+                               csr_col_vals.begin() + end, dest);
 
     size_t idx = std::distance(csr_col_vals.begin(), it);
     csr_weights[idx] = newWeight; // Update the weight in the CSR

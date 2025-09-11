@@ -138,11 +138,12 @@ public:
   }
 
   // Method for updating weight of an edge
-  const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest, 
-                                  const EdgeType &newWeight) {
+  const PeakStatus impl_updateEdge(const VertexType &src,
+                                   const VertexType &dest,
+                                   const EdgeType &newWeight) {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
-    
+
     // Search for the edge in source Adjacency list
     auto &edges = _adj_list.find(src)->second;
     for (auto &edge : edges) {
@@ -153,7 +154,7 @@ public:
     }
 
     // If edge does not exists
-    return PeakStatus::EdgeNotFound();    
+    return PeakStatus::EdgeNotFound();
   }
 
   bool impl_doesEdgeExist(const VertexType &src,

@@ -6,14 +6,11 @@
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
-int main()
-{
-  GraphCreationOptions opts(
-      {GraphCreationOptions::Undirected});
+int main() {
+  GraphCreationOptions opts({GraphCreationOptions::Undirected});
   GraphMatrix<int, int> graph(opts);
 
-  for (int i = 1; i <= 8; ++i)
-  {
+  for (int i = 1; i <= 8; ++i) {
     graph.addVertex(i);
   }
 

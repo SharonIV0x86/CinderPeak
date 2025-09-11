@@ -20,8 +20,8 @@ public:
   CustomEdge() {}
 };
 int main() {
-  GraphCreationOptions options({GraphCreationOptions::Undirected,
-                                GraphCreationOptions::SelfLoops});
+  GraphCreationOptions options(
+      {GraphCreationOptions::Undirected, GraphCreationOptions::SelfLoops});
 
   GraphMatrix<CustomVertex, CustomEdge> myGraph(options);
 

@@ -5,14 +5,14 @@ class ListVertex : public CinderVertex {
 public:
   int data;
   ListVertex(int data) : data{data} {};
-  ListVertex() {};
+  ListVertex() = default;
 };
 
 class ListEdge : public CinderEdge {
 public:
   float edge_weight;
   ListEdge(float edge_weight) : edge_weight{edge_weight} {};
-  ListEdge() {};
+  ListEdge() = default;
 };
 
 int main() {
