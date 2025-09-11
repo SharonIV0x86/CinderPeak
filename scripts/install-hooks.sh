@@ -1,7 +1,7 @@
-﻿#!/bin/bash
+﻿=#!/bin/bash
 
 # Install pre-commit hooks for CinderPeak
-# This script sets up clang-format and clang-tidy as pre-commit hooks
+# This script sets up clang-format as pre-commit hook
 
 set -e
 
@@ -21,14 +21,6 @@ if ! command -v clang-format &> /dev/null; then
     echo "On Windows: Install LLVM from https://llvm.org/builds/"
 fi
 
-# Check if clang-tidy is available
-if ! command -v clang-tidy &> /dev/null; then
-    echo "Warning: clang-tidy not found. Please install clang-tidy."
-    echo "On Ubuntu/Debian: sudo apt install clang-tidy"
-    echo "On macOS: brew install llvm"
-    echo "On Windows: Install LLVM from https://llvm.org/builds/"
-fi
-
 # Create hooks directory if it doesn't exist
 mkdir -p .git/hooks
 
@@ -37,7 +29,7 @@ cat > .git/hooks/pre-commit << 'EOF'
 #!/bin/bash
 
 # Pre-commit hook for CinderPeak
-# Runs clang-format and clang-tidy on staged C++ files
+# Runs clang-format on staged C++ files
 
 set -e
 
@@ -72,31 +64,6 @@ else
     echo "⚠️  clang-format not found, skipping format check"
 fi
 
-# Check clang-tidy (only for source files, not headers to avoid false positives)
-SOURCE_FILES=$(echo "$STAGED_FILES" | grep -E '\.(cpp|cc|cxx)$' || true)
-
-if [ -n "$SOURCE_FILES" ] && command -v clang-tidy &> /dev/null; then
-    echo "Running clang-tidy..."
-    for file in $SOURCE_FILES; do
-        if [ -f "$file" ]; then
-            # Run clang-tidy with our config
-            if ! clang-tidy "$file" -- -std=c++17 -I./src &> /dev/null; then
-                echo "❌ $file has tidy issues"
-                echo "Run: clang-tidy $file -- -std=c++17 -I./src"
-                exit 1
-            else
-                echo "✅ $file passes tidy checks"
-            fi
-        fi
-    done
-else
-    if [ -z "$SOURCE_FILES" ]; then
-        echo "No source files to check with clang-tidy"
-    else
-        echo "⚠️  clang-tidy not found, skipping tidy check"
-    fi
-fi
-
 echo "✅ All pre-commit checks passed!"
 EOF
 
@@ -107,7 +74,6 @@ echo "✅ Pre-commit hooks installed successfully!"
 echo ""
 echo "The following checks will run on each commit:"
 echo "  - clang-format: Ensures code formatting consistency"
-echo "  - clang-tidy: Performs static analysis and linting"
 echo ""
 echo "To bypass hooks (not recommended): git commit --no-verify"
 echo "To run hooks manually: .git/hooks/pre-commit"

@@ -153,4 +153,5 @@ private:
 #define LOG_INFO(msg) Logger::log(LogLevel::INFO, msg)
 #define LOG_WARNING(msg) Logger::log(LogLevel::WARNING, msg, __FILE__, __LINE__)
 #define LOG_ERROR(msg) Logger::log(LogLevel::ERROR, msg, __FILE__, __LINE__)
-#define LOG_CRITICAL(msg) Logger::log(LogLevel::CRITICAL, msg, __FILE__, __LINE__)
+#define LOG_CRITICAL(msg)                                                      \
+  Logger::log(LogLevel::CRITICAL, msg, __FILE__, __LINE__)

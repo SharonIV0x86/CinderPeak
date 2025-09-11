@@ -16,11 +16,11 @@ public:
   virtual const PeakStatus
   impl_addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight = EdgeType()) = 0;
-  
+
   // Method for updating weight of an edge
-  virtual const PeakStatus
-  impl_updateEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &newWeight) = 0;
+  virtual const PeakStatus impl_updateEdge(const VertexType &src,
+                                           const VertexType &dest,
+                                           const EdgeType &newWeight) = 0;
 
   virtual bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                                   const EdgeType &weight) = 0;

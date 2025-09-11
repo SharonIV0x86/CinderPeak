@@ -101,7 +101,8 @@ public:
 
   // Helper method to call setConsoleLogging function from Peakstore
   static void setConsoleLogging(const bool toggle) {
-    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
+    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
+        toggle);
   }
 
   EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) {
