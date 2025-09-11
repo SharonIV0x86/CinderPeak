@@ -1,144 +1,138 @@
-﻿name: Build and Test
+﻿name: CI Pipeline
 
 on:
   pull_request:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
 jobs:
-  build-linux:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        compiler: [gcc, clang, msvc]
+        build_type: [Debug, Release]
+        exclude:
+          - os: macos-latest
+            compiler: msvc
+          - os: windows-latest
+            compiler: gcc
+          - os: windows-latest
+            compiler: clang
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v1
+        with:
+          cmake-version: '3.20'
+
+      - name: Setup Ninja
+        if: matrix.os == 'windows-latest'
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Setup MSVC
+        if: matrix.compiler == 'msvc'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+
+      - name: Build
+        run: cmake --build build --config ${{ matrix.build_type }}
+
+      - name: Run Tests (CTest)
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.build_type }}
+          path: build/bin/
+
+  coverage:
+    name: Coverage (Linux GCC)
     runs-on: ubuntu-latest
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Install gcovr
+        run: sudo apt-get update && sudo apt-get install -y gcovr
+      - name: Configure CMake (Coverage)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCOVERAGE=ON
+      - name: Build
+        run: cmake --build build
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
+      - name: Generate Coverage
+        run: gcovr -r . --xml-pretty > coverage.xml
+      - uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
 
-    - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1
-      with:
-        cmake-version: '3.20'
-
-    - name: Configure CMake
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-
-    - name: Build
-      run: cmake --build build --config Release
-
-    - name: Upload test Binaries
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-linux
-        path: build/bin/tests/*
-
-  build-macos:
-    runs-on: macos-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1
-      with:
-        cmake-version: '3.20'
-
-    - name: Configure CMake
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-
-    - name: Build
-      run: cmake --build build --config Release
-
-    - name: Upload test Binaries
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-macos
-        path: build/bin/tests/*
-
-  build-windows:
-    runs-on: windows-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1
-      with:
-        cmake-version: '3.20'
-
-    - name: Setup Ninja
-      uses: seanmiddleditch/gha-setup-ninja@master
-
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Configure CMake
-      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-
-    - name: Build
-      run: cmake --build build
-
-    - name: Upload test Binaries
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-windows
-        path: build/bin/tests/*
-
-  test-ubuntu:
+  sanitizers:
+    name: Sanitizers (Linux Clang)
     runs-on: ubuntu-latest
-    needs: [build-linux]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Configure (ASAN + UBSAN)
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE_ADDRESS=ON -DSANITIZE_UNDEFINED=ON
+      - name: Build
+        run: cmake --build build
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
 
-    - name: Download test Binaries
-      uses: actions/download-artifact@v4
-      with:
-        name: test-linux
-        path: ./tests/
-    - name: Run Linux Tests
-      run: |
-        chmod +x ./tests/*_test
-        for file in ./tests/*_test; do
-          echo Running $file
-          $file || exit 1
-        done
-    
-  test-macos:
-    runs-on: macos-latest
-    needs: [build-macos]
+  lint:
+    name: Lint & Static Analysis
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y clang-format clang-tidy python3-pip && pip install cmakelint
+      - name: Run clang-format
+        run: clang-format --Werror --dry-run $(git ls-files '*.cpp' '*.h')
+      - name: Run clang-tidy
+        run: cmake -S . -B build && cmake --build build --target clang-tidy
+      - name: Run cmakelint
+        run: cmakelint $(git ls-files '**/CMakeLists.txt')
 
-    - name: Download test Binaries
-      uses: actions/download-artifact@v4
-      with:
-        name: test-macos
-        path: ./tests/
-
-    - name: Run MacOS Tests
-      run: |
-        chmod +x ./tests/*_test
-        for file in ./tests/*_test; do
-          echo Running $file
-          $file || exit 1
-        done
-
-  test-windows:
-    runs-on: windows-latest
-    needs: [build-windows]
+  docs:
+    name: Build Docs
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz
+      - name: Build Docs
+        run: doxygen Doxyfile
+      - name: Upload Docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs/html
 
-    - name: Download test Binaries
-      uses: actions/download-artifact@v4
-      with:
-        name: test-windows
-        path: ./tests/
-
-    - name: Run Windows Tests
-      run: |
-        for %%f in (.\tests\*_test.exe) do (
-          echo Running %%f
-          %%f || exit /b 1
-        )
-      shell: cmd
+  release:
+    name: Release Packaging
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Package
+        run: cpack -C Release
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-packages
+          path: build/*.tar.gz
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/*.tar.gz
