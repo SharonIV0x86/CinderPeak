@@ -53,8 +53,8 @@ public:
   // Helper method to call updateEdge method from PeakStore
   template <typename E = EdgeType>
   auto updateEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &newWeight)
-    -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>, bool> {
+                  const EdgeType &newWeight)
+      -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>, bool> {
     auto resp = peak_store->updateEdge(src, dest, newWeight);
     if (!resp.isOK())
       return false;
@@ -71,13 +71,12 @@ public:
     return data;
   }
 
-  size_t numEdges() const {
-    return peak_store->numEdges();
-  }
+  size_t numEdges() const { return peak_store->numEdges(); }
 
   // Helper method to call setConsoleLogging function from Peakstore
   static void setConsoleLogging(const bool toggle) {
-    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
+    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
+        toggle);
   }
 
   void visualize() {
