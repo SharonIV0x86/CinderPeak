@@ -644,4 +644,3 @@ TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
       EXPECT_FALSE(graph->impl_doesEdgeExist(src, dest))
           << "Unexpected edge found: (" << src << "," << dest << ")";
     }
-  }
