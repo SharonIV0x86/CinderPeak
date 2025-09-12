@@ -644,4 +644,4 @@ TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
           << "Unexpected edge found: (" << src << "," << dest << ")";
     }
   } // closes the for loop
-}   // closes TEST_F
+} // closes TEST_F

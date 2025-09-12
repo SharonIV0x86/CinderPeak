@@ -400,4 +400,3 @@ TEST(AdjacencyListCustomTest, CustomVertexType) {
   EXPECT_TRUE(edge.second.isOK());
   EXPECT_FLOAT_EQ(edge.first, 3.14f);
 }
-}
