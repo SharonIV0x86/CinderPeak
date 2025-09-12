@@ -2,19 +2,19 @@
 #include "Concepts.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "Utils.hpp"
-#include <shared_mutex>
 #include <memory>
+#include <shared_mutex>
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
 
 namespace PeakStore {
 
 /**
- * @brief Thread safety note: This class uses a single shared mutex for synchronization.
- *        Do not call these methods from within code that already holds locks
- *        on this object, as it may cause deadlocks.
- *        For nested operations, use the provided bulk methods instead.
- *        E.g do not try to call addEdge from addEdges, it will cause a deadlock.
+ * @brief Thread safety note: This class uses a single shared mutex for
+ * synchronization. Do not call these methods from within code that already
+ * holds locks on this object, as it may cause deadlocks. For nested operations,
+ * use the provided bulk methods instead. E.g do not try to call addEdge from
+ * addEdges, it will cause a deadlock.
  */
 template <typename VertexType, typename EdgeType>
 class AdjacencyList
@@ -203,7 +203,7 @@ public:
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
     // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
-    
+
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) {
       return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
@@ -220,7 +220,7 @@ public:
   impl_getNeighbors(const VertexType &vertex) const {
     // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
-    
+
     auto it = _adj_list.find(vertex);
     if (it == _adj_list.end()) {
       static const std::vector<std::pair<VertexType, EdgeType>> empty_vec;
@@ -235,7 +235,7 @@ public:
                           const EdgeType &weight) override {
     // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
-    
+
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) {
       return false;
@@ -255,7 +255,7 @@ public:
   void print_adj_list() {
     // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
-    
+
     for (const auto &[first, second] : _adj_list) {
       std::cout << "Vertex: " << first << "'s adj list:\n";
       for (const auto &pr : second) {
