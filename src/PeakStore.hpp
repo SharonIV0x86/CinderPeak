@@ -137,6 +137,12 @@ public:
 
   size_t numEdges() const { return ctx->metadata->num_edges; }
 
+  // Method to return total number of vertices
+  size_t numVertices() const {
+    LOG_INFO("Called peakStore:numVertices");
+    return ctx->metadata->num_vertices;
+  }
+
   // Method to get a summary string of statistics
   std::string getGraphStatistics() {
     std::stringstream ss;
