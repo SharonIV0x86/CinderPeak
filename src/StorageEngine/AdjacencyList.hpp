@@ -3,10 +3,19 @@
 #include "StorageEngine/GraphContext.hpp"
 #include "Utils.hpp"
 #include <memory>
+#include <shared_mutex>
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
 
 namespace PeakStore {
+
+/**
+ * @brief Thread safety note: This class uses a single shared mutex for
+ * synchronization. Do not call these methods from within code that already
+ * holds locks on this object, as it may cause deadlocks. For nested operations,
+ * use the provided bulk methods instead. E.g do not try to call addEdge from
+ * addEdges, it will cause a deadlock.
+ */
 template <typename VertexType, typename EdgeType>
 class AdjacencyList
     : public CinderPeak::PeakStorageInterface<VertexType, EdgeType> {
@@ -14,12 +23,17 @@ private:
   std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
                      VertexHasher<VertexType>>
       _adj_list;
+  // shared_mutex allows multiple concurrent readers or one exclusive writer
+  mutable std::shared_mutex _mtx;
 
 public:
   AdjacencyList() { LOG_INFO("Initialized Adjacency List object"); }
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) {
+    // For write operation - acquire an exclusive lock
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
     if (auto it = _adj_list.find(dest); it == _adj_list.end())
@@ -34,6 +48,9 @@ public:
   // For weighted graph: graph.addEdges({ {1, 2, 5}, {2, 3, 7}, {3, 4, 9} });
   template <typename EdgeContainer>
   const PeakStatus impl_addEdges(const EdgeContainer &edges) {
+    // For write operation - acquire an exclusive lock
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     PeakStatus peak_status = PeakStatus::OK();
 
     for (const auto &edge : edges) {
@@ -75,6 +92,9 @@ public:
   }
 
   const PeakStatus impl_addVertex(const VertexType &src) override {
+    // For write operation - acquire an exclusive lock
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if constexpr (CinderPeak::Traits::is_primitive_or_string_v<VertexType>) {
       if (auto it = _adj_list.find(src); it != _adj_list.end()) {
         LOG_WARNING("Vertex already exists with primitive type");
@@ -101,6 +121,9 @@ public:
   // Added method for bulk vertices insertion
   // Usage: graph.addVertices({1, 2, 3, 4, 5});
   const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
+    // For write operation - acquire an exclusive lock
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     PeakStatus peak_status = PeakStatus::OK();
 
     for (const auto &vertex : vertices) {
@@ -159,6 +182,9 @@ public:
 
   bool impl_doesEdgeExist(const VertexType &src,
                           const VertexType &dest) override {
+    // For read operation - acquire a shared lock
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) { // Vertex 'src' not found
       return false;
@@ -175,6 +201,9 @@ public:
 
   const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
+    // For read operation - acquire a shared lock
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) {
       return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
@@ -189,6 +218,9 @@ public:
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
+    // For read operation - acquire a shared lock
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     auto it = _adj_list.find(vertex);
     if (it == _adj_list.end()) {
       static const std::vector<std::pair<VertexType, EdgeType>> empty_vec;
@@ -201,6 +233,9 @@ public:
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {
+    // For read operation - acquire a shared lock
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     auto it = _adj_list.find(src);
     if (it == _adj_list.end()) {
       return false;
@@ -218,6 +253,9 @@ public:
   }
 
   void print_adj_list() {
+    // For read operation - acquire a shared lock
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     for (const auto &[first, second] : _adj_list) {
       std::cout << "Vertex: " << first << "'s adj list:\n";
       for (const auto &pr : second) {
