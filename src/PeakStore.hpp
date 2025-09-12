@@ -91,9 +91,10 @@ public:
 
   // Helper method to call impl_updateEdge method from AdjacencyList
   PeakStatus updateEdge(const VertexType &src, const VertexType &dest,
-                     const EdgeType &newWeight) {
+                        const EdgeType &newWeight) {
     LOG_INFO("Called adjacency:updateEdge()");
-    if (PeakStatus resp = ctx->active_storage->impl_updateEdge(src, dest, newWeight);
+    if (PeakStatus resp =
+            ctx->active_storage->impl_updateEdge(src, dest, newWeight);
         !resp.isOK())
       return resp;
     return PeakStatus::OK();
@@ -141,9 +142,12 @@ public:
     Logger::enableConsoleLogging = toggle;
   }
 
+  size_t numEdges() const { return ctx->metadata->num_edges; }
 
-  size_t numEdges() const {
-    return ctx->metadata->num_edges;
+  // Method to return total number of vertices
+  size_t numVertices() const {
+    LOG_INFO("Called peakStore:numVertices");
+    return ctx->metadata->num_vertices;
   }
 
   // Method to get a summary string of statistics

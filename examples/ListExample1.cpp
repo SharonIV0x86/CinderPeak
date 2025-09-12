@@ -5,14 +5,14 @@ class ListVertex : public CinderVertex {
 public:
   int data;
   ListVertex(int data) : data{data} {};
-  ListVertex() {};
+  ListVertex() = default;
 };
 
 class ListEdge : public CinderEdge {
 public:
   float edge_weight;
   ListEdge(float edge_weight) : edge_weight{edge_weight} {};
-  ListEdge() {};
+  ListEdge() = default;
 };
 
 int main() {
@@ -25,12 +25,17 @@ int main() {
   graph.addVertex(1);
   graph.addVertex(2);
   graph.addVertex(3);
+  std::cout << "Number of vertices: " << graph.numVertices()
+            << "\n"; // Testing numVertices implementation
+
   graph.addVertex(4);
   graph.addVertex(5);
   graph.addEdge(1, 3, 5);
   graph.updateEdge(1, 3, 10);
-  graph.hasVertex(5); // Check vertex existence
-  graph.hasVertex(6); // Check vertex existence
+  if(graph.hasVertex(5)) std::cout << "Vertex 5 exists.\n";
+  if(graph.hasVertex(6)) std::cout << "Vertex 6 exists.\n";
+  std::cout << "Number of vertices: " << graph.numVertices()
+            << "\n"; // Testing numVertices implementation
 
   // Graph 2
   GraphCreationOptions opts1({GraphCreationOptions::Directed});
@@ -42,6 +47,8 @@ int main() {
   unweighted_graph.addVertex(4);
   unweighted_graph.addEdge(1, 2);
   Unweighted l = unweighted_graph.getEdge(1, 2);
+  std::cout << "Number of vertices: " << unweighted_graph.numVertices()
+            << "\n"; // Testing numVertices implementation
 
   // Graph 3
   GraphCreationOptions options({GraphCreationOptions::Undirected});
