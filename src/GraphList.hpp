@@ -34,9 +34,7 @@ public:
   }
 
   // Helper method to call hasVertex from PeakStore
-  bool hasVertex(const VertexType &v) {
-    return peak_store->hasVertex(v);
-  }
+  bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
 
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
