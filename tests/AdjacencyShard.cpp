@@ -422,14 +422,14 @@ TEST_F(AdjacencyListTest, RemoveExistingVertex) {
   // Ensure incoming edge to 1 is also removed
   auto neighbors3 = intGraph.impl_getNeighbors(3);
   EXPECT_TRUE(neighbors3.second.isOK());
-  for (auto& edge : neighbors3.first) {
+  for (auto &edge : neighbors3.first) {
     EXPECT_NE(edge.first, 1);
   }
 
   // Ensure outgoing edges from 1 are gone
   auto neighbors2 = intGraph.impl_getNeighbors(2);
   EXPECT_TRUE(neighbors2.second.isOK()); // vertex 2 exists
-  for (auto& edge : neighbors2.first) {
+  for (auto &edge : neighbors2.first) {
     EXPECT_NE(edge.first, 1);
   }
 }
@@ -454,7 +454,7 @@ TEST_F(AdjacencyListTest, RemoveVertexFromStringGraph) {
   // Incoming edge to "A" should also be removed
   auto neighborsB = stringGraph.impl_getNeighbors("B");
   EXPECT_TRUE(neighborsB.second.isOK());
-  for (auto& edge : neighborsB.first) {
+  for (auto &edge : neighborsB.first) {
     EXPECT_NE(edge.first, "A");
   }
 }
