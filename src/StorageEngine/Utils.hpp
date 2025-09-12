@@ -147,7 +147,7 @@ public:
     return __id_ == other.__id_;
   }
   bool operator!=(const CinderEdge &other) const {
-    return !(*this == other);
+    return this->__id_ != other.__id_;
   }
 
   const std::string __to_edge_string() { return __e___name; }
