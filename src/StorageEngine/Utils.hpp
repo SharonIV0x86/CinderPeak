@@ -124,7 +124,7 @@ public:
     return __id_ == other.__id_;
   }
   bool operator!=(const CinderVertex &other) const {
-    return !(*this == other);
+    return this->__id_ != other.__id_;
   }
 
   const std::string __to_vertex_string() { return __v___name; }
