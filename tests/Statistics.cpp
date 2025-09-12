@@ -235,15 +235,15 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
 
 // Test to validate numVertices functionality
 TEST_F(GraphStatisticsTest, NumVertices) {
-    GraphList<int, int> graph;
+  GraphList<int, int> graph;
 
-    graph.addVertex(1);
-    graph.addVertex(2);
-    graph.addVertex(3);
-    EXPECT_EQ(graph.numVertices(), 3);
-    
-    graph.addVertex(3);
-    EXPECT_NE(graph.numEdges(), 4);
+  graph.addVertex(1);
+  graph.addVertex(2);
+  graph.addVertex(3);
+  EXPECT_EQ(graph.numVertices(), 3);
+
+  graph.addVertex(3);
+  EXPECT_NE(graph.numEdges(), 4);
 }
 
 TEST_F(GraphStatisticsTest, NumEdgesEmptyGraph) {
