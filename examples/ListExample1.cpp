@@ -32,8 +32,10 @@ int main() {
   graph.addVertex(5);
   graph.addEdge(1, 3, 5);
   graph.updateEdge(1, 3, 10);
-  if(graph.hasVertex(5)) std::cout << "Vertex 5 exists.\n";
-  if(graph.hasVertex(6)) std::cout << "Vertex 6 exists.\n";
+  if (graph.hasVertex(5))
+    std::cout << "Vertex 5 exists.\n";
+  if (graph.hasVertex(6))
+    std::cout << "Vertex 6 exists.\n";
   std::cout << "Number of vertices: " << graph.numVertices()
             << "\n"; // Testing numVertices implementation
 
