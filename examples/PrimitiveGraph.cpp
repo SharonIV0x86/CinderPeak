@@ -39,7 +39,7 @@ int main() {
 
   // Attempt to add an invalid edge
   graph[99][99] = 45;
-
+  
   // Retrieve an edge safely
   auto getRes = graph.getEdge(2, 5);
   if (getRes.second && getRes.first.has_value()) {

@@ -70,7 +70,7 @@ public:
       return false;
     }
     return true;
-  }
+
 
   // addEdge (unweighted) -> {{src,dest}, inserted}
   template <typename E = Edge_t>
@@ -114,20 +114,6 @@ public:
       return {Edge_t(), false};
     }
 
-    // Attempt update
-    auto resp = peak_store->updateEdge(src, dest, newWeight);
-    if (!resp.isOK()) {
-      Exceptions::handle_exception_map(resp);
-      return {prevValue, false};
-    }
-
-    // success — return previous weight and true
-    return {prevValue, true};
-  }
-
-  // ---------------- Accessors ----------------
-
-  // getEdge -> {optional(weight), foundFlag}
   GetEdgeResult getEdge(const Vertex_t &src, const Vertex_t &dest) {
     LOG_INFO("Called getEdge");
     auto [data, status] = peak_store->getEdge(src, dest);
@@ -137,7 +123,6 @@ public:
     }
     return {std::make_optional(data), true};
   }
-  // ---------------- Misc ----------------
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
 
