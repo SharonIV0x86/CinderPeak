@@ -320,7 +320,8 @@ public:
       std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
 
       for (size_t row = 0; row < vertex_order.size(); ++row) {
-        if (row == idx) continue; // skip this vertex
+        if (row == idx)
+          continue; // skip this vertex
         size_t start = csr_row_offsets[row];
         size_t end = csr_row_offsets[row + 1];
         for (size_t j = start; j < end; ++j) {
@@ -350,7 +351,6 @@ public:
 
     return PeakStatus::OK();
   }
-
 };
 
 } // namespace PeakStore

@@ -251,29 +251,28 @@ public:
     }
     return false;
   }
-    const PeakStatus impl_removeVertex(const VertexType &v) {
+  const PeakStatus impl_removeVertex(const VertexType &v) {
     // Find vertex
     auto it = _adj_list.find(v);
     if (it == _adj_list.end())
-        return PeakStatus::VertexNotFound();
+      return PeakStatus::VertexNotFound();
 
     // Remove outgoing edges by removing the vertex
     _adj_list.erase(it);
 
     // Remove incoming edges to v
     for (auto &pair : _adj_list) {
-        auto &neighbors = pair.second;
-        neighbors.erase(
-            std::remove_if(
-                neighbors.begin(), neighbors.end(),
-                [&](const std::pair<VertexType, EdgeType> &edge) { return edge.first == v; }
-            ),
-            neighbors.end()
-        );
+      auto &neighbors = pair.second;
+      neighbors.erase(
+          std::remove_if(neighbors.begin(), neighbors.end(),
+                         [&](const std::pair<VertexType, EdgeType> &edge) {
+                           return edge.first == v;
+                         }),
+          neighbors.end());
     }
 
     return PeakStatus::OK();
-}
+  }
 
   void print_adj_list() {
     // For read operation - acquire a shared lock

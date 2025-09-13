@@ -134,7 +134,7 @@ public:
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
-        ctx->metadata->num_vertices--;
+      ctx->metadata->num_vertices--;
     }
     return status;
   }
