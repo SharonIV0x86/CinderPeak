@@ -130,6 +130,15 @@ public:
   getContext() const {
     return ctx;
   }
+
+  PeakStatus removeVertex(const VertexType &v) {
+    auto status = ctx->active_storage->impl_removeVertex(v);
+    if (status.isOK()) {
+        ctx->metadata->num_vertices--;
+    }
+    return status;
+  }
+
   // Method to enable and disable logs in terminal
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;

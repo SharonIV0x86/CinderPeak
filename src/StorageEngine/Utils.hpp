@@ -123,8 +123,13 @@ public:
   bool operator==(const CinderVertex &other) const {
     return __id_ == other.__id_;
   }
+  bool operator!=(const CinderVertex &other) const {
+    return this->__id_ != other.__id_;
+  }
+
   const std::string __to_vertex_string() { return __v___name; }
 };
+
 class CinderEdge {
 public:
   size_t __id_;
@@ -141,8 +146,13 @@ public:
   bool operator==(const CinderEdge &other) const {
     return __id_ == other.__id_;
   }
+  bool operator!=(const CinderEdge &other) const {
+    return this->__id_ != other.__id_;
+  }
+
   const std::string __to_edge_string() { return __e___name; }
 };
+
 size_t CinderPeak::CinderVertex::nextId = 1;
 size_t CinderPeak::CinderEdge::nextId = 1;
 

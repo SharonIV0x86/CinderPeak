@@ -632,7 +632,6 @@ TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
   // Verify non-existent edges
   std::mt19937 gen(789);
   std::uniform_int_distribution<> vertex_dis(0, NUM_VERTICES - 1);
-
   for (int test = 0; test < 1000; ++test) {
     int src = vertex_dis(gen);
     int dest = vertex_dis(gen);
@@ -644,8 +643,5 @@ TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
       EXPECT_FALSE(graph->impl_doesEdgeExist(src, dest))
           << "Unexpected edge found: (" << src << "," << dest << ")";
     }
-  }
-
-  std::cout << "Verified correctness for " << expected_edges.size()
-            << " edges\n";
-}
+  } // closes the for loop
+} // closes TEST_F
