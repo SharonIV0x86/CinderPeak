@@ -149,11 +149,8 @@ public:
   }
 
   const PeakStatus impl_clearEdges() {
-    auto it = _adj_list.begin();
-
-    while (it != _adj_list.end()) {
-      it->second = std::vector<std::pair<VertexType, EdgeType>>();
-      it++;
+    for (auto &edge : _adj_list) {
+      edge.second.clear();
     }
     return PeakStatus::OK();
   }
