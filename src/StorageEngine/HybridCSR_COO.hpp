@@ -208,6 +208,8 @@ public:
     return PeakStatus::OK();
   }
 
+  const PeakStatus impl_clearEdges() { return PeakStatus::OK(); }
+
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) override {
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {

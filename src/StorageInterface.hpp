@@ -9,6 +9,9 @@ public:
   virtual const PeakStatus impl_addVertex(const VertexType &src) = 0;
   virtual const PeakStatus impl_removeVertex(const VertexType &vtx) = 0;
 
+  // Method to remove all Edges
+  virtual const PeakStatus impl_clearEdges() = 0;
+
   virtual const PeakStatus
   impl_addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight = EdgeType()) = 0;

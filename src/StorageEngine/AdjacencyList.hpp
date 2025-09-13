@@ -148,6 +148,16 @@ public:
     return peak_status;
   }
 
+  const PeakStatus impl_clearEdges() {
+    auto it = _adj_list.begin();
+
+    while (it != _adj_list.end()) {
+      it->second = std::vector<std::pair<VertexType, EdgeType>>();
+      it++;
+    }
+    return PeakStatus::OK();
+  }
+
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) {
