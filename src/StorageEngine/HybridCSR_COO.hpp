@@ -208,8 +208,6 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_clearEdges() { return PeakStatus::OK(); }
-
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) override {
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
@@ -255,6 +253,20 @@ public:
 
     size_t idx = std::distance(csr_col_vals.begin(), it);
     csr_weights[idx] = newWeight;
+    return PeakStatus::OK();
+  }
+
+  const PeakStatus impl_clearEdges() override {
+    clearCOOArrays();
+
+    if (is_built) {
+      std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
+      csr_col_vals.clear();
+      csr_weights.clear();
+      csr_col_vals.shrink_to_fit();
+      csr_weights.shrink_to_fit();
+    }
+
     return PeakStatus::OK();
   }
 
