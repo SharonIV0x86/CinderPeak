@@ -49,9 +49,6 @@ public:
                                                                 options);
   }
 
-  // ---------------- Mutations ----------------
-
-  // addVertex -> {vertex, inserted}
   VertexAddResult addVertex(const Vertex_t &v) {
     auto resp = peak_store->addVertex(v);
     if (!resp.isOK()) {
@@ -62,7 +59,6 @@ public:
     return {v, true};
   }
 
-  // removeVertex -> bool (true on success)
   bool removeVertex(const Vertex_t &v) {
     auto resp = peak_store->removeVertex(v);
     if (!resp.isOK()) {
@@ -72,7 +68,6 @@ public:
     return true;
   }
 
-  // addEdge (unweighted) -> {{src,dest}, inserted}
   template <typename E = Edge_t>
   auto addEdge(const Vertex_t &src, const Vertex_t &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
@@ -85,7 +80,6 @@ public:
     return {{src, dest}, true};
   }
 
-  // addEdge (weighted) -> {{src,dest,weight}, inserted}
   template <typename E = Edge_t>
   auto addEdge(const Vertex_t &src, const Vertex_t &dest, const Edge_t &weight)
       -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>,
@@ -98,18 +92,14 @@ public:
     return {{src, dest, weight}, true};
   }
 
-  // updateEdge -> {previousWeight, updatedFlag}
-  // Enabled only for weighted graphs.
   template <typename E = Edge_t>
   auto updateEdge(const Vertex_t &src, const Vertex_t &dest,
                   const Edge_t &newWeight)
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
                           UpdateEdgeResult> {
 
-    // Fetch previous value (if any)
     auto [prevValue, prevStatus] = peak_store->getEdge(src, dest);
     if (!prevStatus.isOK()) {
-      // edge missing or error
       Exceptions::handle_exception_map(prevStatus);
       return {Edge_t(), false};
     }

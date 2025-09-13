@@ -15,7 +15,6 @@ class CinderGraph;
 
 template <typename VertexType, typename EdgeType> class GraphMatrix;
 
-// EdgeAccessor for intuitive [][] access
 template <typename VertexType, typename EdgeType> class EdgeAccessor {
 private:
   GraphMatrix<VertexType, EdgeType> &graph;
@@ -35,13 +34,11 @@ public:
                   const VertexType &d)
         : graph(g), src(s), dest(d) {}
 
-    // Assignment updates edge
     EdgeReference &operator=(const EdgeType &weight) {
       graph.addEdge(src, dest, weight);
       return *this;
     }
 
-    // Conversion reads edge
     operator std::optional<EdgeType>() const {
       return graph.getEdge(src, dest);
     }
@@ -85,7 +82,6 @@ public:
                                                                 options);
   }
 
-  // -------- Vertex ops ----------
   VertexAddResult addVertex(const VertexType &src) {
     auto resp = peak_store->addVertex(src);
     if (!resp.isOK()) {
@@ -104,7 +100,6 @@ public:
     return true;
   }
 
-  // -------- Edge ops ----------
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
@@ -152,7 +147,6 @@ public:
     return {data, true};
   }
 
-  // -------- Stats & utils ----------
   void visualize() { LOG_INFO("Called GraphMatrix:visualize"); }
 
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
@@ -162,7 +156,6 @@ public:
         toggle);
   }
 
-  // Operator[] for adjacency-like access
   EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) {
     return EdgeAccessor<VertexType, EdgeType>(*this, src);
   }
