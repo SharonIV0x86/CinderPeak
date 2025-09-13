@@ -29,7 +29,6 @@ protected:
   std::unique_ptr<HybridCSR_COO<std::string, double>> string_graph;
 };
 
-
 TEST_F(HybridCSRCOOTest, EmptyGraphOperations) {
   auto [weight, status] = graph->impl_getEdge(1, 2);
   EXPECT_FALSE(status.isOK());
@@ -144,11 +143,10 @@ TEST_F(HybridCSRCOOTest, EdgeRetrievalAdvanced) {
   EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2, 12));
   EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 99));
 
-  EXPECT_FALSE(graph->impl_doesEdgeExist(2, 1)); 
-  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 5)); 
-  EXPECT_FALSE(graph->impl_doesEdgeExist(5, 1)); 
+  EXPECT_FALSE(graph->impl_doesEdgeExist(2, 1));
+  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 5));
+  EXPECT_FALSE(graph->impl_doesEdgeExist(5, 1));
 }
-
 
 TEST_F(HybridCSRCOOTest, COOBufferPriority) {
   graph->impl_addVertex(1);
@@ -181,7 +179,6 @@ TEST_F(HybridCSRCOOTest, COOBufferOverwrite) {
   EXPECT_EQ(weight, 30);
 }
 
-
 TEST_F(HybridCSRCOOTest, StringVertexOperations) {
   auto status1 = string_graph->impl_addVertex("alice");
   auto status2 = string_graph->impl_addVertex("bob");
@@ -206,7 +203,6 @@ TEST_F(HybridCSRCOOTest, StringVertexOperations) {
   auto [w3, s3] = string_graph->impl_getEdge("charlie", "alice");
   EXPECT_FALSE(s3.isOK());
 }
-
 
 TEST_F(HybridCSRCOOTest, NegativeWeights) {
   graph->impl_addVertex(1);
@@ -247,7 +243,6 @@ TEST_F(HybridCSRCOOTest, LargeVertexIDs) {
   EXPECT_EQ(weight, 42);
 }
 
-
 TEST_F(HybridCSRCOOTest, PopulateFromAdjacencyList) {
   std::unordered_map<int, std::vector<std::pair<int, int>>,
                      CinderPeak::VertexHasher<int>>
@@ -287,7 +282,6 @@ TEST_F(HybridCSRCOOTest, PopulateFromEmptyAdjacencyList) {
   auto [weight, status] = graph->impl_getEdge(1, 2);
   EXPECT_FALSE(status.isOK());
 }
-
 
 TEST_F(HybridCSRCOOTest, ManyVerticesNoEdges) {
   const int NUM_VERTICES = 10000;
@@ -357,7 +351,6 @@ TEST_F(HybridCSRCOOTest, DenseGraph) {
   }
 }
 
-
 class HybridCSRCOOPerformanceTest : public ::testing::Test {
 protected:
   void SetUp() override { graph = std::make_unique<HybridCSR_COO<int, int>>(); }
@@ -372,7 +365,7 @@ protected:
     std::mt19937 gen(seed);
     std::uniform_int_distribution<> vertex_dis(0, num_vertices - 1);
 
-    std::set<std::pair<int, int>> edge_set; 
+    std::set<std::pair<int, int>> edge_set;
 
     while (edges.size() < static_cast<size_t>(num_edges)) {
       int src = vertex_dis(gen);
@@ -509,8 +502,7 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
   auto mixed_func = [&]() {
     std::mt19937 gen(456);
     std::uniform_int_distribution<> vertex_dis(0, NUM_VERTICES - 1);
-    std::uniform_int_distribution<> op_dis(
-        0, 2); 
+    std::uniform_int_distribution<> op_dis(0, 2);
 
     int adds = 0, queries = 0, checks = 0;
 
@@ -519,13 +511,13 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
       int src = vertex_dis(gen);
       int dest = vertex_dis(gen);
 
-      if (op == 0 && src != dest) { 
+      if (op == 0 && src != dest) {
         graph->impl_addEdge(src, dest, src * 1000 + dest + i);
         adds++;
-      } else if (op == 1) { 
+      } else if (op == 1) {
         auto [weight, status] = graph->impl_getEdge(src, dest);
         queries++;
-      } else { 
+      } else {
         graph->impl_doesEdgeExist(src, dest);
         checks++;
       }
@@ -537,7 +529,6 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
 
   measureTime(mixed_func, "10K Mixed Operations");
 }
-
 
 TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
   const int NUM_VERTICES = 1000;

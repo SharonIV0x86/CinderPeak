@@ -91,13 +91,12 @@ TEST_F(AdjacencyListTest, AddVertices) {
   for (int vertex : newVertices) {
     auto neighbors = intGraph.impl_getNeighbors(vertex);
     EXPECT_TRUE(neighbors.second.isOK());
-    EXPECT_TRUE(
-        neighbors.first.empty()); 
+    EXPECT_TRUE(neighbors.first.empty());
   }
 }
 
 TEST_F(AdjacencyListTest, AddVerticesDuplicates) {
-  std::vector<int> verticesWithDups = {6, 1, 7, 2, 8}; 
+  std::vector<int> verticesWithDups = {6, 1, 7, 2, 8};
 
   auto status = intGraph.impl_addVertices(verticesWithDups);
   EXPECT_FALSE(status.isOK());
@@ -201,7 +200,7 @@ TEST_F(AdjacencyListTest, AddEdgesPairs) {
   for (const auto &edge : edges) {
     auto result = intGraph.impl_getEdge(edge.first, edge.second);
     EXPECT_TRUE(result.second.isOK());
-    EXPECT_EQ(result.first, 0); 
+    EXPECT_EQ(result.first, 0);
   }
 }
 
@@ -220,8 +219,7 @@ TEST_F(AdjacencyListTest, AddEdgesTuples) {
 
 TEST_F(AdjacencyListTest, AddEdgesInvalidVertices) {
   std::vector<std::pair<int, int>> edgesWithInvalid = {
-      {1, 2}, {99, 3}, {4, 5}, {1, 100} 
-  };
+      {1, 2}, {99, 3}, {4, 5}, {1, 100}};
 
   auto status = intGraph.impl_addEdges(edgesWithInvalid);
   EXPECT_FALSE(status.isOK());
@@ -334,7 +332,7 @@ TEST_F(AdjacencyListTest, AdjacencyListStructure) {
 
   auto adjList = intGraph.getAdjList();
 
-  EXPECT_EQ(adjList.size(), 8); 
+  EXPECT_EQ(adjList.size(), 8);
 
   auto it1 = adjList.find(1);
   ASSERT_NE(it1, adjList.end());
@@ -350,11 +348,11 @@ TEST_F(AdjacencyListTest, AdjacencyListStructure) {
 
   auto it4 = adjList.find(4);
   ASSERT_NE(it4, adjList.end());
-  EXPECT_EQ(it4->second.size(), 1); 
+  EXPECT_EQ(it4->second.size(), 1);
 
   auto it5 = adjList.find(5);
   ASSERT_NE(it5, adjList.end());
-  EXPECT_TRUE(it5->second.empty()); 
+  EXPECT_TRUE(it5->second.empty());
 }
 
 //
@@ -410,14 +408,14 @@ TEST_F(AdjacencyListTest, RemoveExistingVertex) {
   }
 
   auto neighbors2 = intGraph.impl_getNeighbors(2);
-  EXPECT_TRUE(neighbors2.second.isOK()); 
+  EXPECT_TRUE(neighbors2.second.isOK());
   for (auto &edge : neighbors2.first) {
     EXPECT_NE(edge.first, 1);
   }
 }
 
 TEST_F(AdjacencyListTest, RemoveNonExistentVertex) {
-  auto status = intGraph.impl_removeVertex(999); 
+  auto status = intGraph.impl_removeVertex(999);
   EXPECT_FALSE(status.isOK());
   EXPECT_EQ(status.code(), StatusCode::VERTEX_NOT_FOUND);
 }
@@ -634,7 +632,7 @@ TEST_F(AdjacencyListTest, ConcurrentMixedOperationsDeadlock) {
       auto now = std::chrono::steady_clock::now();
       auto elapsed =
           std::chrono::duration_cast<std::chrono::seconds>(now - start);
-      if (elapsed.count() > 5) { 
+      if (elapsed.count() > 5) {
         deadlock_detected = true;
         break;
       }
@@ -743,7 +741,7 @@ TEST_F(AdjacencyListTest, PotentialReentrancyDeadlock) {
     if (neighbors.second.isOK()) {
       for (const auto &[vertex, weight] : neighbors.first) {
         bool exists = callback(100, vertex);
-        EXPECT_TRUE(exists); 
+        EXPECT_TRUE(exists);
       }
     }
   });
@@ -759,5 +757,5 @@ TEST_F(AdjacencyListTest, PotentialReentrancyDeadlock) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
-  EXPECT_TRUE(completed); 
+  EXPECT_TRUE(completed);
 }

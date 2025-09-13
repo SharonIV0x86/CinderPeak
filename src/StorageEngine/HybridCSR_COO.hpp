@@ -235,7 +235,7 @@ public:
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
-        coo_weights[i - 1] = newWeight; 
+        coo_weights[i - 1] = newWeight;
         return PeakStatus::OK();
       }
     }
@@ -252,7 +252,7 @@ public:
                                csr_col_vals.begin() + end, dest);
 
     size_t idx = std::distance(csr_col_vals.begin(), it);
-    csr_weights[idx] = newWeight; 
+    csr_weights[idx] = newWeight;
     return PeakStatus::OK();
   }
 
@@ -318,7 +318,8 @@ public:
       std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
 
       for (size_t row = 0; row < vertex_order.size(); ++row) {
-        if (row == idx) continue; // skip this vertex
+        if (row == idx)
+          continue; // skip this vertex
         size_t start = csr_row_offsets[row];
         size_t end = csr_row_offsets[row + 1];
         for (size_t j = start; j < end; ++j) {
@@ -348,7 +349,6 @@ public:
 
     return PeakStatus::OK();
   }
-
 };
 
 } // namespace PeakStore

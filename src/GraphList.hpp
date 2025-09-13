@@ -34,11 +34,11 @@ public:
   }
 
   void removeVertex(const VertexType &v) {
-      auto resp = peak_store->removeVertex(v);
-      if (!resp.isOK()) {
-          Exceptions::handle_exception_map(resp);
-          return;
-      }
+    auto resp = peak_store->removeVertex(v);
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+      return;
+    }
   }
 
   template <typename E = EdgeType>
@@ -73,7 +73,7 @@ public:
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
-      return EdgeType(); 
+      return EdgeType();
     }
     return data;
   }

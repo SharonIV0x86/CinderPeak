@@ -145,7 +145,7 @@ size_t CinderPeak::CinderEdge::nextId = 1;
 namespace PeakStore {
 class GraphInternalMetadata {
 public:
-  float density; 
+  float density;
   size_t num_vertices;
   size_t num_edges;
   size_t num_self_loops;
@@ -161,7 +161,7 @@ public:
         is_edge_type_primitive(edge_tp_p) {
     num_vertices = 0;
     num_edges = 0;
-    density = 0.0; 
+    density = 0.0;
     num_self_loops = 0;
     num_parallel_edges = 0;
     is_graph_weighted = weighted;

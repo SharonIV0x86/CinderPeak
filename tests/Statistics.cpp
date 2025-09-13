@@ -58,7 +58,7 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   GraphMatrix<int, int> graph(opts);
 
   const int num_vertices = 1000;
-  const int target_edges = 50000; 
+  const int target_edges = 50000;
 
   std::cout.rdbuf(original_cout);
   std::cout << "Creating large graph: " << num_vertices << " vertices, "
@@ -81,7 +81,7 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
     graph.addEdge(i, i, weight_dist(gen));
   }
 
-  int edges_added = num_vertices - 1 + 50; 
+  int edges_added = num_vertices - 1 + 50;
   for (int attempt = 0;
        attempt < target_edges * 3 && edges_added < target_edges; ++attempt) {
     int v1 = vertex_dist(gen);
@@ -116,17 +116,14 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   int parallel_edges = extractValue(stats, "Parallel edges: ");
 
   EXPECT_EQ(vertices, num_vertices);
-  EXPECT_GT(edges, 1000); 
+  EXPECT_GT(edges, 1000);
   EXPECT_GE(self_loops, 0);
   EXPECT_GE(parallel_edges, 0);
 }
 
 TEST_F(GraphStatisticsTest, MediumGraphs) {
   std::vector<std::pair<int, int>> configs = {
-      {100, 500},  
-      {200, 1000}, 
-      {500, 2500}  
-  };
+      {100, 500}, {200, 1000}, {500, 2500}};
 
   for (auto config : configs) {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});
@@ -139,7 +136,7 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
       graph.addVertex(i);
     }
 
-    std::mt19937 gen(vertices); 
+    std::mt19937 gen(vertices);
     std::uniform_int_distribution<> vertex_dist(1, vertices);
     std::uniform_int_distribution<> weight_dist(1, 100);
 
@@ -174,8 +171,8 @@ TEST_F(GraphStatisticsTest, OriginalTest) {
   graph.addEdge(3, 4, 70);
   graph.addEdge(4, 5, 80);
   graph.addEdge(5, 6, 90);
-  graph.addEdge(5, 5, 90); 
-  graph.addEdge(6, 5, 90); 
+  graph.addEdge(5, 5, 90);
+  graph.addEdge(6, 5, 90);
   graph.addEdge(6, 7, 100);
   graph.addEdge(7, 8, 110);
   graph.addEdge(8, 1, 120);
@@ -264,7 +261,7 @@ TEST_F(GraphStatisticsTest, NumEdgesWithSelfLoop) {
   graph.addVertex(2);
 
   graph.addEdge(1, 2, 10);
-  graph.addEdge(1, 1, 20); 
+  graph.addEdge(1, 1, 20);
 
   EXPECT_EQ(graph.numEdges(), 2);
 }

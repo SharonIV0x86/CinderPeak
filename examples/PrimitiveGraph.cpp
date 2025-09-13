@@ -1,5 +1,5 @@
-#include <iostream>
 #include "CinderPeak.hpp"
+#include <iostream>
 
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
@@ -25,5 +25,4 @@ int main() {
   graph.addEdge(6, 2, 850);
   graph[2][5] = 45;
   graph[99][99] = 45;
-
 }
