@@ -23,7 +23,6 @@ private:
   std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
                      VertexHasher<VertexType>>
       _adj_list;
-  // shared_mutex allows multiple concurrent readers or one exclusive writer
   mutable std::shared_mutex _mtx;
 
 public:
@@ -31,7 +30,6 @@ public:
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) {
-    // For write operation - acquire an exclusive lock
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if (auto it = _adj_list.find(src); it == _adj_list.end())
@@ -42,22 +40,16 @@ public:
     return PeakStatus::OK();
   }
 
-  // Added method for bulk edges insertion
-  // Usage:
-  // For unweighted graph: graph.addEdges({ {1, 2}, {2, 3}, {3, 4} });
-  // For weighted graph: graph.addEdges({ {1, 2, 5}, {2, 3, 7}, {3, 4, 9} });
   template <typename EdgeContainer>
   const PeakStatus impl_addEdges(const EdgeContainer &edges) {
-    // For write operation - acquire an exclusive lock
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     PeakStatus peak_status = PeakStatus::OK();
 
     for (const auto &edge : edges) {
       VertexType src, dest;
-      EdgeType weight = EdgeType(); // default weight
+      EdgeType weight = EdgeType();
 
-      // Extract values based on container type at compile time
       if constexpr (std::is_same_v<typename EdgeContainer::value_type,
                                    std::pair<VertexType, VertexType>>) {
         src = edge.first;
@@ -92,7 +84,6 @@ public:
   }
 
   const PeakStatus impl_addVertex(const VertexType &src) override {
-    // For write operation - acquire an exclusive lock
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if constexpr (CinderPeak::Traits::is_primitive_or_string_v<VertexType>) {
@@ -118,10 +109,7 @@ public:
     return PeakStatus::OK();
   }
 
-  // Added method for bulk vertices insertion
-  // Usage: graph.addVertices({1, 2, 3, 4, 5});
   const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
-    // For write operation - acquire an exclusive lock
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     PeakStatus peak_status = PeakStatus::OK();
@@ -160,39 +148,36 @@ public:
     return peak_status;
   }
 
-  // Method for updating weight of an edge
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
 
-    // Search for the edge in source Adjacency list
     auto &edges = _adj_list.find(src)->second;
     for (auto &edge : edges) {
       if (edge.first == dest) {
-        edge.second = newWeight; // Update the weight if edge exists
+        edge.second = newWeight;
         return PeakStatus::OK();
       }
     }
 
-    // If edge does not exists
     return PeakStatus::EdgeNotFound();
   }
 
   bool impl_doesEdgeExist(const VertexType &src,
                           const VertexType &dest) override {
-    // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _adj_list.find(src);
-    if (it == _adj_list.end()) { // Vertex 'src' not found
+    if (it == _adj_list.end()) {
+
       return false;
     }
 
     const auto &neighbors = it->second;
     for (const auto &[neighbor, edge] : neighbors) {
-      if (neighbor == dest) { // Edge exists
+      if (neighbor == dest) {
         return true;
       }
     }
@@ -201,7 +186,6 @@ public:
 
   const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
-    // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _adj_list.find(src);
@@ -218,7 +202,6 @@ public:
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
-    // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _adj_list.find(vertex);
@@ -233,7 +216,6 @@ public:
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                           const EdgeType &weight) override {
-    // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _adj_list.find(src);
@@ -251,32 +233,28 @@ public:
     }
     return false;
   }
-    const PeakStatus impl_removeVertex(const VertexType &v) {
+  const PeakStatus impl_removeVertex(const VertexType &v) {
     // Find vertex
     auto it = _adj_list.find(v);
     if (it == _adj_list.end())
-        return PeakStatus::VertexNotFound();
+      return PeakStatus::VertexNotFound();
 
-    // Remove outgoing edges by removing the vertex
     _adj_list.erase(it);
 
-    // Remove incoming edges to v
     for (auto &pair : _adj_list) {
-        auto &neighbors = pair.second;
-        neighbors.erase(
-            std::remove_if(
-                neighbors.begin(), neighbors.end(),
-                [&](const std::pair<VertexType, EdgeType> &edge) { return edge.first == v; }
-            ),
-            neighbors.end()
-        );
+      auto &neighbors = pair.second;
+      neighbors.erase(
+          std::remove_if(neighbors.begin(), neighbors.end(),
+                         [&](const std::pair<VertexType, EdgeType> &edge) {
+                           return edge.first == v;
+                         }),
+          neighbors.end());
     }
 
     return PeakStatus::OK();
-}
+  }
 
   void print_adj_list() {
-    // For read operation - acquire a shared lock
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     for (const auto &[first, second] : _adj_list) {
