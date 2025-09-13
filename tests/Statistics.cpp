@@ -53,20 +53,18 @@ protected:
   std::streambuf *original_cerr;
 };
 
-// Simple large dense graph test - 1000 vertices, lots of edges
 TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
   GraphMatrix<int, int> graph(opts);
 
   const int num_vertices = 1000;
-  const int target_edges = 50000; // 50k edges - dense but reasonable
+  const int target_edges = 50000; 
 
   std::cout.rdbuf(original_cout);
   std::cout << "Creating large graph: " << num_vertices << " vertices, "
             << target_edges << " edges" << std::endl;
   std::cout.rdbuf(null_stream.rdbuf());
 
-  // Add all vertices
   for (int i = 1; i <= num_vertices; ++i) {
     graph.addVertex(i);
   }
@@ -75,18 +73,15 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   std::uniform_int_distribution<> vertex_dist(1, num_vertices);
   std::uniform_int_distribution<> weight_dist(1, 1000);
 
-  // Make it connected first (spanning tree)
   for (int i = 2; i <= num_vertices; ++i) {
     graph.addEdge(i - 1, i, weight_dist(gen));
   }
 
-  // Add self-loops
   for (int i = 1; i <= 50; ++i) {
     graph.addEdge(i, i, weight_dist(gen));
   }
 
-  // Add random edges until we hit target
-  int edges_added = num_vertices - 1 + 50; // spanning tree + self-loops
+  int edges_added = num_vertices - 1 + 50; 
   for (int attempt = 0;
        attempt < target_edges * 3 && edges_added < target_edges; ++attempt) {
     int v1 = vertex_dist(gen);
@@ -95,7 +90,6 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
       graph.addEdge(v1, v2, weight_dist(gen));
       edges_added++;
     } catch (...) {
-      // Skip duplicates/failures
     }
 
     if (attempt % 10000 == 0) {
@@ -106,7 +100,6 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
     }
   }
 
-  // Get statistics
   std::cout.rdbuf(original_cout);
   std::cout << "Getting statistics..." << std::endl;
   std::cout.rdbuf(null_stream.rdbuf());
@@ -114,7 +107,6 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   std::string stats = graph.getGraphStatistics();
   displayStats("Large Dense Graph Statistics", stats);
 
-  // Basic verifications
   EXPECT_FALSE(stats.empty());
   EXPECT_NE(stats.find("=== Graph Statistics ==="), std::string::npos);
 
@@ -124,17 +116,16 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   int parallel_edges = extractValue(stats, "Parallel edges: ");
 
   EXPECT_EQ(vertices, num_vertices);
-  EXPECT_GT(edges, 1000); // Should have many edges
+  EXPECT_GT(edges, 1000); 
   EXPECT_GE(self_loops, 0);
   EXPECT_GE(parallel_edges, 0);
 }
 
-// Medium size tests for comparison
 TEST_F(GraphStatisticsTest, MediumGraphs) {
   std::vector<std::pair<int, int>> configs = {
-      {100, 500},  // 100 vertices, 500 edges
-      {200, 1000}, // 200 vertices, 1000 edges
-      {500, 2500}  // 500 vertices, 2500 edges
+      {100, 500},  
+      {200, 1000}, 
+      {500, 2500}  
   };
 
   for (auto config : configs) {
@@ -144,23 +135,20 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
     int vertices = config.first;
     int target_edges = config.second;
 
-    // Add vertices
     for (int i = 1; i <= vertices; ++i) {
       graph.addVertex(i);
     }
 
-    std::mt19937 gen(vertices); // Different seed per test
+    std::mt19937 gen(vertices); 
     std::uniform_int_distribution<> vertex_dist(1, vertices);
     std::uniform_int_distribution<> weight_dist(1, 100);
 
-    // Add edges
     for (int i = 0; i < target_edges; ++i) {
       int v1 = vertex_dist(gen);
       int v2 = vertex_dist(gen);
       try {
         graph.addEdge(v1, v2, weight_dist(gen));
       } catch (...) {
-        // Continue on failure
       }
     }
 
@@ -173,7 +161,6 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
   }
 }
 
-// Original test case (kept for regression)
 TEST_F(GraphStatisticsTest, OriginalTest) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
   GraphMatrix<int, int> graph(opts);
@@ -187,8 +174,8 @@ TEST_F(GraphStatisticsTest, OriginalTest) {
   graph.addEdge(3, 4, 70);
   graph.addEdge(4, 5, 80);
   graph.addEdge(5, 6, 90);
-  graph.addEdge(5, 5, 90); // Self-loop
-  graph.addEdge(6, 5, 90); // Parallel edge
+  graph.addEdge(5, 5, 90); 
+  graph.addEdge(6, 5, 90); 
   graph.addEdge(6, 7, 100);
   graph.addEdge(7, 8, 110);
   graph.addEdge(8, 1, 120);
@@ -204,9 +191,7 @@ TEST_F(GraphStatisticsTest, OriginalTest) {
   EXPECT_GE(extractValue(stats, "Self-loops: "), 1);
 }
 
-// Edge cases
 TEST_F(GraphStatisticsTest, EdgeCases) {
-  // Empty graph
   {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});
     GraphMatrix<int, int> empty_graph(opts);
@@ -216,7 +201,6 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
     EXPECT_EQ(extractValue(stats, "Edges: "), 0);
   }
 
-  // Single vertex with self-loop
   {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});
     GraphMatrix<int, int> single_graph(opts);
@@ -233,7 +217,6 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
   }
 }
 
-// Test to validate numVertices functionality
 TEST_F(GraphStatisticsTest, NumVertices) {
   GraphList<int, int> graph;
 
@@ -251,7 +234,6 @@ TEST_F(GraphStatisticsTest, NumEdgesEmptyGraph) {
 
   EXPECT_EQ(graph.numEdges(), 0);
 
-  // Add vertices but no edges
   for (int i = 1; i <= 3; ++i) {
     graph.addVertex(i);
   }
@@ -261,12 +243,10 @@ TEST_F(GraphStatisticsTest, NumEdgesEmptyGraph) {
 TEST_F(GraphStatisticsTest, NumEdgesWithEdges) {
   GraphList<int, int> graph;
 
-  // Add vertices
   for (int i = 1; i <= 4; ++i) {
     graph.addVertex(i);
   }
 
-  // Add edges and verify count
   graph.addEdge(1, 2, 10);
   EXPECT_EQ(graph.numEdges(), 1);
 
@@ -284,7 +264,7 @@ TEST_F(GraphStatisticsTest, NumEdgesWithSelfLoop) {
   graph.addVertex(2);
 
   graph.addEdge(1, 2, 10);
-  graph.addEdge(1, 1, 20); // Self-loop
+  graph.addEdge(1, 1, 20); 
 
   EXPECT_EQ(graph.numEdges(), 2);
 }

@@ -96,10 +96,8 @@ public:
   }
   void visualize() { LOG_INFO("Called GraphMatrix:visualize"); }
 
-  // Helper method to call getGraphStatistics() from Peakstore
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
 
-  // Helper method to call setConsoleLogging function from Peakstore
   static void setConsoleLogging(const bool toggle) {
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
         toggle);

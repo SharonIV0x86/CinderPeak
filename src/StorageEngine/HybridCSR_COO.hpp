@@ -222,7 +222,6 @@ public:
     return PeakStatus::OK();
   }
 
-  // Method for updating weight of an edge
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) override {
@@ -230,14 +229,13 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    // Check if edge exists using existing method
     if (!impl_doesEdgeExist(src, dest)) {
       return PeakStatus::EdgeNotFound();
     }
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
-        coo_weights[i - 1] = newWeight; // Update the weight in the COO buffer
+        coo_weights[i - 1] = newWeight; 
         return PeakStatus::OK();
       }
     }
@@ -254,7 +252,7 @@ public:
                                csr_col_vals.begin() + end, dest);
 
     size_t idx = std::distance(csr_col_vals.begin(), it);
-    csr_weights[idx] = newWeight; // Update the weight in the CSR
+    csr_weights[idx] = newWeight; 
     return PeakStatus::OK();
   }
 
