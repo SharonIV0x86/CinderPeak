@@ -103,6 +103,7 @@ public:
       Exceptions::handle_exception_map(prevStatus);
       return {Edge_t(), false};
     }
+    return {newWeight, true};
   }
   GetEdgeResult getEdge(const Vertex_t &src, const Vertex_t &dest) {
     LOG_INFO("Called getEdge");
