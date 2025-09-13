@@ -66,20 +66,12 @@ struct EdgeHasher<
                         std::is_same_v<T, std::string>>> {
   std::size_t operator()(const T &v) const { return std::hash<T>{}(v); }
 };
-// pair hasher for future use.
 template <typename VertexType, typename EdgeType> struct PairHasher {
   std::size_t operator()(const std::pair<VertexType, EdgeType> &p) const {
     return VertexHasher<VertexType>{}(p.first) ^
            (EdgeHasher<EdgeType>{}(p.second) << 1);
   }
 };
-// template <typename T>
-// struct is_primitive_or_string
-//     : std::disjunction<std::is_arithmetic<T>, std::is_same<T, std::string>>
-//     {};
-// template <typename T>
-// inline constexpr bool is_primitive_or_string_v =
-//     is_primitive_or_string<T>::value;
 
 std::string __generate_vertex_name() {
   std::random_device rd;
@@ -99,12 +91,6 @@ std::string __generate_vertex_name() {
   ss << "_" << duration;
   return ss.str();
 }
-// template <typename T> bool isTypePrimitive() {
-//   if constexpr (is_primitive_or_string_v<T>) {
-//     return true;
-//   }
-//   return false;
-// }
 class CinderVertex {
 public:
   size_t __id_;
@@ -123,8 +109,13 @@ public:
   bool operator==(const CinderVertex &other) const {
     return __id_ == other.__id_;
   }
+  bool operator!=(const CinderVertex &other) const {
+    return this->__id_ != other.__id_;
+  }
+
   const std::string __to_vertex_string() { return __v___name; }
 };
+
 class CinderEdge {
 public:
   size_t __id_;
@@ -141,15 +132,20 @@ public:
   bool operator==(const CinderEdge &other) const {
     return __id_ == other.__id_;
   }
+  bool operator!=(const CinderEdge &other) const {
+    return this->__id_ != other.__id_;
+  }
+
   const std::string __to_edge_string() { return __e___name; }
 };
+
 size_t CinderPeak::CinderVertex::nextId = 1;
 size_t CinderPeak::CinderEdge::nextId = 1;
 
 namespace PeakStore {
 class GraphInternalMetadata {
 public:
-  float density; // Updated datatype for density as it ranges from 0 to 1
+  float density;
   size_t num_vertices;
   size_t num_edges;
   size_t num_self_loops;
@@ -165,7 +161,7 @@ public:
         is_edge_type_primitive(edge_tp_p) {
     num_vertices = 0;
     num_edges = 0;
-    density = 0.0; // Initialized with float value
+    density = 0.0;
     num_self_loops = 0;
     num_parallel_edges = 0;
     is_graph_weighted = weighted;
@@ -173,17 +169,11 @@ public:
   }
   const bool isGraphWeighted() { return is_graph_weighted; }
   const bool isGraphUnweighted() { return is_graph_unweighted; }
-  // // default ctor for basic testing, this has to be removed later on.
-  // GraphInternalMetadata() {}
 };
 } // namespace PeakStore
 namespace Exceptions {
 inline void handle_exception_map(const PeakStatus &status) {
   switch (static_cast<int>(status.code())) {
-  // not needed, not severe, breaks the program.
-  //  case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
-  //     throw DuplicateVertexException("Vertex Already Exists");
-  //     break;
   case static_cast<int>(StatusCode::NOT_FOUND):
     LOG_INFO("Resource Not Found");
     break;
@@ -209,8 +199,6 @@ inline void handle_exception_map(const PeakStatus &status) {
 }
 } // namespace Exceptions
 struct Unweighted {};
-
-// Always equal, since weights don’t matter
 inline bool operator==(const Unweighted &, const Unweighted &) noexcept {
   return true;
 }

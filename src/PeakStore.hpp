@@ -89,7 +89,6 @@ public:
     return status;
   }
 
-  // Helper method to call impl_updateEdge method from AdjacencyList
   PeakStatus updateEdge(const VertexType &src, const VertexType &dest,
                         const EdgeType &newWeight) {
     LOG_INFO("Called adjacency:updateEdge()");
@@ -137,20 +136,26 @@ public:
   getContext() const {
     return ctx;
   }
-  // Method to enable and disable logs in terminal
+
+  PeakStatus removeVertex(const VertexType &v) {
+    auto status = ctx->active_storage->impl_removeVertex(v);
+    if (status.isOK()) {
+      ctx->metadata->num_vertices--;
+    }
+    return status;
+  }
+
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
 
   size_t numEdges() const { return ctx->metadata->num_edges; }
 
-  // Method to return total number of vertices
   size_t numVertices() const {
     LOG_INFO("Called peakStore:numVertices");
     return ctx->metadata->num_vertices;
   }
 
-  // Method to get a summary string of statistics
   std::string getGraphStatistics() {
     std::stringstream ss;
 

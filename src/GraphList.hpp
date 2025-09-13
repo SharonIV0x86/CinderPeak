@@ -36,6 +36,14 @@ public:
   // Helper method to call hasVertex from PeakStore
   bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
 
+  void removeVertex(const VertexType &v) {
+    auto resp = peak_store->removeVertex(v);
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+      return;
+    }
+  }
+
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>, void> {
@@ -53,7 +61,6 @@ public:
       Exceptions::handle_exception_map(resp);
   }
 
-  // Helper method to call updateEdge method from PeakStore
   template <typename E = EdgeType>
   auto updateEdge(const VertexType &src, const VertexType &dest,
                   const EdgeType &newWeight)
@@ -69,17 +76,15 @@ public:
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
-      return EdgeType(); // Return default-constructed EdgeType on error
+      return EdgeType();
     }
     return data;
   }
 
   size_t numEdges() const { return peak_store->numEdges(); }
 
-  // Helper method to call numVertices method from PeakStore
   size_t numVertices() const { return peak_store->numVertices(); }
 
-  // Helper method to call setConsoleLogging function from Peakstore
   static void setConsoleLogging(const bool toggle) {
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
         toggle);

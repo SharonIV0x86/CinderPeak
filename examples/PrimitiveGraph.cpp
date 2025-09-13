@@ -1,7 +1,5 @@
-#include <iostream>
-// #include "PeakStore.hpp"
-// #include "GraphMatrix.hpp"
 #include "CinderPeak.hpp"
+#include <iostream>
 
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
@@ -27,10 +25,4 @@ int main() {
   graph.addEdge(6, 2, 850);
   graph[2][5] = 45;
   graph[99][99] = 45;
-
-  // graph.addEdge(2, 6, 160);
-  // graph.addEdge(3, 7, 170);
-  // graph.addEdge(4, 8, 180);
-
-  graph.visualize();
 }
