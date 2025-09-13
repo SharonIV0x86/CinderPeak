@@ -25,15 +25,25 @@ int main() {
   graph.addVertex(1);
   graph.addVertex(2);
   graph.addVertex(3);
-  std::cout << "Number of vertices: " << graph.numVertices()
-            << "\n"; // Testing numVertices implementation
-
   graph.addVertex(4);
   graph.addVertex(5);
   graph.addEdge(1, 3, 5);
   graph.updateEdge(1, 3, 10);
+  graph.addEdge(2, 3, 15);
+  graph.addEdge(4, 2, 52);
+  graph.addEdge(5, 3, 53);
+
   std::cout << "Number of vertices: " << graph.numVertices()
-            << "\n"; // Testing numVertices implementation
+            << "\n"; // Number of vertices before clearing
+  std::cout << "Number of edges: " << graph.numEdges()
+            << "\n"; // Number of edges before clearing
+
+  graph.clearEdges();
+
+  std::cout << "Number of vertices: " << graph.numVertices()
+            << "\n"; // Number of vertices after clearing
+  std::cout << "Number of edges: " << graph.numEdges()
+            << "\n"; // Number of edges after clearing
 
   // Graph 2
   GraphCreationOptions opts1({GraphCreationOptions::Directed});

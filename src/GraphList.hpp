@@ -41,6 +41,15 @@ public:
     }
   }
 
+  // Helper method to call clearEdges from PeakStore
+  void clearEdges() {
+    auto resp = peak_store->clearEdges();
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+      return;
+    }
+  }
+
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>, void> {
