@@ -33,6 +33,9 @@ public:
     }
   }
 
+  // Helper method to call hasVertex from PeakStore
+  bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
+
   void removeVertex(const VertexType &v) {
     auto resp = peak_store->removeVertex(v);
     if (!resp.isOK()) {
