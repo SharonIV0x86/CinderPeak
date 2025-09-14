@@ -256,6 +256,7 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to remove all edges
   const PeakStatus impl_clearEdges() override {
     clearCOOArrays();
 
@@ -268,6 +269,13 @@ public:
     }
 
     return PeakStatus::OK();
+
+  // Method to check whether a vertex exists or not
+  bool impl_hasVertex(const VertexType &v) override {
+    if (!vertex_to_index.count(v)) {
+      return false;
+    }
+    return true;
   }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,

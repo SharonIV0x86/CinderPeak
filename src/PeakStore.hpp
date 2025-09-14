@@ -116,6 +116,13 @@ public:
     ctx->metadata->num_vertices++;
     return PeakStatus::OK();
   }
+
+  // Helper method to call impl_hasVertex from AdjacencyList
+  bool hasVertex(const VertexType &v) {
+    LOG_INFO("Called peakStore:hasVertex");
+    return ctx->active_storage->impl_hasVertex(v);
+  }
+
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
     LOG_INFO("Called adjacency:getNeighbors()");

@@ -29,7 +29,7 @@ public:
   AdjacencyList() { LOG_INFO("Initialized Adjacency List object"); }
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                const EdgeType &weight = EdgeType()) {
+                                const EdgeType &weight = EdgeType()) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if (auto it = _adj_list.find(src); it == _adj_list.end())
@@ -170,6 +170,15 @@ public:
     }
 
     return PeakStatus::EdgeNotFound();
+  }
+
+  // Method to check whether a vertex exists or not
+  bool impl_hasVertex(const VertexType &v) override {
+    auto it = _adj_list.find(v);
+    if (it == _adj_list.end()) {
+      return false;
+    }
+    return true;
   }
 
   bool impl_doesEdgeExist(const VertexType &src,
