@@ -30,6 +30,16 @@ int main() {
 
   auto [v4, i4] = graph.addVertex(4);
   auto [v5, i5] = graph.addVertex(5);
+  graph.addVertex(4);
+  graph.addVertex(5);
+  graph.addEdge(1, 3, 5);
+  graph.updateEdge(1, 3, 10);
+  if (graph.hasVertex(5))
+    std::cout << "Vertex 5 exists.\n";
+  if (graph.hasVertex(6))
+    std::cout << "Vertex 6 exists.\n";
+  std::cout << "Number of vertices: " << graph.numVertices()
+            << "\n"; // Testing numVertices implementation
 
   // add weighted edge (returns {{src,dst,weight}, inserted})
   auto [weKey, edgeInserted] = graph.addEdge(1, 3, 5);

@@ -58,7 +58,6 @@ public:
     }
     return {v, true};
   }
-
   bool removeVertex(const Vertex_t &v) {
     auto resp = peak_store->removeVertex(v);
     if (!resp.isOK()) {
@@ -67,7 +66,7 @@ public:
     }
     return true;
   }
-
+  bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
   template <typename E = Edge_t>
   auto addEdge(const Vertex_t &src, const Vertex_t &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
