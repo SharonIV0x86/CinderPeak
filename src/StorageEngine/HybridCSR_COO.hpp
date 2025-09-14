@@ -269,6 +269,7 @@ public:
     }
 
     return PeakStatus::OK();
+  }
 
   // Method to check whether a vertex exists or not
   bool impl_hasVertex(const VertexType &v) override {
