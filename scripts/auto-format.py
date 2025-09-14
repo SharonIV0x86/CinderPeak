@@ -4,7 +4,7 @@ import subprocess
 
 # Only these folders (and their subfolders) will be formatted
 INCLUDED_DIRS = ["src", "examples", "tests"]
-
+EXCLUDE_FILES = ["src/ArialFontDataEmbed.hpp"]
 # File extensions to check
 EXTENSIONS = (".cpp", ".hpp", ".h", ".cc", ".cxx")
 
@@ -28,6 +28,7 @@ def main():
     print(f"Found {len(files)} files. Running clang-format...\n")
 
     for file in files:
+        if(file in EXCLUDE_FILES): continue
         print(f"-> Formatting: {file}")
         subprocess.run(["clang-format", "-i", file], check=False)
 

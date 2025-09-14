@@ -146,6 +146,14 @@ public:
     }
     return {data, true};
   }
+  bool hasVertex(const VertexType &src) {
+    PeakStatus status = peak_store->hasVertex(src);
+    if (!status.isOK()) {
+      Exceptions::handle_exception_map(status);
+      return false;
+    }
+    return true;
+  }
 
   void visualize() { LOG_INFO("Called GraphMatrix:visualize"); }
 
