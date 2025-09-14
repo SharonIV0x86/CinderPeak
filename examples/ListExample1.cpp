@@ -30,8 +30,7 @@ int main() {
   auto [v1, i1] = graph.addVertex(1);
   auto [v2, i2] = graph.addVertex(2);
   auto [v3, i3] = graph.addVertex(3);
-  std::cout << "Number of vertices: " << graph.numVertices()
-            << "\n";
+  std::cout << "Number of vertices: " << graph.numVertices() << "\n";
   auto [v4, i4] = graph.addVertex(4);
   auto [v5, i5] = graph.addVertex(5);
 
