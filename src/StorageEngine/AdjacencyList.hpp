@@ -148,6 +148,13 @@ public:
     return peak_status;
   }
 
+  const PeakStatus impl_clearEdges() {
+    for (auto &edge : _adj_list) {
+      edge.second.clear();
+    }
+    return PeakStatus::OK();
+  }
+
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) {

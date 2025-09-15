@@ -256,6 +256,21 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to remove all edges
+  const PeakStatus impl_clearEdges() override {
+    clearCOOArrays();
+
+    if (is_built) {
+      std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
+      csr_col_vals.clear();
+      csr_weights.clear();
+      csr_col_vals.shrink_to_fit();
+      csr_weights.shrink_to_fit();
+    }
+
+    return PeakStatus::OK();
+  }
+
   // Method to check whether a vertex exists or not
   bool impl_hasVertex(const VertexType &v) override {
     if (!vertex_to_index.count(v)) {

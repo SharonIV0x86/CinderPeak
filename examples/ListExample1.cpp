@@ -22,24 +22,40 @@ int main() {
 
   GraphList<int, int>::setConsoleLogging(false); // Disabling log display
 
+  graph.addVertex(1);
+  graph.addVertex(2);
+  graph.addVertex(3);
+
   // add vertices (check insertion result)
   auto [v1, i1] = graph.addVertex(1);
   auto [v2, i2] = graph.addVertex(2);
   auto [v3, i3] = graph.addVertex(3);
   std::cout << "Number of vertices: " << graph.numVertices() << "\n";
-
   auto [v4, i4] = graph.addVertex(4);
   auto [v5, i5] = graph.addVertex(5);
-  graph.addVertex(4);
-  graph.addVertex(5);
+
   graph.addEdge(1, 3, 5);
   graph.updateEdge(1, 3, 10);
+  graph.addEdge(2, 3, 15);
+  graph.addEdge(4, 2, 52);
+  graph.addEdge(5, 3, 53);
+
   if (graph.hasVertex(5))
     std::cout << "Vertex 5 exists.\n";
   if (graph.hasVertex(6))
     std::cout << "Vertex 6 exists.\n";
+
   std::cout << "Number of vertices: " << graph.numVertices()
-            << "\n"; // Testing numVertices implementation
+            << "\n"; // Number of vertices before clearing
+  std::cout << "Number of edges: " << graph.numEdges()
+            << "\n"; // Number of edges before clearing
+
+  graph.clearEdges();
+
+  std::cout << "Number of vertices: " << graph.numVertices()
+            << "\n"; // Number of vertices after clearing
+  std::cout << "Number of edges: " << graph.numEdges()
+            << "\n"; // Number of edges after clearing
 
   // add weighted edge (returns {{src,dst,weight}, inserted})
   auto [weKey, edgeInserted] = graph.addEdge(1, 3, 5);

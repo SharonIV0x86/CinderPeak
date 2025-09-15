@@ -66,6 +66,16 @@ public:
     }
     return true;
   }
+
+  // Helper method to call clearEdges from PeakStore
+  void clearEdges() {
+    auto resp = peak_store->clearEdges();
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+      return;
+    }
+  }
+
   bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
   template <typename E = Edge_t>
   auto addEdge(const Vertex_t &src, const Vertex_t &dest)

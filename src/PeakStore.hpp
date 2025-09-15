@@ -145,6 +145,16 @@ public:
     return status;
   }
 
+  // Helper method to call impl_clearEdges from AdjacencyList
+  PeakStatus clearEdges() {
+    LOG_INFO("Called peakStore:clearEdges");
+    auto status = ctx->active_storage->impl_clearEdges();
+    if (status.isOK()) {
+      ctx->metadata->num_edges = 0;
+    }
+    return status;
+  }
+
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
