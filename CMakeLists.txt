@@ -9,6 +9,7 @@ set(BIN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 add_library(CinderPeak INTERFACE)
 target_include_directories(CinderPeak INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
+# === Build Tests ===
 option(BUILD_TESTS "Build and run unit tests" ON)
 if(BUILD_TESTS)
     include(FetchContent)
@@ -21,18 +22,28 @@ if(BUILD_TESTS)
 
     enable_testing()
 
-    file(GLOB TEST_SOURCES ${CMAKE_SOURCE_DIR}/tests/*.cpp)
-    foreach(test_file ${TEST_SOURCES})
-        get_filename_component(test_name ${test_file} NAME_WE)
-        add_executable(${test_name}_test ${test_file})
-        target_link_libraries(${test_name}_test PRIVATE CinderPeak GTest::gtest_main)
+    # Grab all test sources recursively
+    file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/tests/*.cpp)
 
-        # Set binary output to bin/tests
-        set_target_properties(${test_name}_test PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests
+    foreach(test_file ${TEST_SOURCES})
+        # Compute a target name (basename without extension)
+        get_filename_component(test_name ${test_file} NAME_WE)
+
+        # Compute relative path from tests/ to the cpp file
+        file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/tests ${test_file})
+        get_filename_component(test_dir ${rel_path} DIRECTORY)
+
+        # Build the test executable
+        add_executable(${test_name} ${test_file})
+        target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
+
+        # Set output directory: bin/tests/<subdirs>
+        set_target_properties(${test_name} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
         )
 
-        add_test(NAME ${test_name} COMMAND ${BIN_OUTPUT_DIR}/tests/${test_name}_test)
+        # Add test to CTest
+        add_test(NAME ${test_name} COMMAND ${BIN_OUTPUT_DIR}/tests/${test_dir}/${test_name})
     endforeach()
 endif()
 
