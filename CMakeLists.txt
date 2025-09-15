@@ -22,29 +22,29 @@ if(BUILD_TESTS)
 
     enable_testing()
 
-    # Grab all test sources recursively
     file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/tests/*.cpp)
 
-    foreach(test_file ${TEST_SOURCES})
-        # Compute a target name (basename without extension)
-        get_filename_component(test_name ${test_file} NAME_WE)
+foreach(test_file ${TEST_SOURCES})
+    file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/tests ${test_file})
+    get_filename_component(test_dir ${rel_path} DIRECTORY)
+    get_filename_component(test_base ${test_file} NAME_WE)
 
-        # Compute relative path from tests/ to the cpp file
-        file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/tests ${test_file})
-        get_filename_component(test_dir ${rel_path} DIRECTORY)
+    string(REPLACE "/" "_" test_dir_flat ${test_dir})
+    set(test_name ${test_dir_flat}_${test_base})
 
-        # Build the test executable
-        add_executable(${test_name} ${test_file})
-        target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
+    add_executable(${test_name} ${test_file})
+    target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
 
-        # Set output directory: bin/tests/<subdirs>
-        set_target_properties(${test_name} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
-        )
+    set_target_properties(${test_name} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
+        OUTPUT_NAME ${test_base}
+    )
 
-        # Add test to CTest
-        add_test(NAME ${test_name} COMMAND ${BIN_OUTPUT_DIR}/tests/${test_dir}/${test_name})
-    endforeach()
+    add_test(
+        NAME ${test_name}
+        COMMAND $<TARGET_FILE:${test_name}>
+    )
+endforeach()
 endif()
 
 # === Build Examples ===
@@ -56,7 +56,6 @@ if(BUILD_EXAMPLES)
         add_executable(${example_name}_example ${example})
         target_link_libraries(${example_name}_example PRIVATE CinderPeak)
 
-        # Set binary output to bin/examples
         set_target_properties(${example_name}_example PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/examples
         )
