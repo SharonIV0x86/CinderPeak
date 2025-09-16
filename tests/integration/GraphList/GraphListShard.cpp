@@ -75,25 +75,25 @@ TEST_F(GraphListTest, UnweightedGraphEdges) {
   EXPECT_EQ(g.numEdges(), 1);
 }
 TEST_F(GraphListTest, CustomVertexAndEdge) {
-    CinderPeak::GraphList<ListVertex, ListEdge> g;
+  CinderPeak::GraphList<ListVertex, ListEdge> g;
 
-    ListVertex v1(1), v2(2);
-    ListEdge e1(3.5), e2(7.0);
+  ListVertex v1(1), v2(2);
+  ListEdge e1(3.5), e2(7.0);
 
-    g.addVertex(v1);
-    g.addVertex(v2);
+  g.addVertex(v1);
+  g.addVertex(v2);
 
-    g.addEdge(v1, v2, e1);
+  g.addEdge(v1, v2, e1);
 
-    // updateEdge now returns pair<newWeight, success>
-    auto [newEdge, updated] = g.updateEdge(v1, v2, e2);
+  // updateEdge now returns pair<newWeight, success>
+  auto [newEdge, updated] = g.updateEdge(v1, v2, e2);
 
-    EXPECT_TRUE(updated);
-    EXPECT_EQ(newEdge.edge_weight, 7.0);
+  EXPECT_TRUE(updated);
+  EXPECT_EQ(newEdge.edge_weight, 7.0);
 
-    // getEdge returns pair<optional<Edge>, bool>
-    auto [maybeEdge, ok] = g.getEdge(v1, v2);
-    ASSERT_TRUE(ok);
-    ASSERT_TRUE(maybeEdge.has_value());
-    EXPECT_EQ(maybeEdge->edge_weight, 7.0);
+  // getEdge returns pair<optional<Edge>, bool>
+  auto [maybeEdge, ok] = g.getEdge(v1, v2);
+  ASSERT_TRUE(ok);
+  ASSERT_TRUE(maybeEdge.has_value());
+  EXPECT_EQ(maybeEdge->edge_weight, 7.0);
 }
