@@ -89,24 +89,37 @@ public:
     return status;
   }
 
-  PeakStatus updateEdge(const VertexType &src, const VertexType &dest,
-                        const EdgeType &newWeight) {
+  std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
+                                             const VertexType &dest,
+                                             const EdgeType &newWeight) {
     LOG_INFO("Called adjacency:updateEdge()");
-    if (PeakStatus resp =
-            ctx->active_storage->impl_updateEdge(src, dest, newWeight);
-        !resp.isOK())
-      return resp;
-    return PeakStatus::OK();
+
+    PeakStatus resp =
+        ctx->active_storage->impl_updateEdge(src, dest, newWeight);
+    if (!resp.isOK()) {
+      // failed, but still return the attempted newWeight
+      return {resp, newWeight};
+    }
+
+    if (ctx->create_options->hasOption(GraphCreationOptions::Undirected)) {
+      PeakStatus resp2 =
+          ctx->active_storage->impl_updateEdge(dest, src, newWeight);
+      if (!resp2.isOK()) {
+        return {resp2, newWeight};
+      }
+    }
+
+    return {PeakStatus::OK(), newWeight};
   }
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
     LOG_INFO("Called adjacency:getEdge()");
-    auto status = ctx->adjacency_storage->impl_getEdge(src, dest);
+    auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
       return {EdgeType(), status.second};
     }
-    return status;
+    return {status.first, status.second};
   }
   PeakStatus addVertex(const VertexType &src) {
     LOG_INFO("Called peakStore:addVertex");

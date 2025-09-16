@@ -107,11 +107,13 @@ public:
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
                           UpdateEdgeResult> {
 
-    auto [prevValue, prevStatus] = peak_store->getEdge(src, dest);
-    if (!prevStatus.isOK()) {
-      Exceptions::handle_exception_map(prevStatus);
-      return {Edge_t(), false};
+    auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
+
+    if (!status.isOK()) {
+      Exceptions::handle_exception_map(status);
+      return {newWeight, false}; // still return attempted new weight
     }
+
     return {newWeight, true};
   }
   GetEdgeResult getEdge(const Vertex_t &src, const Vertex_t &dest) {
