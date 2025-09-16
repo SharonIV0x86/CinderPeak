@@ -89,7 +89,6 @@ public:
     return status;
   }
 
-  // Helper method to call impl_updateEdge method from AdjacencyList
   PeakStatus updateEdge(const VertexType &src, const VertexType &dest,
                         const EdgeType &newWeight) {
     LOG_INFO("Called adjacency:updateEdge()");
@@ -117,6 +116,13 @@ public:
     ctx->metadata->num_vertices++;
     return PeakStatus::OK();
   }
+
+  // Helper method to call impl_hasVertex from AdjacencyList
+  bool hasVertex(const VertexType &v) {
+    LOG_INFO("Called peakStore:hasVertex");
+    return ctx->active_storage->impl_hasVertex(v);
+  }
+
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
     LOG_INFO("Called adjacency:getNeighbors()");
@@ -130,14 +136,36 @@ public:
   getContext() const {
     return ctx;
   }
-  // Method to enable and disable logs in terminal
+
+  PeakStatus removeVertex(const VertexType &v) {
+    auto status = ctx->active_storage->impl_removeVertex(v);
+    if (status.isOK()) {
+      ctx->metadata->num_vertices--;
+    }
+    return status;
+  }
+
+  // Helper method to call impl_clearEdges from AdjacencyList
+  PeakStatus clearEdges() {
+    LOG_INFO("Called peakStore:clearEdges");
+    auto status = ctx->active_storage->impl_clearEdges();
+    if (status.isOK()) {
+      ctx->metadata->num_edges = 0;
+    }
+    return status;
+  }
+
   static void setConsoleLogging(const bool toggle) {
     Logger::enableConsoleLogging = toggle;
   }
 
   size_t numEdges() const { return ctx->metadata->num_edges; }
 
-  // Method to get a summary string of statistics
+  size_t numVertices() const {
+    LOG_INFO("Called peakStore:numVertices");
+    return ctx->metadata->num_vertices;
+  }
+
   std::string getGraphStatistics() {
     std::stringstream ss;
 

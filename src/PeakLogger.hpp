@@ -7,7 +7,6 @@
 #include <sstream>
 #include <string>
 
-// ANSI color codes
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
 #define COLOR_BOLD_WHITE "\033[1;37m"

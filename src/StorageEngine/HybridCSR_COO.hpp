@@ -6,6 +6,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
 namespace PeakStore {
@@ -221,7 +222,6 @@ public:
     return PeakStatus::OK();
   }
 
-  // Method for updating weight of an edge
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) override {
@@ -229,14 +229,13 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    // Check if edge exists using existing method
     if (!impl_doesEdgeExist(src, dest)) {
       return PeakStatus::EdgeNotFound();
     }
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
-        coo_weights[i - 1] = newWeight; // Update the weight in the COO buffer
+        coo_weights[i - 1] = newWeight;
         return PeakStatus::OK();
       }
     }
@@ -253,8 +252,31 @@ public:
                                csr_col_vals.begin() + end, dest);
 
     size_t idx = std::distance(csr_col_vals.begin(), it);
-    csr_weights[idx] = newWeight; // Update the weight in the CSR
+    csr_weights[idx] = newWeight;
     return PeakStatus::OK();
+  }
+
+  // Method to remove all edges
+  const PeakStatus impl_clearEdges() override {
+    clearCOOArrays();
+
+    if (is_built) {
+      std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
+      csr_col_vals.clear();
+      csr_weights.clear();
+      csr_col_vals.shrink_to_fit();
+      csr_weights.shrink_to_fit();
+    }
+
+    return PeakStatus::OK();
+  }
+
+  // Method to check whether a vertex exists or not
+  bool impl_hasVertex(const VertexType &v) override {
+    if (!vertex_to_index.count(v)) {
+      return false;
+    }
+    return true;
   }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
@@ -294,6 +316,61 @@ public:
       return {csr_weights[idx], PeakStatus::OK()};
     }
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
+  }
+
+  const PeakStatus impl_removeVertex(const VertexType &vtx) override {
+    if (!vertex_to_index.count(vtx)) {
+      return PeakStatus::VertexNotFound();
+    }
+
+    size_t idx = vertex_to_index[vtx];
+
+    for (size_t i = 0; i < coo_src.size();) {
+      if (coo_src[i] == vtx || coo_dest[i] == vtx) {
+        coo_src.erase(coo_src.begin() + i);
+        coo_dest.erase(coo_dest.begin() + i);
+        coo_weights.erase(coo_weights.begin() + i);
+      } else {
+        ++i;
+      }
+    }
+
+    if (is_built) {
+      std::vector<VertexType> new_csr_cols;
+      std::vector<EdgeType> new_csr_weights;
+      std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
+
+      for (size_t row = 0; row < vertex_order.size(); ++row) {
+        if (row == idx)
+          continue; // skip this vertex
+        size_t start = csr_row_offsets[row];
+        size_t end = csr_row_offsets[row + 1];
+        for (size_t j = start; j < end; ++j) {
+          if (csr_col_vals[j] != vtx) {
+            new_row_offsets[row + 1]++;
+            new_csr_cols.push_back(csr_col_vals[j]);
+            new_csr_weights.push_back(csr_weights[j]);
+          }
+        }
+      }
+
+      for (size_t i = 1; i < new_row_offsets.size(); ++i) {
+        new_row_offsets[i] += new_row_offsets[i - 1];
+      }
+
+      csr_row_offsets = std::move(new_row_offsets);
+      csr_col_vals = std::move(new_csr_cols);
+      csr_weights = std::move(new_csr_weights);
+    }
+
+    vertex_order.erase(vertex_order.begin() + idx);
+
+    vertex_to_index.clear();
+    for (size_t i = 0; i < vertex_order.size(); ++i) {
+      vertex_to_index[vertex_order[i]] = i;
+    }
+
+    return PeakStatus::OK();
   }
 };
 
