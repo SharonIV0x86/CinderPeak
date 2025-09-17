@@ -153,7 +153,18 @@ public:
   // Method to remove an edge
   const PeakStatus impl_removeEdge(const VertexType &src,
                                    const VertexType &dest) override {
-    return PeakStatus::OK();
+    if (auto it = _adj_list.find(src); it == _adj_list.end())
+      return PeakStatus::VertexNotFound();
+
+    auto &edges = _adj_list.find(src)->second;
+    auto it = std::find_if(edges.begin(), edges.end(), [&](const auto &edge) {
+      return edge.first == dest;
+    });
+    if (it != edges.end()) {
+      edges.erase(it);
+      return PeakStatus::OK();
+    }
+    return PeakStatus::EdgeNotFound();
   }
 
   const PeakStatus impl_clearEdges() override {
