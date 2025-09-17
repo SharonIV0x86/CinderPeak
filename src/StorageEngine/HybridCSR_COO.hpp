@@ -3,7 +3,9 @@
 #include "StorageEngine/GraphContext.hpp"
 #include "Utils.hpp"
 #include <algorithm>
+#include <atomic>
 #include <iostream>
+#include <shared_mutex>
 #include <unordered_map>
 #include <vector>
 
@@ -26,13 +28,21 @@ private:
   std::unordered_map<VertexType, size_t, VertexHasher<VertexType>>
       vertex_to_index;
 
-  bool is_built{false};
-  size_t COO_BUFFER_THRESHOLD{1024};
+  // Thread safety primitives
+  mutable std::shared_mutex _mtx;
+  mutable std::atomic<bool> is_built_{false};
+  std::atomic<size_t> COO_BUFFER_THRESHOLD_{1024};
 
   void buildStructures() {
-    if (is_built)
+    if (is_built_.load(std::memory_order_acquire))
       return;
-    is_built = true;
+
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (is_built_.load(std::memory_order_relaxed))
+      return;
+
+    is_built_.store(true, std::memory_order_relaxed);
 
     const size_t num_vertices = vertex_order.size();
     csr_row_offsets.assign(num_vertices + 1, 0);
@@ -78,7 +88,7 @@ private:
   }
 
   void incrementalUpdate() {
-    if (!is_built || coo_src.empty())
+    if (!is_built_.load(std::memory_order_relaxed) || coo_src.empty())
       return;
 
     const size_t num_vertices = vertex_order.size();
@@ -160,7 +170,9 @@ public:
       const std::unordered_map<VertexType,
                                std::vector<std::pair<VertexType, EdgeType>>,
                                VertexHasher<VertexType>> &adj_list) {
-    is_built = false;
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    is_built_.store(false, std::memory_order_relaxed);
     clearCOOArrays();
     vertex_order.clear();
     vertex_to_index.clear();
@@ -180,11 +192,13 @@ public:
         coo_weights.push_back(weight);
       }
     }
-
+    _mtx.unlock();
     buildStructures();
   }
 
   void exc() const {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     std::cout << "HybridCSR_COO CSR:\n";
     for (size_t i = 0; i < vertex_order.size(); ++i) {
       std::cout << vertex_order[i] << " -> ";
@@ -196,13 +210,15 @@ public:
   }
 
   const PeakStatus impl_addVertex(const VertexType &vtx) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if (vertex_to_index.count(vtx)) {
       return PeakStatus::AlreadyExists();
     }
     size_t new_idx = vertex_order.size();
     vertex_to_index[vtx] = new_idx;
     vertex_order.push_back(vtx);
-    if (is_built) {
+    if (is_built_.load(std::memory_order_relaxed)) {
       csr_row_offsets.push_back(csr_row_offsets.back());
     }
     return PeakStatus::OK();
@@ -210,13 +226,20 @@ public:
 
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) override {
+
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return PeakStatus::VertexNotFound();
     }
+
     coo_src.push_back(src);
     coo_dest.push_back(dest);
     coo_weights.push_back(weight);
-    if (is_built && coo_src.size() >= COO_BUFFER_THRESHOLD) {
+
+    if (is_built_.load(std::memory_order_relaxed) &&
+        coo_src.size() >=
+            COO_BUFFER_THRESHOLD_.load(std::memory_order_relaxed)) {
       incrementalUpdate();
     }
     return PeakStatus::OK();
@@ -228,10 +251,11 @@ public:
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return PeakStatus::VertexNotFound();
     }
-
     if (!impl_doesEdgeExist(src, dest)) {
       return PeakStatus::EdgeNotFound();
     }
+
+    std::unique_lock<std::shared_mutex> lock(_mtx);
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
@@ -240,8 +264,10 @@ public:
       }
     }
 
-    if (!is_built) {
+    if (!is_built_.load(std::memory_order_relaxed)) {
+      _mtx.unlock();
       buildStructures();
+      _mtx.lock();
     }
 
     size_t row = vertex_to_index.at(src);
@@ -258,9 +284,10 @@ public:
 
   // Method to remove all edges
   const PeakStatus impl_clearEdges() override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
     clearCOOArrays();
 
-    if (is_built) {
+    if (is_built_.load(std::memory_order_relaxed)) {
       std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
       csr_col_vals.clear();
       csr_weights.clear();
@@ -273,6 +300,7 @@ public:
 
   // Method to check whether a vertex exists or not
   bool impl_hasVertex(const VertexType &v) override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
     if (!vertex_to_index.count(v)) {
       return false;
     }
@@ -292,6 +320,7 @@ public:
 
   const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
@@ -299,9 +328,12 @@ public:
       }
     }
 
-    if (!is_built) {
+    if (!is_built_.load(std::memory_order_acquire)) {
+      _mtx.unlock();
       buildStructures();
+      _mtx.lock();
     }
+
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return {EdgeType{}, PeakStatus::VertexNotFound()};
     }
@@ -319,6 +351,8 @@ public:
   }
 
   const PeakStatus impl_removeVertex(const VertexType &vtx) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if (!vertex_to_index.count(vtx)) {
       return PeakStatus::VertexNotFound();
     }
@@ -335,7 +369,7 @@ public:
       }
     }
 
-    if (is_built) {
+    if (is_built_.load(std::memory_order_relaxed)) {
       std::vector<VertexType> new_csr_cols;
       std::vector<EdgeType> new_csr_weights;
       std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
