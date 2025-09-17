@@ -150,6 +150,12 @@ public:
     return peak_status;
   }
 
+  // Method to remove an edge
+  const PeakStatus impl_removeEdge(const VertexType &src,
+                                   const VertexType &dest) override {
+    return PeakStatus::OK();
+  }
+
   const PeakStatus impl_clearEdges() override {
     for (auto &edge : _adj_list) {
       edge.second.clear();
