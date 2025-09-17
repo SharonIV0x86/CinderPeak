@@ -150,6 +150,28 @@ TEST_F(AdjacencyStorageShardTest, AddEdgeWithWeight) {
   EXPECT_EQ(edge2.first, 10);
 }
 
+// Added test to validate removeEdge functionality
+TEST_F(AdjacencyStorageShardTest, RemoveEdge) {
+  EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 5).isOK());
+  EXPECT_TRUE(intGraph.impl_addEdge(2, 3, 10).isOK());
+
+  auto edge1 = intGraph.impl_getEdge(1, 2);
+  EXPECT_TRUE(edge1.second.isOK());
+
+  EXPECT_TRUE(intGraph.impl_removeEdge(1, 2).isOK());
+  edge1 = intGraph.impl_getEdge(1, 2);
+  EXPECT_FALSE(edge1.second.isOK());
+
+  auto edge2 = intGraph.impl_getEdge(2, 3);
+  EXPECT_TRUE(edge2.second.isOK());
+
+  EXPECT_TRUE(intGraph.impl_removeEdge(2, 3).isOK());
+  edge2 = intGraph.impl_getEdge(2, 3);
+  EXPECT_FALSE(edge2.second.isOK());
+
+  EXPECT_FALSE(intGraph.impl_removeEdge(5, 6).isOK());
+}
+
 TEST_F(AdjacencyStorageShardTest, UpdateEdgeWithWeight) {
   EXPECT_TRUE(intGraph.impl_addEdge(101, 102, 7).isOK());
   EXPECT_TRUE(intGraph.impl_addEdge(103, 102, 5).isOK());
