@@ -264,7 +264,7 @@ public:
       }
     }
 
-    if (!is_built) {
+    if (!is_built_) {
       return PeakStatus::EdgeNotFound();
     }
 

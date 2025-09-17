@@ -97,7 +97,7 @@ public:
     if (PeakStatus resp = ctx->active_storage->impl_removeEdge(src, dest);
         !resp.isOK())
       return resp;
-    ctx->metadata->num_edges--;
+    ctx->metadata->updateEdgeCount(UpdateOp::Remove);
     return PeakStatus::OK();
   }
 
