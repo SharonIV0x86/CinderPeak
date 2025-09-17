@@ -47,7 +47,5 @@ int main() {
   } else {
     std::cout << "Edge (2->5) not found.\n";
   }
-
-  // Visualization
-  graph.visualize();
+  return 0;
 }

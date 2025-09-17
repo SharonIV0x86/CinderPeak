@@ -10,7 +10,6 @@
 #include <type_traits>
 #include <vector>
 namespace CinderPeak {
-template <typename VertexType, typename EdgeType> class GraphVisualizer;
 namespace PeakStore {
 
 template <typename VertexType, typename EdgeType> class PeakStore {
@@ -200,8 +199,6 @@ public:
     ss << "Parallel edges: " << ctx->metadata->num_parallel_edges << std::endl;
     return ss.str();
   }
-
-  void visualize() { LOG_WARNING("Unimplemented function: visualize"); }
 };
 
 } // namespace PeakStore

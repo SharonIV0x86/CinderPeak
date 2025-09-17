@@ -1,10 +1,10 @@
 # CinderPeak: A Modern C++ Graph Library
 
-A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. It provides a flexible, templated API for graph manipulation, analysis, and visualization.
+A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. It provides a flexible, templated API for graph manipulation, analysis.
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![C++](https://img.shields.io/badge/Built%20with-C%2B%2B17%2FC%2B%2B20-blue)
-![Dependencies](https://img.shields.io/badge/Dependencies-SFML%2CGTest-red)
+![Dependencies](https://img.shields.io/badge/Dependencies-GTest-red)
 
 ---
 
@@ -23,7 +23,6 @@ A fast and efficient, open-source C++ graph library built to handle a wide range
 ## 🚀 Key Features
 - **Flexible Graph Representations** - Supports adjacency lists, adjacency matrices, and hybrid CSR/COO formats for efficient storage.
 - **Customizable & Templated** - Fully templated design allows you to define custom vertex and edge types.
-- **Integrated Visualization** - An integrated SFML-based engine for real-time graph rendering, making it easy to visualize your data.
 - **Thread Safety** - Designed to work seamlessly in multi-threaded applications.
 - **High Performance** - Leverages modern C++ features like smart pointers and STL containers for optimized execution.
 - **Comprehensive Testing** - Built with Google Test (GTest) to ensure reliability and robustness.
@@ -107,7 +106,6 @@ CinderPeak is currently under active development. We are committed to delivering
 │   ├── MatrixExample.cpp       # Adjacency Matrix example
 │   └── PrimitiveGraph.cpp      # Basic graph example
 ├── src                         # Source files
-│   ├── ArialFontDataEmbed.hpp  # Embedded font data for visualization
 │   ├── CinderExceptions.hpp    # Custom exception handling
 │   ├── CinderPeak.hpp          # Main API entry point
 │   ├── GraphList.hpp           # Adjacency List implementation
@@ -122,7 +120,6 @@ CinderPeak is currently under active development. We are committed to delivering
 │   │   ├── HybridCSR_COO.hpp   # Hybrid CSR/COO storage
 │   │   └── Utils.hpp           # Utility functions
 │   ├── StorageInterface.hpp    # Storage interface definition
-│   └── Visualizer.hpp          # SFML-based visualization engine
 ├── tests                       # Unit tests
 │   ├── AdjacencyShard.cpp      # Tests for adjacency list
 │   ├── CoordinateShard.cpp     # Tests for coordinate list
@@ -142,7 +139,6 @@ CinderPeak is currently under active development. We are committed to delivering
 
 ## 🛠️ Technology Stack
 - **C++17/C++20**: Leverages modern C++ features for performance and flexibility.
-- **SFML**: Powers the integrated visualization engine.
 - **Google Test**: Provides the framework for robust unit testing.
 - **Docusaurus**: Hosts comprehensive documentation with examples and API references.
 - **CMake**: Used for the cross-platform build system.
@@ -150,7 +146,7 @@ CinderPeak is currently under active development. We are committed to delivering
 ---
 
 ## ❓ Why CinderPeak?
-CinderPeak strikes a balance between **performance, flexibility, and ease of use**. Whether you're building complex network models, analyzing graph-based data, or visualizing relationships, CinderPeak provides a robust and intuitive solution. Its open-source nature encourages community contributions, and its modular design makes it easy to extend for specialized use cases.
+CinderPeak strikes a balance between **performance, flexibility, and ease of use**. Whether you're building complex network models, analyzing graph-based data, or managing relationships, CinderPeak provides a robust and intuitive solution. Its open-source nature encourages community contributions, and its modular design makes it easy to extend for specialized use cases.
 
 ---
 

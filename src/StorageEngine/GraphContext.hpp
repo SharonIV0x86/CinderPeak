@@ -2,7 +2,6 @@
 #include "PeakLogger.hpp"
 #include "StorageEngine/Utils.hpp"
 #include "StorageInterface.hpp"
-#include "Visualizer.hpp"
 #include <memory>
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;

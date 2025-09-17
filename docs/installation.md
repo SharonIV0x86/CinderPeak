@@ -1,6 +1,6 @@
 # Building CinderPeak
 
-CinderPeak uses SFML (Simple and Fast Multimedia Library) for its interactive visualization engine and integrates Google Test (GTest) for robust unit testing.
+CinderPeak uses uses Google Test (GTest) for robust unit testing.
 
 The project uses CMake as the primary build system, but alternative build tools like Ninja can also be used seamlessly.
 
@@ -133,4 +133,4 @@ After building, the compiled binaries can be found in the following directories:
 - **Examples**: build/bin/examples/
 - **Tests**: build/bin/tests/
 
-Make sure all dependencies like SFML and GTest are correctly installed or discoverable by CMake.
+Make sure GTest is correctly installed or discoverable by CMake.

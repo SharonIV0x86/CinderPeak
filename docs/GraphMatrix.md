@@ -4,7 +4,7 @@
 
 The `GraphMatrix` class, part of the `CinderPeak` namespace, provides a matrix-based graph data structure for managing vertices and edges. It supports both weighted and unweighted graphs, as well as directed and undirected configurations, based on options specified during graph creation. The implementation leverages a `PeakStore` backend for underlying storage and operations, ensuring efficient management of graph data.
 
-The `GraphMatrix` class is templated to allow customization of vertex (`VertexType`) and edge (`EdgeType`) data types, making it suitable for applications like network modeling, social graphs, or weighted adjacency representations. It includes methods for adding vertices and edges, retrieving edge weights, and visualizing the graph. Additionally, the `EdgeAccessor` class provides a convenient operator-based interface for accessing and modifying edges using the `graph[src][dest]` syntax.
+The `GraphMatrix` class is templated to allow customization of vertex (`VertexType`) and edge (`EdgeType`) data types, making it suitable for applications like network modeling, social graphs, or weighted adjacency representations. It includes methods for adding vertices and edges, retrieving edge weights, and managing the graph. Additionally, the `EdgeAccessor` class provides a convenient operator-based interface for accessing and modifying edges using the `graph[src][dest]` syntax.
 
 ## Class Definitions
 
@@ -23,7 +23,6 @@ public:
     void addEdge(const VertexType &src, const VertexType &dest);
     void addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight);
     EdgeType getEdge(const VertexType &src, const VertexType &dest) const;
-    void visualize();
     EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src);
     const EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src) const;
     friend class EdgeAccessor<VertexType, EdgeType>;
@@ -108,11 +107,6 @@ The `EdgeAccessor` class enables intuitive edge access and modification using th
   - `dest`: The destination vertex.
 - **Returns**: The edge weight of type `EdgeType` if the edge exists; otherwise, a default-constructed `EdgeType` is returned if an error occurs.
 - **Behavior**: Queries the `PeakStore` for the edge weight. Handles errors via `Exceptions::handle_exception_map`.
-
-### `void visualize()`
-- **Description**: Visualizes the graph using the `PeakStore` backend.
-- **Behavior**: Delegates visualization to the `PeakStore::visualize` method. Logs a message indicating the call.
-- **Note**: The visualization output depends on the `PeakStore` implementation (e.g., console output, graphical rendering). Not called for non-primitive vertex or edge types in examples, as per request.
 
 ### `EdgeAccessor<VertexType, EdgeType> operator[](const VertexType &src)`
 - **Description**: Provides access to edges from a given source vertex using the `graph[src][dest]` syntax.
@@ -232,8 +226,6 @@ int main() {
 
     int weight = graph[1][2];
     std::cout << "Weight of edge 1->2: " << weight << std::endl;
-
-    graph.visualize();
     return 0;
 }
 ```
@@ -264,7 +256,6 @@ int main() {
     graph.addEdge("A", "B");
     graph.addEdge("B", "C");
 
-    graph.visualize();
     return 0;
 }
 ```
@@ -296,7 +287,6 @@ int main() {
     // Correctly add an unweighted edge
     graph[1][2];
 
-    graph.visualize();
     return 0;
 }
 ```
@@ -312,7 +302,6 @@ int main() {
 - **EdgeAccessor Usage**: The `graph[src][dest]` syntax simplifies edge access and modification, providing an intuitive matrix-like interface.
 - **Error Handling**: The `GraphMatrix` class uses `Exceptions::handle_exception_map` to manage errors from `PeakStore` operations. Ensure that the `Exceptions` namespace is properly configured.
 - **Type Safety**: The `VertexType` and `EdgeType` must be compatible with `PeakStore` and support default construction (for `getEdge` error cases).
-- **Visualization**: The `visualize` method's output depends on the `PeakStore` implementation. It is omitted in examples with non-primitive types as requested.
 - **Custom Types**: When using custom vertex or edge types (e.g., `CustomVertex`, `CustomEdge`), ensure they inherit from `CinderVertex` or `CinderEdge` and are compatible with `PeakStore`.
 
 ## Dependencies
@@ -322,7 +311,6 @@ int main() {
 
 ## Limitations
 - The `EdgeType` parameter is required even for unweighted graphs, though it is unused in such cases.
-- The visualization output is implementation-dependent and may require additional setup for graphical rendering.
 - Error messages are logged but not propagated to the caller, relying on `Exceptions::handle_exception_map`.
 - Custom vertex and edge types must be carefully designed to work with `PeakStore` operations.
 
