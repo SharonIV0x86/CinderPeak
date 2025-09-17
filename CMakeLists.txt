@@ -9,6 +9,7 @@ set(BIN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 add_library(CinderPeak INTERFACE)
 target_include_directories(CinderPeak INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
+# === Build Tests ===
 option(BUILD_TESTS "Build and run unit tests" ON)
 if(BUILD_TESTS)
     include(FetchContent)
@@ -21,19 +22,29 @@ if(BUILD_TESTS)
 
     enable_testing()
 
-    file(GLOB TEST_SOURCES ${CMAKE_SOURCE_DIR}/tests/*.cpp)
-    foreach(test_file ${TEST_SOURCES})
-        get_filename_component(test_name ${test_file} NAME_WE)
-        add_executable(${test_name}_test ${test_file})
-        target_link_libraries(${test_name}_test PRIVATE CinderPeak GTest::gtest_main)
+    file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/tests/*.cpp)
 
-        # Set binary output to bin/tests
-        set_target_properties(${test_name}_test PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests
-        )
+foreach(test_file ${TEST_SOURCES})
+    file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/tests ${test_file})
+    get_filename_component(test_dir ${rel_path} DIRECTORY)
+    get_filename_component(test_base ${test_file} NAME_WE)
 
-        add_test(NAME ${test_name} COMMAND ${BIN_OUTPUT_DIR}/tests/${test_name}_test)
-    endforeach()
+    string(REPLACE "/" "_" test_dir_flat ${test_dir})
+    set(test_name ${test_dir_flat}_${test_base})
+
+    add_executable(${test_name} ${test_file})
+    target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
+
+    set_target_properties(${test_name} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
+        OUTPUT_NAME ${test_base}
+    )
+
+    add_test(
+        NAME ${test_name}
+        COMMAND $<TARGET_FILE:${test_name}>
+    )
+endforeach()
 endif()
 
 # === Build Examples ===
@@ -45,7 +56,6 @@ if(BUILD_EXAMPLES)
         add_executable(${example_name}_example ${example})
         target_link_libraries(${example_name}_example PRIVATE CinderPeak)
 
-        # Set binary output to bin/examples
         set_target_properties(${example_name}_example PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/examples
         )

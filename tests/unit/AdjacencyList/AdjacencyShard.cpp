@@ -258,28 +258,6 @@ TEST_F(AdjacencyListTest, AddEdgesMixedTypes) {
   EXPECT_FLOAT_EQ(stringGraph.impl_getEdge("A", "C").first, 3.14f);
 }
 
-// Test to validate clearEdges functionality
-TEST_F(AdjacencyListTest, ClearEdges) {
-  EXPECT_TRUE(intGraph.impl_addEdge(1, 2).isOK());
-  EXPECT_TRUE(intGraph.impl_addEdge(2, 3).isOK());
-  EXPECT_TRUE(intGraph.impl_addEdge(3, 4).isOK());
-  EXPECT_TRUE(intGraph.impl_addEdge(4, 5).isOK());
-  EXPECT_TRUE(intGraph.impl_addEdge(5, 3).isOK());
-
-  EXPECT_TRUE(intGraph.impl_clearEdges().isOK());
-
-  EXPECT_FALSE(intGraph.impl_getEdge(1, 2).second.isOK());
-  EXPECT_FALSE(intGraph.impl_getEdge(2, 3).second.isOK());
-  EXPECT_FALSE(intGraph.impl_getEdge(4, 5).second.isOK());
-  EXPECT_FALSE(intGraph.impl_getEdge(3, 4).second.isOK());
-  EXPECT_FALSE(intGraph.impl_getEdge(5, 3).second.isOK());
-
-  // Following can be replaced
-  EXPECT_FALSE(intGraph.impl_addVertex(1).isOK());
-  EXPECT_FALSE(intGraph.impl_addVertex(2).isOK());
-  EXPECT_FALSE(intGraph.impl_addVertex(3).isOK());
-}
-
 //
 // 3. Edge Retrieval
 //

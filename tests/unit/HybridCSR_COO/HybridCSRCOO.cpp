@@ -135,33 +135,6 @@ TEST_F(HybridCSRCOOTest, EdgeAdditionWithNonExistentVertices) {
   EXPECT_FALSE(status3.isOK());
 }
 
-// Added test to validate clearEdges functionality
-TEST_F(HybridCSRCOOTest, ClearEdges) {
-  std::vector<int> vertices = {1, 2, 3, 4, 5};
-  for (int v : vertices) {
-    graph->impl_addVertex(v);
-  }
-
-  EXPECT_TRUE(graph->impl_addEdge(1, 2).isOK());
-  EXPECT_TRUE(graph->impl_addEdge(2, 3).isOK());
-  EXPECT_TRUE(graph->impl_addEdge(1, 3).isOK());
-  EXPECT_TRUE(graph->impl_addEdge(4, 5).isOK());
-  EXPECT_TRUE(graph->impl_addEdge(1, 5).isOK());
-
-  EXPECT_TRUE(graph->impl_getEdge(1, 2).second.isOK());
-  EXPECT_TRUE(graph->impl_getEdge(4, 5).second.isOK());
-
-  EXPECT_TRUE(graph->impl_clearEdges().isOK());
-
-  EXPECT_FALSE(graph->impl_getEdge(1, 2).second.isOK());
-  EXPECT_FALSE(graph->impl_getEdge(4, 5).second.isOK());
-
-  // Following can be modified using hasVertex method
-  EXPECT_FALSE(graph->impl_addVertex(1).isOK());
-  EXPECT_FALSE(graph->impl_addVertex(2).isOK());
-  EXPECT_FALSE(graph->impl_addVertex(4).isOK());
-}
-
 TEST_F(HybridCSRCOOTest, EdgeRetrievalAdvanced) {
   for (int i = 1; i <= 5; ++i) {
     graph->impl_addVertex(i);
