@@ -70,6 +70,15 @@ public:
     return true;
   }
 
+  bool removeEdge(const VertexType &src, const VertexType &dest) {
+    auto resp = peak_store->removeEdge(src, dest);
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+      return false;
+    }
+    return true;
+  }
+
   // Helper method to call clearEdges from PeakStore
   void clearEdges() {
     auto resp = peak_store->clearEdges();

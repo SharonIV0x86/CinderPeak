@@ -45,6 +45,12 @@ int main() {
   if (graph.hasVertex(6))
     std::cout << "Vertex 6 exists.\n";
 
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
+            << "\n"; // Check edge existence
+  graph.removeEdge(5, 3);
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
+            << "\n"; // Check edge existence after removal
+
   std::cout << "Number of vertices: " << graph.numVertices()
             << "\n"; // Number of vertices before clearing
   std::cout << "Number of edges: " << graph.numEdges()
