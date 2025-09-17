@@ -256,6 +256,12 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to remove an edge
+  const PeakStatus impl_removeEdge(const VertexType &src,
+                                   const VertexType &dest) override {
+    return PeakStatus::OK();
+  }
+
   // Method to remove all edges
   const PeakStatus impl_clearEdges() override {
     clearCOOArrays();
