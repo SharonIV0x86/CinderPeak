@@ -154,9 +154,6 @@ public:
     }
     return true;
   }
-
-  void visualize() { LOG_INFO("Called GraphMatrix:visualize"); }
-
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
 
   static void setConsoleLogging(const bool toggle) {
