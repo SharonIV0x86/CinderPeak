@@ -2,6 +2,7 @@
 #include "Concepts.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "Utils.hpp"
+#include <algorithm>
 #include <memory>
 #include <shared_mutex>
 namespace CinderPeak {

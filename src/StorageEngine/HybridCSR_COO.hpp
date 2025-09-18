@@ -42,8 +42,6 @@ private:
     if (is_built_.load(std::memory_order_relaxed))
       return;
 
-    is_built_.store(true, std::memory_order_release);
-
     const size_t num_vertices = vertex_order.size();
     csr_row_offsets.assign(num_vertices + 1, 0);
     csr_col_vals.clear();
@@ -85,6 +83,7 @@ private:
     }
 
     clearCOOArrays();
+    is_built_.store(true, std::memory_order_release);
   }
 
   void incrementalUpdate() {
