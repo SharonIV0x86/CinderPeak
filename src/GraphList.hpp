@@ -36,6 +36,8 @@ private:
   // per typedef.
   using GetEdgeResult = std::pair<std::optional<Edge_t>, bool>;
 
+  using RemoveEdgeResult = std::pair<std::optional<Edge_t>, bool>;
+
 public:
   GraphList(const GraphCreationOptions &options =
                 CinderPeak::GraphCreationOptions::getDefaultCreateOptions()) {
@@ -65,6 +67,15 @@ public:
       return false;
     }
     return true;
+  }
+
+  RemoveEdgeResult removeEdge(const VertexType &src, const VertexType &dest) {
+    auto [data, status] = peak_store->removeEdge(src, dest);
+    if (!status.isOK()) {
+      Exceptions::handle_exception_map(status);
+      return {std::nullopt, false};
+    }
+    return {std::make_optional(data), true};
   }
 
   // Helper method to call clearEdges from PeakStore

@@ -148,7 +148,29 @@ public:
     return peak_status;
   }
 
-  const PeakStatus impl_clearEdges() {
+  // Method to remove an edge
+  const std::pair<EdgeType, PeakStatus>
+  impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+    auto weight = EdgeType();
+    if (auto it = _adj_list.find(src); it == _adj_list.end())
+      return std::make_pair(weight, PeakStatus::VertexNotFound());
+
+    auto &edges = _adj_list.find(src)->second;
+    auto it = std::find_if(edges.begin(), edges.end(), [&](const auto &edge) {
+      return edge.first == dest;
+    });
+
+    if (it == edges.end()) {
+      return std::make_pair(weight, PeakStatus::EdgeNotFound());
+    }
+
+    weight = it->second;
+
+    edges.erase(it);
+    return std::make_pair(weight, PeakStatus::OK());
+  }
+
+  const PeakStatus impl_clearEdges() override {
     for (auto &edge : _adj_list) {
       edge.second.clear();
     }
@@ -157,7 +179,7 @@ public:
 
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
-                                   const EdgeType &newWeight) {
+                                   const EdgeType &newWeight) override {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
 
@@ -249,7 +271,7 @@ public:
     }
     return false;
   }
-  const PeakStatus impl_removeVertex(const VertexType &v) {
+  const PeakStatus impl_removeVertex(const VertexType &v) override {
     // Find vertex
     auto it = _adj_list.find(v);
     if (it == _adj_list.end())
