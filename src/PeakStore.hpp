@@ -92,13 +92,13 @@ public:
     return status;
   }
 
-  PeakStatus removeEdge(const VertexType &src, const VertexType &dest) {
+  std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src,
+                                             const VertexType &dest) {
     LOG_INFO("Called adjacency:removeEdge()");
-    if (PeakStatus resp = ctx->active_storage->impl_removeEdge(src, dest);
-        !resp.isOK())
-      return resp;
-    ctx->metadata->updateEdgeCount(UpdateOp::Remove);
-    return PeakStatus::OK();
+    auto result = ctx->active_storage->impl_removeEdge(src, dest);
+    if (result.second.isOK())
+      ctx->metadata->updateEdgeCount(UpdateOp::Remove);
+    return result;
   }
 
   std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
