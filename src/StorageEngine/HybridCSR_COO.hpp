@@ -42,7 +42,7 @@ private:
     if (is_built_.load(std::memory_order_relaxed))
       return;
 
-    is_built_.store(true, std::memory_order_relaxed);
+    is_built_.store(true, std::memory_order_release);
 
     const size_t num_vertices = vertex_order.size();
     csr_row_offsets.assign(num_vertices + 1, 0);
@@ -192,7 +192,7 @@ public:
         coo_weights.push_back(weight);
       }
     }
-    _mtx.unlock();
+    lock.unlock();
     buildStructures();
   }
 
@@ -265,9 +265,9 @@ public:
     }
 
     if (!is_built_.load(std::memory_order_relaxed)) {
-      _mtx.unlock();
+      lock.unlock();
       buildStructures();
-      _mtx.lock();
+      lock.lock();
     }
 
     size_t row = vertex_to_index.at(src);
@@ -329,9 +329,9 @@ public:
     }
 
     if (!is_built_.load(std::memory_order_acquire)) {
-      _mtx.unlock();
+      lock.unlock();
       buildStructures();
-      _mtx.lock();
+      lock.lock();
     }
 
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
