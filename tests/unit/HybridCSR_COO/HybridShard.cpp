@@ -1,19 +1,10 @@
-#include <algorithm>
-#include <chrono>
-#include <gtest/gtest.h>
-#include <iomanip>
-#include <random>
-#include <set>
-#include <sstream>
-#include <unordered_set>
-#include <vector>
-
 #include "StorageEngine/HybridCSR_COO.hpp"
+#include <gtest/gtest.h>
 
 using namespace CinderPeak::PeakStore;
 using namespace std::chrono;
 
-class HybridCSRCOOTest : public ::testing::Test {
+class HybridStorageShardTest : public ::testing::Test {
 protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
@@ -25,11 +16,32 @@ protected:
     string_graph.reset();
   }
 
+  std::vector<std::tuple<int, int, int>>
+  generateTestEdges(int num_vertices, int num_edges, int seed = 42) {
+    std::vector<std::tuple<int, int, int>> edges;
+    std::mt19937 gen(seed);
+    std::uniform_int_distribution<> vertex_dis(0, num_vertices - 1);
+
+    std::set<std::pair<int, int>> edge_set;
+
+    while (edges.size() < static_cast<size_t>(num_edges)) {
+      int src = vertex_dis(gen);
+      int dest = vertex_dis(gen);
+
+      if (src != dest && edge_set.find({src, dest}) == edge_set.end()) {
+        edge_set.insert({src, dest});
+        edges.emplace_back(src, dest, src * 1000 + dest);
+      }
+    }
+
+    return edges;
+  }
+
   std::unique_ptr<HybridCSR_COO<int, int>> graph;
   std::unique_ptr<HybridCSR_COO<std::string, double>> string_graph;
 };
 
-TEST_F(HybridCSRCOOTest, EmptyGraphOperations) {
+TEST_F(HybridStorageShardTest, EmptyGraphOperations) {
   auto [weight, status] = graph->impl_getEdge(1, 2);
   EXPECT_FALSE(status.isOK());
 
@@ -37,7 +49,7 @@ TEST_F(HybridCSRCOOTest, EmptyGraphOperations) {
   EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 10));
 }
 
-TEST_F(HybridCSRCOOTest, SingleVertexOperations) {
+TEST_F(HybridStorageShardTest, SingleVertexOperations) {
   auto status = graph->impl_addVertex(42);
   EXPECT_TRUE(status.isOK());
 
@@ -52,7 +64,7 @@ TEST_F(HybridCSRCOOTest, SingleVertexOperations) {
   EXPECT_EQ(weight, 100);
 }
 
-TEST_F(HybridCSRCOOTest, CheckVertexExistence) {
+TEST_F(HybridStorageShardTest, CheckVertexExistence) {
   auto status = graph->impl_addVertex(40);
   EXPECT_TRUE(status.isOK());
   auto status1 = graph->impl_addVertex(49);
@@ -64,7 +76,7 @@ TEST_F(HybridCSRCOOTest, CheckVertexExistence) {
   EXPECT_FALSE(graph->impl_hasVertex(404));
 }
 
-TEST_F(HybridCSRCOOTest, VertexAdditionSequential) {
+TEST_F(HybridStorageShardTest, VertexAdditionSequential) {
   std::vector<int> vertices = {1, 5, 3, 9, 2, 7};
 
   for (int v : vertices) {
@@ -78,7 +90,7 @@ TEST_F(HybridCSRCOOTest, VertexAdditionSequential) {
   }
 }
 
-TEST_F(HybridCSRCOOTest, EdgeAdditionBasic) {
+TEST_F(HybridStorageShardTest, EdgeAdditionBasic) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {
     graph->impl_addVertex(v);
@@ -99,7 +111,7 @@ TEST_F(HybridCSRCOOTest, EdgeAdditionBasic) {
   EXPECT_EQ(w2, 25);
 }
 
-TEST_F(HybridCSRCOOTest, EdgeWeightUpdation) {
+TEST_F(HybridStorageShardTest, EdgeWeightUpdation) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {
     graph->impl_addVertex(v);
@@ -122,7 +134,7 @@ TEST_F(HybridCSRCOOTest, EdgeWeightUpdation) {
   EXPECT_EQ(w2, 10);
 }
 
-TEST_F(HybridCSRCOOTest, EdgeAdditionWithNonExistentVertices) {
+TEST_F(HybridStorageShardTest, EdgeAdditionWithNonExistentVertices) {
   graph->impl_addVertex(1);
 
   auto status1 = graph->impl_addEdge(99, 1, 10);
@@ -135,7 +147,32 @@ TEST_F(HybridCSRCOOTest, EdgeAdditionWithNonExistentVertices) {
   EXPECT_FALSE(status3.isOK());
 }
 
-TEST_F(HybridCSRCOOTest, EdgeRetrievalAdvanced) {
+TEST_F(HybridStorageShardTest, ClearEdges) {
+  std::vector<int> vertices = {1, 2, 3, 4, 5};
+  for (int v : vertices) {
+    graph->impl_addVertex(v);
+  }
+
+  EXPECT_TRUE(graph->impl_addEdge(1, 2).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(2, 3).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(1, 3).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(4, 5).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(1, 5).isOK());
+
+  EXPECT_TRUE(graph->impl_getEdge(1, 2).second.isOK());
+  EXPECT_TRUE(graph->impl_getEdge(4, 5).second.isOK());
+
+  EXPECT_TRUE(graph->impl_clearEdges().isOK());
+
+  EXPECT_FALSE(graph->impl_getEdge(1, 2).second.isOK());
+  EXPECT_FALSE(graph->impl_getEdge(4, 5).second.isOK());
+
+  EXPECT_FALSE(graph->impl_addVertex(1).isOK());
+  EXPECT_FALSE(graph->impl_addVertex(2).isOK());
+  EXPECT_FALSE(graph->impl_addVertex(4).isOK());
+}
+
+TEST_F(HybridStorageShardTest, EdgeRetrievalAdvanced) {
   for (int i = 1; i <= 5; ++i) {
     graph->impl_addVertex(i);
   }
@@ -160,7 +197,7 @@ TEST_F(HybridCSRCOOTest, EdgeRetrievalAdvanced) {
   EXPECT_FALSE(graph->impl_doesEdgeExist(5, 1));
 }
 
-TEST_F(HybridCSRCOOTest, COOBufferPriority) {
+TEST_F(HybridStorageShardTest, COOBufferPriority) {
   graph->impl_addVertex(1);
   graph->impl_addVertex(2);
 
@@ -178,7 +215,7 @@ TEST_F(HybridCSRCOOTest, COOBufferPriority) {
   EXPECT_EQ(weight, 999);
 }
 
-TEST_F(HybridCSRCOOTest, COOBufferOverwrite) {
+TEST_F(HybridStorageShardTest, COOBufferOverwrite) {
   graph->impl_addVertex(1);
   graph->impl_addVertex(2);
 
@@ -191,7 +228,7 @@ TEST_F(HybridCSRCOOTest, COOBufferOverwrite) {
   EXPECT_EQ(weight, 30);
 }
 
-TEST_F(HybridCSRCOOTest, StringVertexOperations) {
+TEST_F(HybridStorageShardTest, StringVertexOperations) {
   auto status1 = string_graph->impl_addVertex("alice");
   auto status2 = string_graph->impl_addVertex("bob");
   auto status3 = string_graph->impl_addVertex("charlie");
@@ -216,7 +253,7 @@ TEST_F(HybridCSRCOOTest, StringVertexOperations) {
   EXPECT_FALSE(s3.isOK());
 }
 
-TEST_F(HybridCSRCOOTest, NegativeWeights) {
+TEST_F(HybridStorageShardTest, NegativeWeights) {
   graph->impl_addVertex(1);
   graph->impl_addVertex(2);
 
@@ -230,7 +267,7 @@ TEST_F(HybridCSRCOOTest, NegativeWeights) {
   EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 100));
 }
 
-TEST_F(HybridCSRCOOTest, ZeroWeights) {
+TEST_F(HybridStorageShardTest, ZeroWeights) {
   graph->impl_addVertex(1);
   graph->impl_addVertex(2);
 
@@ -241,7 +278,7 @@ TEST_F(HybridCSRCOOTest, ZeroWeights) {
   EXPECT_EQ(weight, 0);
 }
 
-TEST_F(HybridCSRCOOTest, LargeVertexIDs) {
+TEST_F(HybridStorageShardTest, LargeVertexIDs) {
   int large_id1 = 1000000;
   int large_id2 = 2000000;
 
@@ -255,7 +292,7 @@ TEST_F(HybridCSRCOOTest, LargeVertexIDs) {
   EXPECT_EQ(weight, 42);
 }
 
-TEST_F(HybridCSRCOOTest, PopulateFromAdjacencyList) {
+TEST_F(HybridStorageShardTest, PopulateFromAdjacencyList) {
   std::unordered_map<int, std::vector<std::pair<int, int>>,
                      CinderPeak::VertexHasher<int>>
       adj_list;
@@ -284,7 +321,7 @@ TEST_F(HybridCSRCOOTest, PopulateFromAdjacencyList) {
   EXPECT_FALSE(s21.isOK());
 }
 
-TEST_F(HybridCSRCOOTest, PopulateFromEmptyAdjacencyList) {
+TEST_F(HybridStorageShardTest, PopulateFromEmptyAdjacencyList) {
   std::unordered_map<int, std::vector<std::pair<int, int>>,
                      CinderPeak::VertexHasher<int>>
       empty_adj_list;
@@ -295,7 +332,7 @@ TEST_F(HybridCSRCOOTest, PopulateFromEmptyAdjacencyList) {
   EXPECT_FALSE(status.isOK());
 }
 
-TEST_F(HybridCSRCOOTest, ManyVerticesNoEdges) {
+TEST_F(HybridStorageShardTest, ManyVerticesNoEdges) {
   const int NUM_VERTICES = 10000;
 
   for (int i = 0; i < NUM_VERTICES; ++i) {
@@ -307,7 +344,7 @@ TEST_F(HybridCSRCOOTest, ManyVerticesNoEdges) {
   EXPECT_FALSE(status.isOK());
 }
 
-TEST_F(HybridCSRCOOTest, HighDegreeVertex) {
+TEST_F(HybridStorageShardTest, HighDegreeVertex) {
   const int HUB_VERTEX = 0;
   const int NUM_NEIGHBORS = 1000;
 
@@ -330,7 +367,7 @@ TEST_F(HybridCSRCOOTest, HighDegreeVertex) {
   }
 }
 
-TEST_F(HybridCSRCOOTest, DenseGraph) {
+TEST_F(HybridStorageShardTest, DenseGraph) {
   const int NUM_VERTICES = 100;
 
   for (int i = 0; i < NUM_VERTICES; ++i) {
