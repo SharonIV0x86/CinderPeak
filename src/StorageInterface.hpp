@@ -13,8 +13,8 @@ public:
   virtual const PeakStatus impl_clearEdges() = 0;
 
   // Method to remove an Edge
-  virtual const PeakStatus impl_removeEdge(const VertexType &src,
-                                           const VertexType &dest) = 0;
+  virtual const std::pair<EdgeType, PeakStatus>
+  impl_removeEdge(const VertexType &src, const VertexType &dest) = 0;
 
   virtual const PeakStatus
   impl_addEdge(const VertexType &src, const VertexType &dest,
