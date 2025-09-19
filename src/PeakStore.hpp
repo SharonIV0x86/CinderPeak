@@ -24,10 +24,10 @@ private:
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>();
-    if (ctx->metadata->graph_type == "graph_matrix") {
+    if (ctx->metadata->graphType() == "graph_matrix") {
       ctx->active_storage = ctx->adjacency_storage;
       LOG_DEBUG("Set active storage to Adjacency Storage (matrix).");
-    } else if (ctx->metadata->graph_type == "graph_list") {
+    } else if (ctx->metadata->graphType() == "graph_list") {
       ctx->active_storage = ctx->adjacency_storage;
       LOG_DEBUG("Set active storage to Adjacency Storage (list).");
     } else {
@@ -182,7 +182,7 @@ public:
     return ctx->metadata->numVertices();
   }
 
-  std::string getGraphStatistics() {
+  const std::string getGraphStatistics() {
     bool directed;
     if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
       directed = true;
