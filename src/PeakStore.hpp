@@ -4,6 +4,7 @@
 #include "StorageEngine/AdjacencyList.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
 #include "StorageEngine/GraphContext.hpp"
+#include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
@@ -81,12 +82,12 @@ public:
     }
 
     if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {
-      ctx->metadata->num_parallel_edges++;
+      ctx->metadata->updateParallelEdgeCount("add");
     }
     if (src == dest) {
-      ctx->metadata->num_self_loops++;
+      ctx->metadata->updateSelfLoopCount("add");
     }
-    ctx->metadata->num_edges++;
+    ctx->metadata->updateEdgeCount("add");
 
     return status;
   }
@@ -128,7 +129,8 @@ public:
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
         !resp.isOK())
       return resp;
-    ctx->metadata->num_vertices++;
+    ctx->metadata->updateVertexCount("add");
+
     return PeakStatus::OK();
   }
 
@@ -155,7 +157,7 @@ public:
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
-      ctx->metadata->num_vertices--;
+      ctx->metadata->updatVertexCount("remove");
     }
     return status;
   }
@@ -165,7 +167,9 @@ public:
     LOG_INFO("Called peakStore:clearEdges");
     auto status = ctx->active_storage->impl_clearEdges();
     if (status.isOK()) {
-      ctx->metadata->num_edges = 0;
+      ctx->metadata->updateEdgeCount("clear");
+      ctx->metadata->updateParallelEdgeCount("clear");
+      ctx->metadata->updateSelfLoopCount("clear");
     }
     return status;
   }
@@ -174,33 +178,20 @@ public:
     Logger::enableConsoleLogging = toggle;
   }
 
-  size_t numEdges() const { return ctx->metadata->num_edges; }
+  size_t numEdges() const { return ctx->metadata->numEdges(); }
 
   size_t numVertices() const {
     LOG_INFO("Called peakStore:numVertices");
-    return ctx->metadata->num_vertices;
+    return ctx->metadata->numVertices();
   }
 
-  std::string getGraphStatistics() {
-    std::stringstream ss;
-
-    if (ctx->metadata->num_vertices > 1) {
-      float directed_density =
-          (float)ctx->metadata->num_edges /
-          (ctx->metadata->num_vertices * (ctx->metadata->num_vertices - 1));
-      if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
-        ctx->metadata->density = directed_density;
-      if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
-        ctx->metadata->density = 2 * directed_density;
-    }
-    ss << "=== Graph Statistics ===" << std::endl;
-    ss << "Vertices: " << ctx->metadata->num_vertices << std::endl;
-    ss << "Edges: " << ctx->metadata->num_edges << std::endl;
-    ss << "Density: " << std::fixed << std::setprecision(2)
-       << ctx->metadata->density << std::endl;
-    ss << "Self-loops: " << ctx->metadata->num_self_loops << std::endl;
-    ss << "Parallel edges: " << ctx->metadata->num_parallel_edges << std::endl;
-    return ss.str();
+  std::stringstream getGraphStatistics() {
+    bool directed;
+    if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
+      directed = true;
+    if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
+      directed = false;
+    return ctx->metadata->getGraphStatistics(directed);
   }
 };
 
