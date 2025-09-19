@@ -11,7 +11,7 @@ namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;
 }
-class CinderGraph;
+// class CinderGraph;
 
 template <typename VertexType, typename EdgeType> class GraphMatrix;
 
