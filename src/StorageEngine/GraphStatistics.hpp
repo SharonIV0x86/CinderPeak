@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <bitset>
 #include <chrono>
 #include <functional>
@@ -9,41 +10,42 @@
 #include <random>
 #include <sstream>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace CinderPeak {
 namespace PeakStore {
 class GraphInternalMetadata {
-public:
+private:
+  mutable std::shared_mutex mutex;
+
+  std::atomic<size_t> num_vertices{0};
+  std::atomic<size_t> num_edges{0};
+  std::atomic<size_t> num_self_loops{0};
+  std::atomic<size_t> num_parallel_edges{0};
+
   float density;
-  size_t num_vertices;
-  size_t num_edges;
-  size_t num_self_loops;
-  size_t num_parallel_edges;
   const std::string graph_type;
   bool is_vertex_type_primitive;
   bool is_edge_type_primitive;
   bool is_graph_weighted;
   bool is_graph_unweighted;
 
+public:
   GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p,
                         bool edge_tp_p, bool weighted, bool unweighted)
       : graph_type(graph_type), is_vertex_type_primitive(vertex_tp_p),
         is_edge_type_primitive(edge_tp_p) {
-    num_vertices = 0;
-    num_edges = 0;
     density = 0.0;
-    num_self_loops = 0;
-    num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
   }
+
   const bool isGraphWeighted() { return is_graph_weighted; }
   const bool isGraphUnweighted() { return is_graph_unweighted; }
 
   size_t numEdges() { return num_edges; }
   size_t numVertices() { return num_vertices; }
+  const std::string graphType() { return graph_type; }
 
   void updateEdgeCount(std::string opt) {
     if (opt == "add")
@@ -81,7 +83,7 @@ public:
       num_self_loops = 0;
   }
 
-  std::string getGraphStatistics(bool directed) {
+  const std::string getGraphStatistics(bool directed) {
     std::stringstream ss;
 
     if (num_vertices > 1) {
