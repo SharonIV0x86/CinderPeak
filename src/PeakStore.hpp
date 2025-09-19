@@ -157,7 +157,7 @@ public:
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
-      ctx->metadata->updatVertexCount("remove");
+      ctx->metadata->updateVertexCount("remove");
     }
     return status;
   }
