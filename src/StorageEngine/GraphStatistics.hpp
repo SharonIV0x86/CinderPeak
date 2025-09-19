@@ -81,7 +81,7 @@ public:
       num_self_loops = 0;
   }
 
-  std::stringstream getGraphStatistics(bool directed) {
+  std::string getGraphStatistics(bool directed) {
     std::stringstream ss;
 
     if (num_vertices > 1) {

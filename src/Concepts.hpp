@@ -1,10 +1,10 @@
 #pragma once
+#include "StorageEngine/GraphStatistics.hpp"
+#include "StorageEngine/Utils.hpp" // for Unweighted
 #include <functional>
 #include <optional>
 #include <string>
 #include <type_traits>
-
-#include "StorageEngine/Utils.hpp" // for Unweighted
 
 namespace CinderPeak::Traits {
 
