@@ -185,7 +185,7 @@ public:
     return ctx->metadata->numVertices();
   }
 
-  std::stringstream getGraphStatistics() {
+  std::string getGraphStatistics() {
     bool directed;
     if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
       directed = true;
