@@ -30,6 +30,21 @@ private:
   bool is_graph_weighted;
   bool is_graph_unweighted;
 
+  const float calculateDensity(bool directed) {
+    auto num_vertices = num_vertices_.load(std::memory_order_acquire);
+    auto num_edges = num_edges_.load(std::memory_order_acquire);
+
+    if (num_vertices <= 1) {
+      return 0.0f;
+    }
+
+    const float directed_density =
+        static_cast<float>(num_edges) / (num_vertices * (num_vertices - 1));
+    if (directed)
+      return directed_density;
+    return 2.0f * directed_density;
+  }
+
 public:
   GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p,
                         bool edge_tp_p, bool weighted, bool unweighted)
@@ -43,57 +58,59 @@ public:
   const bool isGraphWeighted() { return is_graph_weighted; }
   const bool isGraphUnweighted() { return is_graph_unweighted; }
 
-  size_t numEdges() { return num_edges; }
-  size_t numVertices() { return num_vertices; }
+  size_t numEdges() { return num_edges.load(std::memory_order_acquire); }
+  size_t numVertices() { return num_vertices.load(std::memory_order_acquire); }
   const std::string graphType() { return graph_type; }
 
   void updateEdgeCount(std::string opt) {
     if (opt == "add")
-      num_edges++;
+      num_edges.fetch_add(1, std::memory_order_acq_rel);
     if (opt == "remove")
-      num_edges--;
+      num_edges.fetch_sub(1, std::memory_order_acq_rel);
     if (opt == "clear")
-      num_edges = 0;
+      num_edges.store(0, std::memory_order_release)
   }
 
   void updateVertexCount(std::string opt) {
     if (opt == "add")
-      num_vertices++;
+      num_vertices.fetch_add(1, std::memory_order_acq_rel);
     if (opt == "remove")
-      num_vertices--;
+      num_vertices.fetch_sub(1, std::memory_order_acq_rel);
     if (opt == "clear")
-      num_vertices = 0;
+      num_vertices.store(0, std::memory_order_release)
   }
 
   void updateParallelEdgeCount(std::string opt) {
     if (opt == "add")
-      num_parallel_edges++;
+      num_parallel_edges.fetch_add(1, std::memory_order_acq_rel);
     if (opt == "remove")
-      num_parallel_edges--;
+      num_parallel_edges.fetch_sub(1, std::memory_order_acq_rel);
     if (opt == "clear")
-      num_parallel_edges = 0;
+      num_parallel_edges.store(0, std::memory_order_release)
   }
 
   void updateSelfLoopCount(std::string opt) {
     if (opt == "add")
-      num_self_loops++;
+      num_self_loops.fetch_add(1, std::memory_order_acq_rel);
     if (opt == "remove")
-      num_self_loops--;
+      num_self_loops.fetch_sub(1, std::memory_order_acq_rel);
     if (opt == "clear")
-      num_self_loops = 0;
+      num_self_loops.store(0, std::memory_order_release)
   }
 
   const std::string getGraphStatistics(bool directed) {
-    std::stringstream ss;
+    std::unique_lock<std::shared_mutex> lock(mutex);
 
-    if (num_vertices > 1) {
-      float directed_density =
-          (float)num_edges / (num_vertices * (num_vertices - 1));
-      if (directed)
-        density = directed_density;
-      else
-        density = 2 * directed_density;
-    }
+    auto num_vertices = num_vertices.load(std::memory_order_acquire);
+    auto num_edges = num_edges.load(std::memory_order_acquire);
+    auto num_self_loops = num_self_loops.load(std::memory_order_acquire);
+    auto num_parallel_edges =
+        num_parallel_edges.load(std::memory_order_acquire);
+    auto density = calculateDensity(directed);
+
+    lock.unlock();
+
+    std::stringstream ss;
     ss << "=== Graph Statistics ===" << std::endl;
     ss << "Vertices: " << num_vertices << std::endl;
     ss << "Edges: " << num_edges << std::endl;
