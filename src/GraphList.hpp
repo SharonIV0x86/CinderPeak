@@ -128,6 +128,7 @@ public:
     }
     return {std::make_optional(data), true};
   }
+  std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
 
