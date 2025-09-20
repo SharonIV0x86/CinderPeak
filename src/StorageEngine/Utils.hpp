@@ -142,35 +142,6 @@ public:
 size_t CinderPeak::CinderVertex::nextId = 1;
 size_t CinderPeak::CinderEdge::nextId = 1;
 
-namespace PeakStore {
-class GraphInternalMetadata {
-public:
-  float density;
-  size_t num_vertices;
-  size_t num_edges;
-  size_t num_self_loops;
-  size_t num_parallel_edges;
-  const std::string graph_type;
-  bool is_vertex_type_primitive;
-  bool is_edge_type_primitive;
-  bool is_graph_weighted;
-  bool is_graph_unweighted;
-  GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p,
-                        bool edge_tp_p, bool weighted, bool unweighted)
-      : graph_type(graph_type), is_vertex_type_primitive(vertex_tp_p),
-        is_edge_type_primitive(edge_tp_p) {
-    num_vertices = 0;
-    num_edges = 0;
-    density = 0.0;
-    num_self_loops = 0;
-    num_parallel_edges = 0;
-    is_graph_weighted = weighted;
-    is_graph_unweighted = unweighted;
-  }
-  const bool isGraphWeighted() { return is_graph_weighted; }
-  const bool isGraphUnweighted() { return is_graph_unweighted; }
-};
-} // namespace PeakStore
 namespace Exceptions {
 inline void handle_exception_map(const PeakStatus &status) {
   switch (static_cast<int>(status.code())) {
