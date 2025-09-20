@@ -7,7 +7,9 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <random>
+#include <shared_mutex>
 #include <sstream>
 #include <unordered_map>
 #include <vector>
@@ -16,13 +18,10 @@ namespace CinderPeak {
 namespace PeakStore {
 class GraphInternalMetadata {
 private:
-  mutable std::shared_mutex mutex;
-
-  std::atomic<size_t> num_vertices{0};
-  std::atomic<size_t> num_edges{0};
-  std::atomic<size_t> num_self_loops{0};
-  std::atomic<size_t> num_parallel_edges{0};
-
+  size_t num_vertices;
+  size_t num_edges;
+  size_t num_self_loops;
+  size_t num_parallel_edges;
   float density;
   const std::string graph_type;
   bool is_vertex_type_primitive;
@@ -30,85 +29,144 @@ private:
   bool is_graph_weighted;
   bool is_graph_unweighted;
 
-  const float calculateDensity(bool directed) {
-    auto num_vertices = num_vertices_.load(std::memory_order_acquire);
-    auto num_edges = num_edges_.load(std::memory_order_acquire);
-
-    if (num_vertices <= 1) {
-      return 0.0f;
-    }
-
-    const float directed_density =
-        static_cast<float>(num_edges) / (num_vertices * (num_vertices - 1));
-    if (directed)
-      return directed_density;
-    return 2.0f * directed_density;
-  }
+  mutable std::shared_mutex _mtx;
 
 public:
   GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p,
                         bool edge_tp_p, bool weighted, bool unweighted)
       : graph_type(graph_type), is_vertex_type_primitive(vertex_tp_p),
         is_edge_type_primitive(edge_tp_p) {
+
+    num_vertices = 0;
+    num_edges = 0;
     density = 0.0;
+    num_self_loops = 0;
+    num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
   }
 
-  const bool isGraphWeighted() { return is_graph_weighted; }
-  const bool isGraphUnweighted() { return is_graph_unweighted; }
-
-  size_t numEdges() { return num_edges.load(std::memory_order_acquire); }
-  size_t numVertices() { return num_vertices.load(std::memory_order_acquire); }
-  const std::string graphType() { return graph_type; }
-
-  void updateEdgeCount(std::string opt) {
-    if (opt == "add")
-      num_edges.fetch_add(1, std::memory_order_acq_rel);
-    if (opt == "remove")
-      num_edges.fetch_sub(1, std::memory_order_acq_rel);
-    if (opt == "clear")
-      num_edges.store(0, std::memory_order_release)
+  // Custom copy constructor that doesn't copy the mutex
+  GraphInternalMetadata(const GraphInternalMetadata &metadata)
+      : graph_type(metadata.graph_type) {
+    std::shared_lock<std::shared_mutex> lock(metadata._mtx);
+    num_vertices = metadata.num_vertices;
+    num_edges = metadata.num_edges;
+    num_self_loops = metadata.num_self_loops;
+    num_parallel_edges = metadata.num_parallel_edges;
+    density = metadata.density;
+    is_vertex_type_primitive = metadata.is_vertex_type_primitive;
+    is_edge_type_primitive = metadata.is_edge_type_primitive;
+    is_graph_weighted = metadata.is_graph_weighted;
+    is_graph_unweighted = metadata.is_graph_unweighted;
   }
 
-  void updateVertexCount(std::string opt) {
-    if (opt == "add")
-      num_vertices.fetch_add(1, std::memory_order_acq_rel);
-    if (opt == "remove")
-      num_vertices.fetch_sub(1, std::memory_order_acq_rel);
-    if (opt == "clear")
-      num_vertices.store(0, std::memory_order_release)
+  // Custom copy assignment operator
+  GraphInternalMetadata &operator=(const GraphInternalMetadata &metadata) {
+    if (this != &metadata) {
+      std::shared_lock<std::shared_mutex> metadata_lock(metadata._mtx);
+      std::unique_lock<std::shared_mutex> this_lock(_mtx);
+      num_vertices = metadata.num_vertices;
+      num_edges = metadata.num_edges;
+      num_self_loops = metadata.num_self_loops;
+      num_parallel_edges = metadata.num_parallel_edges;
+      density = metadata.density;
+      is_vertex_type_primitive = metadata.is_vertex_type_primitive;
+      is_edge_type_primitive = metadata.is_edge_type_primitive;
+      is_graph_weighted = metadata.is_graph_weighted;
+      is_graph_unweighted = metadata.is_graph_unweighted;
+    }
+    return *this;
   }
 
-  void updateParallelEdgeCount(std::string opt) {
-    if (opt == "add")
-      num_parallel_edges.fetch_add(1, std::memory_order_acq_rel);
-    if (opt == "remove")
-      num_parallel_edges.fetch_sub(1, std::memory_order_acq_rel);
-    if (opt == "clear")
-      num_parallel_edges.store(0, std::memory_order_release)
+  // Allow move constructor and move assignment operator
+  GraphInternalMetadata(GraphInternalMetadata &&) = default;
+  GraphInternalMetadata &operator=(GraphInternalMetadata &&) = default;
+
+  const bool isGraphWeighted() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return is_graph_weighted;
+  }
+  const bool isGraphUnweighted() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return is_graph_unweighted;
   }
 
-  void updateSelfLoopCount(std::string opt) {
+  size_t numEdges() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return num_edges;
+  }
+  size_t numVertices() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return num_vertices;
+  }
+  const std::string graphType() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return graph_type;
+  }
+
+  void updateEdgeCount(const std::string &opt) {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if (opt == "add")
-      num_self_loops.fetch_add(1, std::memory_order_acq_rel);
-    if (opt == "remove")
-      num_self_loops.fetch_sub(1, std::memory_order_acq_rel);
-    if (opt == "clear")
-      num_self_loops.store(0, std::memory_order_release)
+      num_edges++;
+    else if (opt == "remove")
+      num_edges--;
+    else if (opt == "clear")
+      num_edges = 0;
+  }
+
+  void updateVertexCount(const std::string &opt) {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (opt == "add")
+      num_vertices++;
+    else if (opt == "remove")
+      num_vertices--;
+    else if (opt == "clear")
+      num_vertices = 0;
+  }
+
+  void updateParallelEdgeCount(const std::string &opt) {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (opt == "add")
+      num_parallel_edges++;
+    else if (opt == "remove")
+      num_parallel_edges--;
+    else if (opt == "clear")
+      num_parallel_edges = 0;
+  }
+
+  void updateSelfLoopCount(const std::string &opt) {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (opt == "add")
+      num_self_loops++;
+    else if (opt == "remove")
+      num_self_loops--;
+    else if (opt == "clear")
+      num_self_loops = 0;
+  }
+
+  void updateDensity(bool directed) {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (num_vertices <= 1) {
+      density = 0.0f;
+    }
+    auto max_edges = static_cast<float>(num_vertices * (num_vertices - 1));
+    auto directed_density = static_cast<float>(num_edges) / max_edges;
+    if (directed)
+      density = directed_density;
+    else
+      density = 2 * directed_density;
   }
 
   const std::string getGraphStatistics(bool directed) {
-    std::unique_lock<std::shared_mutex> lock(mutex);
+    updateDensity(directed);
 
-    auto num_vertices = num_vertices.load(std::memory_order_acquire);
-    auto num_edges = num_edges.load(std::memory_order_acquire);
-    auto num_self_loops = num_self_loops.load(std::memory_order_acquire);
-    auto num_parallel_edges =
-        num_parallel_edges.load(std::memory_order_acquire);
-    auto density = calculateDensity(directed);
-
-    lock.unlock();
+    std::shared_lock<std::shared_mutex> lock(_mtx);
 
     std::stringstream ss;
     ss << "=== Graph Statistics ===" << std::endl;
