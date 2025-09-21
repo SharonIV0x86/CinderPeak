@@ -26,7 +26,7 @@ protected:
 class NotFoundException : public GraphException {
 public:
   explicit NotFoundException(const std::string &msg)
-      : GraphException(msg + " not found.") {}
+      : GraphException("Resource Not Found: " + msg) {}
 };
 
 class InvalidArgumentException : public GraphException {
@@ -62,7 +62,7 @@ public:
 class InternalErrorException : public GraphException {
 public:
   explicit InternalErrorException(const std::string &msg = "")
-      : GraphException("Internal error" + (msg.empty() ? "" : ": " + msg)) {}
+      : GraphException("Internal error: " + msg) {}
 };
 
 class UnimplementedException : public GraphException {
@@ -74,7 +74,7 @@ public:
 class AlreadyExistsException : public GraphException {
 public:
   explicit AlreadyExistsException(const std::string &msg)
-      : GraphException(msg + " already exists.") {}
+      : GraphException("Already Exists: " + msg) {}
 };
 class UnknownException : public GraphException {
 public:

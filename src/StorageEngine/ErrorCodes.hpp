@@ -37,8 +37,9 @@ public:
   VertexAlreadyExists(std::string msg = "Vertex Already Exists") {
     return PeakStatus(StatusCode::VERTEX_ALREADY_EXISTS, std::move(msg));
   }
-  inline static PeakStatus AlreadyExists(std::string msg = "Already Exists") {
-    return PeakStatus(StatusCode::VERTEX_ALREADY_EXISTS, std::move(msg));
+  inline static PeakStatus
+  AlreadyExists(std::string msg = "Resource Already Exists") {
+    return PeakStatus(StatusCode::ALREADY_EXISTS, std::move(msg));
   }
   inline static PeakStatus InternalError(std::string msg = "Internal Error") {
     return PeakStatus(StatusCode::INTERNAL_ERROR, std::move(msg));
@@ -50,7 +51,7 @@ public:
   VertexNotFound(std::string msg = "Vertex Not Found") {
     return PeakStatus(StatusCode::VERTEX_NOT_FOUND, std::move(msg));
   }
-  inline static PeakStatus MethodNotImplemented(
+  inline static PeakStatus Unimplemented(
       std::string msg = "Method is not implemented, there has been an error.") {
     return PeakStatus(StatusCode::UNIMPLEMENTED, std::move(msg));
   }
