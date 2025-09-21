@@ -1,5 +1,6 @@
 #pragma once
 #include "CinderPeak.hpp"
+#include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
 #include "StorageEngine/GraphContext.hpp"
@@ -16,13 +17,15 @@ template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
   void initializeContext(const GraphInternalMetadata &metadata,
-                         const GraphCreationOptions &options) {
+                         const GraphCreationOptions &options,
+                         const PolicyConfiguration &cfg) {
     ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
     ctx->hybrid_storage =
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>();
+    ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
     if (ctx->metadata->graph_type == "graph_matrix") {
       ctx->active_storage = ctx->adjacency_storage;
       LOG_DEBUG("Set active storage to Adjacency Storage (matrix).");
@@ -39,9 +42,10 @@ private:
 public:
   PeakStore(const GraphInternalMetadata &metadata,
             const GraphCreationOptions &options =
-                CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
+                CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
+            const PolicyConfiguration &cfg = PolicyConfiguration())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
-    initializeContext(metadata, options);
+    initializeContext(metadata, options, cfg);
     LOG_INFO("Successfully initialized context object.");
   }
 
@@ -50,7 +54,6 @@ public:
     bool isWeighted = ctx->metadata->isGraphWeighted();
     bool edgeExists;
     PeakStatus status = PeakStatus::OK();
-
     if (isWeighted) {
       edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest, weight);
     } else {

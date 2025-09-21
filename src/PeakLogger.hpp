@@ -57,6 +57,8 @@ public:
       logToConsole(level, msg);
 
     if (enableFileLogging)
+      // TODO: fix this, the passing of FILE and LINE is incorrect, this should
+      // be passed from the location from where the error is generated.
       logToFile(level, msg, __FILE__, __LINE__);
   }
 
@@ -134,7 +136,6 @@ private:
     std::string timestamp = getTimestamp();
     const char *levelStr = levelToString(level);
     const char *levelColor = levelToColor(level);
-
     std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp
               << COLOR_BOLD_WHITE << "] [" << COLOR_RESET << levelColor
               << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]"

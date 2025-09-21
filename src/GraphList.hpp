@@ -1,5 +1,6 @@
 #pragma once
 #include "Concepts.hpp"
+#include "PolicyConfiguration.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
 #include <optional>
@@ -38,15 +39,16 @@ private:
 
 public:
   GraphList(const GraphCreationOptions &options =
-                CinderPeak::GraphCreationOptions::getDefaultCreateOptions()) {
-    CinderPeak::PeakStore::GraphInternalMetadata metadata(
-        "graph_list", CinderPeak::Traits::isTypePrimitive<VertexType>(),
-        CinderPeak::Traits::isTypePrimitive<EdgeType>(),
-        CinderPeak::Traits::isGraphWeighted<EdgeType>(),
-        !CinderPeak::Traits::isGraphWeighted<EdgeType>());
-    peak_store = std::make_unique<
-        CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>(metadata,
-                                                                options);
+                GraphCreationOptions::getDefaultCreateOptions(),
+            const PolicyConfiguration &cfg = PolicyConfiguration()) {
+    PeakStore::GraphInternalMetadata metadata(
+        "graph_list", Traits::isTypePrimitive<VertexType>(),
+        Traits::isTypePrimitive<EdgeType>(),
+        Traits::isGraphWeighted<EdgeType>(),
+        !Traits::isGraphWeighted<EdgeType>());
+
+    peak_store = std::make_unique<PeakStore::PeakStore<VertexType, EdgeType>>(
+        metadata, options, cfg);
   }
 
   VertexAddResult addVertex(const Vertex_t &v) {

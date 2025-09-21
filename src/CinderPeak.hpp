@@ -4,6 +4,7 @@
 #include "GraphList.hpp"
 #include "GraphMatrix.hpp"
 #include "PeakStore.hpp"
+#include "PolicyConfiguration.hpp"
 #include "StorageEngine/Utils.hpp"
 namespace CinderPeak {
 namespace PeakStore {

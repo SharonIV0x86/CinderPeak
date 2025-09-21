@@ -20,7 +20,7 @@ int main() {
   GraphCreationOptions opts({GraphCreationOptions::Directed});
   GraphList<int, int> graph(opts);
 
-  GraphList<int, int>::setConsoleLogging(false); // Disabling log display
+  // GraphList<int, int>::setConsoleLogging(false); // Disabling log display
 
   graph.addVertex(1);
   graph.addVertex(2);
