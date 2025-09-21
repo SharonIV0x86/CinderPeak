@@ -78,11 +78,10 @@ TEST_F(PolicyShardTest, ThrowAndLogConsole_AlreadyExists) {
     policy.handleException(sc_alreadyExists);
   } catch (const PeakExceptions::AlreadyExistsException &aeex) {
     EXPECT_STREQ(aeex.what(), "Already Exists: Resource Already Exists");
-
   }
 }
-TEST_F(PolicyShardTest, ThrowAndLogConsole_EdgeAlreadyExists){
-   try {
+TEST_F(PolicyShardTest, ThrowAndLogConsole_EdgeAlreadyExists) {
+  try {
     policy.handleException(sc_edgeAlreadyExists);
   } catch (const PeakExceptions::EdgeAlreadyExistsException &aeex) {
     EXPECT_STREQ(aeex.what(), "Edge already exists: Edge Already Exists");
