@@ -282,10 +282,10 @@ public:
       }
     }
   }
-void clearVertices() {
+  void clearVertices() {
     LOG_INFO("Clearing all vertices and edges from adjacency list");
     _adj_list.clear();
-}
+  }
 };
 } // namespace PeakStore
 
