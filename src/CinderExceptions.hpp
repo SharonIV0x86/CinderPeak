@@ -1,25 +1,15 @@
 #pragma once
 
 #include <exception>
-#include <sstream>
 #include <string>
-#include <typeinfo>
 #include <utility>
 
 namespace CinderPeak {
+namespace PeakExceptions {
 
-/** @brief Utility function to convert common types to their string
- representation. Supports string/int; others return type name for debugging.*/
-inline std::string toString(const std::string &value) { return value; }
-
-inline std::string toString(int value) { return std::to_string(value); }
-
-template <typename T> std::string toString(const T & /*value*/) {
-  return "[Unprintable type: " + std::string(typeid(T).name()) + "]";
-}
-
-/** @brief Base class for all user-facing CinderPeak exceptions.
-  Base class for all CinderPeak exceptions with consistent messages. */
+/**
+ * @brief Base exception class for all CinderPeak errors.
+ */
 class GraphException : public std::exception {
 public:
   explicit GraphException(std::string message)
@@ -33,73 +23,66 @@ protected:
   std::string m_message;
 };
 
-/** @brief Exception thrown when a vertex is not found in the graph.
-  Thrown when a vertex with the given ID is missing. */
-class VertexNotFoundException : public GraphException {
+class NotFoundException : public GraphException {
 public:
-  explicit VertexNotFoundException(const std::string &vertexId)
-      : GraphException("Vertex not found: ID '" + vertexId +
-                       "'. "
-                       "The requested vertex does not exist in the graph. "
-                       "Please verify the vertex ID is correct and that the "
-                       "vertex has not been removed.") {}
+  explicit NotFoundException(const std::string &msg)
+      : GraphException("Resource Not Found: " + msg) {}
 };
 
-/** @brief Exception thrown when an edge between two vertices is missing.
- Indicates that no edge exists between the specified source and target vertices.
- */
+class InvalidArgumentException : public GraphException {
+public:
+  explicit InvalidArgumentException(const std::string &arg)
+      : GraphException("Invalid argument: " + arg) {}
+};
+
+class VertexAlreadyExistsException : public GraphException {
+public:
+  explicit VertexAlreadyExistsException(const std::string &msg)
+      : GraphException("Vertex already exists: " + msg) {}
+};
+
+class EdgeAlreadyExistsException : public GraphException {
+public:
+  explicit EdgeAlreadyExistsException(const std::string &msg)
+      : GraphException("Edge already exists: " + msg) {}
+};
+
 class EdgeNotFoundException : public GraphException {
 public:
-  EdgeNotFoundException(const std::string &source, const std::string &target)
-      : GraphException("Edge not found: From '" + source + "' to '" + target +
-                       "'. "
-                       "No edge exists between these vertices in the graph. "
-                       "Verify that both vertices exist and that an edge was "
-                       "added between them.") {}
+  explicit EdgeNotFoundException(const std::string &msg)
+      : GraphException("Edge not found: " + msg) {}
 };
 
-/** @brief Exception thrown when attempting to add a duplicate vertex.
-  Indicates that a vertex with the specified ID already exists.*/
-class DuplicateVertexException : public GraphException {
+class VertexNotFoundException : public GraphException {
 public:
-  explicit DuplicateVertexException(const std::string &vertexId)
-      : GraphException(
-            "Duplicate vertex detected: ID '" + vertexId +
-            "' already exists in the graph. "
-            "Each vertex must have a unique identifier. "
-            "Consider using a different ID or updating the existing vertex.") {}
+  explicit VertexNotFoundException(const std::string &msg)
+      : GraphException("Vertex not found: " + msg) {}
 };
 
-/** @brief Exception thrown for invalid edge operations.
-Occurs with non-existent vertices or invalid constraints (e.g., self-loops). */
-class InvalidEdgeOperationException : public GraphException {
+class InternalErrorException : public GraphException {
 public:
-  InvalidEdgeOperationException(const std::string &source,
-                                const std::string &target,
-                                const std::string &reason)
-      : GraphException("Invalid edge operation: From '" + source + "' to '" +
-                       target +
-                       "'. "
-                       "Reason: " +
-                       reason +
-                       ". "
-                       "Ensure both vertices exist and the operation complies "
-                       "with graph constraints.") {}
+  explicit InternalErrorException(const std::string &msg = "")
+      : GraphException("Internal error: " + msg) {}
 };
 
-/** @brief General-purpose exception for graph operation failures.
- Covers miscellaneous failures not addressed by specific exception types.*/
-class GraphOperationException : public GraphException {
+class UnimplementedException : public GraphException {
 public:
-  GraphOperationException(const std::string &operation,
-                          const std::string &reason)
-      : GraphException("Graph operation failed: Operation '" + operation +
-                       "'. "
-                       "Reason: " +
-                       reason +
-                       ". "
-                       "Check operation parameters and graph state to resolve "
-                       "the issue.") {}
+  explicit UnimplementedException(const std::string &msg)
+      : GraphException("Unimplemented feature: " + msg) {}
 };
+
+class AlreadyExistsException : public GraphException {
+public:
+  explicit AlreadyExistsException(const std::string &msg)
+      : GraphException("Already Exists: " + msg) {}
+};
+class UnknownException : public GraphException {
+public:
+  explicit UnknownException(
+      const std::string &msg =
+          "Unknown Exception. Kindly Report this incident.")
+      : GraphException(msg) {}
+};
+} // namespace PeakExceptions
 
 } // namespace CinderPeak

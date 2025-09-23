@@ -22,21 +22,44 @@
 #define COLOR_BOLD_ERROR "\033[1;31m"
 #define COLOR_BOLD_CRIT "\033[1;91m"
 
-enum class LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
+enum LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
+enum ErrorPolicy { Throw = 1, Ignore = 2 };
+enum LoggingPolicy {
+  LogConsole = 1,
+  Silent = 3,
+  LogFile = 4,
+  ConsoleAndFile = 5
+};
 
 class Logger {
 public:
   inline static bool enableConsoleLogging = false;
   inline static bool enableFileLogging = false;
-  inline static std::string logFileName = "peak_logs.log";
 
-  static void log(LogLevel level, const std::string &msg) {
-    logImpl(level, msg, "", -1);
-  }
+  static void log(const LogLevel &level, const std::string &msg,
+                  const int &loggingPolicy, const std::string &logFileP) {
+    // Reset logging modes on each call
+    enableConsoleLogging = false;
+    enableFileLogging = false;
 
-  static void log(LogLevel level, const std::string &msg,
-                  const std::string &file, int line) {
-    logImpl(level, msg, file, line);
+    if (loggingPolicy == LoggingPolicy::ConsoleAndFile) {
+      enableConsoleLogging = true;
+      enableFileLogging = true;
+      ensureFileOpen(logFileP);
+    } else if (loggingPolicy == LoggingPolicy::LogConsole) {
+      enableConsoleLogging = true;
+    } else if (loggingPolicy == LoggingPolicy::LogFile) {
+      enableFileLogging = true;
+      ensureFileOpen(logFileP);
+    }
+
+    if (enableConsoleLogging)
+      logToConsole(level, msg);
+
+    if (enableFileLogging)
+      // TODO: fix this, the passing of FILE and LINE is incorrect, this should
+      // be passed from the location from where the error is generated.
+      logToFile(level, msg, __FILE__, __LINE__);
   }
 
   static void shutdown() {
@@ -101,56 +124,52 @@ private:
     return oss.str();
   }
 
-  static void ensureFileOpen() {
+  static void ensureFileOpen(const std::string &path) {
     if (!logFile.is_open()) {
-      logFile.open(logFileName, std::ios::app);
+      logFile.open(path, std::ios::app);
     }
   }
 
-  static void logImpl(LogLevel level, const std::string &msg,
-                      const std::string &file, int line) {
-    if (!enableConsoleLogging && !enableFileLogging)
+  static void logToConsole(LogLevel level, const std::string &msg) {
+    std::lock_guard<std::mutex> lock(logMutex);
+
+    std::string timestamp = getTimestamp();
+    const char *levelStr = levelToString(level);
+    const char *levelColor = levelToColor(level);
+    std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp
+              << COLOR_BOLD_WHITE << "] [" << COLOR_RESET << levelColor
+              << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]"
+              << COLOR_RESET << " " << msg << std::endl;
+  }
+
+  static void logToFile(LogLevel level, const std::string &msg,
+                        const std::string &file, int line) {
+    if (!logFile.is_open())
       return;
 
     std::lock_guard<std::mutex> lock(logMutex);
 
     std::string timestamp = getTimestamp();
     const char *levelStr = levelToString(level);
-    const char *levelColor = levelToColor(level);
 
-    if (enableConsoleLogging) {
-      std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp
-                << COLOR_BOLD_WHITE << "] [" << COLOR_RESET << levelColor
-                << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]"
-                << COLOR_RESET << " " << msg;
-
-      if (!file.empty() && line != -1) {
-        std::cerr << COLOR_WHITE << " (" << file << ":" << line << ")"
-                  << COLOR_RESET;
-      }
-
-      std::cerr << std::endl;
+    logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
+    if (!file.empty() && line != -1 &&
+        (level == LogLevel::CRITICAL || level == LogLevel::ERROR)) {
+      logFile << " (" << file << ":" << line << ")";
     }
-
-    if (enableFileLogging) {
-      ensureFileOpen();
-      if (logFile.is_open()) {
-        logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-
-        if (!file.empty() && line != -1) {
-          logFile << " (" << file << ":" << line << ")";
-        }
-
-        logFile << std::endl;
-      }
-    }
+    logFile << std::endl;
   }
 };
 
-#define LOG_TRACE(msg) Logger::log(LogLevel::TRACE, msg)
-#define LOG_DEBUG(msg) Logger::log(LogLevel::DEBUG, msg)
-#define LOG_INFO(msg) Logger::log(LogLevel::INFO, msg)
-#define LOG_WARNING(msg) Logger::log(LogLevel::WARNING, msg, __FILE__, __LINE__)
-#define LOG_ERROR(msg) Logger::log(LogLevel::ERROR, msg, __FILE__, __LINE__)
-#define LOG_CRITICAL(msg)                                                      \
-  Logger::log(LogLevel::CRITICAL, msg, __FILE__, __LINE__)
+// for now, not removed but disabled the behavior, so that builds dont fail.
+#define LOG_TRACE(msg)
+//  Logger::log(LogLevel::TRACE, msg)
+#define LOG_DEBUG(msg)
+//  Logger::log(LogLevel::DEBUG, msg)
+#define LOG_INFO(msg)
+// Logger::log(LogLevel::INFO, msg)
+#define LOG_WARNING(msg)
+//  Logger::log(LogLevel::WARNING, msg, __FILE__, __LINE__)
+#define LOG_ERROR(msg)
+//  Logger::log(LogLevel::ERROR, msg, __FILE__, __LINE__)
+#define LOG_CRITICAL(msg)
