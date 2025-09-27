@@ -2,13 +2,16 @@
 
 A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. It provides a flexible, templated API for graph manipulation, analysis.
 
+A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. 
+It provides a flexible, templated API for graph manipulation and analysis.
+
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![C++](https://img.shields.io/badge/Built%20with-C%2B%2B17%2FC%2B%2B20-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-GTest-red)
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 - 🚀 Key Features
 - 🗓️ Development Notice
 - 📂 Project Structure
@@ -20,7 +23,7 @@ A fast and efficient, open-source C++ graph library built to handle a wide range
 
 ---
 
-## 🚀 Key Features
+## Key Features
 - **Flexible Graph Representations** - Supports adjacency lists, adjacency matrices, and hybrid CSR/COO formats for efficient storage.
 - **Customizable & Templated** - Fully templated design allows you to define custom vertex and edge types.
 - **Thread Safety** - Designed to work seamlessly in multi-threaded applications.
@@ -33,57 +36,69 @@ A fast and efficient, open-source C++ graph library built to handle a wide range
 ```cpp
 #include <iostream>
 #include "CinderPeak.hpp"
-
-using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
-// Custom vertex & edge
-class CustomVertex : public CinderVertex {
-public:
-    int data;
-    CustomVertex(int d = 0) : data(d) {}
+// Custom vertex/edge types
+struct MyVertex : CinderPeak::CinderVertex {
+  int id;
+  MyVertex(int id) : id(id) {}
 };
-class CustomEdge : public CinderEdge {
-public:
-    int weight;
-    CustomEdge(int w = 0) : weight(w) {}
+struct MyEdge : CinderPeak::CinderEdge {
+  float w;
+  MyEdge(float w) : w(w) {}
 };
 
 int main() {
-    GraphCreationOptions opts({
-        GraphCreationOptions::Undirected,
-        GraphCreationOptions::Weighted
-    });
+  // --- Complex Graph (custom vertex + weighted edge) ---
+  GraphCreationOptions optsU({GraphCreationOptions::Undirected});
+  PolicyConfiguration cfg(PolicyConfiguration::Throw,
+                          PolicyConfiguration::Silent);
 
-    // --- Custom Types ---
-    GraphMatrix<CustomVertex, CustomEdge> customGraph(opts);
-    CustomVertex A(1), B(2);
-    customGraph.addVertex(A);
-    customGraph.addVertex(B);
-    customGraph[A][B] = CustomEdge(1290);
-    std::cout << "CustomGraph Edge Weight: "
-              << customGraph.getEdge(A, B).weight << "\n";
+  GraphList<MyVertex, MyEdge> customGraph(optsU, cfg);
 
-    // --- Primitive Types ---
-    GraphMatrix<int, int> intGraph(opts);
-    intGraph.addVertex(1);
-    intGraph.addVertex(2);
-    intGraph.addEdge(1, 2, 10);
-    std::cout << "IntGraph Edge Weight: " << intGraph[1][2] << "\n";
+  MyVertex v1(1);
+  MyVertex v2(2);
+  
+  MyEdge e1(0.5f);
+  MyEdge e2(0.8f);
 
-    return 0;
+  customGraph.addVertex(v1);
+  customGraph.addVertex(v2);
+  customGraph.addEdge(v1, v2, e1);
+  customGraph.updateEdge(v1, v2, e2);
+
+  // --- Simple Weighted Graph (int vertices/edges) ---
+  GraphCreationOptions optsD({GraphCreationOptions::Directed});
+  PolicyConfiguration cfg(PolicyConfiguration::Throw,
+                          PolicyConfiguration::LogConsole);
+
+  GraphList<int, int> intGraph(optsD);
+
+  intGraph.addVertex(1);
+  intGraph.addVertex(2);
+  intGraph.addEdge(1, 2, 10);
+  intGraph.updateEdge(1, 2, 20);
+
+  std::cout << "Vertices: " << intGraph.numVertices()
+            << ", Edges: " << intGraph.numEdges() << "\n";
+
+  // --- Unweighted Graph ---
+  GraphList<int, Unweighted> unweighted(optsD);
+  unweighted.addVertex(1);
+  unweighted.addVertex(2);
+  unweighted.addEdge(1, 2);
 }
 ```
 
 
 ---
-## 🗓️ Development Notice
+## Development Notice
 
 CinderPeak is currently under active development. We are committed to delivering a polished and comprehensive release. The stable version, with refined functionalities and complete documentation, is scheduled to be available soon.
 
 ---
 
-## 📂Project Structure
+## Project Structure
 ```
 /CinderPeak
 ├── CMakeLists.txt              # Build system configuration
@@ -130,14 +145,14 @@ CinderPeak is currently under active development. We are committed to delivering
 ```
 ---
 
-## ⚙️ Getting Started
+## Getting Started
 1. **Installation**: Follow the [installation guide](docs/installation.md) to set up CinderPeak with CMake.
 2. **Usage**: Check the [usage guide](docs/usage.md) for API details and the [examples](examples/) directory for sample code.
 3. **Documentation**: Explore the full documentation hosted with Docusaurus in the [docs](docs/) directory.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 - **C++17/C++20**: Leverages modern C++ features for performance and flexibility.
 - **Google Test**: Provides the framework for robust unit testing.
 - **Docusaurus**: Hosts comprehensive documentation with examples and API references.
@@ -145,12 +160,12 @@ CinderPeak is currently under active development. We are committed to delivering
 
 ---
 
-## ❓ Why CinderPeak?
+## Why CinderPeak?
 CinderPeak strikes a balance between **performance, flexibility, and ease of use**. Whether you're building complex network models, analyzing graph-based data, or managing relationships, CinderPeak provides a robust and intuitive solution. Its open-source nature encourages community contributions, and its modular design makes it easy to extend for specialized use cases.
 
 ---
 
-## 🧑‍💻 Community & Contributions
+## Community & Contributions
 We welcome contributions! See the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to get involved. Join the CinderPeak community on [GitHub](https://github.com/SharonIV0X86/CinderPeak) to report issues, suggest features, or contribute code.
 
 ---
@@ -162,5 +177,5 @@ We welcome contributions! See the [CONTRIBUTING.md](CONTRIBUTING.md) file for gu
 
 ---
 
-## 📄 License
+## License
 This project is licensed under the [MIT License](./License).
