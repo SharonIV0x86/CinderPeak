@@ -8,7 +8,7 @@ It provides a flexible, templated API for graph manipulation and analysis.
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![C++](https://img.shields.io/badge/Built%20with-C%2B%2B17%2FC%2B%2B20-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-GTest-red)
-![CI](https://github.com/your-username/CinderPeak/actions/workflows/build.yml/badge.svg)
+![CI](https://github.com/anirudhlakhanpal/CinderPeak/actions/workflows/build.yml/badge.svg)
 
 ---
 
