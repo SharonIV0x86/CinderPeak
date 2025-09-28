@@ -16,6 +16,9 @@
 
 namespace CinderPeak {
 namespace PeakStore {
+
+enum class UpdateOp : uint8_t { Add, Remove, Clear };
+
 class GraphInternalMetadata {
 private:
   size_t num_vertices;
@@ -105,47 +108,47 @@ public:
     return graph_type;
   }
 
-  void updateEdgeCount(const std::string &opt) {
+  void updateEdgeCount(const UpdateOp &opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (opt == "add")
+    if (opt == UpdateOp::Add)
       num_edges++;
-    else if (opt == "remove")
+    else if (opt == UpdateOp::Remove)
       num_edges--;
-    else if (opt == "clear")
+    else if (opt == UpdateOp::Clear)
       num_edges = 0;
   }
 
-  void updateVertexCount(const std::string &opt) {
+  void updateVertexCount(const UpdateOp &opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (opt == "add")
+    if (opt == UpdateOp::Add)
       num_vertices++;
-    else if (opt == "remove")
+    else if (opt == UpdateOp::Remove)
       num_vertices--;
-    else if (opt == "clear")
+    else if (opt == UpdateOp::Clear)
       num_vertices = 0;
   }
 
-  void updateParallelEdgeCount(const std::string &opt) {
+  void updateParallelEdgeCount(const UpdateOp &opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (opt == "add")
+    if (opt == UpdateOp::Add)
       num_parallel_edges++;
-    else if (opt == "remove")
+    else if (opt == UpdateOp::Remove)
       num_parallel_edges--;
-    else if (opt == "clear")
+    else if (opt == UpdateOp::Clear)
       num_parallel_edges = 0;
   }
 
-  void updateSelfLoopCount(const std::string &opt) {
+  void updateSelfLoopCount(const UpdateOp &opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (opt == "add")
+    if (opt == UpdateOp::Add)
       num_self_loops++;
-    else if (opt == "remove")
+    else if (opt == UpdateOp::Remove)
       num_self_loops--;
-    else if (opt == "clear")
+    else if (opt == UpdateOp::Clear)
       num_self_loops = 0;
   }
 

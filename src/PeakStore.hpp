@@ -82,12 +82,12 @@ public:
     }
 
     if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {
-      ctx->metadata->updateParallelEdgeCount("add");
+      ctx->metadata->updateParallelEdgeCount(UpdateOp::Add);
     }
     if (src == dest) {
-      ctx->metadata->updateSelfLoopCount("add");
+      ctx->metadata->updateSelfLoopCount(UpdateOp::Add);
     }
-    ctx->metadata->updateEdgeCount("add");
+    ctx->metadata->updateEdgeCount(UpdateOp::Add);
 
     return status;
   }
@@ -129,7 +129,7 @@ public:
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
         !resp.isOK())
       return resp;
-    ctx->metadata->updateVertexCount("add");
+    ctx->metadata->updateVertexCount(UpdateOp::Add);
 
     return PeakStatus::OK();
   }
@@ -157,7 +157,7 @@ public:
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
-      ctx->metadata->updateVertexCount("remove");
+      ctx->metadata->updateVertexCount(UpdateOp::Remove);
     }
     return status;
   }
@@ -167,9 +167,9 @@ public:
     LOG_INFO("Called peakStore:clearEdges");
     auto status = ctx->active_storage->impl_clearEdges();
     if (status.isOK()) {
-      ctx->metadata->updateEdgeCount("clear");
-      ctx->metadata->updateParallelEdgeCount("clear");
-      ctx->metadata->updateSelfLoopCount("clear");
+      ctx->metadata->updateEdgeCount(UpdateOp::Clear);
+      ctx->metadata->updateParallelEdgeCount(UpdateOp::Clear);
+      ctx->metadata->updateSelfLoopCount(UpdateOp::Clear);
     }
     return status;
   }
