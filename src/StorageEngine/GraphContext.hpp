@@ -1,6 +1,7 @@
 #pragma once
 #include "PeakLogger.hpp"
 #include "PolicyConfiguration.hpp"
+#include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include "StorageInterface.hpp"
 #include <memory>

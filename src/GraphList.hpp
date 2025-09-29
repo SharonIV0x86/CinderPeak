@@ -1,6 +1,7 @@
 #pragma once
 #include "Concepts.hpp"
 #include "PolicyConfiguration.hpp"
+#include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
 #include <optional>
@@ -127,6 +128,7 @@ public:
     }
     return {std::make_optional(data), true};
   }
+  std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
 

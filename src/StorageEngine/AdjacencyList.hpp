@@ -1,6 +1,7 @@
 #pragma once
 #include "Concepts.hpp"
 #include "StorageEngine/GraphContext.hpp"
+#include "StorageEngine/GraphStatistics.hpp"
 #include "Utils.hpp"
 #include <algorithm>
 #include <memory>
