@@ -17,8 +17,8 @@ int main() {
   CinderPeak::PeakStore::PeakStore<int, int> store(metadata);
   store.addVertex(1);
   store.addVertex(1);
-  std::cout << store.getContext()->metadata->num_edges << "\n";
-  std::cout << store.getContext()->metadata->num_vertices << "\n";
+  std::cout << store.getContext()->metadata->numEdges() << "\n";
+  std::cout << store.getContext()->metadata->numVertices() << "\n";
 
   return 0;
 }

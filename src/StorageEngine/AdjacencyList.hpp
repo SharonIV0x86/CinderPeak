@@ -1,7 +1,9 @@
 #pragma once
 #include "Concepts.hpp"
 #include "StorageEngine/GraphContext.hpp"
+#include "StorageEngine/GraphStatistics.hpp"
 #include "Utils.hpp"
+#include <algorithm>
 #include <memory>
 #include <shared_mutex>
 namespace CinderPeak {
@@ -148,7 +150,7 @@ public:
     return peak_status;
   }
 
-  const PeakStatus impl_clearEdges() {
+  const PeakStatus impl_clearEdges() override {
     for (auto &edge : _adj_list) {
       edge.second.clear();
     }
@@ -157,7 +159,7 @@ public:
 
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
-                                   const EdgeType &newWeight) {
+                                   const EdgeType &newWeight) override {
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
 
@@ -249,7 +251,7 @@ public:
     }
     return false;
   }
-  const PeakStatus impl_removeVertex(const VertexType &v) {
+  const PeakStatus impl_removeVertex(const VertexType &v) override {
     // Find vertex
     auto it = _adj_list.find(v);
     if (it == _adj_list.end())
