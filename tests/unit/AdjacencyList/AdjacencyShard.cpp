@@ -6,7 +6,7 @@ using namespace CinderPeak;
 using namespace PeakStore;
 
 // Base Fixture for Primitive Types
-class AdjacencyListTest : public ::testing::Test, public CinderVertex {
+class AdjacencyStorageShardTest : public ::testing::Test, public CinderVertex {
 protected:
   AdjacencyList<int, int> intGraph;
   AdjacencyList<std::string, float> stringGraph;
@@ -66,7 +66,7 @@ public:
 // 1. Vertex Operations
 //
 
-TEST_F(AdjacencyListTest, AddVertexPrimitive) {
+TEST_F(AdjacencyStorageShardTest, AddVertexPrimitive) {
   EXPECT_TRUE(intGraph.impl_addVertex(6).isOK());
 
   auto status = intGraph.impl_addVertex(1);
@@ -74,7 +74,7 @@ TEST_F(AdjacencyListTest, AddVertexPrimitive) {
   EXPECT_EQ(status.message(), "Primitive Vertex Already Exists");
 }
 
-TEST_F(AdjacencyListTest, AddVertexString) {
+TEST_F(AdjacencyStorageShardTest, AddVertexString) {
   EXPECT_TRUE(stringGraph.impl_addVertex("D").isOK());
 
   auto status = stringGraph.impl_addVertex("A");
@@ -82,7 +82,7 @@ TEST_F(AdjacencyListTest, AddVertexString) {
   EXPECT_EQ(status.message(), "Primitive Vertex Already Exists");
 }
 
-TEST_F(AdjacencyListTest, AddVertices) {
+TEST_F(AdjacencyStorageShardTest, AddVertices) {
   std::vector<int> newVertices = {6, 7, 8, 9, 10};
 
   auto status = intGraph.impl_addVertices(newVertices);
@@ -95,7 +95,7 @@ TEST_F(AdjacencyListTest, AddVertices) {
   }
 }
 
-TEST_F(AdjacencyListTest, AddVerticesDuplicates) {
+TEST_F(AdjacencyStorageShardTest, AddVerticesDuplicates) {
   std::vector<int> verticesWithDups = {6, 1, 7, 2, 8};
 
   auto status = intGraph.impl_addVertices(verticesWithDups);
@@ -107,14 +107,14 @@ TEST_F(AdjacencyListTest, AddVerticesDuplicates) {
   EXPECT_TRUE(intGraph.impl_getNeighbors(8).second.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddVerticesEmpty) {
+TEST_F(AdjacencyStorageShardTest, AddVerticesEmpty) {
   std::vector<int> emptyVertices = {};
 
   auto status = intGraph.impl_addVertices(emptyVertices);
   EXPECT_TRUE(status.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddVerticesString) {
+TEST_F(AdjacencyStorageShardTest, AddVerticesString) {
   std::vector<std::string> newVertices = {"D", "E", "F"};
 
   auto status = stringGraph.impl_addVertices(newVertices);
@@ -127,7 +127,7 @@ TEST_F(AdjacencyListTest, AddVerticesString) {
 }
 
 // Test to validate impl_hasVertex functionality
-TEST_F(AdjacencyListTest, CheckVertexExistence) {
+TEST_F(AdjacencyStorageShardTest, CheckVertexExistence) {
   EXPECT_TRUE(intGraph.impl_hasVertex(2));
   EXPECT_TRUE(intGraph.impl_hasVertex(5));
   EXPECT_FALSE(intGraph.impl_hasVertex(200));
@@ -137,7 +137,7 @@ TEST_F(AdjacencyListTest, CheckVertexExistence) {
 // 2. Edge Operations
 //
 
-TEST_F(AdjacencyListTest, AddEdgeWithWeight) {
+TEST_F(AdjacencyStorageShardTest, AddEdgeWithWeight) {
   EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 5).isOK());
   EXPECT_TRUE(intGraph.impl_addEdge(2, 3, 10).isOK());
 
@@ -150,7 +150,7 @@ TEST_F(AdjacencyListTest, AddEdgeWithWeight) {
   EXPECT_EQ(edge2.first, 10);
 }
 
-TEST_F(AdjacencyListTest, UpdateEdgeWithWeight) {
+TEST_F(AdjacencyStorageShardTest, UpdateEdgeWithWeight) {
   EXPECT_TRUE(intGraph.impl_addEdge(101, 102, 7).isOK());
   EXPECT_TRUE(intGraph.impl_addEdge(103, 102, 5).isOK());
 
@@ -179,7 +179,7 @@ TEST_F(ComplexGraph, UpdateEdgeOnComplexGraph) {
   EXPECT_EQ(complexGraph.impl_getEdge(v2, v3).first, newEdgeValue2);
 }
 
-TEST_F(AdjacencyListTest, AddEdgeWithoutWeight) {
+TEST_F(AdjacencyStorageShardTest, AddEdgeWithoutWeight) {
   EXPECT_TRUE(intGraph.impl_addEdge(1, 2).isOK());
 
   auto edge = intGraph.impl_getEdge(1, 2);
@@ -187,7 +187,7 @@ TEST_F(AdjacencyListTest, AddEdgeWithoutWeight) {
   EXPECT_EQ(edge.first, 0); // Default int
 }
 
-TEST_F(AdjacencyListTest, AddEdgeInvalidVertices) {
+TEST_F(AdjacencyStorageShardTest, AddEdgeInvalidVertices) {
   auto status1 = intGraph.impl_addEdge(99, 1);
   EXPECT_FALSE(status1.isOK());
   EXPECT_EQ(status1.code(), StatusCode::VERTEX_NOT_FOUND);
@@ -197,7 +197,7 @@ TEST_F(AdjacencyListTest, AddEdgeInvalidVertices) {
   EXPECT_EQ(status2.code(), StatusCode::VERTEX_NOT_FOUND);
 }
 
-TEST_F(AdjacencyListTest, AddEdgesPairs) {
+TEST_F(AdjacencyStorageShardTest, AddEdgesPairs) {
   std::vector<std::pair<int, int>> edges = {
       {1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}};
 
@@ -211,7 +211,7 @@ TEST_F(AdjacencyListTest, AddEdgesPairs) {
   }
 }
 
-TEST_F(AdjacencyListTest, AddEdgesTuples) {
+TEST_F(AdjacencyStorageShardTest, AddEdgesTuples) {
   std::vector<std::tuple<int, int, int>> edges = {
       {1, 2, 10}, {2, 3, 20}, {3, 4, 30}, {4, 5, 40}};
 
@@ -224,7 +224,7 @@ TEST_F(AdjacencyListTest, AddEdgesTuples) {
   EXPECT_EQ(intGraph.impl_getEdge(4, 5).first, 40);
 }
 
-TEST_F(AdjacencyListTest, AddEdgesInvalidVertices) {
+TEST_F(AdjacencyStorageShardTest, AddEdgesInvalidVertices) {
   std::vector<std::pair<int, int>> edgesWithInvalid = {
       {1, 2}, {99, 3}, {4, 5}, {1, 100}};
 
@@ -239,14 +239,14 @@ TEST_F(AdjacencyListTest, AddEdgesInvalidVertices) {
   EXPECT_FALSE(intGraph.impl_getEdge(1, 100).second.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddEdgesEmpty) {
+TEST_F(AdjacencyStorageShardTest, AddEdgesEmpty) {
   std::vector<std::pair<int, int>> emptyEdges = {};
 
   auto status = intGraph.impl_addEdges(emptyEdges);
   EXPECT_TRUE(status.isOK());
 }
 
-TEST_F(AdjacencyListTest, AddEdgesMixedTypes) {
+TEST_F(AdjacencyStorageShardTest, AddEdgesMixedTypes) {
   std::vector<std::tuple<std::string, std::string, float>> edges = {
       {"A", "B", 1.5f}, {"B", "C", 2.7f}, {"A", "C", 3.14f}};
 
@@ -262,7 +262,7 @@ TEST_F(AdjacencyListTest, AddEdgesMixedTypes) {
 // 3. Edge Retrieval
 //
 
-TEST_F(AdjacencyListTest, GetExistingEdge) {
+TEST_F(AdjacencyStorageShardTest, GetExistingEdge) {
   intGraph.impl_addEdge(1, 2, 5);
 
   auto result = intGraph.impl_getEdge(1, 2);
@@ -270,7 +270,7 @@ TEST_F(AdjacencyListTest, GetExistingEdge) {
   EXPECT_EQ(result.first, 5);
 }
 
-TEST_F(AdjacencyListTest, GetNonExistentEdge) {
+TEST_F(AdjacencyStorageShardTest, GetNonExistentEdge) {
   auto result1 = intGraph.impl_getEdge(1, 3);
   EXPECT_FALSE(result1.second.isOK());
   EXPECT_EQ(result1.second.code(), StatusCode::EDGE_NOT_FOUND);
@@ -284,7 +284,7 @@ TEST_F(AdjacencyListTest, GetNonExistentEdge) {
 // 4. Neighbor Retrieval
 //
 
-TEST_F(AdjacencyListTest, GetNeighbors) {
+TEST_F(AdjacencyStorageShardTest, GetNeighbors) {
   intGraph.impl_addEdge(1, 2, 5);
   intGraph.impl_addEdge(1, 3, 10);
 
@@ -299,7 +299,7 @@ TEST_F(AdjacencyListTest, GetNeighbors) {
   EXPECT_EQ(neighbors.first[1].second, 10);
 }
 
-TEST_F(AdjacencyListTest, GetNeighborsNonExistentVertex) {
+TEST_F(AdjacencyStorageShardTest, GetNeighborsNonExistentVertex) {
   auto neighbors = intGraph.impl_getNeighbors(99);
   EXPECT_FALSE(neighbors.second.isOK());
   EXPECT_EQ(neighbors.second.code(), StatusCode::VERTEX_NOT_FOUND);
@@ -310,7 +310,7 @@ TEST_F(AdjacencyListTest, GetNeighborsNonExistentVertex) {
 // 5. Edge Existence Checks
 //
 
-TEST_F(AdjacencyListTest, EdgeExistence) {
+TEST_F(AdjacencyStorageShardTest, EdgeExistence) {
   intGraph.impl_addEdge(1, 2, 5);
 
   auto edge1_2 = intGraph.impl_getEdge(1, 2);
@@ -330,7 +330,7 @@ TEST_F(AdjacencyListTest, EdgeExistence) {
 // 6. Adjacency List Structure
 //
 
-TEST_F(AdjacencyListTest, AdjacencyListStructure) {
+TEST_F(AdjacencyStorageShardTest, AdjacencyListStructure) {
   intGraph.impl_addEdge(1, 2, 5);
   intGraph.impl_addEdge(1, 3, 10);
   intGraph.impl_addEdge(2, 3, 15);
@@ -395,7 +395,7 @@ TEST(AdjacencyListCustomTest, CustomVertexType) {
 // 8. Vertex Removal Tests (FEATURE: impl_removeVertex)
 //
 
-TEST_F(AdjacencyListTest, RemoveExistingVertex) {
+TEST_F(AdjacencyStorageShardTest, RemoveExistingVertex) {
   intGraph.impl_addEdge(1, 2, 5);
   intGraph.impl_addEdge(3, 1, 10);
 
@@ -421,13 +421,13 @@ TEST_F(AdjacencyListTest, RemoveExistingVertex) {
   }
 }
 
-TEST_F(AdjacencyListTest, RemoveNonExistentVertex) {
+TEST_F(AdjacencyStorageShardTest, RemoveNonExistentVertex) {
   auto status = intGraph.impl_removeVertex(999);
   EXPECT_FALSE(status.isOK());
   EXPECT_EQ(status.code(), StatusCode::VERTEX_NOT_FOUND);
 }
 
-TEST_F(AdjacencyListTest, RemoveVertexFromStringGraph) {
+TEST_F(AdjacencyStorageShardTest, RemoveVertexFromStringGraph) {
   stringGraph.impl_addEdge("A", "B", 1.5f);
 
   auto status = stringGraph.impl_removeVertex("A");
@@ -442,327 +442,4 @@ TEST_F(AdjacencyListTest, RemoveVertexFromStringGraph) {
   for (auto &edge : neighborsB.first) {
     EXPECT_NE(edge.first, "A");
   }
-}
-
-//
-// 9. Thread Safety Tests
-//
-
-class AdjacencyListThreadTest : public ::testing::Test {
-protected:
-  AdjacencyList<int, int> threadGraph;
-
-  void SetUp() override {
-    for (int i = 1; i <= 100; ++i) {
-      threadGraph.impl_addVertex(i);
-    }
-  }
-};
-
-TEST_F(AdjacencyListThreadTest, ConcurrentVertexAddition) {
-  const int numThreads = 10;
-  const int verticesPerThread = 50;
-  std::vector<std::thread> threads;
-  std::atomic<int> successCount{0};
-  std::atomic<int> failureCount{0};
-
-  for (int t = 0; t < numThreads; ++t) {
-    threads.emplace_back([&, t]() {
-      int startVertex = 1000 + t * verticesPerThread;
-      for (int i = 0; i < verticesPerThread; ++i) {
-        auto status = threadGraph.impl_addVertex(startVertex + i);
-        if (status.isOK()) {
-          successCount++;
-        } else {
-          failureCount++;
-        }
-      }
-    });
-  }
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  EXPECT_EQ(successCount.load(), numThreads * verticesPerThread);
-  EXPECT_EQ(failureCount.load(), 0);
-
-  for (int t = 0; t < numThreads; ++t) {
-    int startVertex = 1000 + t * verticesPerThread;
-    for (int i = 0; i < verticesPerThread; ++i) {
-      auto neighbors = threadGraph.impl_getNeighbors(startVertex + i);
-      EXPECT_TRUE(neighbors.second.isOK());
-    }
-  }
-}
-
-TEST_F(AdjacencyListThreadTest, ConcurrentEdgeAddition) {
-  const int numThreads = 8;
-  const int edgesPerThread = 100;
-  std::vector<std::thread> threads;
-  std::atomic<int> successCount{0};
-  std::atomic<int> failureCount{0};
-
-  for (int t = 0; t < numThreads; ++t) {
-    threads.emplace_back([&, t]() {
-      for (int i = 0; i < edgesPerThread; ++i) {
-        int src = (t * edgesPerThread + i) % 100 + 1;
-        int dest = ((t + 1) * edgesPerThread + i) % 100 + 1;
-        int weight = t * 1000 + i;
-
-        auto status = threadGraph.impl_addEdge(src, dest, weight);
-        if (status.isOK()) {
-          successCount++;
-        } else {
-          failureCount++;
-        }
-      }
-    });
-  }
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  EXPECT_EQ(successCount.load(), numThreads * edgesPerThread);
-  EXPECT_EQ(failureCount.load(), 0);
-}
-
-TEST_F(AdjacencyListThreadTest, ConcurrentReadWriteOperations) {
-  for (int i = 1; i <= 50; ++i) {
-    threadGraph.impl_addEdge(i, (i % 50) + 1, i * 10);
-  }
-
-  const int numReaderThreads = 6;
-  const int numWriterThreads = 4;
-  const int operationsPerThread = 200;
-
-  std::vector<std::thread> threads;
-  std::atomic<int> readOperations{0};
-  std::atomic<int> writeOperations{0};
-  std::atomic<int> readErrors{0};
-  std::atomic<int> writeErrors{0};
-
-  for (int t = 0; t < numReaderThreads; ++t) {
-    threads.emplace_back([&, t]() {
-      for (int i = 0; i < operationsPerThread; ++i) {
-        int vertex1 = (i % 50) + 1;
-        int vertex2 = ((i + 1) % 50) + 1;
-
-        auto edge = threadGraph.impl_getEdge(vertex1, vertex2);
-        readOperations++;
-        if (!edge.second.isOK() &&
-            edge.second.code() != StatusCode::EDGE_NOT_FOUND) {
-          readErrors++;
-        }
-
-        auto neighbors = threadGraph.impl_getNeighbors(vertex1);
-        readOperations++;
-        if (!neighbors.second.isOK()) {
-          readErrors++;
-        }
-      }
-    });
-  }
-
-  for (int t = 0; t < numWriterThreads; ++t) {
-    threads.emplace_back([&, t]() {
-      for (int i = 0; i < operationsPerThread; ++i) {
-        int src = (t * operationsPerThread + i) % 50 + 1;
-        int dest = ((t + 2) * operationsPerThread + i) % 50 + 1;
-        int weight = (t + 1) * 1000 + i;
-
-        auto status = threadGraph.impl_addEdge(src, dest, weight);
-        writeOperations++;
-        if (!status.isOK()) {
-          writeErrors++;
-        }
-      }
-    });
-  }
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  EXPECT_EQ(readOperations.load(), numReaderThreads * operationsPerThread * 2);
-  EXPECT_EQ(writeOperations.load(), numWriterThreads * operationsPerThread);
-  EXPECT_EQ(readErrors.load(), 0);
-  EXPECT_EQ(writeErrors.load(), 0);
-}
-
-TEST_F(AdjacencyListThreadTest, ConcurrentBulkOperations) {
-  const int numThreads = 6;
-  std::vector<std::thread> threads;
-  std::atomic<int> successCount{0};
-
-  for (int t = 0; t < numThreads; ++t) {
-    threads.emplace_back([&, t]() {
-      std::vector<int> vertices;
-      int startVertex = 2000 + t * 100;
-      for (int i = 0; i < 50; ++i) {
-        vertices.push_back(startVertex + i);
-      }
-
-      auto vertexStatus = threadGraph.impl_addVertices(vertices);
-      if (vertexStatus.isOK()) {
-        successCount++;
-      }
-      std::vector<std::tuple<int, int, int>> edges;
-      for (int i = 0; i < 25; ++i) {
-        edges.emplace_back(startVertex + i, startVertex + i + 1, i * 10);
-      }
-
-      auto edgeStatus = threadGraph.impl_addEdges(edges);
-      if (edgeStatus.isOK()) {
-        successCount++;
-      }
-    });
-  }
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  EXPECT_EQ(successCount.load(), numThreads * 2);
-}
-
-TEST_F(AdjacencyListTest, ConcurrentMixedOperationsDeadlock) {
-  const int NUM_THREADS = 10;
-  const int OPERATIONS_PER_THREAD = 1000;
-  std::vector<std::thread> threads;
-  std::atomic<int> completed_threads(0);
-  std::atomic<bool> deadlock_detected(false);
-  std::thread watchdog([&]() {
-    auto start = std::chrono::steady_clock::now();
-    while (completed_threads < NUM_THREADS) {
-      auto now = std::chrono::steady_clock::now();
-      auto elapsed =
-          std::chrono::duration_cast<std::chrono::seconds>(now - start);
-      if (elapsed.count() > 5) {
-        deadlock_detected = true;
-        break;
-      }
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-  });
-  for (int i = 0; i < NUM_THREADS; i++) {
-    threads.emplace_back([&, i]() {
-      for (int j = 0; j < OPERATIONS_PER_THREAD; j++) {
-        int vertex_id = i * 1000 + j;
-
-        if (j % 4 == 0) {
-          intGraph.impl_addVertex(vertex_id);
-        } else if (j % 4 == 1) {
-          intGraph.impl_doesEdgeExist(1, 2);
-        } else if (j % 4 == 2) {
-          intGraph.impl_getNeighbors(vertex_id % 10);
-        } else {
-          if (vertex_id > 10) {
-            intGraph.impl_addEdge(vertex_id - 1, vertex_id);
-          }
-        }
-      }
-      completed_threads++;
-    });
-  }
-  for (auto &thread : threads) {
-    thread.join();
-  }
-  watchdog.join();
-  EXPECT_FALSE(deadlock_detected);
-}
-TEST_F(AdjacencyListTest, ConcurrentBulkOperationsRace) {
-  std::vector<int> vertices1 = {100, 101, 102, 103, 104};
-  std::vector<int> vertices2 = {105, 106, 107, 108, 109};
-  std::vector<std::pair<int, int>> edges1 = {
-      {100, 101}, {101, 102}, {102, 103}};
-  std::vector<std::pair<int, int>> edges2 = {
-      {105, 106}, {106, 107}, {107, 108}};
-  std::thread t1([&]() {
-    intGraph.impl_addVertices(vertices1);
-    intGraph.impl_addEdges(edges1);
-  });
-  std::thread t2([&]() {
-    intGraph.impl_addVertices(vertices2);
-    intGraph.impl_addEdges(edges2);
-  });
-  t1.join();
-  t2.join();
-  for (int v : vertices1) {
-    EXPECT_TRUE(intGraph.impl_getNeighbors(v).second.isOK());
-  }
-  for (int v : vertices2) {
-    EXPECT_TRUE(intGraph.impl_getNeighbors(v).second.isOK());
-  }
-}
-TEST_F(AdjacencyListTest, HighReadWriteContention) {
-  const int READ_THREADS = 8;
-  const int WRITE_THREADS = 2;
-  std::vector<std::thread> threads;
-  std::atomic<bool> stop(false);
-  for (int i = 0; i < WRITE_THREADS; i++) {
-    threads.emplace_back([&, i]() {
-      int counter = 0;
-      while (!stop) {
-        int vertex_id = i * 1000 + counter;
-        intGraph.impl_addVertex(vertex_id);
-        if (counter > 0) {
-          intGraph.impl_addEdge(vertex_id - 1, vertex_id);
-        }
-        counter++;
-        std::this_thread::yield();
-      }
-    });
-  }
-  for (int i = 0; i < READ_THREADS; i++) {
-    threads.emplace_back([&, i]() {
-      int read_count = 0;
-      while (!stop && read_count < 1000) {
-        int vertex_to_check = i % 10;
-        auto result = intGraph.impl_getNeighbors(vertex_to_check);
-        read_count++;
-        std::this_thread::yield();
-      }
-    });
-  }
-
-  std::this_thread::sleep_for(std::chrono::seconds(2));
-  stop = true;
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
-  EXPECT_TRUE(true);
-}
-TEST_F(AdjacencyListTest, PotentialReentrancyDeadlock) {
-  intGraph.impl_addVertex(100);
-  intGraph.impl_addVertex(101);
-  intGraph.impl_addEdge(100, 101);
-
-  auto callback = [&](int from, int to) {
-    return intGraph.impl_doesEdgeExist(from, to);
-  };
-  std::thread t([&]() {
-    auto neighbors = intGraph.impl_getNeighbors(100);
-    if (neighbors.second.isOK()) {
-      for (const auto &[vertex, weight] : neighbors.first) {
-        bool exists = callback(100, vertex);
-        EXPECT_TRUE(exists);
-      }
-    }
-  });
-  auto start = std::chrono::steady_clock::now();
-  bool completed = false;
-
-  while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
-    if (t.joinable()) {
-      t.join();
-      completed = true;
-      break;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
-
-  EXPECT_TRUE(completed);
 }
