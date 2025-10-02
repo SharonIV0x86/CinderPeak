@@ -58,12 +58,13 @@ if(BUILD_EXAMPLES)
         get_filename_component(example_dir ${rel_path} DIRECTORY)
         get_filename_component(example_base ${example} NAME_WE)
 
-        # Create a unique target name that includes the subdirectory
-        string(REPLACE "/" "_" example_dir_flat ${example_dir})
-        if(example_dir_flat)
-            set(example_target ${example_dir_flat}_${example_base})
+        # Safely flatten directory name
+        if(example_dir)
+            string(REPLACE "/" "_" example_dir_flat "${example_dir}")
+            set(example_target "${example_dir_flat}_${example_base}")
         else()
-            set(example_target ${example_base})
+            set(example_dir "")
+            set(example_target "${example_base}")
         endif()
 
         add_executable(${example_target}_example ${example})
