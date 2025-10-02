@@ -24,27 +24,32 @@ if(BUILD_TESTS)
 
     file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/tests/*.cpp)
 
-foreach(test_file ${TEST_SOURCES})
-    file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/tests ${test_file})
-    get_filename_component(test_dir ${rel_path} DIRECTORY)
-    get_filename_component(test_base ${test_file} NAME_WE)
+    foreach(test_file ${TEST_SOURCES})
+        file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/tests ${test_file})
+        get_filename_component(test_dir ${rel_path} DIRECTORY)
+        get_filename_component(test_base ${test_file} NAME_WE)
 
-    string(REPLACE "/" "_" test_dir_flat ${test_dir})
-    set(test_name ${test_dir_flat}_${test_base})
+        if(test_dir)
+            string(REPLACE "/" "_" test_dir_flat ${test_dir})
+        else()
+            set(test_dir_flat "")
+        endif()
 
-    add_executable(${test_name} ${test_file})
-    target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
+        set(test_name ${test_dir_flat}_${test_base})
 
-    set_target_properties(${test_name} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
-        OUTPUT_NAME ${test_base}
-    )
+        add_executable(${test_name} ${test_file})
+        target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
 
-    add_test(
-        NAME ${test_name}
-        COMMAND $<TARGET_FILE:${test_name}>
-    )
-endforeach()
+        set_target_properties(${test_name} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
+            OUTPUT_NAME ${test_base}
+        )
+
+        add_test(
+            NAME ${test_name}
+            COMMAND $<TARGET_FILE:${test_name}>
+        )
+    endforeach()
 endif()
 
 # === Build Examples ===
