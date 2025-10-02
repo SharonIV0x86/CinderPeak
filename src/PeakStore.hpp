@@ -92,6 +92,15 @@ public:
     return status;
   }
 
+  std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src,
+                                             const VertexType &dest) {
+    LOG_INFO("Called adjacency:removeEdge()");
+    auto result = ctx->active_storage->impl_removeEdge(src, dest);
+    if (result.second.isOK())
+      ctx->metadata->updateEdgeCount(UpdateOp::Remove);
+    return result;
+  }
+
   std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
                                              const VertexType &dest,
                                              const EdgeType &newWeight) {

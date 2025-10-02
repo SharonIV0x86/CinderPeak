@@ -244,6 +244,55 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to remove an edge
+  const std::pair<EdgeType, PeakStatus>
+  impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+    auto weight = EdgeType();
+
+    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
+      return std::make_pair(weight, PeakStatus::VertexNotFound());
+    }
+
+    if (!impl_doesEdgeExist(src, dest)) {
+      return std::make_pair(weight, PeakStatus::EdgeNotFound());
+    }
+
+    for (size_t i = coo_src.size(); i > 0; --i) {
+      if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
+        coo_src.erase(coo_src.begin() + (i - 1));
+        coo_dest.erase(coo_dest.begin() + (i - 1));
+        weight = coo_weights[i - 1];
+        coo_weights.erase(coo_weights.begin() + (i - 1));
+        return std::make_pair(weight, PeakStatus::OK());
+      }
+    }
+
+    if (!is_built_) {
+      return std::make_pair(weight, PeakStatus::EdgeNotFound());
+    }
+
+    size_t row = vertex_to_index.at(src);
+    size_t start = csr_row_offsets[row];
+    size_t end = csr_row_offsets[row + 1];
+
+    auto it = std::lower_bound(csr_col_vals.begin() + start,
+                               csr_col_vals.begin() + end, dest);
+
+    if (it != csr_col_vals.begin() + end && *it == dest) {
+      size_t edge_idx = std::distance(csr_col_vals.begin(), it);
+
+      weight = csr_weights[edge_idx];
+
+      csr_col_vals.erase(csr_col_vals.begin() + edge_idx);
+      csr_weights.erase(csr_weights.begin() + edge_idx);
+
+      for (size_t i = row + 1; i < csr_row_offsets.size(); ++i) {
+        csr_row_offsets[i]--;
+      }
+    }
+    return std::make_pair(weight, PeakStatus::OK());
+  }
+
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) override {
