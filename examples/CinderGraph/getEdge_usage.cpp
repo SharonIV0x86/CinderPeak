@@ -7,7 +7,7 @@ int main() {
   try {
     // Weighted graph
     cout << "--- Weighted Graph ---" << endl;
-    GraphList<int, double> g;
+    CinderGraph<int, double> g;
     g.addVertex(1);
     g.addVertex(2);
     g.addVertex(3);
@@ -37,7 +37,7 @@ int main() {
 
     // String vertices
     cout << "\n--- String Vertices ---" << endl;
-    GraphList<string, int> g2;
+    CinderGraph<string, int> g2;
     g2.addVertex("A");
     g2.addVertex("B");
     g2.addVertex("C");
@@ -65,7 +65,7 @@ int main() {
 
     // Using getEdge in conditional logic
     cout << "\n--- Conditional Usage ---" << endl;
-    GraphList<int, float> g3;
+    CinderGraph<int, float> g3;
     g3.addVertex(10);
     g3.addVertex(20);
     g3.addEdge(10, 20, 15.5f);
@@ -80,7 +80,7 @@ int main() {
 
     // Checking multiple edges
     cout << "\n--- Checking Multiple Edges ---" << endl;
-    GraphList<int, int> g4;
+    CinderGraph<int, int> g4;
     g4.addVertex(1);
     g4.addVertex(2);
     g4.addVertex(3);

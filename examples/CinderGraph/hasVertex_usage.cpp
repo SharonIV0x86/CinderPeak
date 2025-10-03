@@ -6,7 +6,7 @@ using namespace std;
 int main() {
   try {
     // String vertices
-    GraphList<string, Unweighted> g;
+    CinderGraph<string, Unweighted> g;
     g.addVertex("Alice");
     g.addVertex("Bob");
     g.addVertex("Charlie");
@@ -35,7 +35,7 @@ int main() {
 
     // Integer vertices
     cout << "\n--- Integer Vertices ---" << endl;
-    GraphList<int, double> g2;
+    CinderGraph<int, double> g2;
     g2.addVertex(10);
     g2.addVertex(20);
     g2.addVertex(30);

@@ -10,15 +10,10 @@ CinderPeak is built for **speed**, **scalability**, and **ease of use**, support
 
 - 📦 [Installation Guide](installation.md)  
   Step-by-step instructions to build and install CinderPeak on your system.
-- 🍎 [GraphMatrix](GraphMatrix.md) <br>
-  Matrix Based Graph Implementation
-- 🍎 [GraphList](GraphList.md) <br>
+- 🍎 [CinderGraph](CinderGraph.md) <br>
   List Based Graph Implementation
 - ⚙️ [Usage Guide](usage.md)  
   Learn how to create, modify, and query graphs using CinderPeak's API.
-- 💡 [Examples](examples/GraphMatrixExample.md)  
-  Real-world usage examples, starting with how to use the graph classes.
-
 ---
 
 ## ✨ Features
