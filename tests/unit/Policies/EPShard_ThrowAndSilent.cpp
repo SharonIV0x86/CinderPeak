@@ -34,7 +34,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_NotFound) {
     EXPECT_STREQ(nfex.what(), "Resource Not Found: Not Found");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 2. InvalidArgument exception
@@ -46,7 +47,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_InvalidArgument) {
     EXPECT_STREQ(iaex.what(), "Invalid argument: Invalid Argument");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 3. VertexAlreadyExists exception
@@ -58,7 +60,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_VertexAlreadyExists) {
     EXPECT_STREQ(vaex.what(), "Vertex already exists: Vertex Already Exists");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 4. InternalError exception
@@ -70,7 +73,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_InternalError) {
     EXPECT_STREQ(ieex.what(), "Internal error: Internal Error");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 5. EdgeNotFound exception
@@ -82,7 +86,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFound) {
     EXPECT_STREQ(enfex.what(), "Edge not found: Edge Not Found");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 6. VertexNotFound exception
@@ -94,7 +99,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_VertexNotFound) {
     EXPECT_STREQ(vnfex.what(), "Vertex not found: Vertex Not Found");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 7. Unimplemented exception
@@ -107,7 +113,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_Unimplemented) {
                               "implemented, there has been an error.");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 8. AlreadyExists exception
@@ -119,7 +126,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_AlreadyExists) {
     EXPECT_STREQ(aeex.what(), "Already Exists: Resource Already Exists");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 9. EdgeAlreadyExists exception
@@ -131,7 +139,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeAlreadyExists) {
     EXPECT_STREQ(eaex.what(), "Edge already exists: Edge Already Exists");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 10. Multiple exceptions in sequence
@@ -150,8 +159,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_MultipleExceptions) {
   } catch (const PeakExceptions::InvalidArgumentException &) {
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\nSet the error policy as "
-                    "throw\nSet the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 11. Repeated exception handling
@@ -165,8 +174,8 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_RepeatedException) {
     }
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\nSet the error policy as "
-                    "throw\nSet the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
 
 // 12. EdgeNotFound with custom message
@@ -180,5 +189,6 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFoundWithCustomMessage) {
     EXPECT_STREQ(enfex.what(), "Edge not found: Custom edge not found message");
   }
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_EQ(output, "Set the error policy as throw\n");
+  EXPECT_TRUE(output.empty())
+      << "Expected no console output, but got: " << output;
 }
