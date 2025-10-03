@@ -38,6 +38,13 @@ public:
 
   static void log(const LogLevel &level, const std::string &msg,
                   const int &loggingPolicy, const std::string &logFileP) {
+
+    // std::cerr << "Debug: Logger::log called with policy: " << loggingPolicy
+    // << std::endl;
+    if (loggingPolicy == LoggingPolicy::Silent) {
+      return;
+    }
+
     // Reset logging modes on each call
     enableConsoleLogging = false;
     enableFileLogging = false;
