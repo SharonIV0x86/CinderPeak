@@ -41,13 +41,11 @@ public:
   const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
   const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
   const std::string &getLogFilePath() const { return logfilePath; }
-  //   bool shouldIncludeTimestamp() const { return includeTimestamp; }
 
 private:
   ErrorPolicy errorPolicy = ErrorPolicy::Ignore;
   LoggingPolicy loggingPolicy = LoggingPolicy::Silent;
   std::string logfilePath = "peak_logs.log";
-  //   bool includeTimestamp = false;
 };
 
 class PolicyHandler {
@@ -57,34 +55,24 @@ class PolicyHandler {
     switch (status.code()) {
     case CinderPeak::StatusCode::NOT_FOUND:
       throw PeakExceptions::NotFoundException(status.message());
-      break;
     case CinderPeak::StatusCode::INVALID_ARGUMENT:
       throw PeakExceptions::InvalidArgumentException(status.message());
-      break;
     case CinderPeak::StatusCode::VERTEX_ALREADY_EXISTS:
       throw PeakExceptions::VertexAlreadyExistsException(status.message());
-      break;
     case CinderPeak::StatusCode::INTERNAL_ERROR:
       throw PeakExceptions::InternalErrorException(status.message());
-      break;
     case CinderPeak::StatusCode::EDGE_NOT_FOUND:
       throw PeakExceptions::EdgeNotFoundException(status.message());
-      break;
     case CinderPeak::StatusCode::VERTEX_NOT_FOUND:
       throw PeakExceptions::VertexNotFoundException(status.message());
-      break;
     case CinderPeak::StatusCode::UNIMPLEMENTED:
       throw PeakExceptions::UnimplementedException(status.message());
-      break;
     case CinderPeak::StatusCode::ALREADY_EXISTS:
       throw PeakExceptions::AlreadyExistsException(status.message());
-      break;
     case CinderPeak::StatusCode::EDGE_ALREADY_EXISTS:
       throw PeakExceptions::EdgeAlreadyExistsException(status.message());
-      break;
     default:
       throw PeakExceptions::UnknownException();
-      break;
     }
   }
 
@@ -99,10 +87,15 @@ public:
     case PolicyConfiguration::ErrorPolicy::Ignore:
       std::cout << "Set the error policy as ignore\n";
       break;
-    case PolicyConfiguration::ErrorPolicy::Throw:
-      std::cout << "Set the error policy as throw\n";
-      throw handleExceptionMap(status);
+    case PolicyConfiguration::ErrorPolicy::Throw: {
+      try {
+        throw handleExceptionMap(status);
+      } catch (const std::exception &ex) {
+        std::cout << ex.what() << "\n";
+        throw;
+      }
       break;
+    }
     default:
       break;
     }
