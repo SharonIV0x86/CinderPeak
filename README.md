@@ -54,7 +54,7 @@ int main() {
   PolicyConfiguration cfg(PolicyConfiguration::Throw,
                           PolicyConfiguration::Silent);
 
-  GraphList<MyVertex, MyEdge> customGraph(optsU, cfg);
+  CinderGraph<MyVertex, MyEdge> customGraph(optsU, cfg);
 
   MyVertex v1(1);
   MyVertex v2(2);
@@ -72,7 +72,7 @@ int main() {
   PolicyConfiguration cfg(PolicyConfiguration::Throw,
                           PolicyConfiguration::LogConsole);
 
-  GraphList<int, int> intGraph(optsD);
+  CinderGraph<int, int> intGraph(optsD);
 
   intGraph.addVertex(1);
   intGraph.addVertex(2);
@@ -83,7 +83,7 @@ int main() {
             << ", Edges: " << intGraph.numEdges() << "\n";
 
   // --- Unweighted Graph ---
-  GraphList<int, Unweighted> unweighted(optsD);
+  CinderGraph<int, Unweighted> unweighted(optsD);
   unweighted.addVertex(1);
   unweighted.addVertex(2);
   unweighted.addEdge(1, 2);
@@ -95,55 +95,8 @@ int main() {
 ## Development Notice
 
 CinderPeak is currently under active development. We are committed to delivering a polished and comprehensive release. The stable version, with refined functionalities and complete documentation, is scheduled to be available soon.
-
 ---
 
-## Project Structure
-```
-/CinderPeak
-├── CMakeLists.txt              # Build system configuration
-├── docs                        # Docusaurus documentation
-│   ├── examples
-│   │   └── GraphMatrixExample.md  # Example usage for GraphMatrix
-│   ├── GraphList.md            # Adjacency List documentation
-│   ├── GraphMatrix.md          # Adjacency Matrix documentation
-│   ├── index.md                # Main documentation page
-│   ├── installation.md         # Installation guide
-│   └── usage.md                # Usage guide
-├── examples                    # Sample code demonstrating usage
-│   ├── CMakeLists.txt          # Build config for examples
-│   ├── extras
-│   │   ├── COOExample.cpp      # Coordinate List example
-│   │   ├── CSRExample.cpp      # Compressed Sparse Row example
-│   │   ├── LogExample.cpp      # Logging utility example
-│   │   └── PeakExample.cpp     # General CinderPeak usage example
-│   ├── ListExample1.cpp        # Adjacency List example
-│   ├── MatrixExample.cpp       # Adjacency Matrix example
-│   └── PrimitiveGraph.cpp      # Basic graph example
-├── src                         # Source files
-│   ├── CinderExceptions.hpp    # Custom exception handling
-│   ├── CinderPeak.hpp          # Main API entry point
-│   ├── GraphList.hpp           # Adjacency List implementation
-│   ├── GraphMatrix.hpp         # Adjacency Matrix implementation
-│   ├── PeakLogger.hpp          # Logging utility
-│   ├── PeakStore.hpp           # Core storage engine
-│   ├── StorageEngine
-│   │   ├── AdjacencyList.hpp   # Adjacency List storage
-│   │   ├── CoordinateList.hpp  # Coordinate List storage
-│   │   ├── ErrorCodes.hpp      # Error handling codes
-│   │   ├── GraphContext.hpp    # Graph context management
-│   │   ├── HybridCSR_COO.hpp   # Hybrid CSR/COO storage
-│   │   └── Utils.hpp           # Utility functions
-│   ├── StorageInterface.hpp    # Storage interface definition
-├── tests                       # Unit tests
-│   ├── AdjacencyShard.cpp      # Tests for adjacency list
-│   ├── CoordinateShard.cpp     # Tests for coordinate list
-│   ├── HybridShard.cpp         # Tests for hybrid CSR/COO
-│   └── tests.cpp               # Main test suite
-├── README.md                   # Project overview and setup
-└── LICENSE                     # License file
-```
----
 
 ## Getting Started
 1. **Installation**: Follow the [installation guide](docs/installation.md) to set up CinderPeak with CMake.

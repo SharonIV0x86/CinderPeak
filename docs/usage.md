@@ -18,8 +18,7 @@ CinderPeak's public API is modular, with components split into separate headers.
 | Header File | Key Classes/Structures | Purpose |
 | :---- | :---- | :---- |
 | CinderPeak.hpp | (Convenience Header) | Includes all necessary public headers for basic use. This should be your default choice. |
-| GraphMatrix.hpp | GraphMatrix | The concrete implementation of a graph using an adjacency matrix data structure. |Offering matrix like edge and vertex access.
-| GraphList.hpp | GraphList | The concrete implementation of a graph using an adjacency list data structure. |
+| CinderGraph.hpp | CinderGraph | The concrete implementation of a graph using an adjacency list data structure. |
 | PeakStore.hpp | PeakStore | Core storage engine that manages graph data internally. |
 | StorageEngine/Utils.hpp | GraphCreationOptions, CinderVertex, CinderEdge | Contains utility functions, graph creation options, and base classes for custom types. |
 
@@ -42,14 +41,12 @@ This main public API header serves as a single entry point, bundling all library
 If you want to include specific components only:
 
 ```cpp
-#include "GraphMatrix.hpp"  // For adjacency matrix graphs
-#include "GraphList.hpp"    // For adjacency list graphs
+#include "CinderGraph.hpp"    // For adjacency list graphs
 #include "StorageEngine/Utils.hpp"  // For utility functions and options
 ```
 
 **Purpose and Importance:**  
-- `GraphMatrix.hpp`: Best for dense graphs, where checking edge existence is frequent, supports parallel edges.
-- `GraphList.hpp`: Adjacency list implementation. Efficient for sparse graphs, supports directed/undirected edges, allows dynamic updates, and suits DFS/BFS/shortest paths
+- `CinderGraph.hpp`: Adjacency list implementation. Efficient for sparse graphs, supports directed/undirected edges, allows dynamic updates, and suits DFS/BFS/shortest paths
 - `StorageEngine/Utils.hpp`: Provides common utilities for the library, including type checks, graph creation options, metadata, and constants
 
 ---
@@ -60,24 +57,18 @@ CinderPeak's architecture is built on a few key components that you'll interact 
 
 | Class / Structure | Header Location | Purpose |
 | :---- | :---- | :---- |
-| GraphMatrix | src/GraphMatrix.hpp | An adjacency matrix implementation of a graph. Fast for checking edge existence, ideal for dense graphs (many edges). |
-| GraphList | src/GraphList.hpp | An adjacency list implementation of a graph. Efficient for sparse graphs. |
+| CinderGraph | src/CinderGraph.hpp | An adjacency list implementation of a graph. Efficient for sparse graphs. |
 | PeakStore | src/PeakStore.hpp | Core storage engine that handles the internal graph data management. |
 | GraphCreationOptions | src/StorageEngine/Utils.hpp | Configuration class that defines how a graph should behave (Directed, Weighted, etc.). |
 | CinderVertex | src/StorageEngine/Utils.hpp | Base class for custom vertex types. |
 | CinderEdge | src/StorageEngine/Utils.hpp | Base class for custom edge types. |
 
-### **GraphMatrix**
-- Implements adjacency matrix representation
-- Best for dense graphs or when edge lookups must be very fast
-- Higher memory cost but simpler constant-time edge queries
-- Direct instantiation: `GraphMatrix<VertexType, EdgeType> graph(options)`
 
-### **GraphList**
+### **CinderGraph**
 - Implements adjacency list representation
 - Best for sparse graphs or when graphs are frequently updated
 - Efficient for traversals like BFS/DFS
-- Direct instantiation: `GraphList<VertexType, EdgeType> graph(options)`
+- Direct instantiation: `CinderGraph<VertexType, EdgeType> graph(options)`
 
 ### **PeakStore**
 - Manages internal storage of graph data, ensuring efficient data handling across graph types.
@@ -158,7 +149,7 @@ int main() {
     });
 
     // Create a graph that stores integers for both vertices and edges
-    GraphMatrix<int, int> graph(opts);
+    CinderGraph<int, int> graph(opts);
 
     // Add vertices to the graph
     graph.addVertex(10);
@@ -215,7 +206,7 @@ int main() {
         GraphCreationOptions::Weighted
     });
     
-    GraphMatrix<UserProfile, Friendship> socialGraph(opts);
+    CinderGraph<UserProfile, Friendship> socialGraph(opts);
 
     // Create user profiles
     UserProfile alice("Alice", 30);
@@ -244,7 +235,7 @@ int main() {
 }
 ```
 
-### **Example 3: Using GraphList for Sparse Graphs**
+### **Example 3: Using CinderGraph for Sparse Graphs**
 
 This example demonstrates using the adjacency list representation for a sparse graph.
 
@@ -261,8 +252,8 @@ int main() {
         GraphCreationOptions::Weighted
     });
 
-    // Use GraphList for sparse graphs
-    GraphList<int, double> network(opts);
+    // Use CinderGraph for sparse graphs
+    CinderGraph<int, double> network(opts);
 
     // Add vertices
     network.addVertex(1);
@@ -341,35 +332,13 @@ graph.addEdge(source, destination, weight);
 ### **Accessing Edge Data**
 
 ```cpp
-// Using operator[] (GraphMatrix only)
-EdgeType weight = graph[source][destination];
-
-// Using getEdge method (both GraphMatrix and GraphList)
 EdgeType weight = graph.getEdge(source, destination);
-```
-
-### **Setting Edge Data**
-
-```cpp
-// Using operator[] assignment (GraphMatrix only)
-graph[source][destination] = newWeight;
 ```
 
 ---
 
-## **Choosing Between GraphMatrix and GraphList**
-
-The choice between GraphMatrix and GraphList depends on your specific use case:
-
-| Representation | Space Complexity | Add Edge | Check Adjacency | Best For |
-| :---- | :---- | :---- | :---- | :---- |
-| **GraphList** | O(V+E) | O(1) amortized | O(degree(V)) | **Sparse graphs** (few edges compared to vertices), like road networks or social networks. |
-| **GraphMatrix** | O(V²) | O(1) | O(1) | **Dense graphs** (many edges, approaching the maximum possible), like complete graphs or dense networks. |
-
 **Guidelines:**
-- Use `GraphList` for most common applications, especially when you have many vertices but relatively few edges
-- Use `GraphMatrix` when you need very fast edge existence checks or when working with dense graphs
-- For beginners, `GraphList` is usually the safer choice
+- Use `CinderGraph` for most common applications, especially when you have many vertices but relatively few edges
 
 ---
 
@@ -392,8 +361,8 @@ CinderPeak uses an internal error handling system. When operations fail, they ar
    ```
 
 2. **Choose the right graph representation:**
-   - Use `GraphList` for sparse graphs
-   - Use `GraphMatrix` for dense graphs or when you need O(1) edge lookups
+   - Use `CinderGraph` for sparse graphs
+   - Use `CinderGraph` for dense graphs or when you need O(1) edge lookups
 
 3. **Custom types must inherit from base classes:**
    ```cpp
