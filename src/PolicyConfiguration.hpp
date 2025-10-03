@@ -85,24 +85,26 @@ public:
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
       return;
-
     switch (cfg->getErrorPolicy()) {
     case PolicyConfiguration::ErrorPolicy::Ignore:
-      return;
+      if (cfg->getLoggingPolicy() != PolicyConfiguration::LoggingPolicy::Silent) {
+        Logger::log(LogLevel::INFO, "Set the error policy as ignore",
+                    static_cast<int>(cfg->getLoggingPolicy()),
+                    cfg->getLogFilePath());
+      }
+      break;
     case PolicyConfiguration::ErrorPolicy::Throw: {
       try {
         throw handleExceptionMap(status);
       } catch (const std::exception &ex) {
-        if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-          Logger::log(LogLevel::INFO,
-                      std::string(ex.what()),
+        if (cfg->getLoggingPolicy() != PolicyConfiguration::LoggingPolicy::Silent) {
+          Logger::log(LogLevel::INFO, ex.what(),
                       static_cast<int>(cfg->getLoggingPolicy()),
                       cfg->getLogFilePath());
-        } else {
-          (void)ex; // avoid unused-variable warnings when logging is silent
         }
         throw;
       }
+      break;
     }
     }
     default:
