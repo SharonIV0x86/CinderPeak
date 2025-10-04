@@ -7,7 +7,7 @@ int main() {
   try {
     // Basic usage
     cout << "--- Basic Usage ---" << endl;
-    GraphList<int, int> g;
+    CinderGraph<int, int> g;
 
     // Add vertices
     for (int i = 1; i <= 5; i++) {
@@ -41,7 +41,7 @@ int main() {
 
     // Unweighted graph example
     cout << "\n--- Unweighted Graph ---" << endl;
-    GraphList<string, Unweighted> g2;
+    CinderGraph<string, Unweighted> g2;
     g2.addVertex("A");
     g2.addVertex("B");
     g2.addVertex("C");
@@ -59,7 +59,7 @@ int main() {
 
     // Use case: Resetting graph structure
     cout << "\n--- Use Case: Graph Reset ---" << endl;
-    GraphList<int, double> g3;
+    CinderGraph<int, double> g3;
     for (int i = 0; i < 4; i++) {
       g3.addVertex(i);
     }

@@ -27,17 +27,18 @@ private:
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>();
     ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
-    if (ctx->metadata->graphType() == "graph_matrix") {
-      ctx->active_storage = ctx->adjacency_storage;
-      LOG_DEBUG("Set active storage to Adjacency Storage (matrix).");
-    } else if (ctx->metadata->graphType() == "graph_list") {
-      ctx->active_storage = ctx->adjacency_storage;
-      LOG_DEBUG("Set active storage to Adjacency Storage (list).");
-    } else {
-      LOG_WARNING(
-          "Unknown graph type. Defaulting active storage to adjacency list.");
-      ctx->active_storage = ctx->adjacency_storage;
-    }
+    // if (ctx->metadata->graphType() == "graph_matrix") {
+    //   ctx->active_storage = ctx->adjacency_storage;
+    //   LOG_DEBUG("Set active storage to Adjacency Storage (matrix).");
+    // } else if (ctx->metadata->graphType() == "graph_list") {
+    //   ctx->active_storage = ctx->adjacency_storage;
+    //   LOG_DEBUG("Set active storage to Adjacency Storage (list).");
+    // } else {
+    //   LOG_WARNING(
+    //       "Unknown graph type. Defaulting active storage to adjacency
+    //       list.");
+    //     }
+    ctx->active_storage = ctx->adjacency_storage;
   }
 
 public:

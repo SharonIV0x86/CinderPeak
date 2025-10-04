@@ -5,7 +5,7 @@ using namespace std;
 
 int main() {
   try {
-    GraphList<int, Unweighted> g;
+    CinderGraph<int, Unweighted> g;
     // Setup: Add vertices and edges
     g.addVertex(1);
     g.addVertex(2);
@@ -35,7 +35,7 @@ int main() {
 
     // Another example with weighted graph
     cout << "\n--- Weighted Graph Example ---" << endl;
-    GraphList<string, double> g2;
+    CinderGraph<string, double> g2;
     g2.addVertex("A");
     g2.addVertex("B");
     g2.addVertex("C");

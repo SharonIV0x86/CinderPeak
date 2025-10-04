@@ -5,11 +5,11 @@ using namespace std;
 
 int main() {
   try {
-    cout << "=== updateEdge Usage (GraphList) ===" << endl;
+    cout << "=== updateEdge Usage (CinderGraph) ===" << endl;
     cout << "Note: updateEdge only works with weighted graphs\n" << endl;
     // Basic usage
     cout << "--- Basic Usage ---" << endl;
-    GraphList<int, double> g;
+    CinderGraph<int, double> g;
     g.addVertex(1);
     g.addVertex(2);
     g.addVertex(3);
@@ -50,7 +50,7 @@ int main() {
 
     // String vertices
     cout << "\n--- String Vertices ---" << endl;
-    GraphList<string, float> g2;
+    CinderGraph<string, float> g2;
     g2.addVertex("City A");
     g2.addVertex("City B");
     g2.addEdge("City A", "City B", 100.5f);
@@ -62,7 +62,7 @@ int main() {
 
     // Multiple updates
     cout << "\n--- Multiple Updates ---" << endl;
-    GraphList<int, int> g3;
+    CinderGraph<int, int> g3;
     g3.addVertex(10);
     g3.addVertex(20);
     g3.addEdge(10, 20, 5);

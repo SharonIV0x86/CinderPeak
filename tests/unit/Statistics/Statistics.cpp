@@ -55,7 +55,7 @@ protected:
 
 TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
-  GraphMatrix<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
   const int num_vertices = 1000;
   const int target_edges = 50000;
@@ -127,7 +127,7 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
 
   for (auto config : configs) {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});
-    GraphMatrix<int, int> graph(opts);
+    CinderGraph<int, int> graph(opts);
 
     int vertices = config.first;
     int target_edges = config.second;
@@ -160,7 +160,7 @@ TEST_F(GraphStatisticsTest, MediumGraphs) {
 
 TEST_F(GraphStatisticsTest, OriginalTest) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
-  GraphMatrix<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
   for (int i = 1; i <= 8; ++i) {
     graph.addVertex(i);
@@ -191,7 +191,7 @@ TEST_F(GraphStatisticsTest, OriginalTest) {
 TEST_F(GraphStatisticsTest, EdgeCases) {
   {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});
-    GraphMatrix<int, int> empty_graph(opts);
+    CinderGraph<int, int> empty_graph(opts);
 
     std::string stats = empty_graph.getGraphStatistics();
     EXPECT_EQ(extractValue(stats, "Vertices: "), 0);
@@ -200,7 +200,7 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
 
   {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});
-    GraphMatrix<int, int> single_graph(opts);
+    CinderGraph<int, int> single_graph(opts);
 
     single_graph.addVertex(1);
     single_graph.addEdge(1, 1, 100);
@@ -215,7 +215,7 @@ TEST_F(GraphStatisticsTest, EdgeCases) {
 }
 
 TEST_F(GraphStatisticsTest, NumVertices) {
-  GraphList<int, int> graph;
+  CinderGraph<int, int> graph;
 
   graph.addVertex(1);
   graph.addVertex(2);
@@ -227,7 +227,7 @@ TEST_F(GraphStatisticsTest, NumVertices) {
 }
 
 TEST_F(GraphStatisticsTest, NumEdgesEmptyGraph) {
-  GraphList<int, int> graph;
+  CinderGraph<int, int> graph;
 
   EXPECT_EQ(graph.numEdges(), 0);
 
@@ -238,7 +238,7 @@ TEST_F(GraphStatisticsTest, NumEdgesEmptyGraph) {
 }
 
 TEST_F(GraphStatisticsTest, NumEdgesWithEdges) {
-  GraphList<int, int> graph;
+  CinderGraph<int, int> graph;
 
   for (int i = 1; i <= 4; ++i) {
     graph.addVertex(i);
@@ -255,7 +255,7 @@ TEST_F(GraphStatisticsTest, NumEdgesWithEdges) {
 }
 
 TEST_F(GraphStatisticsTest, NumEdgesWithSelfLoop) {
-  GraphList<int, int> graph;
+  CinderGraph<int, int> graph;
 
   graph.addVertex(1);
   graph.addVertex(2);

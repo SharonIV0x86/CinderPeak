@@ -5,7 +5,7 @@ using namespace std;
 
 int main() {
   try {
-    GraphList<int, int> g;
+    CinderGraph<int, int> g;
 
     // Setup vertices
     g.addVertex(1);
@@ -38,7 +38,7 @@ int main() {
 
     // Unweighted graph
     cout << "\n--- Unweighted Graph ---" << endl;
-    GraphList<string, Unweighted> g2;
+    CinderGraph<string, Unweighted> g2;
 
     g2.addVertex("A");
     g2.addVertex("B");
@@ -53,7 +53,7 @@ int main() {
 
     // Building graph progressively
     cout << "\n--- Progressive Graph Building ---" << endl;
-    GraphList<int, double> g3;
+    CinderGraph<int, double> g3;
 
     for (int i = 0; i < 5; i++) {
       g3.addVertex(i);
@@ -69,7 +69,7 @@ int main() {
     cout << "\n--- Parallel Edges ---" << endl;
     GraphCreationOptions opts(
         {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
-    GraphList<int, int> g4(opts);
+    CinderGraph<int, int> g4(opts);
 
     g4.addVertex(10);
     g4.addVertex(20);

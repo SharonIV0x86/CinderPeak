@@ -7,7 +7,7 @@ int main() {
   try {
     // 1. Unweighted graph
     cout << "--- Unweighted Graph ---" << endl;
-    GraphList<int, Unweighted> g1;
+    CinderGraph<int, Unweighted> g1;
     g1.addVertex(1);
     g1.addVertex(2);
     g1.addVertex(3);
@@ -23,7 +23,7 @@ int main() {
 
     // 2. Weighted graph
     cout << "\n--- Weighted Graph ---" << endl;
-    GraphList<int, double> g2;
+    CinderGraph<int, double> g2;
     g2.addVertex(10);
     g2.addVertex(20);
     g2.addVertex(30);
@@ -41,7 +41,7 @@ int main() {
     cout << "\n--- Parallel Edges ---" << endl;
     GraphCreationOptions parallelOpts(
         {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
-    GraphList<int, int> g3(parallelOpts);
+    CinderGraph<int, int> g3(parallelOpts);
     g3.addVertex(1);
     g3.addVertex(2);
 
@@ -54,14 +54,14 @@ int main() {
 
     // 4. Error handling - vertices don't exist
     cout << "\n--- Error Cases ---" << endl;
-    GraphList<int, Unweighted> g4;
+    CinderGraph<int, Unweighted> g4;
     auto [edge5, added5] = g4.addEdge(100, 200);
     cout << "Adding edge without vertices: " << (added5 ? "success" : "failed")
          << endl;
 
     // 5. String vertices with weighted edges
     cout << "\n--- String Vertices ---" << endl;
-    GraphList<string, float> g5;
+    CinderGraph<string, float> g5;
     g5.addVertex("New York");
     g5.addVertex("Los Angeles");
     g5.addVertex("Chicago");

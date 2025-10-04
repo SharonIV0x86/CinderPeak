@@ -7,7 +7,7 @@ int main() {
   try {
     // Alternative 1: Use clearEdges() to remove all edges
     cout << "--- Alternative 1: clearEdges() ---" << endl;
-    GraphList<int, int> g1;
+    CinderGraph<int, int> g1;
     g1.addVertex(1);
     g1.addVertex(2);
     g1.addVertex(3);
@@ -21,7 +21,7 @@ int main() {
 
     // Alternative 2: Remove vertex (removes all connected edges)
     cout << "\n--- Alternative 2: removeVertex() ---" << endl;
-    GraphList<int, Unweighted> g2;
+    CinderGraph<int, Unweighted> g2;
     g2.addVertex(1);
     g2.addVertex(2);
     g2.addVertex(3);
@@ -40,7 +40,7 @@ int main() {
     cout << "2. Call clearEdges()" << endl;
     cout << "3. Re-add only the edges you want to keep" << endl;
 
-    GraphList<string, double> g3;
+    CinderGraph<string, double> g3;
     g3.addVertex("A");
     g3.addVertex("B");
     g3.addVertex("C");
@@ -51,6 +51,7 @@ int main() {
     cout << "\nOriginal edges: " << g3.numEdges() << endl;
 
     // To remove edge (B,C), clear all and re-add others
+    g3.removeEdge("B", "C");
     g3.clearEdges();
     g3.addEdge("A", "B", 1.5);
     g3.addEdge("A", "C", 3.5);

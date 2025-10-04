@@ -6,7 +6,7 @@ using namespace CinderPeak::PeakStore;
 
 int main() {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
-  GraphMatrix<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
   // Add vertices
   for (int i = 1; i <= 8; ++i) {
@@ -35,10 +35,8 @@ int main() {
   std::cout << "Edge add (6->2) status: " << e10.second << "\n";
 
   // Update an existing edge with operator[] syntax
-  graph[2][5] = 45;
 
   // Attempt to add an invalid edge
-  graph[99][99] = 45;
 
   // Retrieve an edge safely
   auto getRes = graph.getEdge(2, 5);

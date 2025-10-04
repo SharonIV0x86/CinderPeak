@@ -3,7 +3,7 @@
 ```cpp
 #include <iostream>
 #include "PeakStore.hpp"
-#include "GraphMatrix.hpp"
+#include "CinderGraph.hpp"
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
@@ -29,7 +29,7 @@ int main()
                                 GraphCreationOptions::Weighted,
                                 GraphCreationOptions::SelfLoops});
 
-  GraphMatrix<CustomVertex, CustomEdge> myGraph(options);
+  CinderGraph<CustomVertex, CustomEdge> myGraph(options);
 
   CustomVertex v1;
   CustomVertex v2;
@@ -47,5 +47,5 @@ int main()
 ```
 
 # Explanation
-This example demonstrates how to use the GraphMatrix class in the CinderPeak library with custom vertex and edge types. We begin by defining two classes, CustomVertex and CustomEdge, which inherit from CinderVertex and CinderEdge respectively. The CustomVertex class contains an integer field data, while CustomEdge includes a field dd to store custom edge data (in this case, an integer weight).
+This example demonstrates how to use the CinderGraph class in the CinderPeak library with custom vertex and edge types. We begin by defining two classes, CustomVertex and CustomEdge, which inherit from CinderVertex and CinderEdge respectively. The CustomVertex class contains an integer field data, while CustomEdge includes a field dd to store custom edge data (in this case, an integer weight).
 
