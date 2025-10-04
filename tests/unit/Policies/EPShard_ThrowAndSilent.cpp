@@ -28,124 +28,161 @@ public:
 // 1. NotFound exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_NotFound) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_notFound);
   } catch (const PeakExceptions::NotFoundException &nfex) {
     EXPECT_STREQ(nfex.what(), "Resource Not Found: Not Found");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 2. InvalidArgument exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_InvalidArgument) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_invalidArgument);
   } catch (const PeakExceptions::InvalidArgumentException &iaex) {
     EXPECT_STREQ(iaex.what(), "Invalid argument: Invalid Argument");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 3. VertexAlreadyExists exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_VertexAlreadyExists) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_vertexAlreadyExists);
   } catch (const PeakExceptions::VertexAlreadyExistsException &vaex) {
     EXPECT_STREQ(vaex.what(), "Vertex already exists: Vertex Already Exists");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 4. InternalError exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_InternalError) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_internalError);
   } catch (const PeakExceptions::InternalErrorException &ieex) {
     EXPECT_STREQ(ieex.what(), "Internal error: Internal Error");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 5. EdgeNotFound exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFound) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_edgeNotFound);
   } catch (const PeakExceptions::EdgeNotFoundException &enfex) {
     EXPECT_STREQ(enfex.what(), "Edge not found: Edge Not Found");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 6. VertexNotFound exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_VertexNotFound) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_vertexNotFound);
   } catch (const PeakExceptions::VertexNotFoundException &vnfex) {
     EXPECT_STREQ(vnfex.what(), "Vertex not found: Vertex Not Found");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 7. Unimplemented exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_Unimplemented) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_unimplemented);
   } catch (const PeakExceptions::UnimplementedException &unex) {
     EXPECT_STREQ(unex.what(), "Unimplemented feature: Method is not "
                               "implemented, there has been an error.");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 8. AlreadyExists exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_AlreadyExists) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_alreadyExists);
   } catch (const PeakExceptions::AlreadyExistsException &aeex) {
     EXPECT_STREQ(aeex.what(), "Already Exists: Resource Already Exists");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 9. EdgeAlreadyExists exception
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeAlreadyExists) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_edgeAlreadyExists);
   } catch (const PeakExceptions::EdgeAlreadyExistsException &eaex) {
     EXPECT_STREQ(eaex.what(), "Edge already exists: Edge Already Exists");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 10. Multiple exceptions in sequence
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_MultipleExceptions) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_vertexNotFound);
   } catch (const PeakExceptions::VertexNotFoundException &) {
@@ -158,14 +195,18 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_MultipleExceptions) {
     policy.handleException(sc_invalidArgument);
   } catch (const PeakExceptions::InvalidArgumentException &) {
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 11. Repeated exception handling
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_RepeatedException) {
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   for (int i = 0; i < 3; ++i) {
     try {
       policy.handleException(sc_invalidArgument);
@@ -173,9 +214,12 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_RepeatedException) {
       EXPECT_STREQ(iaex.what(), "Invalid argument: Invalid Argument");
     }
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
 
 // 12. EdgeNotFound with custom message
@@ -183,12 +227,16 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFoundWithCustomMessage) {
   PeakStatus sc_custom_edgeNotFound =
       PeakStatus::EdgeNotFound("Custom edge not found message");
   testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_custom_edgeNotFound);
   } catch (const PeakExceptions::EdgeNotFoundException &enfex) {
     EXPECT_STREQ(enfex.what(), "Edge not found: Custom edge not found message");
   }
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(output.empty())
-      << "Expected no console output, but got: " << output;
+  std::string stdout_output = testing::internal::GetCapturedStdout();
+  std::string stderr_output = testing::internal::GetCapturedStderr();
+  EXPECT_TRUE(stdout_output.empty())
+      << "Expected no console stdout output, but got: " << stdout_output;
+  EXPECT_TRUE(stderr_output.empty())
+      << "Expected no console stderr output, but got: " << stderr_output;
 }
