@@ -35,7 +35,7 @@ public:
 - **Description**: Initializes a new graph with the specified creation options. If no options are provided, default options are used (as defined by `GraphCreationOptions::getDefaultCreateOptions()`).
 - **Parameters**:
   - `options`: A `GraphCreationOptions` object specifying graph properties (e.g., directed/undirected, weighted/unweighted).
-- **Behavior**: Creates a `PeakStore` instance with metadata indicating the graph's name ("graph_list") and whether the vertex and edge types are primitive.
+- **Behavior**: Creates a `PeakStore` instance with metadata indicating the graph's name ("cinder_graph") and whether the vertex and edge types are primitive.
 
 ## Methods
 

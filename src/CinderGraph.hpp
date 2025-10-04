@@ -1,5 +1,6 @@
 #pragma once
 #include "Concepts.hpp"
+#include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
@@ -12,6 +13,59 @@ namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;
 }
+template <typename VertexType, typename EdgeType> class CinderGraph;
+template <typename VertexType, typename EdgeType> class CinderGraphRowProxy {
+  CinderGraph<VertexType, EdgeType> &graph;
+  VertexType src;
+
+public:
+  CinderGraphRowProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s)
+      : graph(g), src(s) {}
+
+  // Handle g["A"]["B"]
+  EdgeType operator[](const VertexType &dest) const {
+    auto [optWeight, found] = graph.getEdge(src, dest);
+    if (!found || !optWeight.has_value()) {
+      throw std::runtime_error("Edge not found: " + src + " -> " + dest);
+    }
+    return *optWeight;
+  }
+
+  // Allow assignment g["A"]["B"] = 5.0
+  CinderGraphRowProxy &operator=(const EdgeType &newWeight) = delete;
+
+  // Support weighted edge insertion/update
+  CinderGraphRowProxy &operator()(const VertexType &dest,
+                                  const EdgeType &weight) {
+    graph.addEdge(src, dest, weight);
+    return *this;
+  }
+
+  // Alternatively, use assignment-style syntax:
+  struct EdgeAssignProxy {
+    CinderGraph<VertexType, EdgeType> &graph;
+    VertexType src, dest;
+
+    EdgeAssignProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s,
+                    const VertexType &d)
+        : graph(g), src(s), dest(d) {}
+
+    EdgeAssignProxy &operator=(const EdgeType &weight) {
+      graph.addEdge(src, dest, weight);
+      return *this;
+    }
+
+    operator EdgeType() const {
+      auto [optWeight, found] = graph.getEdge(src, dest);
+      return (found && optWeight) ? *optWeight : EdgeType{};
+    }
+  };
+
+  EdgeAssignProxy operator[](const VertexType &dest) {
+    return EdgeAssignProxy(graph, src, dest);
+  }
+};
+
 template <typename VertexType, typename EdgeType> class CinderGraph {
   std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
       peak_store;
@@ -40,7 +94,7 @@ public:
                   GraphCreationOptions::getDefaultCreateOptions(),
               const PolicyConfiguration &cfg = PolicyConfiguration()) {
     PeakStore::GraphInternalMetadata metadata(
-        "graph_list", Traits::isTypePrimitive<VertexType>(),
+        "cinder_graph", Traits::isTypePrimitive<VertexType>(),
         Traits::isTypePrimitive<EdgeType>(),
         Traits::isGraphWeighted<EdgeType>(),
         !Traits::isGraphWeighted<EdgeType>());
@@ -141,5 +195,18 @@ public:
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
         toggle);
   }
+  // ===============================
+  // Add this section before the closing brace of CinderGraph
+  // ===============================
+  CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
+    return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
+  }
+
+  const CinderGraphRowProxy<VertexType, EdgeType>
+  operator[](const VertexType &v) const {
+    return CinderGraphRowProxy<VertexType, EdgeType>(
+        const_cast<CinderGraph<VertexType, EdgeType> &>(*this), v);
+  }
 };
+
 } // namespace CinderPeak
