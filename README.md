@@ -91,12 +91,12 @@ int main() {
 ```
 
 
----
+
 ## Development Notice
 
 CinderPeak is currently under active development. We are committed to delivering a polished and comprehensive release. The stable version, with refined functionalities and complete documentation, is scheduled to be available soon.
----
 
+---
 
 ## Getting Started
 1. **Installation**: Follow the [installation guide](docs/installation.md) to set up CinderPeak with CMake.

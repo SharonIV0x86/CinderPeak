@@ -97,7 +97,8 @@ public:
   }
 
   template <typename E = EdgeType>
-  auto addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight)
+  auto addEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &weight)
       -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>,
                           WeightedEdgeAddResult> {
     auto resp = peak_store->addEdge(src, dest, weight);
