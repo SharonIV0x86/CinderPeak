@@ -5,7 +5,7 @@ using namespace CinderPeak;
 int main() {
   GraphCreationOptions options(
       {GraphCreationOptions::Directed, GraphCreationOptions::SelfLoops});
-  GraphInternalMetadata metadata("graph_matrix", Traits::isTypePrimitive<int>(),
+  GraphInternalMetadata metadata("cinder_graph", Traits::isTypePrimitive<int>(),
                                  Traits::isTypePrimitive<int>(),
                                  Traits::isGraphWeighted<int>(),
                                  !Traits::isGraphWeighted<int>());
