@@ -5,7 +5,7 @@ using namespace std;
 
 int main() {
   try {
-    GraphList<int, Unweighted> g;
+    CinderGraph<int, Unweighted> g;
 
     // Initial count
     cout << "Initial vertex count: " << g.numVertices() << endl;
@@ -33,7 +33,7 @@ int main() {
 
     // String vertices example
     cout << "\n--- String Vertices ---" << endl;
-    GraphList<string, double> g2;
+    CinderGraph<string, double> g2;
 
     vector<string> cities = {"New York", "Los Angeles", "Chicago", "Houston",
                              "Phoenix"};
@@ -45,7 +45,7 @@ int main() {
 
     // Use in loops
     cout << "\n--- Using in Validation ---" << endl;
-    GraphList<int, int> g3;
+    CinderGraph<int, int> g3;
 
     for (int i = 0; i < 10; i++) {
       g3.addVertex(i);

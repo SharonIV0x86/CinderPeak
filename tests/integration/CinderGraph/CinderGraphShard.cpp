@@ -21,20 +21,20 @@ public:
 };
 
 // ---------------- Test Fixture ----------------
-class GraphListTest : public ::testing::Test {
+class CinderGraphTest : public ::testing::Test {
 protected:
   GraphCreationOptions directedOpts;
   GraphCreationOptions undirectedOpts;
 
-  GraphListTest()
+  CinderGraphTest()
       : directedOpts({GraphCreationOptions::Directed}),
         undirectedOpts({GraphCreationOptions::Undirected}) {}
 };
 
 // Test 1: Weighted int edges (add, update, clear)
-TEST_F(GraphListTest, WeightedEdgesAddUpdateClear) {
-  GraphList<int, int> graph(directedOpts);
-  GraphList<int, int>::setConsoleLogging(false);
+TEST_F(CinderGraphTest, WeightedEdgesAddUpdateClear) {
+  CinderGraph<int, int> graph(directedOpts);
+  CinderGraph<int, int>::setConsoleLogging(false);
 
   graph.addVertex(1);
   graph.addVertex(2);
@@ -56,8 +56,8 @@ TEST_F(GraphListTest, WeightedEdgesAddUpdateClear) {
 }
 
 // Test 2: Unweighted graph (edge insertion and vertex count)
-TEST_F(GraphListTest, UnweightedGraphEdges) {
-  GraphList<int, Unweighted> g(directedOpts);
+TEST_F(CinderGraphTest, UnweightedGraphEdges) {
+  CinderGraph<int, Unweighted> g(directedOpts);
 
   g.addVertex(1);
   g.addVertex(2);
@@ -74,8 +74,8 @@ TEST_F(GraphListTest, UnweightedGraphEdges) {
   EXPECT_EQ(g.numVertices(), 3);
   EXPECT_EQ(g.numEdges(), 1);
 }
-TEST_F(GraphListTest, CustomVertexAndEdge) {
-  CinderPeak::GraphList<ListVertex, ListEdge> g;
+TEST_F(CinderGraphTest, CustomVertexAndEdge) {
+  CinderPeak::CinderGraph<ListVertex, ListEdge> g;
 
   ListVertex v1(1), v2(2);
   ListEdge e1(3.5), e2(7.0);
