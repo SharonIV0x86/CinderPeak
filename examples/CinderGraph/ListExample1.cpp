@@ -18,9 +18,9 @@ public:
 int main() {
   // ---------------- Graph 1 (weighted int edges) ----------------
   GraphCreationOptions opts({GraphCreationOptions::Directed});
-  GraphList<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
-  GraphList<int, int>::setConsoleLogging(false); // Disabling log display
+  CinderGraph<int, int>::setConsoleLogging(false); // Disabling log display
 
   graph.addVertex(1);
   graph.addVertex(2);
@@ -44,6 +44,12 @@ int main() {
     std::cout << "Vertex 5 exists.\n";
   if (graph.hasVertex(6))
     std::cout << "Vertex 6 exists.\n";
+
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
+            << "\n"; // Check edge existence
+  graph.removeEdge(5, 3);
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
+            << "\n"; // Check edge existence after removal
 
   std::cout << "Number of vertices: " << graph.numVertices()
             << "\n"; // Number of vertices before clearing
@@ -76,7 +82,7 @@ int main() {
 
   // ---------------- Graph 2 (unweighted) ----------------
   GraphCreationOptions opts1({GraphCreationOptions::Directed});
-  GraphList<int, Unweighted> unweighted_graph(opts1);
+  CinderGraph<int, Unweighted> unweighted_graph(opts1);
 
   unweighted_graph.addVertex(1);
   unweighted_graph.addVertex(2);
@@ -103,7 +109,7 @@ int main() {
   ListEdge e2(0.8f);
 
   // note: use 'options' (Undirected) here
-  GraphList<ListVertex, ListEdge> listGraph(options);
+  CinderGraph<ListVertex, ListEdge> listGraph(options);
   listGraph.addVertex(lv1);
   listGraph.addVertex(lv2);
 

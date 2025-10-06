@@ -56,13 +56,29 @@ endif()
 option(BUILD_EXAMPLES "Build example programs" ON)
 if(BUILD_EXAMPLES)
     file(GLOB_RECURSE EXAMPLE_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/examples/*.cpp)
-    foreach(example ${EXAMPLE_SOURCES})
-        get_filename_component(example_name ${example} NAME_WE)
-        add_executable(${example_name}_example ${example})
-        target_link_libraries(${example_name}_example PRIVATE CinderPeak)
 
-        set_target_properties(${example_name}_example PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/examples
+    foreach(example ${EXAMPLE_SOURCES})
+        # Get relative path from examples directory
+        file(RELATIVE_PATH rel_path ${CMAKE_SOURCE_DIR}/examples ${example})
+        get_filename_component(example_dir ${rel_path} DIRECTORY)
+        get_filename_component(example_base ${example} NAME_WE)
+
+        # Safely flatten directory name
+        if(example_dir)
+            string(REPLACE "/" "_" example_dir_flat "${example_dir}")
+            set(example_target "${example_dir_flat}_${example_base}")
+        else()
+            set(example_dir "")
+            set(example_target "${example_base}")
+        endif()
+
+        add_executable(${example_target}_example ${example})
+        target_link_libraries(${example_target}_example PRIVATE CinderPeak)
+
+        # Preserve directory structure in output
+        set_target_properties(${example_target}_example PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/examples/${example_dir}
+            OUTPUT_NAME ${example_base}
         )
     endforeach()
 endif()

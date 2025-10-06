@@ -150,6 +150,28 @@ public:
     return peak_status;
   }
 
+  // Method to remove an edge
+  const std::pair<EdgeType, PeakStatus>
+  impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+    auto weight = EdgeType();
+    if (auto it = _adj_list.find(src); it == _adj_list.end())
+      return std::make_pair(weight, PeakStatus::VertexNotFound());
+
+    auto &edges = _adj_list.find(src)->second;
+    auto it = std::find_if(edges.begin(), edges.end(), [&](const auto &edge) {
+      return edge.first == dest;
+    });
+
+    if (it == edges.end()) {
+      return std::make_pair(weight, PeakStatus::EdgeNotFound());
+    }
+
+    weight = it->second;
+
+    edges.erase(it);
+    return std::make_pair(weight, PeakStatus::OK());
+  }
+
   const PeakStatus impl_clearEdges() override {
     for (auto &edge : _adj_list) {
       edge.second.clear();

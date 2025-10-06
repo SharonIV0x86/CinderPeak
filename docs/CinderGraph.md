@@ -1,22 +1,22 @@
-# CinderPeak GraphList Documentation
+# CinderPeak CinderGraph Documentation
 
 ## Overview
 
-The `GraphList` class, part of the `CinderPeak` namespace, provides a flexible and type-safe graph data structure for managing vertices and edges. It supports both weighted and unweighted graphs, as well as directed and undirected configurations, based on options specified during graph creation. The implementation leverages a `PeakStore` backend to handle the underlying storage and operations, ensuring efficient vertex and edge management.
+The `CinderGraph` class, part of the `CinderPeak` namespace, provides a flexible and type-safe graph data structure for managing vertices and edges. It supports both weighted and unweighted graphs, as well as directed and undirected configurations, based on options specified during graph creation. The implementation leverages a `PeakStore` backend to handle the underlying storage and operations, ensuring efficient vertex and edge management.
 
-The `GraphList` class is templated to allow customization of vertex (`VertexType`) and edge (`EdgeType`) data types, making it versatile for various applications, such as social networks, road networks, or dependency graphs. It includes methods for adding vertices and edges, retrieving edge weights.
+The `CinderGraph` class is templated to allow customization of vertex (`VertexType`) and edge (`EdgeType`) data types, making it versatile for various applications, such as social networks, road networks, or dependency graphs. It includes methods for adding vertices and edges, retrieving edge weights.
 
 ## Class Definition
 
 ```cpp
 namespace CinderPeak {
 template <typename VertexType, typename EdgeType>
-class GraphList {
+class CinderGraph {
 private:
     std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>> peak_store;
 
 public:
-    GraphList(const GraphCreationOptions &options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions());
+    CinderGraph(const GraphCreationOptions &options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions());
     void addVertex(const VertexType &v);
     void addEdge(const VertexType &src, const VertexType &dest);
     void addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight);
@@ -31,11 +31,11 @@ public:
 
 ## Constructor
 
-### `GraphList(const GraphCreationOptions &options)`
+### `CinderGraph(const GraphCreationOptions &options)`
 - **Description**: Initializes a new graph with the specified creation options. If no options are provided, default options are used (as defined by `GraphCreationOptions::getDefaultCreateOptions()`).
 - **Parameters**:
   - `options`: A `GraphCreationOptions` object specifying graph properties (e.g., directed/undirected, weighted/unweighted).
-- **Behavior**: Creates a `PeakStore` instance with metadata indicating the graph's name ("graph_list") and whether the vertex and edge types are primitive.
+- **Behavior**: Creates a `PeakStore` instance with metadata indicating the graph's name ("cinder_graph") and whether the vertex and edge types are primitive.
 
 ## Methods
 
@@ -91,7 +91,7 @@ using namespace CinderPeak;
 
 int main() {
     GraphCreationOptions opts({GraphCreationOptions::Directed, GraphCreationOptions::Weighted});
-    GraphList<int, int> graph(opts);
+    CinderGraph<int, int> graph(opts);
 
     graph.addVertex(1);
     graph.addVertex(2);
@@ -122,7 +122,7 @@ using namespace CinderPeak;
 
 int main() {
     GraphCreationOptions opts({GraphCreationOptions::Undirected, GraphCreationOptions::Unweighted});
-    GraphList<std::string, int> graph(opts);
+    CinderGraph<std::string, int> graph(opts);
 
     graph.addVertex("A");
     graph.addVertex("B");
@@ -152,7 +152,7 @@ using namespace CinderPeak;
 
 int main() {
     GraphCreationOptions opts({GraphCreationOptions::Directed, GraphCreationOptions::Weighted});
-    GraphList<int, double> graph(opts);
+    CinderGraph<int, double> graph(opts);
 
     graph.addVertex(1);
     graph.addVertex(2);
@@ -183,7 +183,7 @@ using namespace CinderPeak;
 
 int main() {
     GraphCreationOptions opts({GraphCreationOptions::Directed, GraphCreationOptions::Weighted});
-    GraphList<int, int> graph(opts);
+    CinderGraph<int, int> graph(opts);
 
     graph.addVertex(1);
     graph.addVertex(2);
@@ -204,7 +204,7 @@ int main() {
 - Correctly adds a weighted edge (`1 -> 2` with weight `10`).
 
 ## Notes
-- **Error Handling**: The `GraphList` class uses `Exceptions::handle_exception_map` to manage errors from `PeakStore` operations. Ensure that the `Exceptions` namespace is properly configured to handle errors gracefully.
+- **Error Handling**: The `CinderGraph` class uses `Exceptions::handle_exception_map` to manage errors from `PeakStore` operations. Ensure that the `Exceptions` namespace is properly configured to handle errors gracefully.
 - **Type Safety**: The `VertexType` and `EdgeType` must be compatible with the `PeakStore` backend and support operations like default construction (for `getEdge` error cases).
 ## Dependencies
 - `CinderPeak.hpp`: Provides `GraphCreationOptions`, `PeakStore`, and related utilities.
@@ -215,4 +215,4 @@ int main() {
 - The `EdgeType` parameter is required even for unweighted graphs, though it is unused in such cases.
 - Error messages are logged but not propagated to the caller, relying on `Exceptions::handle_exception_map`.
 
-This documentation provides a complete reference for using the `GraphList` class, with examples covering common use cases and edge cases.
+This documentation provides a complete reference for using the `CinderGraph` class, with examples covering common use cases and edge cases.

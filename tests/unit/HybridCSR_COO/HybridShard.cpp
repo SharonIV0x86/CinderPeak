@@ -111,6 +111,61 @@ TEST_F(HybridStorageShardTest, EdgeAdditionBasic) {
   EXPECT_EQ(w2, 25);
 }
 
+// Added test to validate removeEdge functionality in a weighted graph
+TEST_F(HybridStorageShardTest, RemoveEdgeWithWeight) {
+  graph->impl_addVertex(1);
+  graph->impl_addVertex(2);
+  graph->impl_addVertex(3);
+
+  EXPECT_TRUE(graph->impl_addEdge(1, 2, 5).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(2, 3, 10).isOK());
+
+  auto edge1 = graph->impl_getEdge(1, 2);
+  EXPECT_TRUE(edge1.second.isOK());
+
+  auto result1 = graph->impl_removeEdge(1, 2);
+  EXPECT_TRUE(result1.second.isOK());
+  EXPECT_EQ(result1.first, edge1.first);
+  edge1 = graph->impl_getEdge(1, 2);
+  EXPECT_FALSE(edge1.second.isOK());
+
+  auto edge2 = graph->impl_getEdge(2, 3);
+  EXPECT_TRUE(edge2.second.isOK());
+
+  auto result2 = graph->impl_removeEdge(2, 3);
+  EXPECT_TRUE(result2.second.isOK());
+  EXPECT_EQ(result2.first, edge2.first);
+  edge2 = graph->impl_getEdge(1, 2);
+  EXPECT_FALSE(edge2.second.isOK());
+
+  EXPECT_FALSE(graph->impl_removeEdge(5, 6).second.isOK());
+}
+
+// Added test to validate removeEdge functionality in a unweighted graph
+TEST_F(HybridStorageShardTest, RemoveEdgeWithoutWeight) {
+  graph->impl_addVertex(1);
+  graph->impl_addVertex(2);
+  graph->impl_addVertex(3);
+
+  EXPECT_TRUE(graph->impl_addEdge(1, 2).isOK());
+  EXPECT_TRUE(graph->impl_addEdge(2, 3).isOK());
+
+  auto edge1 = graph->impl_getEdge(1, 2);
+  EXPECT_TRUE(edge1.second.isOK());
+
+  EXPECT_TRUE(graph->impl_removeEdge(1, 2).second.isOK());
+  edge1 = graph->impl_getEdge(1, 2);
+  EXPECT_FALSE(edge1.second.isOK());
+
+  auto edge2 = graph->impl_getEdge(2, 3);
+  EXPECT_TRUE(edge2.second.isOK());
+
+  EXPECT_TRUE(graph->impl_removeEdge(2, 3).second.isOK());
+  edge2 = graph->impl_getEdge(2, 3);
+  EXPECT_FALSE(edge2.second.isOK());
+
+  EXPECT_FALSE(graph->impl_removeEdge(5, 6).second.isOK());
+}
 TEST_F(HybridStorageShardTest, EdgeWeightUpdation) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {
