@@ -41,11 +41,13 @@ public:
   const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
   const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
   const std::string &getLogFilePath() const { return logfilePath; }
+  //   bool shouldIncludeTimestamp() const { return includeTimestamp; }
 
 private:
   ErrorPolicy errorPolicy = ErrorPolicy::Ignore;
   LoggingPolicy loggingPolicy = LoggingPolicy::Silent;
   std::string logfilePath = "peak_logs.log";
+  //   bool includeTimestamp = false;
 };
 
 class PolicyHandler {
@@ -83,21 +85,24 @@ public:
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
       return;
+
     switch (cfg->getErrorPolicy()) {
     case PolicyConfiguration::ErrorPolicy::Ignore:
-      break;
+      return;
     case PolicyConfiguration::ErrorPolicy::Throw: {
       try {
         throw handleExceptionMap(status);
       } catch (const std::exception &ex) {
-        auto logging = cfg->getLoggingPolicy();
-        if (logging == PolicyConfiguration::LoggingPolicy::LogConsole ||
-            logging == PolicyConfiguration::LoggingPolicy::ConsoleAndFile) {
-          std::cout << ex.what() << "\n";
+        if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
+          Logger::log(LogLevel::INFO,
+                      std::string(ex.what()),
+                      static_cast<int>(cfg->getLoggingPolicy()),
+                      cfg->getLogFilePath());
+        } else {
+          (void)ex; // avoid unused-variable warnings when logging is silent
         }
         throw;
       }
-      break;
     }
     }
     default:
