@@ -88,32 +88,10 @@ public:
     if (status.isOK())
       return;
 
-    int loggingMode = static_cast<int>(cfg->getLoggingPolicy());
-    std::string logPath = cfg->getLogFilePath();
-
-    // ✅ Always log the raised exception first
-    if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-      std::string msg = "Exception raised: " + status.message();
-      Logger::log(LogLevel::ERROR, msg, loggingMode, logPath);
-    }
-
-    switch (cfg->getErrorPolicy()) {
-    case PolicyConfiguration::ErrorPolicy::Ignore:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-        Logger::log(LogLevel::INFO, "Error ignored by policy", loggingMode, logPath);
-      }
+    if (cfg->getErrorPolicy() == PolicyConfiguration::ErrorPolicy::Ignore) {
       return;
-
-    case PolicyConfiguration::ErrorPolicy::Throw:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-        Logger::log(LogLevel::INFO, "Error thrown by policy", loggingMode, logPath);
-      }
-      Logger::shutdown(); // ensure logs are flushed before throwing
-      throw handleExceptionMap(status);
-
-    default:
-      break;
     }
+    throw handleExceptionMap(status);
   }
 
   inline void log(const LogLevel &level, const std::string &message) {
