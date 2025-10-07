@@ -1,3 +1,0 @@
-add_executable(EPShard_ThrowAndLogFile EPShard_ThrowAndLogFile.cpp)
-target_link_libraries(EPShard_ThrowAndLogFile PRIVATE gtest_main core_lib)
-add_test(NAME EPShard_ThrowAndLogFile COMMAND EPShard_ThrowAndLogFile)

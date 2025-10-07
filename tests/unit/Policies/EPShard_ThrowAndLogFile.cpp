@@ -3,6 +3,8 @@
 #include "StorageEngine/AdjacencyList.hpp"
 #include <gtest/gtest.h>
 #include <fstream>
+#include <regex>
+#include <sstream>
 
 using namespace CinderPeak;
 
@@ -12,7 +14,6 @@ public:
   PolicyConfiguration cfg{PolicyConfiguration::Throw, PolicyConfiguration::LogFile, logPath};
   PolicyHandler policy;
 
-  
   PeakStatus sc_notFound = PeakStatus::NotFound();
   PeakStatus sc_invalidArgument = PeakStatus::InvalidArgument();
   PeakStatus sc_vertexAlreadyExists = PeakStatus::VertexAlreadyExists();
@@ -34,37 +35,54 @@ public:
     return std::string((std::istreambuf_iterator<char>(in)), {});
   }
 
-  void verifyLogContains(const std::string &expected) {
+  void verifyLogFormat(const std::string &expectedMessage) {
     std::string content = readLogContent();
     ASSERT_FALSE(content.empty()) << "Log file should contain entries";
-    EXPECT_NE(content.find(expected), std::string::npos)
-        << "Expected log content missing: " << expected;
+
+    std::istringstream stream(content);
+    std::string line;
+
+    // Regex for log lines like:
+    // [2025-10-07 15:02:25.893] [ERROR] Exception raised: Not Found (/workspaces/.../PeakLogger.hpp:69)
+    std::regex logPattern(
+        R"(\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}\] \[(ERROR|INFO)\] .*)");
+
+    bool foundMessage = false;
+    bool formatOK = false;
+
+    while (std::getline(stream, line)) {
+      if (line.find(expectedMessage) != std::string::npos) {
+        foundMessage = true;
+        if (std::regex_match(line, logPattern)) {
+          formatOK = true;
+        }
+        break;
+      }
+    }
+
+    EXPECT_TRUE(foundMessage) << "Expected message not found: " << expectedMessage;
+    EXPECT_TRUE(formatOK) << "Log format invalid for: " << expectedMessage;
   }
 
   void verifyNoConsoleOutput() {
-  testing::internal::CaptureStderr();
-  try {
-    policy.handleException(sc_notFound);
-  } catch (const std::exception &) {
-   
+    testing::internal::CaptureStderr();
+    try {
+      policy.handleException(sc_notFound);
+    } catch (const std::exception &) {
+      // ignored
+    }
+    std::string errOutput = testing::internal::GetCapturedStderr();
+    EXPECT_TRUE(errOutput.empty()) << "LogFile policy should not print to console";
   }
-  std::string errOutput = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(errOutput.empty()) << "LogFile policy should not print to console";
-}
-
 };
 
-
-
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_NotFound) {
-  std::cerr << "LOG PATH: " << logPath << std::endl;
-
   try {
     policy.handleException(sc_notFound);
   } catch (const PeakExceptions::NotFoundException &ex) {
     EXPECT_STREQ(ex.what(), "Resource Not Found: Not Found");
   }
-  verifyLogContains("Not Found");
+  verifyLogFormat("Not Found");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_InvalidArgument) {
@@ -73,7 +91,7 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_InvalidArgument) {
   } catch (const PeakExceptions::InvalidArgumentException &ex) {
     EXPECT_STREQ(ex.what(), "Invalid argument: Invalid Argument");
   }
-  verifyLogContains("Invalid Argument");
+  verifyLogFormat("Invalid Argument");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_VertexAlreadyExists) {
@@ -82,7 +100,7 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_VertexAlreadyExists) {
   } catch (const PeakExceptions::VertexAlreadyExistsException &ex) {
     EXPECT_STREQ(ex.what(), "Vertex already exists: Vertex Already Exists");
   }
-  verifyLogContains("Vertex Already Exists");
+  verifyLogFormat("Vertex Already Exists");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_InternalError) {
@@ -91,7 +109,7 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_InternalError) {
   } catch (const PeakExceptions::InternalErrorException &ex) {
     EXPECT_STREQ(ex.what(), "Internal error: Internal Error");
   }
-  verifyLogContains("Internal Error");
+  verifyLogFormat("Internal Error");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_EdgeNotFound) {
@@ -100,7 +118,7 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_EdgeNotFound) {
   } catch (const PeakExceptions::EdgeNotFoundException &ex) {
     EXPECT_STREQ(ex.what(), "Edge not found: Edge Not Found");
   }
-  verifyLogContains("Edge Not Found");
+  verifyLogFormat("Edge Not Found");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_VertexNotFound) {
@@ -109,28 +127,26 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_VertexNotFound) {
   } catch (const PeakExceptions::VertexNotFoundException &ex) {
     EXPECT_STREQ(ex.what(), "Vertex not found: Vertex Not Found");
   }
-  verifyLogContains("Vertex Not Found");
+  verifyLogFormat("Vertex Not Found");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_Unimplemented) {
   try {
     policy.handleException(sc_unimplemented);
   } catch (const PeakExceptions::UnimplementedException &ex) {
-   EXPECT_STREQ(ex.what(), "Unimplemented feature: Method is not implemented, there has been an error.");
-
+    EXPECT_STREQ(ex.what(),
+                 "Unimplemented feature: Method is not implemented, there has been an error.");
   }
-  verifyLogContains("Method is not implemented");
-
+  verifyLogFormat("Method is not implemented");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_AlreadyExists) {
   try {
     policy.handleException(sc_alreadyExists);
   } catch (const PeakExceptions::AlreadyExistsException &ex) {
-  EXPECT_STREQ(ex.what(), "Already Exists: Resource Already Exists");
-
+    EXPECT_STREQ(ex.what(), "Already Exists: Resource Already Exists");
   }
-  verifyLogContains("Already Exists");
+  verifyLogFormat("Already Exists");
 }
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_EdgeAlreadyExists) {
@@ -139,9 +155,8 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_EdgeAlreadyExists) {
   } catch (const PeakExceptions::EdgeAlreadyExistsException &ex) {
     EXPECT_STREQ(ex.what(), "Edge already exists: Edge Already Exists");
   }
-  verifyLogContains("Edge Already Exists");
+  verifyLogFormat("Edge Already Exists");
 }
-
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_NoConsoleOutput) {
   verifyNoConsoleOutput();
