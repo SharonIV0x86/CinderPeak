@@ -1,8 +1,8 @@
 #include "CinderExceptions.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
-#include <gtest/gtest.h>
 #include <fstream>
+#include <gtest/gtest.h>
 using namespace CinderPeak;
 
 class PolicyShardFileTest : public ::testing::Test {
@@ -37,10 +37,12 @@ TEST_F(PolicyShardFileTest, ThrowAndLogFile_InternalError) {
 
 TEST_F(PolicyShardFileTest, ThrowAndLogFile_WritesToFile) {
   // Trigger a file log manually
-  Logger::log(LogLevel::INFO, "Test log entry", LoggingPolicy::LogFile, "peak_logs.log");
+  Logger::log(LogLevel::INFO, "Test log entry", LoggingPolicy::LogFile,
+              "peak_logs.log");
 
   std::ifstream in("peak_logs.log");
-  ASSERT_TRUE(in.good()) << "Log file should be created when using LogFile policy";
+  ASSERT_TRUE(in.good())
+      << "Log file should be created when using LogFile policy";
 
   std::string content((std::istreambuf_iterator<char>(in)), {});
   in.close();
