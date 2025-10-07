@@ -39,13 +39,9 @@ public:
   static void log(const LogLevel &level, const std::string &msg,
                   const int &loggingPolicy, const std::string &logFileP) {
 
-    // std::cerr << "Debug: Logger::log called with policy: " << loggingPolicy
-    // << std::endl;
     if (loggingPolicy == LoggingPolicy::Silent) {
       return;
     }
-
-    // Reset logging modes on each call
     enableConsoleLogging = false;
     enableFileLogging = false;
 
@@ -64,9 +60,7 @@ public:
       logToConsole(level, msg);
 
     if (enableFileLogging)
-      // TODO: fix this, the passing of FILE and LINE is incorrect, this should
-      // be passed from the location from where the error is generated.
-      logToFile(level, msg, __FILE__, __LINE__);
+      logToFile(level, msg);
   }
 
   static void shutdown() {
@@ -149,8 +143,7 @@ private:
               << COLOR_RESET << " " << msg << std::endl;
   }
 
-  static void logToFile(LogLevel level, const std::string &msg,
-                        const std::string &file, int line) {
+  static void logToFile(LogLevel level, const std::string &msg) {
     if (!logFile.is_open())
       return;
 
@@ -160,10 +153,10 @@ private:
     const char *levelStr = levelToString(level);
 
     logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-    if (!file.empty() && line != -1 &&
-        (level == LogLevel::CRITICAL || level == LogLevel::ERROR)) {
-      logFile << " (" << file << ":" << line << ")";
-    }
+    // if (!file.empty() && line != -1 &&
+    //     (level == LogLevel::CRITICAL || level == LogLevel::ERROR)) {
+    //   logFile << " (" << file << ":" << line << ")";
+    // } TODO: Remove it in future
     logFile << std::endl;
   }
 };
