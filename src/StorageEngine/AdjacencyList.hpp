@@ -111,6 +111,17 @@ public:
     return PeakStatus::OK();
   }
 
+  /**
+   * @brief Checks if a vertex exists in the adjacency list
+   * @param v The vertex to check for existence
+   * @return true if the vertex exists, false otherwise
+   * @note Thread-safe operation using shared_lock for concurrent read access
+   */
+  bool impl_hasVertex(const VertexType &v) override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return _adj_list.find(v) != _adj_list.end();
+  }
+
   const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -196,14 +207,6 @@ public:
     return PeakStatus::EdgeNotFound();
   }
 
-  // Method to check whether a vertex exists or not
-  bool impl_hasVertex(const VertexType &v) override {
-    auto it = _adj_list.find(v);
-    if (it == _adj_list.end()) {
-      return false;
-    }
-    return true;
-  }
 
   bool impl_doesEdgeExist(const VertexType &src,
                           const VertexType &dest) override {
