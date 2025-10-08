@@ -51,7 +51,7 @@ protected:
 
 TEST_F(GraphStatisticsThreadTest, ConcurrentReadOperations) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
-  GraphList<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
   for (int i = 1; i <= 100; ++i) {
     graph.addVertex(i);
@@ -109,7 +109,7 @@ TEST_F(GraphStatisticsThreadTest, ConcurrentReadOperations) {
 
 TEST_F(GraphStatisticsThreadTest, ConcurrentWriteOperations) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
-  GraphList<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
   for (int i = 1; i <= 50; ++i) {
     graph.addVertex(i);
@@ -159,7 +159,7 @@ TEST_F(GraphStatisticsThreadTest, ConcurrentWriteOperations) {
 
 TEST_F(GraphStatisticsThreadTest, MixedReadWriteOperations) {
   GraphCreationOptions opts({GraphCreationOptions::Undirected});
-  GraphList<int, int> graph(opts);
+  CinderGraph<int, int> graph(opts);
 
   for (int i = 1; i <= 30; ++i) {
     graph.addVertex(i);

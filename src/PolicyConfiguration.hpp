@@ -41,13 +41,11 @@ public:
   const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
   const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
   const std::string &getLogFilePath() const { return logfilePath; }
-  //   bool shouldIncludeTimestamp() const { return includeTimestamp; }
 
 private:
   ErrorPolicy errorPolicy = ErrorPolicy::Ignore;
   LoggingPolicy loggingPolicy = LoggingPolicy::Silent;
   std::string logfilePath = "peak_logs.log";
-  //   bool includeTimestamp = false;
 };
 
 class PolicyHandler {
@@ -57,34 +55,24 @@ class PolicyHandler {
     switch (status.code()) {
     case CinderPeak::StatusCode::NOT_FOUND:
       throw PeakExceptions::NotFoundException(status.message());
-      break;
     case CinderPeak::StatusCode::INVALID_ARGUMENT:
       throw PeakExceptions::InvalidArgumentException(status.message());
-      break;
     case CinderPeak::StatusCode::VERTEX_ALREADY_EXISTS:
       throw PeakExceptions::VertexAlreadyExistsException(status.message());
-      break;
     case CinderPeak::StatusCode::INTERNAL_ERROR:
       throw PeakExceptions::InternalErrorException(status.message());
-      break;
     case CinderPeak::StatusCode::EDGE_NOT_FOUND:
       throw PeakExceptions::EdgeNotFoundException(status.message());
-      break;
     case CinderPeak::StatusCode::VERTEX_NOT_FOUND:
       throw PeakExceptions::VertexNotFoundException(status.message());
-      break;
     case CinderPeak::StatusCode::UNIMPLEMENTED:
       throw PeakExceptions::UnimplementedException(status.message());
-      break;
     case CinderPeak::StatusCode::ALREADY_EXISTS:
       throw PeakExceptions::AlreadyExistsException(status.message());
-      break;
     case CinderPeak::StatusCode::EDGE_ALREADY_EXISTS:
       throw PeakExceptions::EdgeAlreadyExistsException(status.message());
-      break;
     default:
       throw PeakExceptions::UnknownException();
-      break;
     }
   }
 
@@ -95,27 +83,11 @@ public:
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
       return;
-    // std::cerr << "Debug: LoggingPolicy = " <<
-    // static_cast<int>(cfg->getLoggingPolicy()) << std::endl;
-    switch (cfg->getErrorPolicy()) {
-    case PolicyConfiguration::ErrorPolicy::Ignore:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-        Logger::log(LogLevel::INFO, "Set the error policy as ignore",
-                    static_cast<int>(cfg->getLoggingPolicy()),
-                    cfg->getLogFilePath());
-      }
-      break;
-    case PolicyConfiguration::ErrorPolicy::Throw:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-        Logger::log(LogLevel::INFO, "Set the error policy as throw",
-                    static_cast<int>(cfg->getLoggingPolicy()),
-                    cfg->getLogFilePath());
-      }
-      throw handleExceptionMap(status);
-      break;
-    default:
-      break;
+
+    if (cfg->getErrorPolicy() == PolicyConfiguration::ErrorPolicy::Ignore) {
+      return;
     }
+    throw handleExceptionMap(status);
   }
   inline void log(const LogLevel &level, const std::string &message) {
     int l = static_cast<int>(cfg->getLoggingPolicy());
