@@ -39,6 +39,9 @@ public:
     this->errorPolicy = errorPolicy;
     this->loggingPolicy = loggingPolicy;
     this->logfilePath = logfilePath;
+    if (loggingPolicy == LoggingPolicy::LogFile) {
+      std::ofstream(logfilePath, std::ios::trunc).close();
+    }
   }
 
   const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
@@ -54,7 +57,8 @@ private:
 class PolicyHandler {
   std::shared_ptr<PolicyConfiguration> cfg;
 
-  const PeakExceptions::GraphException handleExceptionMap(const PeakStatus &status) {
+  const PeakExceptions::GraphException
+  handleExceptionMap(const PeakStatus &status) {
     switch (status.code()) {
     case CinderPeak::StatusCode::NOT_FOUND:
       throw PeakExceptions::NotFoundException(status.message());
