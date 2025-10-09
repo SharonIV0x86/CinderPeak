@@ -81,7 +81,8 @@ public:
       std::smatch m;
       if (std::regex_search(
               line, m,
-              std::regex(R"(\[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\])"))) {
+              std::regex(
+                  R"(\[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\])"))) {
         std::string lvl = m[1].str();
         if (lvl == "WARNING")
           lvl = "WARN";
@@ -104,7 +105,6 @@ public:
     // std::remove(kTestLogPath.c_str());
   }
 };
-
 
 TEST_F(PolicyShardTest, ThrowAndLogFile_NotFound) {
   try {
@@ -183,9 +183,8 @@ TEST_F(PolicyShardTest, ThrowAndLogFile_Unimplemented) {
     policy.handleException(sc_unimplemented);
     FAIL() << "Expected UnimplementedException not thrown";
   } catch (const PeakExceptions::UnimplementedException &unex) {
-    EXPECT_STREQ(unex.what(),
-                 "Unimplemented feature: Method is not "
-                 "implemented, there has been an error.");
+    EXPECT_STREQ(unex.what(), "Unimplemented feature: Method is not "
+                              "implemented, there has been an error.");
   }
 
   writeAllLogLevels("Method is not implemented");
