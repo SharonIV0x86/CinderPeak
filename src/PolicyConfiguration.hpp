@@ -87,20 +87,15 @@ public:
       return;
     switch (cfg->getErrorPolicy()) {
     case PolicyConfiguration::ErrorPolicy::Ignore:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::LoggingPolicy::Silent) {
-        Logger::log(LogLevel::INFO, "Set the error policy as ignore",
-                    static_cast<int>(cfg->getLoggingPolicy()),
-                    cfg->getLogFilePath());
-      }
       break;
     case PolicyConfiguration::ErrorPolicy::Throw: {
       try {
         throw handleExceptionMap(status);
       } catch (const std::exception &ex) {
-        if (cfg->getLoggingPolicy() != PolicyConfiguration::LoggingPolicy::Silent) {
-          Logger::log(LogLevel::INFO, ex.what(),
-                      static_cast<int>(cfg->getLoggingPolicy()),
-                      cfg->getLogFilePath());
+        auto logging = cfg->getLoggingPolicy();
+        if (logging == PolicyConfiguration::LoggingPolicy::LogConsole ||
+            logging == PolicyConfiguration::LoggingPolicy::ConsoleAndFile) {
+          std::cout << ex.what() << "\n";
         }
         throw;
       }
