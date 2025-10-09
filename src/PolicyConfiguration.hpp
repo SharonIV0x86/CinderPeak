@@ -83,24 +83,22 @@ public:
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
       return;
-    // std::cerr << "Debug: LoggingPolicy = " <<
-    // static_cast<int>(cfg->getLoggingPolicy()) << std::endl;
     switch (cfg->getErrorPolicy()) {
     case PolicyConfiguration::ErrorPolicy::Ignore:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-        Logger::log(LogLevel::INFO, "Set the error policy as ignore",
-                    static_cast<int>(cfg->getLoggingPolicy()),
-                    cfg->getLogFilePath());
+      break;
+    case PolicyConfiguration::ErrorPolicy::Throw: {
+      try {
+        throw handleExceptionMap(status);
+      } catch (const std::exception &ex) {
+        auto logging = cfg->getLoggingPolicy();
+        if (logging == PolicyConfiguration::LoggingPolicy::LogConsole ||
+            logging == PolicyConfiguration::LoggingPolicy::ConsoleAndFile) {
+          std::cout << ex.what() << "\n";
+        }
+        throw;
       }
       break;
-    case PolicyConfiguration::ErrorPolicy::Throw:
-      if (cfg->getLoggingPolicy() != PolicyConfiguration::Silent) {
-        Logger::log(LogLevel::INFO, "Set the error policy as throw",
-                    static_cast<int>(cfg->getLoggingPolicy()),
-                    cfg->getLogFilePath());
-      }
-      throw handleExceptionMap(status);
-      break;
+    }
     }
     default:
       break;
