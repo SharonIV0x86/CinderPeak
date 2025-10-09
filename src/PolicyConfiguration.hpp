@@ -4,6 +4,7 @@
 #include "StorageEngine/ErrorCodes.hpp"
 #include <iostream>
 #include <memory>
+
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
 #define COLOR_BOLD_WHITE "\033[1;37m"
@@ -24,16 +25,10 @@ namespace CinderPeak {
 struct PolicyConfiguration {
 public:
   enum ErrorPolicy { Throw = 1, Ignore = 2 };
-  enum LoggingPolicy {
-    LogConsole = 1,
-    Silent = 3,
-    LogFile = 4,
-    ConsoleAndFile = 5
-  };
-  PolicyConfiguration(
-      const ErrorPolicy &errorPolicy = ErrorPolicy::Ignore,
-      const LoggingPolicy &loggingPolicy = LoggingPolicy::Silent,
-      const std::string logfilePath = "") {
+  enum LoggingPolicy { LogConsole = 1, Silent = 3, LogFile = 4, ConsoleAndFile = 5 };
+  PolicyConfiguration(const ErrorPolicy &errorPolicy = ErrorPolicy::Ignore,
+                      const LoggingPolicy &loggingPolicy = LoggingPolicy::Silent,
+                      const std::string logfilePath = "") {
     this->errorPolicy = errorPolicy;
     this->loggingPolicy = loggingPolicy;
     this->logfilePath = logfilePath;
@@ -52,8 +47,8 @@ private:
 
 class PolicyHandler {
   std::shared_ptr<PolicyConfiguration> cfg;
-  const PeakExceptions::GraphException
-  handleExceptionMap(const PeakStatus &status) {
+
+  const PeakExceptions::GraphException handleExceptionMap(const PeakStatus &status) {
     switch (status.code()) {
     case CinderPeak::StatusCode::NOT_FOUND:
       throw PeakExceptions::NotFoundException(status.message());
@@ -79,36 +74,39 @@ class PolicyHandler {
   }
 
 public:
-  PolicyHandler(const PolicyConfiguration &cfg) {
-    this->cfg = std::make_shared<PolicyConfiguration>(cfg);
-  }
+  PolicyHandler(const PolicyConfiguration &cfg) { this->cfg = std::make_shared<PolicyConfiguration>(cfg); }
+
   inline void handleException(const PeakStatus &status) {
-    if (status.isOK())
-      return;
+    if (status.isOK()) return;
+
+    auto loggingPolicy = cfg->getLoggingPolicy();
     switch (cfg->getErrorPolicy()) {
     case PolicyConfiguration::ErrorPolicy::Ignore:
+      if (loggingPolicy != PolicyConfiguration::Silent) {
+        Logger::log(LogLevel::INFO, "Set the error policy as ignore",
+                    static_cast<int>(loggingPolicy), cfg->getLogFilePath());
+      }
       break;
     case PolicyConfiguration::ErrorPolicy::Throw: {
       try {
         throw handleExceptionMap(status);
       } catch (const std::exception &ex) {
-        auto logging = cfg->getLoggingPolicy();
-        if (logging == PolicyConfiguration::LoggingPolicy::LogConsole ||
-            logging == PolicyConfiguration::LoggingPolicy::ConsoleAndFile) {
-          std::cout << ex.what() << "\n";
+        if (loggingPolicy != PolicyConfiguration::Silent) {
+          Logger::log(LogLevel::ERROR, ex.what(), static_cast<int>(loggingPolicy), cfg->getLogFilePath());
         }
         throw;
       }
       break;
     }
-    }
     default:
       break;
     }
   }
+
   inline void log(const LogLevel &level, const std::string &message) {
     int l = static_cast<int>(cfg->getLoggingPolicy());
     Logger::log(level, message, l, cfg->getLogFilePath());
   }
 };
+
 } // namespace CinderPeak
