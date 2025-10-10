@@ -4,6 +4,7 @@
 #include "StorageEngine/ErrorCodes.hpp"
 #include <iostream>
 #include <memory>
+
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
 #define COLOR_BOLD_WHITE "\033[1;37m"
@@ -30,6 +31,7 @@ public:
     LogFile = 4,
     ConsoleAndFile = 5
   };
+
   PolicyConfiguration(
       const ErrorPolicy &errorPolicy = ErrorPolicy::Ignore,
       const LoggingPolicy &loggingPolicy = LoggingPolicy::Silent,
@@ -37,7 +39,11 @@ public:
     this->errorPolicy = errorPolicy;
     this->loggingPolicy = loggingPolicy;
     this->logfilePath = logfilePath;
+    if (loggingPolicy == LoggingPolicy::LogFile) {
+      std::ofstream(logfilePath, std::ios::trunc).close();
+    }
   }
+
   const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
   const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
   const std::string &getLogFilePath() const { return logfilePath; }
@@ -50,6 +56,7 @@ private:
 
 class PolicyHandler {
   std::shared_ptr<PolicyConfiguration> cfg;
+
   const PeakExceptions::GraphException
   handleExceptionMap(const PeakStatus &status) {
     switch (status.code()) {
@@ -80,6 +87,7 @@ public:
   PolicyHandler(const PolicyConfiguration &cfg) {
     this->cfg = std::make_shared<PolicyConfiguration>(cfg);
   }
+
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
       return;
@@ -89,9 +97,11 @@ public:
     }
     throw handleExceptionMap(status);
   }
+
   inline void log(const LogLevel &level, const std::string &message) {
     int l = static_cast<int>(cfg->getLoggingPolicy());
     Logger::log(level, message, l, cfg->getLogFilePath());
   }
 };
+
 } // namespace CinderPeak
