@@ -19,17 +19,17 @@ public:
   }
 };
 
-class CinderGraphTest : public ::testing::Test {
+class CinderGraphFunctionalTest : public ::testing::Test {
 protected:
   GraphCreationOptions directedOpts;
   GraphCreationOptions undirectedOpts;
 
-  CinderGraphTest()
+  CinderGraphFunctionalTest()
       : directedOpts({GraphCreationOptions::Directed}),
         undirectedOpts({GraphCreationOptions::Undirected}) {}
 };
 
-TEST_F(CinderGraphTest, RemoveWeightedEdgePrimitive) {
+TEST_F(CinderGraphFunctionalTest, RemoveWeightedEdgePrimitive) {
   CinderGraph<int, int> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex(1).second);
@@ -57,7 +57,7 @@ TEST_F(CinderGraphTest, RemoveWeightedEdgePrimitive) {
   EXPECT_FALSE(weight2.has_value());
 }
 
-TEST_F(CinderGraphTest, RemoveUnWeightedEdgePrimitive) {
+TEST_F(CinderGraphFunctionalTest, RemoveUnWeightedEdgePrimitive) {
   CinderGraph<int, Unweighted> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex(1).second);
@@ -78,7 +78,7 @@ TEST_F(CinderGraphTest, RemoveUnWeightedEdgePrimitive) {
   EXPECT_FALSE(graph.removeEdge(1, 6).second);
 }
 
-TEST_F(CinderGraphTest, RemoveWeightedEdgeString) {
+TEST_F(CinderGraphFunctionalTest, RemoveWeightedEdgeString) {
   CinderGraph<std::string, double> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex("A").second);
@@ -105,7 +105,7 @@ TEST_F(CinderGraphTest, RemoveWeightedEdgeString) {
   EXPECT_FALSE(weight2.has_value());
 }
 
-TEST_F(CinderGraphTest, RemoveUnweightedEdgeString) {
+TEST_F(CinderGraphFunctionalTest, RemoveUnweightedEdgeString) {
   CinderGraph<std::string, Unweighted> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex("A").second);
@@ -125,7 +125,7 @@ TEST_F(CinderGraphTest, RemoveUnweightedEdgeString) {
   EXPECT_FALSE(graph.removeEdge("A", "C").second);
 }
 
-TEST_F(CinderGraphTest, RemoveCustomEdge) {
+TEST_F(CinderGraphFunctionalTest, RemoveCustomEdge) {
   CinderPeak::CinderGraph<ListVertex, ListEdge> graph(directedOpts);
 
   ListVertex v1(1), v2(2), v3(3);

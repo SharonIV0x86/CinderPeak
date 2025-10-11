@@ -10,17 +10,17 @@ public:
   bool operator==(const ListVertex &other) const { return data == other.data; }
 };
 
-class CinderGraphTest : public ::testing::Test {
+class CinderGraphFunctionalTest : public ::testing::Test {
 protected:
   GraphCreationOptions directedOpts;
   GraphCreationOptions undirectedOpts;
 
-  CinderGraphTest()
+  CinderGraphFunctionalTest()
       : directedOpts({GraphCreationOptions::Directed}),
         undirectedOpts({GraphCreationOptions::Undirected}) {}
 };
 
-TEST_F(CinderGraphTest, HasVertexPrimitive) {
+TEST_F(CinderGraphFunctionalTest, HasVertexPrimitive) {
   CinderGraph<int, int> intGraph;
 
   EXPECT_TRUE(intGraph.addVertex(1).second);
@@ -31,7 +31,7 @@ TEST_F(CinderGraphTest, HasVertexPrimitive) {
   EXPECT_FALSE(intGraph.hasVertex(3)); // not added
 }
 
-TEST_F(CinderGraphTest, HasVertexString) {
+TEST_F(CinderGraphFunctionalTest, HasVertexString) {
   CinderGraph<std::string, float> stringGraph;
 
   EXPECT_TRUE(stringGraph.addVertex("A").second);
@@ -42,7 +42,7 @@ TEST_F(CinderGraphTest, HasVertexString) {
   EXPECT_FALSE(stringGraph.hasVertex("C")); // not added
 }
 
-TEST_F(CinderGraphTest, HasVertexCustomType) {
+TEST_F(CinderGraphFunctionalTest, HasVertexCustomType) {
   CinderGraph<ListVertex, float> customGraph;
 
   ListVertex v1(10);

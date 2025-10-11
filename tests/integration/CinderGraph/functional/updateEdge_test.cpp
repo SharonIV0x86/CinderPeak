@@ -19,17 +19,17 @@ public:
   }
 };
 
-class CinderGraphTest : public ::testing::Test {
+class CinderGraphFunctionalTest : public ::testing::Test {
 protected:
   GraphCreationOptions directedOpts;
   GraphCreationOptions undirectedOpts;
 
-  CinderGraphTest()
+  CinderGraphFunctionalTest()
       : directedOpts({GraphCreationOptions::Directed}),
         undirectedOpts({GraphCreationOptions::Undirected}) {}
 };
 
-TEST_F(CinderGraphTest, UpdateEdgePrimitive) {
+TEST_F(CinderGraphFunctionalTest, UpdateEdgePrimitive) {
   CinderGraph<int, int> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex(1).second);
@@ -48,7 +48,7 @@ TEST_F(CinderGraphTest, UpdateEdgePrimitive) {
   EXPECT_FALSE(graph.updateEdge(2, 3, 100).second); // edge doesn't exist
 }
 
-TEST_F(CinderGraphTest, UpdateEdgeString) {
+TEST_F(CinderGraphFunctionalTest, UpdateEdgeString) {
   CinderGraph<std::string, double> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex("A").second);
@@ -67,7 +67,7 @@ TEST_F(CinderGraphTest, UpdateEdgeString) {
   EXPECT_FALSE(graph.updateEdge("B", "C", 100.0).second); // edge doesn't exist
 }
 
-TEST_F(CinderGraphTest, UpdateCustomEdge) {
+TEST_F(CinderGraphFunctionalTest, UpdateCustomEdge) {
   CinderPeak::CinderGraph<ListVertex, ListEdge> graph(directedOpts);
 
   ListVertex v1(1), v2(2);

@@ -19,17 +19,17 @@ public:
   }
 };
 
-class CinderGraphTest : public ::testing::Test {
+class CinderGraphFunctionalTest : public ::testing::Test {
 protected:
   GraphCreationOptions directedOpts;
   GraphCreationOptions undirectedOpts;
 
-  CinderGraphTest()
+  CinderGraphFunctionalTest()
       : directedOpts({GraphCreationOptions::Directed}),
         undirectedOpts({GraphCreationOptions::Undirected}) {}
 };
 
-TEST_F(CinderGraphTest, ClearWeightedEdges) {
+TEST_F(CinderGraphFunctionalTest, ClearWeightedEdges) {
   CinderGraph<int, int> graph(directedOpts);
 
   graph.addVertex(1);
@@ -47,7 +47,7 @@ TEST_F(CinderGraphTest, ClearWeightedEdges) {
   EXPECT_EQ(graph.numVertices(), 3); // vertices remain after clear
 }
 
-TEST_F(CinderGraphTest, ClearUnweightedEdges) {
+TEST_F(CinderGraphFunctionalTest, ClearUnweightedEdges) {
   CinderGraph<int, Unweighted> graph(directedOpts);
 
   graph.addVertex(1);
@@ -65,7 +65,7 @@ TEST_F(CinderGraphTest, ClearUnweightedEdges) {
   EXPECT_EQ(graph.numVertices(), 3); // vertices remain after clear
 }
 
-TEST_F(CinderGraphTest, ClearEdgesCustomTypes) {
+TEST_F(CinderGraphFunctionalTest, ClearEdgesCustomTypes) {
   CinderGraph<ListVertex, ListEdge> graph(directedOpts);
 
   ListVertex v1(10);
