@@ -90,6 +90,20 @@ TEST_F(HybridStorageShardTest, VertexAdditionSequential) {
   }
 }
 
+// Test to validate clearing all vertices
+TEST_F(HybridStorageShardTest, ClearVertices) {
+  std::vector<int> vertices = {1, 2, 3, 4, 5};
+  for (int v : vertices) {
+    EXPECT_TRUE(graph->impl_addVertex(v).isOK());
+  }
+
+  EXPECT_TRUE(graph->impl_clearVertices().isOK());
+
+  for (int v : vertices) {
+    EXPECT_FALSE(graph->impl_hasVertex(v));
+  }
+}
+
 TEST_F(HybridStorageShardTest, EdgeAdditionBasic) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {

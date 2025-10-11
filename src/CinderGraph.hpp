@@ -128,6 +128,15 @@ public:
     return {std::make_optional(data), true};
   }
 
+  // Helper method to call clearVertices from PeakStore
+  void clearVertices() {
+    auto resp = peak_store->clearVertices();
+    if (!resp.isOK()) {
+      Exceptions::handle_exception_map(resp);
+      return;
+    }
+  }
+
   // Helper method to call clearEdges from PeakStore
   void clearEdges() {
     auto resp = peak_store->clearEdges();
