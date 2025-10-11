@@ -330,6 +330,9 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to remove all vertices
+  const PeakStatus impl_clearVertices() override { return PeakStatus::OK(); }
+
   // Method to remove all edges
   const PeakStatus impl_clearEdges() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
