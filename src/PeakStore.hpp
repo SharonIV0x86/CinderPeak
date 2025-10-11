@@ -172,6 +172,19 @@ public:
     return status;
   }
 
+  // Helper method to call impl_clearVertices from AdjacencyList
+  PeakStatus clearVertices() {
+    LOG_INFO("Called peakStore:clearVertices");
+    auto status = ctx->active_storage->impl_clearVertices();
+    if (status.isOK()) {
+      ctx->metadata->updateVertexCount(UpdateOp::Clear);
+      ctx->metadata->updateEdgeCount(UpdateOp::Clear);
+      ctx->metadata->updateParallelEdgeCount(UpdateOp::Clear);
+      ctx->metadata->updateSelfLoopCount(UpdateOp::Clear);
+    }
+    return status;
+  }
+
   // Helper method to call impl_clearEdges from AdjacencyList
   PeakStatus clearEdges() {
     LOG_INFO("Called peakStore:clearEdges");
