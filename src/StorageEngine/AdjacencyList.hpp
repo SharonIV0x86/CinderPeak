@@ -172,6 +172,12 @@ public:
     return std::make_pair(weight, PeakStatus::OK());
   }
 
+  // Method to remove all vertices
+  const PeakStatus impl_clearVertices() override {
+    _adj_list.clear();
+    return PeakStatus::OK();
+  }
+
   const PeakStatus impl_clearEdges() override {
     for (auto &edge : _adj_list) {
       edge.second.clear();
