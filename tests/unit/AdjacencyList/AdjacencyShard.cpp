@@ -133,6 +133,19 @@ TEST_F(AdjacencyStorageShardTest, CheckVertexExistence) {
   EXPECT_FALSE(intGraph.impl_hasVertex(200));
 }
 
+// Test to validate impl_clearVertices functionality
+TEST_F(AdjacencyStorageShardTest, ClearVertices) {
+  for (int i = 1; i <= 5; ++i) {
+    EXPECT_TRUE(intGraph.impl_hasVertex(i));
+  }
+
+  EXPECT_TRUE(intGraph.impl_clearVertices().isOK());
+
+  for (int i = 1; i <= 5; ++i) {
+    EXPECT_FALSE(intGraph.impl_hasVertex(i));
+  }
+}
+
 //
 // 2. Edge Operations
 //
