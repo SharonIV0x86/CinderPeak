@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <memory>
 #include <shared_mutex>
+
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
 
@@ -304,6 +305,10 @@ public:
                   << "\n";
       }
     }
+  }
+  void clearVertices() {
+    LOG_INFO("Clearing all vertices and edges from adjacency list");
+    _adj_list.clear();
   }
 };
 } // namespace PeakStore
