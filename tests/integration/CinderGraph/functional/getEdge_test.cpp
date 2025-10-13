@@ -70,22 +70,22 @@ TEST_F(CinderGraphFunctionalTest, GetUnWeightedEdgePrimitive) {
 }
 
 TEST_F(CinderGraphFunctionalTest, GetWeightedEdgeString) {
-  CinderGraph<std::string, double> graph(directedOpts);
+  CinderGraph<std::string, int> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex("A").second);
   EXPECT_TRUE(graph.addVertex("B").second);
   EXPECT_TRUE(graph.addVertex("C").second);
 
-  EXPECT_TRUE(graph.addEdge("A", "B", 42.0).second);
-  EXPECT_TRUE(graph.addEdge("B", "C", 100.5).second);
+  EXPECT_TRUE(graph.addEdge("A", "B", 42).second);
+  EXPECT_TRUE(graph.addEdge("B", "C", 100).second);
 
   auto [weight, status] = graph.getEdge("A", "B");
   EXPECT_TRUE(status);
-  EXPECT_EQ(weight, 42.0);
+  EXPECT_EQ(weight, 42);
 
   auto [weight1, status1] = graph.getEdge("B", "C");
   EXPECT_TRUE(status1);
-  EXPECT_EQ(weight1, 100.5);
+  EXPECT_EQ(weight1, 100);
 
   auto [weight2, status2] = graph.getEdge("A", "C");
   EXPECT_FALSE(status2);

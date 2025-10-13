@@ -49,22 +49,22 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgePrimitive) {
 }
 
 TEST_F(CinderGraphFunctionalTest, UpdateEdgeString) {
-  CinderGraph<std::string, double> graph(directedOpts);
+  CinderGraph<std::string, int> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex("A").second);
   EXPECT_TRUE(graph.addVertex("B").second);
 
-  EXPECT_TRUE(graph.addEdge("A", "B", 42.0).second);
+  EXPECT_TRUE(graph.addEdge("A", "B", 42).second);
 
   auto [weight, status] = graph.getEdge("A", "B");
   EXPECT_TRUE(status);
-  EXPECT_EQ(weight, 42.0);
+  EXPECT_EQ(weight, 42);
 
-  auto [new_weight, status1] = graph.updateEdge("A", "B", 84.0);
+  auto [new_weight, status1] = graph.updateEdge("A", "B", 84);
   EXPECT_TRUE(status1);
-  EXPECT_EQ(new_weight, 84.0);
+  EXPECT_EQ(new_weight, 84);
 
-  EXPECT_FALSE(graph.updateEdge("B", "C", 100.0).second); // edge doesn't exist
+  EXPECT_FALSE(graph.updateEdge("B", "C", 100).second); // edge doesn't exist
 }
 
 TEST_F(CinderGraphFunctionalTest, UpdateCustomEdge) {

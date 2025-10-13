@@ -8,11 +8,11 @@ using namespace CinderPeak;
 
 class BulkInsertionStressTest : public ::testing::Test {
 protected:
-  void SetUp() override { CinderGraph<int, double>::setConsoleLogging(false); }
+  void SetUp() override { CinderGraph<int, int>::setConsoleLogging(false); }
 };
 
 TEST_F(BulkInsertionStressTest, BulkVertexInsertion) {
-  CinderGraph<int, double> graph;
+  CinderGraph<int, int> graph;
 
   const int numVertices = 1000;
 
@@ -28,7 +28,7 @@ TEST_F(BulkInsertionStressTest, BulkVertexInsertion) {
 }
 
 TEST_F(BulkInsertionStressTest, BulkWeightedEdgesInsertion) {
-  CinderGraph<int, double> graph;
+  CinderGraph<int, int> graph;
 
   const int numVertices = 500;
 
@@ -39,7 +39,7 @@ TEST_F(BulkInsertionStressTest, BulkWeightedEdgesInsertion) {
   for (int i = 0; i < numVertices - 1; i++) {
     int src = i;
     int dest = i + 1;
-    double weight = static_cast<double>(i) * 0.5;
+    int weight = i * 5;
 
     EXPECT_TRUE(graph.addEdge(src, dest, weight).second);
   }
@@ -47,10 +47,10 @@ TEST_F(BulkInsertionStressTest, BulkWeightedEdgesInsertion) {
   EXPECT_EQ(graph.numEdges(), numVertices - 1);
 
   auto [weight1, status1] = graph.getEdge(0, 1);
-  EXPECT_TRUE(status1 && weight1 == 0.0);
+  EXPECT_TRUE(status1 && weight1 == 0);
 
   auto [weight2, status2] = graph.getEdge(250, 251);
-  EXPECT_TRUE(status2 && weight2 == 125.0);
+  EXPECT_TRUE(status2 && weight2 == 125);
 }
 
 TEST_F(BulkInsertionStressTest, BulkUnweightedEdgesInsertion) {
@@ -78,7 +78,7 @@ TEST_F(BulkInsertionStressTest, BulkUnweightedEdgesInsertion) {
 }
 
 TEST_F(BulkInsertionStressTest, DenseGraph) {
-  CinderGraph<int, double> graph;
+  CinderGraph<int, int> graph;
 
   const int numVertices = 50;
 
@@ -91,7 +91,7 @@ TEST_F(BulkInsertionStressTest, DenseGraph) {
     for (int j = 1; j <= 10 && (i + j) < numVertices; j++) {
       int src = i;
       int dest = i + j;
-      double weight = static_cast<double>(i * 10 + j);
+      int weight = i * 10 + j;
 
       EXPECT_TRUE(graph.addEdge(src, dest, weight).second);
       edgeCount++;
@@ -102,15 +102,15 @@ TEST_F(BulkInsertionStressTest, DenseGraph) {
 
   auto [weight1, status1] = graph.getEdge(0, 5);
   EXPECT_TRUE(status1);
-  EXPECT_EQ(weight1, 5.0);
+  EXPECT_EQ(weight1, 5);
 
   auto [weight2, status2] = graph.getEdge(20, 25);
   EXPECT_TRUE(status2);
-  EXPECT_EQ(weight2, 205.0);
+  EXPECT_EQ(weight2, 205);
 }
 
 TEST_F(BulkInsertionStressTest, MixedBulkOperations) {
-  CinderGraph<int, double> graph;
+  CinderGraph<int, int> graph;
 
   const int batches = 10;
   const int items = 50;
@@ -125,16 +125,14 @@ TEST_F(BulkInsertionStressTest, MixedBulkOperations) {
       int src = batch * items + i;
       int dest = batch * items + i + 1;
 
-      EXPECT_TRUE(graph.addEdge(src, dest, static_cast<double>(batch * 100 + i))
-                      .second);
+      EXPECT_TRUE(graph.addEdge(src, dest, batch * 100 + i).second);
     }
 
     if (batch > 0) {
       int prev = (batch - 1) * items + (items - 1);
       int curr = batch * items;
 
-      EXPECT_TRUE(
-          graph.addEdge(prev, curr, static_cast<double>(batch * 1000)).second);
+      EXPECT_TRUE(graph.addEdge(prev, curr, batch * 1000).second);
     }
   }
 
@@ -145,7 +143,7 @@ TEST_F(BulkInsertionStressTest, MixedBulkOperations) {
 }
 
 TEST_F(BulkInsertionStressTest, BulkInsertionWithEdgeUpdates) {
-  CinderGraph<int, double> graph;
+  CinderGraph<int, int> graph;
 
   const int numVertices = 200;
 
@@ -156,25 +154,24 @@ TEST_F(BulkInsertionStressTest, BulkInsertionWithEdgeUpdates) {
   for (int i = 0; i < numVertices - 1; i++) {
     int src = i;
     int dest = i + 1;
-    EXPECT_TRUE(graph.addEdge(src, dest, static_cast<double>(i)).second);
+    EXPECT_TRUE(graph.addEdge(src, dest, i).second);
   }
 
   for (int i = 0; i < numVertices - 1; i += 10) {
     int src = i;
     int dest = i + 1;
-    EXPECT_TRUE(
-        graph.updateEdge(src, dest, static_cast<double>(i * 10)).second);
+    EXPECT_TRUE(graph.updateEdge(src, dest, i * 10).second);
   }
 
   auto [weight1, status1] = graph.getEdge(0, 1);
   EXPECT_TRUE(status1);
-  EXPECT_EQ(weight1, 0.0);
+  EXPECT_EQ(weight1, 0);
 
   auto [weight2, status2] = graph.getEdge(10, 11);
   EXPECT_TRUE(status2);
-  EXPECT_EQ(weight2, 100.0);
+  EXPECT_EQ(weight2, 100);
 
   auto [weight3, status3] = graph.getEdge(20, 21);
   EXPECT_TRUE(status3);
-  EXPECT_EQ(weight3, 200.0);
+  EXPECT_EQ(weight3, 200);
 }

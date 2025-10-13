@@ -79,24 +79,24 @@ TEST_F(CinderGraphFunctionalTest, RemoveUnWeightedEdgePrimitive) {
 }
 
 TEST_F(CinderGraphFunctionalTest, RemoveWeightedEdgeString) {
-  CinderGraph<std::string, double> graph(directedOpts);
+  CinderGraph<std::string, int> graph(directedOpts);
 
   EXPECT_TRUE(graph.addVertex("A").second);
   EXPECT_TRUE(graph.addVertex("B").second);
   EXPECT_TRUE(graph.addVertex("C").second);
 
-  EXPECT_TRUE(graph.addEdge("A", "B", 42.0).second);
-  EXPECT_TRUE(graph.addEdge("B", "C", 100.5).second);
+  EXPECT_TRUE(graph.addEdge("A", "B", 42).second);
+  EXPECT_TRUE(graph.addEdge("B", "C", 100).second);
 
   EXPECT_EQ(graph.numEdges(), 2);
 
   auto [weight, status] = graph.removeEdge("A", "B");
   EXPECT_TRUE(status);
-  EXPECT_EQ(weight, 42.0);
+  EXPECT_EQ(weight, 42);
 
   auto [weight1, status1] = graph.removeEdge("B", "C");
   EXPECT_TRUE(status1);
-  EXPECT_EQ(weight1, 100.5);
+  EXPECT_EQ(weight1, 100);
 
   EXPECT_EQ(graph.numEdges(), 0);
 

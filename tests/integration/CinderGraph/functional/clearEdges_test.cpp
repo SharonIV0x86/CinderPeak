@@ -32,9 +32,9 @@ protected:
 TEST_F(CinderGraphFunctionalTest, ClearWeightedEdges) {
   CinderGraph<int, int> graph(directedOpts);
 
-  graph.addVertex(1);
-  graph.addVertex(2);
-  graph.addVertex(3);
+  EXPECT_TRUE(graph.addVertex(1).second);
+  EXPECT_TRUE(graph.addVertex(2).second);
+  EXPECT_TRUE(graph.addVertex(3).second);
 
   EXPECT_TRUE(graph.addEdge(1, 3, 5).second);
   EXPECT_TRUE(graph.addEdge(2, 3, 15).second);
@@ -50,9 +50,9 @@ TEST_F(CinderGraphFunctionalTest, ClearWeightedEdges) {
 TEST_F(CinderGraphFunctionalTest, ClearUnweightedEdges) {
   CinderGraph<int, Unweighted> graph(directedOpts);
 
-  graph.addVertex(1);
-  graph.addVertex(2);
-  graph.addVertex(3);
+  EXPECT_TRUE(graph.addVertex(1).second);
+  EXPECT_TRUE(graph.addVertex(2).second);
+  EXPECT_TRUE(graph.addVertex(3).second);
 
   EXPECT_TRUE(graph.addEdge(1, 2).second);
   EXPECT_TRUE(graph.addEdge(2, 3).second);
@@ -72,9 +72,9 @@ TEST_F(CinderGraphFunctionalTest, ClearEdgesCustomTypes) {
   ListVertex v2(20);
   ListVertex v3(30);
 
-  graph.addVertex(v1);
-  graph.addVertex(v2);
-  graph.addVertex(v3);
+  EXPECT_TRUE(graph.addVertex(v1).second);
+  EXPECT_TRUE(graph.addVertex(v2).second);
+  EXPECT_TRUE(graph.addVertex(v3).second);
 
   ListEdge e1(1.5f);
   ListEdge e2(2.5f);
@@ -86,6 +86,7 @@ TEST_F(CinderGraphFunctionalTest, ClearEdgesCustomTypes) {
   EXPECT_EQ(graph.numEdges(), 2);
 
   graph.clearEdges();
+
   EXPECT_EQ(graph.numEdges(), 0);
   EXPECT_EQ(graph.numVertices(), 3); // vertices remain after clear
 }
