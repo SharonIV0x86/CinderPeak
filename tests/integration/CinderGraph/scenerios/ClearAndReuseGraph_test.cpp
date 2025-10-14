@@ -1,4 +1,4 @@
-#include "../common/DummyGraphBuilder.hpp"
+#include "DummyGraphBuilder.hpp"
 #include <gtest/gtest.h>
 #include <string>
 
