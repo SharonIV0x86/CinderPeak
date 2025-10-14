@@ -1,27 +1,15 @@
-#include "CinderPeak.hpp"
+#include "../common/DummyGraphBuilder.hpp"
 #include "gtest/gtest.h"
 
 using namespace CinderPeak;
 
-class ListVertex : public CinderVertex {
-public:
-  int data;
-  ListVertex(int d = 0) : data(d) {}
-  bool operator==(const ListVertex &other) const { return data == other.data; }
-};
-
 class CinderGraphFunctionalTest : public ::testing::Test {
 protected:
-  GraphCreationOptions directedOpts;
-  GraphCreationOptions undirectedOpts;
-
-  CinderGraphFunctionalTest()
-      : directedOpts({GraphCreationOptions::Directed}),
-        undirectedOpts({GraphCreationOptions::Undirected}) {}
+  DummyGraph builder;
 };
 
 TEST_F(CinderGraphFunctionalTest, RemoveVertexPrimitive) {
-  CinderGraph<int, int> intGraph;
+  auto intGraph = builder.CreatePrimitiveWeightedGraph(GraphOpts::directed);
 
   EXPECT_TRUE(intGraph.addVertex(1).second);
   EXPECT_TRUE(intGraph.addVertex(2).second);
@@ -37,7 +25,8 @@ TEST_F(CinderGraphFunctionalTest, RemoveVertexPrimitive) {
 }
 
 TEST_F(CinderGraphFunctionalTest, RemoveVertexString) {
-  CinderGraph<std::string, float> stringGraph;
+  auto stringGraph = builder.CreateStringUnweightedGraph(GraphOpts::directed);
+
   EXPECT_TRUE(stringGraph.addVertex("A").second);
   EXPECT_TRUE(stringGraph.addVertex("B").second);
   EXPECT_TRUE(stringGraph.addVertex("C").second);
@@ -52,7 +41,7 @@ TEST_F(CinderGraphFunctionalTest, RemoveVertexString) {
 }
 
 TEST_F(CinderGraphFunctionalTest, RemoveVertexCustomType) {
-  CinderGraph<ListVertex, float> customGraph;
+  auto customGraph = builder.CreateCustomUnweightedGraph(GraphOpts::directed);
 
   ListVertex v1(10);
   ListVertex v2(20);
