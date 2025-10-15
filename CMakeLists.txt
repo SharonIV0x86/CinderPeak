@@ -1,8 +1,31 @@
 cmake_minimum_required(VERSION 3.14)
 project(CinderPeak LANGUAGES CXX)
 
+option(SANITIZE "Enable sanitizers (ASAN/UBSAN)" OFF)
+option(BUILD_BENCHMARKS "Build benchmarks" OFF)
+option(BUILD_COVERAGE "Build with coverage flags" OFF)
+
+if(SANITIZE)
+    if(MSVC)
+        message(WARNING "Sanitizers not supported on MSVC; ignoring SANITIZE")
+    else()
+        add_compile_options(-fsanitize=address,undefined -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address,undefined)
+    endif()
+endif()
+
+if(BUILD_COVERAGE)
+    if(NOT MSVC)
+        add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
+        add_link_options(--coverage)
+    else()
+        message(WARNING "Coverage not supported on MSVC; ignoring BUILD_COVERAGE")
+    endif()
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(BIN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 
