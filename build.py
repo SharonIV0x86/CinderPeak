@@ -82,7 +82,7 @@ def configure(build_dir: str = "build", build_type: str = "RelWithDebInfo",
 
 def build(build_dir: str = "build", jobs: Optional[int] = None,
           target: Optional[str] = None, cmake_path: str = "cmake",
-          skip_build: bool = False, **kwargs: Any) -> None:
+          skip_build: bool = False, config: Optional[str] = None, **kwargs: Any) -> None:
 
     if skip_build:
         print("Skipping build as requested.")
@@ -94,6 +94,10 @@ def build(build_dir: str = "build", jobs: Optional[int] = None,
     cmake = find_command(cmake_path, msg="CMake is required")
     
     options = ["--build", build_dir]
+    
+    if config:
+        options.extend(["--config", config])
+    
     if jobs is not None:
         options.extend(["-j", str(jobs)])
     if target:
@@ -103,14 +107,49 @@ def build(build_dir: str = "build", jobs: Optional[int] = None,
     print("\nBuild complete.")
 
 
+def detect_build_config(build_dir: str) -> Optional[str]:
+    build_path = Path(build_dir)
+    
+    bin_dir = build_path / 'bin'
+    if bin_dir.exists():
+        for cfg in ['Debug', 'Release', 'RelWithDebInfo', 'MinSizeRel']:
+            test_dirs = list(bin_dir.glob(f'*/{cfg}/*.exe')) + list(bin_dir.glob(f'*/*/{cfg}/*.exe'))
+            if test_dirs:
+                return cfg
+    
+    cmake_cache = build_path / "CMakeCache.txt"
+    if cmake_cache.exists():
+        with open(cmake_cache, 'r') as f:
+            for line in f:
+                if line.startswith("CMAKE_BUILD_TYPE:"):
+                    config = line.split('=')[1].strip()
+                    if config:
+                        return config
+    
+    if platform.system() == "Windows":
+        return "Debug"
+    
+    return None
+
+
 def test(build_dir: str = "build", cpp: bool = False, all: bool = False,
-         rest: Optional[List[str]] = None, **kwargs: Any) -> None:
+         config: Optional[str] = None, rest: Optional[List[str]] = None, 
+         **kwargs: Any) -> None:
     if not os.path.exists(build_dir):
         raise RuntimeError(f"Build directory '{build_dir}' not found.")
     
     ctest = find_command("ctest", msg="CTest is required")
     
     options = ["--test-dir", build_dir, "--output-on-failure"]
+    
+    if config is None:
+        config = detect_build_config(build_dir)
+        if config:
+            print(f"Auto-detected build configuration: {config}")
+    
+    if config:
+        options.extend(["-C", config])
+    
     if rest:
         options.extend(rest)
     
@@ -268,12 +307,14 @@ if __name__ == '__main__':
     p.add_argument('build_dir', nargs='?', default='build')
     p.add_argument('-j', '--jobs', type=int)
     p.add_argument('--target')
+    p.add_argument('--config', help='Build configuration (Debug, Release, etc.)')
     p.add_argument('--cmake-path', default='cmake')
     p.add_argument('--skip-build', action='store_true')
     p.set_defaults(func=build)
     
     p = subparsers.add_parser('test', help="Run tests")
     p.add_argument('build_dir', nargs='?', default='build')
+    p.add_argument('-C', '--config', help='Test configuration (Debug, Release, etc.)')
     p.add_argument('--cpp', action='store_true')
     p.add_argument('--all', action='store_true')
     p.add_argument('rest', nargs=REMAINDER)
