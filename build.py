@@ -234,7 +234,7 @@ def check_tidy(build_dir: str = "build", jobs: Optional[int] = None,
 
 def prepare(**kwargs: Any) -> None:
     basedir = Path(__file__).parent.absolute()
-    hooks_dir = basedir / "dev" / "hooks"
+    hooks_dir = basedir / "scripts"
     git_hooks_dir = basedir / ".git" / "hooks"
     
     if not git_hooks_dir.exists():
