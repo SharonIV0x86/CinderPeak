@@ -7,7 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BIN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 
 add_library(CinderPeak INTERFACE)
-target_include_directories(CinderPeak INTERFACE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(CinderPeak INTERFACE 
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/tests/integration/CinderGraph/common
+)
 
 # === Build Tests ===
 option(BUILD_TESTS "Build and run unit tests" ON)
