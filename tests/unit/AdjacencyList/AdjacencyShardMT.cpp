@@ -75,6 +75,62 @@ TEST_F(AdjacencyListThreadTest, ConcurrentVertexAddition) {
   }
 }
 
+// Added test to validate concurrent vertex removal
+TEST_F(AdjacencyListThreadTest, ConcurrentVertexRemoval) {
+  for (int i = 1; i <= 10000; ++i) {
+    threadGraph.impl_addVertex(50000 + i);
+    if (i > 1) {
+      threadGraph.impl_addEdge(50000 + i - 1, 50000 + i, i * 5);
+    }
+  }
+
+  const int numThreads = 100;
+  std::vector<std::thread> threads;
+  std::atomic<int> successfulRemovals{0};
+  std::atomic<int> failedRemovals{0};
+
+  for (int t = 0; t < numThreads; ++t) {
+    threads.emplace_back([&, t]() {
+      for (int i = 0; i < 100; ++i) {
+        int vertexToRemove = 50000 + (t * 100) + i + 1;
+        auto status = threadGraph.impl_removeVertex(vertexToRemove);
+
+        if (status.isOK()) {
+          successfulRemovals++;
+
+          EXPECT_FALSE(threadGraph.impl_hasVertex(vertexToRemove));
+
+          auto neighbors = threadGraph.impl_getNeighbors(vertexToRemove);
+          EXPECT_FALSE(neighbors.second.isOK());
+          EXPECT_EQ(neighbors.second.code(), StatusCode::VERTEX_NOT_FOUND);
+        } else {
+          failedRemovals++;
+        }
+      }
+    });
+  }
+
+  for (auto &thread : threads) {
+    thread.join();
+  }
+
+  EXPECT_EQ(successfulRemovals.load(), 10000);
+  EXPECT_EQ(failedRemovals.load(), 0);
+
+  for (int i = 1; i <= 10000; ++i) {
+    EXPECT_FALSE(threadGraph.impl_hasVertex(50000 + i));
+  }
+
+  for (int i = 1; i <= 10000; ++i) {
+    auto neighbors = threadGraph.impl_getNeighbors(i);
+    if (neighbors.second.isOK()) {
+      for (const auto &[neighbor, weight] : neighbors.first) {
+        EXPECT_FALSE(neighbor >= 50001 && neighbor <= 60000);
+      }
+    }
+  }
+}
+
 TEST_F(AdjacencyListThreadTest, ConcurrentEdgeAddition) {
   const int numThreads = 8;
   const int edgesPerThread = 100;

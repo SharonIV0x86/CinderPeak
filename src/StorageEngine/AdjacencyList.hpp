@@ -153,6 +153,8 @@ public:
   // Method to remove an edge
   const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     auto weight = EdgeType();
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return std::make_pair(weight, PeakStatus::VertexNotFound());
@@ -172,7 +174,17 @@ public:
     return std::make_pair(weight, PeakStatus::OK());
   }
 
+  // Method to remove all vertices
+  const PeakStatus impl_clearVertices() override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    _adj_list.clear();
+    return PeakStatus::OK();
+  }
+
   const PeakStatus impl_clearEdges() override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     for (auto &edge : _adj_list) {
       edge.second.clear();
     }
@@ -182,6 +194,8 @@ public:
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     if (auto it = _adj_list.find(src); it == _adj_list.end())
       return PeakStatus::VertexNotFound();
 
@@ -198,6 +212,8 @@ public:
 
   // Method to check whether a vertex exists or not
   bool impl_hasVertex(const VertexType &v) override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
     auto it = _adj_list.find(v);
     if (it == _adj_list.end()) {
       return false;
@@ -274,6 +290,8 @@ public:
     return false;
   }
   const PeakStatus impl_removeVertex(const VertexType &v) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     // Find vertex
     auto it = _adj_list.find(v);
     if (it == _adj_list.end())

@@ -330,6 +330,28 @@ public:
     return PeakStatus::OK();
   }
 
+  // Method to remove all vertices
+  const PeakStatus impl_clearVertices() override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    clearCOOArrays();
+
+    if (is_built_.load(std::memory_order_relaxed)) {
+      csr_row_offsets.clear();
+      csr_col_vals.clear();
+      csr_col_vals.clear();
+      csr_weights.clear();
+      csr_col_vals.shrink_to_fit();
+      csr_weights.shrink_to_fit();
+    }
+
+    vertex_order.clear();
+    vertex_to_index.clear();
+
+    is_built_.store(false, std::memory_order_relaxed);
+
+    return PeakStatus::OK();
+  }
+
   // Method to remove all edges
   const PeakStatus impl_clearEdges() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
