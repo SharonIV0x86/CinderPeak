@@ -9,6 +9,14 @@ from typing import List, Any, Optional, Tuple
 from shutil import which
 import os
 
+class Config:
+    DEFAULT_BUILD_DIR = "build"
+    DEFAULT_BUILD_TYPE = "RelWithDebInfo"
+    DEFAULT_CMAKE = "cmake"
+    DEFAULT_CLANG_FORMAT = "clang-format"
+    DEFAULT_CLANG_TIDY = "clang-tidy"
+    DEFAULT_RUN_CLANG_TIDY = "run-clang-tidy"
+
 FLAG_MAP = {
     "with_tests": ("-DBUILD_TESTS=ON",),
     "with_examples": ("-DBUILD_EXAMPLES=ON",),
@@ -16,10 +24,26 @@ FLAG_MAP = {
     "coverage": ("-DBUILD_COVERAGE=ON",),
 }
 
-def run(*args: str, msg: Optional[str] = None, verbose: bool = False, **kwargs: Any) -> Popen:
+def handle_build_errors(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except KeyboardInterrupt:
+            print("\n\nBuild interrupted by user.", file=sys.stderr)
+            sys.exit(130)
+        except Exception as e:
+            print(f"\nError: {e}", file=sys.stderr)
+            sys.exit(1)
+    return wrapper
+
+def run(*args: str, msg: Optional[str] = None, verbose: bool = False, stream: bool = True, **kwargs: Any) -> Popen:
     sys.stdout.flush()
     if verbose:
         print(f"$ {' '.join(args)}")
+
+    if stream and 'stdout' not in kwargs:
+        kwargs['stdout'] = sys.stdout
+        kwargs['stderr'] = sys.stderr
 
     p = Popen(args, **kwargs)
     code = p.wait()
@@ -32,7 +56,7 @@ def run(*args: str, msg: Optional[str] = None, verbose: bool = False, **kwargs: 
 
 
 def run_pipe(*args: str, msg: Optional[str] = None, verbose: bool = False, **kwargs: Any):
-    p = run(*args, msg=msg, verbose=verbose, stdout=PIPE, universal_newlines=True, **kwargs)
+    p = run(*args, msg=msg, verbose=verbose, stream=False, stdout=PIPE, universal_newlines=True, **kwargs)
     return p.stdout
 
 
@@ -42,13 +66,30 @@ def find_command(command: str, msg: Optional[str] = None) -> str:
         raise RuntimeError(msg or f"Command '{command}' not found in PATH")
     return cmd_path
 
-def configure(build_dir: str = "build", build_type: str = "RelWithDebInfo",
+def detect_generator() -> Optional[str]:
+    if which("ninja"):
+        return "Ninja"
+    
+    system = platform.system()
+    if system == "Windows" and which("msbuild"):
+        return None
+    elif system in ("Linux", "Darwin") and which("make"):
+        return "Unix Makefiles"
+    
+    return None
+
+@handle_build_errors
+def configure(build_dir: str = None, build_type: str = None,
               with_tests: bool = False, with_examples: bool = False,
               sanitize: bool = False, coverage: bool = False,
               generator: Optional[str] = None, toolchain: Optional[str] = None,
-              cmake_path: str = "cmake", ninja: bool = False,
+              cmake_path: str = None, ninja: bool = False,
               D: Optional[List[str]] = None, **kwargs: Any) -> None:
 
+    build_dir = build_dir or Config.DEFAULT_BUILD_DIR
+    build_type = build_type or Config.DEFAULT_BUILD_TYPE
+    cmake_path = cmake_path or Config.DEFAULT_CMAKE
+    
     basedir = Path(__file__).parent.absolute()
     cmake = find_command(cmake_path, msg="CMake is required")
     
@@ -64,11 +105,16 @@ def configure(build_dir: str = "build", build_type: str = "RelWithDebInfo",
         cmake_options.extend(FLAG_MAP["sanitize"])
     if coverage:
         cmake_options.extend(FLAG_MAP["coverage"])
-    
+        
     if ninja:
         cmake_options.append("-GNinja")
     elif generator:
         cmake_options.append(f"-G{generator}")
+    else:
+        detected = detect_generator()
+        if detected:
+            print(f"Auto-detected generator: {detected}")
+            cmake_options.append(f"-G{detected}")
     
     if toolchain:
         cmake_options.append(f"-DCMAKE_TOOLCHAIN_FILE={toolchain}")
@@ -80,13 +126,17 @@ def configure(build_dir: str = "build", build_type: str = "RelWithDebInfo",
     print(f"\nConfiguration complete. Build directory: {build_dir}")
 
 
-def build(build_dir: str = "build", jobs: Optional[int] = None,
-          target: Optional[str] = None, cmake_path: str = "cmake",
+@handle_build_errors
+def build(build_dir: str = None, jobs: Optional[int] = None,
+          target: Optional[str] = None, cmake_path: str = None,
           skip_build: bool = False, config: Optional[str] = None, **kwargs: Any) -> None:
 
     if skip_build:
         print("Skipping build as requested.")
         return
+    
+    build_dir = build_dir or Config.DEFAULT_BUILD_DIR
+    cmake_path = cmake_path or Config.DEFAULT_CMAKE
     
     if not os.path.exists(build_dir):
         raise RuntimeError(f"Build directory '{build_dir}' not found. Run configure first.")
@@ -132,9 +182,12 @@ def detect_build_config(build_dir: str) -> Optional[str]:
     return None
 
 
-def test(build_dir: str = "build", cpp: bool = False, all: bool = False,
+@handle_build_errors
+def test(build_dir: str = None, cpp: bool = False, all: bool = False,
          config: Optional[str] = None, rest: Optional[List[str]] = None, 
          **kwargs: Any) -> None:
+    build_dir = build_dir or Config.DEFAULT_BUILD_DIR
+    
     if not os.path.exists(build_dir):
         raise RuntimeError(f"Build directory '{build_dir}' not found.")
     
@@ -157,8 +210,11 @@ def test(build_dir: str = "build", cpp: bool = False, all: bool = False,
     print("\nTests complete.")
 
 
-def clean(build_dir: str = "build", **kwargs: Any) -> None:
+@handle_build_errors
+def clean(build_dir: str = None, **kwargs: Any) -> None:
     import shutil
+    build_dir = build_dir or Config.DEFAULT_BUILD_DIR
+    
     if os.path.exists(build_dir):
         print(f"Removing build directory: {build_dir}")
         shutil.rmtree(build_dir)
@@ -167,8 +223,10 @@ def clean(build_dir: str = "build", **kwargs: Any) -> None:
         print(f"Build directory '{build_dir}' does not exist.")
 
 
-def format_code(clang_format_path: str = "clang-format", fix: bool = False, **kwargs: Any) -> None:
+@handle_build_errors
+def format_code(clang_format_path: str = None, fix: bool = False, **kwargs: Any) -> None:
     from glob import glob
+    clang_format_path = clang_format_path or Config.DEFAULT_CLANG_FORMAT
     basedir = Path(__file__).parent.absolute()
     
     command = find_command(clang_format_path, msg="clang-format is required")
@@ -189,6 +247,7 @@ def format_code(clang_format_path: str = "clang-format", fix: bool = False, **kw
     print("Format complete." if fix else "Format check complete.")
 
 
+@handle_build_errors
 def check(subcommand: str = None, **kwargs: Any) -> None:
     if subcommand == "format":
         format_code(fix=False, **kwargs)
@@ -198,10 +257,15 @@ def check(subcommand: str = None, **kwargs: Any) -> None:
         print("Usage: build.py check {format|tidy}")
 
 
-def check_tidy(build_dir: str = "build", jobs: Optional[int] = None,
-               clang_tidy_path: str = "clang-tidy",
-               run_clang_tidy_path: str = "run-clang-tidy",
+@handle_build_errors
+def check_tidy(build_dir: str = None, jobs: Optional[int] = None,
+               clang_tidy_path: str = None,
+               run_clang_tidy_path: str = None,
                fix: bool = False, **kwargs: Any) -> None:
+    build_dir = build_dir or Config.DEFAULT_BUILD_DIR
+    clang_tidy_path = clang_tidy_path or Config.DEFAULT_CLANG_TIDY
+    run_clang_tidy_path = run_clang_tidy_path or Config.DEFAULT_RUN_CLANG_TIDY
+    
     tidy_command = find_command(clang_tidy_path, msg="clang-tidy is required")
     
     compile_commands = Path(build_dir) / 'compile_commands.json'
@@ -232,6 +296,7 @@ def check_tidy(build_dir: str = "build", jobs: Optional[int] = None,
     print("Tidy check complete.")
 
 
+@handle_build_errors
 def prepare(**kwargs: Any) -> None:
     basedir = Path(__file__).parent.absolute()
     hooks_dir = basedir / "scripts"
@@ -266,6 +331,7 @@ def prepare(**kwargs: Any) -> None:
     print("Development environment prepared.")
 
 
+@handle_build_errors
 def package(subcommand: str = None, release_version: str = None, **kwargs: Any) -> None:
     if subcommand == "source":
         if not release_version:
@@ -281,6 +347,29 @@ def package(subcommand: str = None, release_version: str = None, **kwargs: Any) 
         print(f"Source package created: {tarball}")
     else:
         print("Usage: build.py package source --release-version VERSION")
+
+@handle_build_errors
+def all_command(build_dir: str = None, build_type: str = None,
+                with_tests: bool = False, with_examples: bool = False,
+                sanitize: bool = False, coverage: bool = False,
+                jobs: Optional[int] = None, skip_tests: bool = False,
+                config: Optional[str] = None, **kwargs: Any) -> None:
+    build_dir = build_dir or Config.DEFAULT_BUILD_DIR
+    build_type = build_type or Config.DEFAULT_BUILD_TYPE
+    
+    print("Running complete build workflow...")
+    
+    configure(build_dir=build_dir, build_type=build_type,
+              with_tests=with_tests, with_examples=with_examples,
+              sanitize=sanitize, coverage=coverage, **kwargs)
+    
+    build(build_dir=build_dir, jobs=jobs, config=config, **kwargs)
+    
+    if with_tests and not skip_tests:
+        test(build_dir=build_dir, config=config, **kwargs)
+    
+    print("\nWorkflow complete!")
+
 
 if __name__ == '__main__':
     parser = ArgumentParser(
@@ -356,6 +445,20 @@ if __name__ == '__main__':
     p_src.set_defaults(func=package)
     p.set_defaults(func=package)
     
+    p = subparsers.add_parser('all', help="Run configure + build + test")
+    p.add_argument('build_dir', nargs='?', default=Config.DEFAULT_BUILD_DIR)
+    p.add_argument('--build-type', default=Config.DEFAULT_BUILD_TYPE)
+    p.add_argument('--with-tests', action='store_true')
+    p.add_argument('--with-examples', action='store_true')
+    p.add_argument('--sanitize', action='store_true')
+    p.add_argument('--coverage', action='store_true')
+    p.add_argument('-j', '--jobs', type=int, help="Number of parallel build jobs")
+    p.add_argument('--config', help='Build/test configuration (Debug, Release, etc.)')
+    p.add_argument('--skip-tests', action='store_true', help="Skip running tests")
+    p.add_argument('--cmake-path', default=Config.DEFAULT_CMAKE)
+    p.add_argument('-D', action='append', metavar='key=value', help="CMake definitions")
+    p.set_defaults(func=all_command)
+    
     args = parser.parse_args()
     
     if not hasattr(args, 'func'):
@@ -366,8 +469,4 @@ if __name__ == '__main__':
     func = arg_dict.pop('func')
     arg_dict.pop('command', None)
     
-    try:
-        func(**arg_dict)
-    except Exception as e:
-        print(f"\nError: {e}", file=sys.stderr)
-        sys.exit(1)
+    func(**arg_dict)
