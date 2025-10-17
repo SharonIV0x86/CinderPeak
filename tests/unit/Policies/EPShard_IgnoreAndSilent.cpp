@@ -1,5 +1,7 @@
 #include "CinderExceptions.hpp"
 #include "PolicyConfiguration.hpp"
+#include <filesystem>
+#include <fstream>
 #include <gtest/gtest.h>
 #include <string>
 
@@ -21,7 +23,36 @@ public:
   PeakStatus sc_alreadyExists = PeakStatus::AlreadyExists();
   PeakStatus sc_edgeAlreadyExists = PeakStatus::EdgeAlreadyExists();
 
+  const std::string test_log_file = "test_policy.log";
+
   IgnoreAndSilentPolicyTest() : policy(ignoreAndSilent_cfg) {}
+
+  void SetUp() override {
+    if (std::filesystem::exists(test_log_file)) {
+      std::filesystem::remove(test_log_file);
+    }
+  }
+
+  bool logFileExists() { return std::filesystem::exists(test_log_file); }
+
+  bool logFileIsEmpty() {
+    if (!logFileExists())
+      return true;
+    std::ifstream file(test_log_file);
+    return file.peek() == std::ifstream::traits_type::eof();
+  }
+
+  void verifyCompletelySilent() {
+    std::string stdout_output = testing::internal::GetCapturedStdout();
+    std::string stderr_output = testing::internal::GetCapturedStderr();
+
+    EXPECT_TRUE(stdout_output.empty())
+        << "Expected no console stdout output, but got: " << stdout_output;
+    EXPECT_TRUE(stderr_output.empty())
+        << "Expected no console stderr output, but got: " << stderr_output;
+    EXPECT_TRUE(!logFileExists() || logFileIsEmpty())
+        << "Expected no log file or empty log file, but file contains data";
+  }
 };
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_NotFound) {
@@ -29,13 +60,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_NotFound) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_notFound));
+  EXPECT_NO_THROW(policy.log(LogLevel::INFO, "NotFound log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_InvalidArgument) {
@@ -43,13 +70,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_InvalidArgument) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_invalidArgument));
+  EXPECT_NO_THROW(policy.log(LogLevel::ERROR, "InvalidArgument log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_VertexAlreadyExists) {
@@ -57,13 +80,10 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_VertexAlreadyExists) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_vertexAlreadyExists));
+  EXPECT_NO_THROW(
+      policy.log(LogLevel::WARNING, "VertexAlreadyExists log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_InternalError) {
@@ -71,13 +91,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_InternalError) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_internalError));
+  EXPECT_NO_THROW(policy.log(LogLevel::ERROR, "InternalError log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_EdgeNotFound) {
@@ -85,13 +101,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_EdgeNotFound) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_edgeNotFound));
+  EXPECT_NO_THROW(policy.log(LogLevel::INFO, "EdgeNotFound log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_VertexNotFound) {
@@ -99,13 +111,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_VertexNotFound) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_vertexNotFound));
+  EXPECT_NO_THROW(policy.log(LogLevel::INFO, "VertexNotFound log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_Unimplemented) {
@@ -113,13 +121,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_Unimplemented) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_unimplemented));
+  EXPECT_NO_THROW(policy.log(LogLevel::WARNING, "Unimplemented log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_AlreadyExists) {
@@ -127,13 +131,9 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_AlreadyExists) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_alreadyExists));
+  EXPECT_NO_THROW(policy.log(LogLevel::WARNING, "AlreadyExists log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_EdgeAlreadyExists) {
@@ -141,13 +141,10 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_EdgeAlreadyExists) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_edgeAlreadyExists));
+  EXPECT_NO_THROW(
+      policy.log(LogLevel::WARNING, "EdgeAlreadyExists log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_MultipleExceptions) {
@@ -155,15 +152,13 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_MultipleExceptions) {
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_vertexNotFound));
+  EXPECT_NO_THROW(policy.log(LogLevel::INFO, "First log message"));
   EXPECT_NO_THROW(policy.handleException(sc_edgeNotFound));
+  EXPECT_NO_THROW(policy.log(LogLevel::ERROR, "Second log message"));
   EXPECT_NO_THROW(policy.handleException(sc_invalidArgument));
+  EXPECT_NO_THROW(policy.log(LogLevel::DEBUG, "Third log message"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_RepeatedException) {
@@ -172,14 +167,11 @@ TEST_F(IgnoreAndSilentPolicyTest, IgnoreAndSilent_RepeatedException) {
 
   for (int i = 0; i < 3; ++i) {
     EXPECT_NO_THROW(policy.handleException(sc_invalidArgument));
+    EXPECT_NO_THROW(policy.log(LogLevel::INFO,
+                               "Repeated log message " + std::to_string(i)));
   }
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
 
 TEST_F(IgnoreAndSilentPolicyTest,
@@ -190,11 +182,7 @@ TEST_F(IgnoreAndSilentPolicyTest,
   testing::internal::CaptureStderr();
 
   EXPECT_NO_THROW(policy.handleException(sc_custom_edgeNotFound));
+  EXPECT_NO_THROW(policy.log(LogLevel::ERROR, "Custom message log"));
 
-  std::string stdout_output = testing::internal::GetCapturedStdout();
-  std::string stderr_output = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(stdout_output.empty())
-      << "Expected no console stdout output, but got: " << stdout_output;
-  EXPECT_TRUE(stderr_output.empty())
-      << "Expected no console stderr output, but got: " << stderr_output;
+  verifyCompletelySilent();
 }
