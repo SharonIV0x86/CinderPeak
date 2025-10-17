@@ -127,7 +127,8 @@ public:
   }
 };
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_NotFound) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_NotFound) {
   try {
     policy.handleException(sc_notFound);
     FAIL() << "Expected NotFoundException not thrown";
@@ -143,7 +144,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_NotFound) 
   verifyConsoleOutput("Not Found", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_InvalidArgument) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_InvalidArgument) {
   try {
     policy.handleException(sc_invalidArgument);
     FAIL() << "Expected InvalidArgumentException not thrown";
@@ -159,7 +161,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_InvalidArg
   verifyConsoleOutput("Invalid Argument", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_VertexAlreadyExists) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_VertexAlreadyExists) {
   try {
     policy.handleException(sc_vertexAlreadyExists);
     FAIL() << "Expected VertexAlreadyExistsException not thrown";
@@ -175,7 +178,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_VertexAlre
   verifyConsoleOutput("Vertex Already Exists", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_InternalError) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_InternalError) {
   try {
     policy.handleException(sc_internalError);
     FAIL() << "Expected InternalErrorException not thrown";
@@ -191,7 +195,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_InternalEr
   verifyConsoleOutput("Internal Error", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_EdgeNotFound) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_EdgeNotFound) {
   try {
     policy.handleException(sc_edgeNotFound);
     FAIL() << "Expected EdgeNotFoundException not thrown";
@@ -207,7 +212,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_EdgeNotFou
   verifyConsoleOutput("Edge Not Found", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_VertexNotFound) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_VertexNotFound) {
   try {
     policy.handleException(sc_vertexNotFound);
     FAIL() << "Expected VertexNotFoundException not thrown";
@@ -223,7 +229,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_VertexNotF
   verifyConsoleOutput("Vertex Not Found", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_Unimplemented) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_Unimplemented) {
   try {
     policy.handleException(sc_unimplemented);
     FAIL() << "Expected UnimplementedException not thrown";
@@ -240,7 +247,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_Unimplemen
   verifyConsoleOutput("Method is not implemented", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_AlreadyExists) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_AlreadyExists) {
   try {
     policy.handleException(sc_alreadyExists);
     FAIL() << "Expected AlreadyExistsException not thrown";
@@ -256,7 +264,8 @@ TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_AlreadyExi
   verifyConsoleOutput("Already Exists", consoleOutput);
 }
 
-TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_EdgeAlreadyExists) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest,
+       ThrowAndLogFileAndConsole_EdgeAlreadyExists) {
   try {
     policy.handleException(sc_edgeAlreadyExists);
     FAIL() << "Expected EdgeAlreadyExistsException not thrown";
