@@ -15,7 +15,7 @@ using namespace CinderPeak;
 
 static const std::string kTestLogPath = "test_logfile_and_console_policy.log";
 
-class PolicyShardTest : public ::testing::Test {
+class ThrowAndLogFileAndConsolePolicyTest : public ::testing::Test {
 public:
   PolicyConfiguration throwAndLogFC_cfg{PolicyConfiguration::Throw,
                                         PolicyConfiguration::ConsoleAndFile,
@@ -32,7 +32,7 @@ public:
   PeakStatus sc_alreadyExists = PeakStatus::AlreadyExists();
   PeakStatus sc_edgeAlreadyExists = PeakStatus::EdgeAlreadyExists();
 
-  PolicyShardTest() : policy(throwAndLogFC_cfg) {}
+  ThrowAndLogFileAndConsolePolicyTest() : policy(throwAndLogFC_cfg) {}
 
   void SetUp() override {
     std::ofstream ofs(kTestLogPath, std::ios::trunc);
@@ -127,7 +127,7 @@ public:
   }
 };
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_NotFound) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_NotFound) {
   try {
     policy.handleException(sc_notFound);
     FAIL() << "Expected NotFoundException not thrown";
@@ -143,7 +143,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_NotFound) {
   verifyConsoleOutput("Not Found", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_InvalidArgument) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_InvalidArgument) {
   try {
     policy.handleException(sc_invalidArgument);
     FAIL() << "Expected InvalidArgumentException not thrown";
@@ -159,7 +159,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_InvalidArgument) {
   verifyConsoleOutput("Invalid Argument", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_VertexAlreadyExists) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_VertexAlreadyExists) {
   try {
     policy.handleException(sc_vertexAlreadyExists);
     FAIL() << "Expected VertexAlreadyExistsException not thrown";
@@ -175,7 +175,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_VertexAlreadyExists) {
   verifyConsoleOutput("Vertex Already Exists", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_InternalError) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_InternalError) {
   try {
     policy.handleException(sc_internalError);
     FAIL() << "Expected InternalErrorException not thrown";
@@ -191,7 +191,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_InternalError) {
   verifyConsoleOutput("Internal Error", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_EdgeNotFound) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_EdgeNotFound) {
   try {
     policy.handleException(sc_edgeNotFound);
     FAIL() << "Expected EdgeNotFoundException not thrown";
@@ -207,7 +207,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_EdgeNotFound) {
   verifyConsoleOutput("Edge Not Found", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_VertexNotFound) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_VertexNotFound) {
   try {
     policy.handleException(sc_vertexNotFound);
     FAIL() << "Expected VertexNotFoundException not thrown";
@@ -223,7 +223,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_VertexNotFound) {
   verifyConsoleOutput("Vertex Not Found", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_Unimplemented) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_Unimplemented) {
   try {
     policy.handleException(sc_unimplemented);
     FAIL() << "Expected UnimplementedException not thrown";
@@ -240,7 +240,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_Unimplemented) {
   verifyConsoleOutput("Method is not implemented", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_AlreadyExists) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_AlreadyExists) {
   try {
     policy.handleException(sc_alreadyExists);
     FAIL() << "Expected AlreadyExistsException not thrown";
@@ -256,7 +256,7 @@ TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_AlreadyExists) {
   verifyConsoleOutput("Already Exists", consoleOutput);
 }
 
-TEST_F(PolicyShardTest, ThrowAndLogFileAndConsole_EdgeAlreadyExists) {
+TEST_F(ThrowAndLogFileAndConsolePolicyTest, ThrowAndLogFileAndConsole_EdgeAlreadyExists) {
   try {
     policy.handleException(sc_edgeAlreadyExists);
     FAIL() << "Expected EdgeAlreadyExistsException not thrown";
