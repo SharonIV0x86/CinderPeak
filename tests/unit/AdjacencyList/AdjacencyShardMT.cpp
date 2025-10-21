@@ -1,5 +1,5 @@
-#include "StorageEngine/AdjacencyList.hpp"
 #include "PolicyConfiguration.hpp"
+#include "StorageEngine/AdjacencyList.hpp"
 #include <gtest/gtest.h>
 #include <thread>
 

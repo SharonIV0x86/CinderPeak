@@ -30,7 +30,7 @@ private:
   PolicyHandler pHandler = nullptr;
 
 public:
-  AdjacencyList(const PolicyHandler &pHandler) : pHandler(pHandler){};
+  AdjacencyList(const PolicyHandler &pHandler) : pHandler(pHandler) {};
   // AdjacencyList(){};
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) override {
