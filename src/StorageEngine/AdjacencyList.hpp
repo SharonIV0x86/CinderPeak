@@ -212,7 +212,6 @@ public:
     return PeakStatus::EdgeNotFound();
   }
 
-  // Method to check whether a vertex exists or not
   bool impl_hasVertex(const VertexType &v) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
