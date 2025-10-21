@@ -27,7 +27,7 @@ private:
                      VertexHasher<VertexType>>
       _adj_list;
   mutable std::shared_mutex _mtx;
-  PolicyHandler pHandler = nullptr;
+  PolicyHandler pHandler;
 
 public:
   AdjacencyList(const PolicyHandler &pHandler) : pHandler(pHandler) {};
