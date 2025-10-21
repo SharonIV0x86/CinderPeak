@@ -1,4 +1,5 @@
 #include "StorageEngine/AdjacencyList.hpp"
+#include "PolicyConfiguration.hpp"
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -8,8 +9,9 @@ using namespace PeakStore;
 // Base Fixture for Primitive Types
 class AdjacencyStorageTestMT : public ::testing::Test, public CinderVertex {
 protected:
-  AdjacencyList<int, int> intGraph;
-  AdjacencyList<std::string, float> stringGraph;
+  PolicyHandler policyHandler;
+  AdjacencyList<int, int> intGraph{policyHandler};
+  AdjacencyList<std::string, float> stringGraph{policyHandler};
 
   void SetUp() override {
     intGraph.impl_addVertex(1);
@@ -29,7 +31,7 @@ protected:
 };
 class AdjacencyListThreadTest : public ::testing::Test {
 protected:
-  AdjacencyList<int, int> threadGraph;
+  AdjacencyList<int, int> threadGraph{PolicyHandler()};
 
   void SetUp() override {
     for (int i = 1; i <= 100; ++i) {

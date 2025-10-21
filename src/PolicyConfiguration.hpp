@@ -56,7 +56,6 @@ private:
 
 class PolicyHandler {
   std::shared_ptr<PolicyConfiguration> cfg;
-
   const PeakExceptions::GraphException
   handleExceptionMap(const PeakStatus &status) {
     switch (status.code()) {
@@ -87,6 +86,7 @@ public:
   PolicyHandler(const PolicyConfiguration &cfg) {
     this->cfg = std::make_shared<PolicyConfiguration>(cfg);
   }
+  PolicyHandler(){};
 
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
