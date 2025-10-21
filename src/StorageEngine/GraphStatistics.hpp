@@ -82,8 +82,8 @@ public:
     return *this;
   }
 
-  GraphInternalMetadata(GraphInternalMetadata &&) = default;
-  GraphInternalMetadata &operator=(GraphInternalMetadata &&) = default;
+  GraphInternalMetadata(GraphInternalMetadata &&) = delete;
+  GraphInternalMetadata &operator=(GraphInternalMetadata &&) = delete;
 
   const bool isGraphWeighted() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
