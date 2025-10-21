@@ -28,7 +28,6 @@ private:
   std::unordered_map<VertexType, size_t, VertexHasher<VertexType>>
       vertex_to_index;
 
-  // Thread safety primitives
   mutable std::shared_mutex _mtx;
   mutable std::atomic<bool> is_built_{false};
   std::atomic<size_t> COO_BUFFER_THRESHOLD_{1024};
@@ -244,7 +243,6 @@ public:
     return PeakStatus::OK();
   }
 
-  // Method to remove an edge
   const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
     auto weight = EdgeType();
@@ -330,7 +328,6 @@ public:
     return PeakStatus::OK();
   }
 
-  // Method to remove all vertices
   const PeakStatus impl_clearVertices() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     clearCOOArrays();
@@ -352,7 +349,6 @@ public:
     return PeakStatus::OK();
   }
 
-  // Method to remove all edges
   const PeakStatus impl_clearEdges() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     clearCOOArrays();
@@ -368,7 +364,6 @@ public:
     return PeakStatus::OK();
   }
 
-  // Method to check whether a vertex exists or not
   bool impl_hasVertex(const VertexType &v) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     if (!vertex_to_index.count(v)) {
@@ -446,7 +441,7 @@ public:
 
       for (size_t row = 0; row < vertex_order.size(); ++row) {
         if (row == idx)
-          continue; // skip this vertex
+          continue;
         size_t start = csr_row_offsets[row];
         size_t end = csr_row_offsets[row + 1];
         for (size_t j = start; j < end; ++j) {

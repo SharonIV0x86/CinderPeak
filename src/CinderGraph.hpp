@@ -22,7 +22,6 @@ public:
   CinderGraphRowProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s)
       : graph(g), src(s) {}
 
-  // Handle g["A"]["B"]
   EdgeType operator[](const VertexType &dest) const {
     auto [optWeight, found] = graph.getEdge(src, dest);
     if (!found || !optWeight.has_value()) {
@@ -31,17 +30,14 @@ public:
     return *optWeight;
   }
 
-  // Allow assignment g["A"]["B"] = 5.0
   CinderGraphRowProxy &operator=(const EdgeType &newWeight) = delete;
 
-  // Support weighted edge insertion/update
   CinderGraphRowProxy &operator()(const VertexType &dest,
                                   const EdgeType &weight) {
     graph.addEdge(src, dest, weight);
     return *this;
   }
 
-  // Alternatively, use assignment-style syntax:
   struct EdgeAssignProxy {
     CinderGraph<VertexType, EdgeType> &graph;
     VertexType src, dest;
@@ -182,7 +178,7 @@ public:
 
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
-      return {newWeight, false}; // still return attempted new weight
+      return {newWeight, false};
     }
 
     return {newWeight, true};
@@ -204,9 +200,6 @@ public:
     CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
         toggle);
   }
-  // ===============================
-  // Add this section before the closing brace of CinderGraph
-  // ===============================
   CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
     return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
   }
