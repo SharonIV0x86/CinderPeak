@@ -82,7 +82,6 @@ public:
     return *this;
   }
 
-  // Allow move constructor and move assignment operator
   GraphInternalMetadata(GraphInternalMetadata &&) = default;
   GraphInternalMetadata &operator=(GraphInternalMetadata &&) = default;
 
