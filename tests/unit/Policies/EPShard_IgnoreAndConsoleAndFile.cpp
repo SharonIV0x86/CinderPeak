@@ -14,9 +14,9 @@
 using namespace CinderPeak;
 
 static const std::string kTestLogPath =
-    "test_logfile_and_console_ignore_policy.log";
+    "test_console_and_file_ignore_policy.log";
 
-class IgnoreAndLogFileAndConsolePolicyTest : public ::testing::Test {
+class IgnoreAndConsoleAndFilePolicyTest : public ::testing::Test {
 public:
   PolicyConfiguration ignoreAndLogFC_cfg{PolicyConfiguration::Ignore,
                                          PolicyConfiguration::ConsoleAndFile,
@@ -33,7 +33,7 @@ public:
   PeakStatus sc_alreadyExists = PeakStatus::AlreadyExists();
   PeakStatus sc_edgeAlreadyExists = PeakStatus::EdgeAlreadyExists();
 
-  IgnoreAndLogFileAndConsolePolicyTest() : policy(ignoreAndLogFC_cfg) {}
+  IgnoreAndConsoleAndFilePolicyTest() : policy(ignoreAndLogFC_cfg) {}
 
   void SetUp() override {
     std::ofstream ofs(kTestLogPath, std::ios::trunc);
@@ -128,8 +128,7 @@ public:
   }
 };
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_NotFound) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_NotFound) {
   EXPECT_NO_THROW(policy.handleException(sc_notFound));
 
   testing::internal::CaptureStderr();
@@ -140,8 +139,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Not Found", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_InvalidArgument) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_InvalidArgument) {
   EXPECT_NO_THROW(policy.handleException(sc_invalidArgument));
 
   testing::internal::CaptureStderr();
@@ -152,8 +151,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Invalid Argument", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_VertexAlreadyExists) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_VertexAlreadyExists) {
   EXPECT_NO_THROW(policy.handleException(sc_vertexAlreadyExists));
 
   testing::internal::CaptureStderr();
@@ -164,8 +163,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Vertex Already Exists", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_InternalError) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_InternalError) {
   EXPECT_NO_THROW(policy.handleException(sc_internalError));
 
   testing::internal::CaptureStderr();
@@ -176,8 +175,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Internal Error", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_EdgeNotFound) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_EdgeNotFound) {
   EXPECT_NO_THROW(policy.handleException(sc_edgeNotFound));
 
   testing::internal::CaptureStderr();
@@ -188,8 +187,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Edge Not Found", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_VertexNotFound) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_VertexNotFound) {
   EXPECT_NO_THROW(policy.handleException(sc_vertexNotFound));
 
   testing::internal::CaptureStderr();
@@ -200,8 +199,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Vertex Not Found", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_Unimplemented) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_Unimplemented) {
   EXPECT_NO_THROW(policy.handleException(sc_unimplemented));
 
   testing::internal::CaptureStderr();
@@ -212,8 +211,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Method is not implemented", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_AlreadyExists) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_AlreadyExists) {
   EXPECT_NO_THROW(policy.handleException(sc_alreadyExists));
 
   testing::internal::CaptureStderr();
@@ -224,8 +223,8 @@ TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
   verifyConsoleOutput("Already Exists", consoleOutput);
 }
 
-TEST_F(IgnoreAndLogFileAndConsolePolicyTest,
-       IgnoreAndLogFileAndConsole_EdgeAlreadyExists) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest,
+       IgnoreAndConsoleAndFile_EdgeAlreadyExists) {
   EXPECT_NO_THROW(policy.handleException(sc_edgeAlreadyExists));
 
   testing::internal::CaptureStderr();
