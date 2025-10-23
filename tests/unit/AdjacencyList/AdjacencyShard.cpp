@@ -1,3 +1,4 @@
+#include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
 #include <gtest/gtest.h>
 #include <thread>
@@ -8,8 +9,9 @@ using namespace PeakStore;
 // Base Fixture for Primitive Types
 class AdjacencyStorageShardTest : public ::testing::Test, public CinderVertex {
 protected:
-  AdjacencyList<int, int> intGraph;
-  AdjacencyList<std::string, float> stringGraph;
+  PolicyHandler policyHandler;
+  AdjacencyList<int, int> intGraph{policyHandler};
+  AdjacencyList<std::string, float> stringGraph{policyHandler};
 
   void SetUp() override {
     intGraph.impl_addVertex(1);
@@ -48,7 +50,7 @@ class ComplexGraph : public ::testing::Test {
 public:
   ComplexAdjVertex v1, v2, v3;
   ComplexAdjEdge e1, e2;
-  AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph;
+  AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph{PolicyHandler()};
   ComplexGraph() {
     v1 = ComplexAdjVertex(1, "Vertex1");
     v2 = ComplexAdjVertex(2, "Vertex2");
@@ -170,7 +172,7 @@ TEST_F(AdjacencyStorageShardTest, ClearVerticesWithEdges) {
 }
 
 TEST_F(AdjacencyStorageShardTest, ClearVerticesEmptyGraph) {
-  AdjacencyList<int, int> emptyGraph;
+  AdjacencyList<int, int> emptyGraph{policyHandler};
 
   EXPECT_TRUE(emptyGraph.impl_clearVertices().isOK());
 
@@ -222,7 +224,7 @@ TEST_F(AdjacencyStorageShardTest, ClearVerticesStringGraph) {
 }
 
 TEST_F(AdjacencyStorageShardTest, ClearVerticesLargeGraph) {
-  AdjacencyList<int, int> largeGraph;
+  AdjacencyList<int, int> largeGraph{policyHandler};
 
   for (int i = 0; i < 100000; ++i) {
     EXPECT_TRUE(largeGraph.impl_addVertex(i).isOK());
@@ -541,7 +543,7 @@ struct CustomVertex : public CinderVertex {
 };
 
 TEST(AdjacencyListCustomTest, CustomVertexType) {
-  AdjacencyList<CustomVertex, float> customGraph;
+  AdjacencyList<CustomVertex, float> customGraph{PolicyHandler()};
 
   CustomVertex v1{1, "Node1"};
   CustomVertex v2{2, "Node2"};

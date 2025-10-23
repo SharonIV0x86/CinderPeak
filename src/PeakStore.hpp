@@ -24,9 +24,9 @@ private:
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
     ctx->hybrid_storage =
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
-    ctx->adjacency_storage =
-        std::make_shared<AdjacencyList<VertexType, EdgeType>>();
     ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
+    ctx->adjacency_storage =
+    std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
     ctx->active_storage = ctx->adjacency_storage;
   }
 

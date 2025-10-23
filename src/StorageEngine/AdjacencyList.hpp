@@ -1,5 +1,6 @@
 #pragma once
 #include "Concepts.hpp"
+#include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "Utils.hpp"
@@ -26,10 +27,11 @@ private:
                      VertexHasher<VertexType>>
       _adj_list;
   mutable std::shared_mutex _mtx;
+  PolicyHandler pHandler;
 
 public:
-  AdjacencyList() { LOG_INFO("Initialized Adjacency List object"); }
-
+  AdjacencyList(const PolicyHandler &pHandler) : pHandler(pHandler) {};
+  // AdjacencyList(){};
   const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
