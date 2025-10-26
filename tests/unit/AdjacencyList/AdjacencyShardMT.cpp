@@ -6,7 +6,6 @@
 using namespace CinderPeak;
 using namespace PeakStore;
 
-// Base Fixture for Primitive Types
 class AdjacencyStorageTestMT : public ::testing::Test, public CinderVertex {
 protected:
   PolicyHandler policyHandler;
@@ -77,7 +76,6 @@ TEST_F(AdjacencyListThreadTest, ConcurrentVertexAddition) {
   }
 }
 
-// Added test to validate concurrent vertex removal
 TEST_F(AdjacencyListThreadTest, ConcurrentVertexRemoval) {
   for (int i = 1; i <= 10000; ++i) {
     threadGraph.impl_addVertex(50000 + i);
