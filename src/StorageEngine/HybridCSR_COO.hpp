@@ -245,14 +245,12 @@ public:
 
   const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     auto weight = EdgeType();
 
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return std::make_pair(weight, PeakStatus::VertexNotFound());
-    }
-
-    if (!impl_doesEdgeExist(src, dest)) {
-      return std::make_pair(weight, PeakStatus::EdgeNotFound());
     }
 
     for (size_t i = coo_src.size(); i > 0; --i) {
@@ -265,7 +263,7 @@ public:
       }
     }
 
-    if (!is_built_) {
+    if (!is_built_.load(std::memory_order_acquire)) {
       return std::make_pair(weight, PeakStatus::EdgeNotFound());
     }
 
@@ -287,8 +285,10 @@ public:
       for (size_t i = row + 1; i < csr_row_offsets.size(); ++i) {
         csr_row_offsets[i]--;
       }
+
+      return std::make_pair(weight, PeakStatus::OK());
     }
-    return std::make_pair(weight, PeakStatus::OK());
+    return std::make_pair(weight, PeakStatus::EdgeNotFound());
   }
 
   const PeakStatus impl_updateEdge(const VertexType &src,
