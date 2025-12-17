@@ -10,10 +10,17 @@
 #include <memory>
 #include <random>
 #include <sstream>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 namespace CinderPeak {
+
+// Engine-level stable vertex identifier
+using VertexId = uint64_t;
+
+// Graph creation options (unchanged)
 class GraphCreationOptions {
 public:
   enum GraphType {
@@ -30,7 +37,6 @@ public:
   static GraphCreationOptions getDefaultCreateOptions() {
     const GraphCreationOptions DEFAULT_GRAPH_OPTIONS(
         {GraphCreationOptions::Directed, GraphCreationOptions::SelfLoops});
-
     return DEFAULT_GRAPH_OPTIONS;
   }
 
@@ -39,9 +45,12 @@ public:
 private:
   std::bitset<8> options;
 };
+
+// Forward declaration of hashers
 template <typename T, typename Enable = void> struct VertexHasher;
 template <typename T, typename Enable = void> struct EdgeHasher;
 
+// Primitive or std::string hashing - uses std::hash
 template <typename T>
 struct VertexHasher<
     T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T> ||
@@ -49,23 +58,32 @@ struct VertexHasher<
   std::size_t operator()(const T &v) const { return std::hash<T>{}(v); }
 };
 
+// Class types (user-defined vertex classes).
+// IMPORTANT: Only hash stable identity fields (e.g. __id_). Do NOT rely on
+// mutable names.
 template <typename T>
 struct VertexHasher<T, std::enable_if_t<std::is_class_v<T> &&
                                         !std::is_same_v<T, std::string>>> {
   std::size_t operator()(const T &v) const {
-    return std::hash<int>{}(v.__id_) ^
-           (std::hash<std::string>{}(v.__v___name) << 1);
+    // Expectation: user-defined vertex types provide a stable __id_ (size_t)
+    // Fallback: if no __id_ exists at compile time, this will fail to compile,
+    // which is desirable (forces user to provide the field).
+    return std::hash<size_t>{}(v.__id_);
   }
   VertexHasher() = default;
   VertexHasher(const VertexHasher &) = default;
   VertexHasher &operator=(const VertexHasher &) = default;
 };
+
+// Edge hasher for primitive types and string
 template <typename T>
 struct EdgeHasher<
     T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T> ||
                         std::is_same_v<T, std::string>>> {
   std::size_t operator()(const T &v) const { return std::hash<T>{}(v); }
 };
+
+// Pair hasher for (VertexType, EdgeType) pairs (used rarely)
 template <typename VertexType, typename EdgeType> struct PairHasher {
   std::size_t operator()(const std::pair<VertexType, EdgeType> &p) const {
     return VertexHasher<VertexType>{}(p.first) ^
@@ -73,13 +91,14 @@ template <typename VertexType, typename EdgeType> struct PairHasher {
   }
 };
 
-std::string __generate_vertex_name() {
+// Random name generator (unchanged)
+inline std::string __generate_vertex_name() {
   std::random_device rd;
   std::mt19937 gen(rd());
   const std::string charset =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const size_t name_length = 10;
-  std::uniform_int_distribution<> dist(0, charset.size() - 1);
+  std::uniform_int_distribution<> dist(0, (int)charset.size() - 1);
   std::stringstream ss;
   for (size_t i = 0; i < name_length; ++i) {
     ss << charset[dist(gen)];
@@ -91,6 +110,9 @@ std::string __generate_vertex_name() {
   ss << "_" << duration;
   return ss.str();
 }
+
+// A simple vertex class for examples / tests. Keep as user-data only.
+// Note: __id_ here is not the engine's VertexId (they are independent).
 class CinderVertex {
 public:
   size_t __id_;
@@ -101,7 +123,9 @@ public:
     __id_ = nextId++;
     __v___name = __generate_vertex_name();
   }
-  CinderVertex(std::string vertexName) : __v___name{vertexName} {};
+  CinderVertex(std::string vertexName) : __v___name{vertexName} {
+    __id_ = nextId++;
+  };
 
   bool operator<(const CinderVertex &other) const {
     return __id_ < other.__id_;
@@ -113,7 +137,7 @@ public:
     return this->__id_ != other.__id_;
   }
 
-  const std::string __to_vertex_string() { return __v___name; }
+  const std::string __to_vertex_string() const { return __v___name; }
 };
 
 class CinderEdge {
@@ -125,7 +149,9 @@ public:
     __id_ = nextId++;
     __e___name = __generate_vertex_name();
   }
-  CinderEdge(std::string edge_name) : __e___name{edge_name} {};
+  CinderEdge(std::string edge_name) : __e___name{edge_name} {
+    __id_ = nextId++;
+  };
 
   bool operator<(const CinderEdge &other) const { return __id_ < other.__id_; }
   bool operator>(const CinderEdge &other) const { return __id_ > other.__id_; }
@@ -136,11 +162,11 @@ public:
     return this->__id_ != other.__id_;
   }
 
-  const std::string __to_edge_string() { return __e___name; }
+  const std::string __to_edge_string() const { return __e___name; }
 };
 
-size_t CinderPeak::CinderVertex::nextId = 1;
-size_t CinderPeak::CinderEdge::nextId = 1;
+inline size_t CinderVertex::nextId = 1;
+inline size_t CinderEdge::nextId = 1;
 
 namespace Exceptions {
 inline void handle_exception_map(const PeakStatus &status) {
@@ -169,6 +195,7 @@ inline void handle_exception_map(const PeakStatus &status) {
   }
 }
 } // namespace Exceptions
+
 struct Unweighted {};
 inline bool operator==(const Unweighted &, const Unweighted &) noexcept {
   return true;
