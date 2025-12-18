@@ -2,9 +2,6 @@
 
 A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. It provides a flexible, templated API for graph manipulation, analysis.
 
-A fast and efficient, open-source C++ graph library built to handle a wide range of graph types. 
-It provides a flexible, templated API for graph manipulation and analysis.
-
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![C++](https://img.shields.io/badge/Built%20with-C%2B%2B17%2FC%2B%2B20-blue)
 ![Dependencies](https://img.shields.io/badge/Dependencies-GTest-red)
