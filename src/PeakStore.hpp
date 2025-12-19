@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
@@ -28,6 +29,9 @@ private:
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
     ctx->active_storage = ctx->adjacency_storage;
+    ctx->algorithms = std::make_shared<
+        Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
+        ctx->hybrid_storage);
   }
 
 public:
@@ -39,7 +43,7 @@ public:
     initializeContext(metadata, options, cfg);
     LOG_INFO("Successfully initialized context object.");
   }
-
+  void bfs() { ctx->algorithms->bfs(); }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
     bool isWeighted = ctx->metadata->isGraphWeighted();

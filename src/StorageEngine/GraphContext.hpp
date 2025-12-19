@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "PeakLogger.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
@@ -23,6 +24,8 @@ public:
   std::shared_ptr<PeakStorageInterface<VertexType, EdgeType>> active_storage =
       nullptr;
   std::shared_ptr<PolicyHandler> pHandler = nullptr;
+  std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>
+      algorithms = nullptr;
 };
 
 } // namespace PeakStore

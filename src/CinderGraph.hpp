@@ -203,6 +203,7 @@ public:
   CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
     return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
   }
+  void bfs() { peak_store->bfs(); }
 
   const CinderGraphRowProxy<VertexType, EdgeType>
   operator[](const VertexType &v) const {
