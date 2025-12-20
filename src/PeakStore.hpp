@@ -43,7 +43,16 @@ public:
     initializeContext(metadata, options, cfg);
     LOG_INFO("Successfully initialized context object.");
   }
-  void bfs() { ctx->algorithms->bfs(); }
+  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+    Algorithms::BFSResult<VertexType> result;
+    if (!hasVertex(src)) {
+      result._status =
+          PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
+      return result;
+    }
+    result = std::move(ctx->algorithms->bfs(src));
+    return result;
+  }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
     bool isWeighted = ctx->metadata->isGraphWeighted();
