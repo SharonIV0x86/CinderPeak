@@ -12,7 +12,7 @@ int main() {
     for (const auto &x : result.order_) {
       std::cout << "Got: " << x << " ";
     }
-  }else{
+  } else {
     std::cout << result._status.toString() << "\n";
   }
   std::cout << "\n";
