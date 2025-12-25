@@ -6,13 +6,13 @@
 #include <thread>
 #include <vector>
 
-TEST_F(AdjacencyStorageShardTest, CheckVertexExistence) {
+TEST_F(AdjacencyStorageShardTest, HasVertices) {
   EXPECT_TRUE(intGraph.impl_hasVertex(2));
   EXPECT_TRUE(intGraph.impl_hasVertex(5));
   EXPECT_FALSE(intGraph.impl_hasVertex(200));
 }
 
-TEST_F(AdjacencyStorageShardTest, CheckVertexEmptyGraph) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_EmptyGraph) {
   PolicyHandler emptyPolicyHandler;
   AdjacencyList<int, int> emptyGraph{emptyPolicyHandler};
 
@@ -22,7 +22,7 @@ TEST_F(AdjacencyStorageShardTest, CheckVertexEmptyGraph) {
   EXPECT_FALSE(emptyGraph.impl_hasVertex(999));
 }
 
-TEST_F(AdjacencyStorageShardTest, CheckVertexMultipleAdditions) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_MultipleAdditions) {
 
   AdjacencyList<int, int> graph{policyHandler};
   std::vector<int> vertices = {1, 5, 10, 15, 20, 25, 30};
@@ -40,7 +40,7 @@ TEST_F(AdjacencyStorageShardTest, CheckVertexMultipleAdditions) {
   EXPECT_FALSE(graph.impl_hasVertex(100));
 }
 
-TEST_F(AdjacencyStorageShardTest, CheckVertexDeleted) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_Deleted) {
 
   AdjacencyList<int, int> graph{policyHandler};
   graph.impl_addVertex(100);
@@ -55,7 +55,7 @@ TEST_F(AdjacencyStorageShardTest, CheckVertexDeleted) {
   EXPECT_TRUE(graph.impl_hasVertex(300));
 }
 
-TEST_F(AdjacencyStorageShardTest, CheckVertexMix) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_Mix) {
 
   AdjacencyList<int, int> graph{policyHandler};
 
@@ -69,25 +69,7 @@ TEST_F(AdjacencyStorageShardTest, CheckVertexMix) {
   EXPECT_TRUE(graph.impl_hasVertex(75));
 }
 
-TEST_F(AdjacencyStorageShardTest, CheckDeletedVertices) {
-
-  AdjacencyList<int, int> graph{policyHandler};
-  std::vector<int> vertices = {1, 2, 3, 4, 5};
-
-  for (int v : vertices) {
-    graph.impl_addVertex(v);
-  }
-
-  for (int v : vertices) {
-    graph.impl_removeVertex(v);
-  }
-
-  for (int v : vertices) {
-    EXPECT_FALSE(graph.impl_hasVertex(v));
-  }
-}
-
-TEST_F(AdjacencyStorageShardTest, CheckStringVertices) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_String) {
   EXPECT_TRUE(stringGraph.impl_hasVertex("A"));
   EXPECT_TRUE(stringGraph.impl_hasVertex("B"));
   EXPECT_TRUE(stringGraph.impl_hasVertex("C"));
@@ -102,7 +84,7 @@ TEST_F(AdjacencyStorageShardTest, CheckStringVertices) {
   EXPECT_FALSE(stringGraph.impl_hasVertex("cherry"));
 }
 
-TEST_F(ComplexGraph, CheckComplexVertices) {
+TEST_F(ComplexGraph, HasComplexVertices) {
   EXPECT_TRUE(complexGraph.impl_hasVertex(v1));
   EXPECT_TRUE(complexGraph.impl_hasVertex(v2));
   EXPECT_TRUE(complexGraph.impl_hasVertex(v3));
@@ -114,7 +96,7 @@ TEST_F(ComplexGraph, CheckComplexVertices) {
   EXPECT_TRUE(complexGraph.impl_hasVertex(v4));
 }
 
-TEST_F(AdjacencyStorageShardTest, CheckVerticesLargeGraph) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_LargeGraph) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int numVertices = 100000;
@@ -133,7 +115,7 @@ TEST_F(AdjacencyStorageShardTest, CheckVerticesLargeGraph) {
   EXPECT_FALSE(graph.impl_hasVertex(-1));
 }
 
-TEST_F(AdjacencyStorageShardTest, ConcurrentReads) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentReads) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int numVertices = 1000;
@@ -163,7 +145,7 @@ TEST_F(AdjacencyStorageShardTest, ConcurrentReads) {
   EXPECT_EQ(successCount.load(), numThreads * numVertices);
 }
 
-TEST_F(AdjacencyStorageShardTest, ConcurrentAddAndRead) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentAddAndRead) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int numOperations = 500;
@@ -197,7 +179,7 @@ TEST_F(AdjacencyStorageShardTest, ConcurrentAddAndRead) {
   EXPECT_EQ(addCount.load(), (numThreads / 2) * numOperations);
 }
 
-TEST_F(AdjacencyStorageShardTest, ConcurrentDeleteAndRead) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int numVertices = 1000;
@@ -236,7 +218,7 @@ TEST_F(AdjacencyStorageShardTest, ConcurrentDeleteAndRead) {
   }
 }
 
-TEST_F(AdjacencyStorageShardTest, ConcurrentMixedOperations) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentMix) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int numOperations = 200;
@@ -277,7 +259,7 @@ TEST_F(AdjacencyStorageShardTest, ConcurrentMixedOperations) {
   EXPECT_GT(readCount.load(), 0);
 }
 
-TEST_F(AdjacencyStorageShardTest, StressTestConcurrent) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int numThreads = 8;
@@ -328,7 +310,7 @@ TEST_F(AdjacencyStorageShardTest, StressTestConcurrent) {
   }
 }
 
-TEST_F(AdjacencyStorageShardTest, RaceConditionDetection) {
+TEST_F(AdjacencyStorageShardTest, HasVertices_RaceConditionDetection) {
 
   AdjacencyList<int, int> graph{policyHandler};
   const int targetVertex = 999;
