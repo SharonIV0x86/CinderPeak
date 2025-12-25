@@ -440,7 +440,8 @@ public:
         continue;
       const VertexType &v = vdIt->second;
       std::cout << "Vertex (id=" << id
-                << "): " << /* try to print user type */ "" << "\n";
+                << "): " << /* try to print user type */ ""
+                << "\n";
       for (const auto &pr : kv.second) {
         VertexId nbId = pr.first;
         auto nbIt = _vertex_data.find(nbId);
