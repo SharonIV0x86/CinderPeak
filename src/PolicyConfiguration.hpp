@@ -86,7 +86,7 @@ public:
   PolicyHandler(const PolicyConfiguration &cfg) {
     this->cfg = std::make_shared<PolicyConfiguration>(cfg);
   }
-  PolicyHandler() {};
+  PolicyHandler(){};
 
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
