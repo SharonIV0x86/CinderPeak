@@ -7,6 +7,8 @@ int main() {
   try {
     // 1. Unweighted graph
     cout << "--- Unweighted Graph ---" << endl;
+    PolicyConfiguration p(PolicyConfiguration::ErrorPolicy::Throw,
+                          PolicyConfiguration::LoggingPolicy::LogConsole);
     CinderGraph<int, Unweighted> g1;
     g1.addVertex(1);
     g1.addVertex(2);
@@ -41,7 +43,7 @@ int main() {
     cout << "\n--- Parallel Edges ---" << endl;
     GraphCreationOptions parallelOpts(
         {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
-    CinderGraph<int, int> g3(parallelOpts);
+    CinderGraph<int, int> g3(parallelOpts, p);
     g3.addVertex(1);
     g3.addVertex(2);
 

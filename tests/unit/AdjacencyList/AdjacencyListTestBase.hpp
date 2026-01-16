@@ -51,7 +51,8 @@ class ComplexGraph : public ::testing::Test {
 public:
   ComplexAdjVertex v1, v2, v3;
   ComplexAdjEdge e1, e2;
-  AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph{PolicyHandler()};
+  PolicyHandler pl;
+  AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph{pl};
   ComplexGraph() {
     v1 = ComplexAdjVertex(1, "Vertex1");
     v2 = ComplexAdjVertex(2, "Vertex2");
