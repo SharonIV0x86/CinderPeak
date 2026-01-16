@@ -121,7 +121,7 @@ public:
     VertexId destId = destIt->second;
 
     // Append neighbor; duplicate edges allowed only if policy allows, this is
-    controlled by PeakStore auto &neighbors = _adj[srcId];
+    auto &neighbors = _adj[srcId];
     neighbors.emplace_back(destId, weight);
     return PeakStatus::OK();
   }
