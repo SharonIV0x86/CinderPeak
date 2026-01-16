@@ -86,7 +86,7 @@ public:
   PolicyHandler(const PolicyConfiguration &cfg) {
     this->cfg = std::make_shared<PolicyConfiguration>(cfg);
   }
-  PolicyHandler(){};
+  PolicyHandler() { this->cfg = std::make_shared<PolicyConfiguration>(); };
 
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
@@ -98,7 +98,7 @@ public:
     throw handleExceptionMap(status);
   }
 
-  inline void log(const LogLevel &level, const std::string &message) {
+  inline void log(const LogLevel &level, const std::string &message) const {
     int l = static_cast<int>(cfg->getLoggingPolicy());
     Logger::log(level, message, l, cfg->getLogFilePath());
   }
