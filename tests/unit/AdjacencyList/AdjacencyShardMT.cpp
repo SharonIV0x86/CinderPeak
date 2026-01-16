@@ -30,7 +30,8 @@ protected:
 };
 class AdjacencyListThreadTest : public ::testing::Test {
 protected:
-  AdjacencyList<int, int> threadGraph{PolicyHandler()};
+  PolicyHandler policy;
+  AdjacencyList<int, int> threadGraph{policy};
 
   void SetUp() override {
     for (int i = 1; i <= 100; ++i) {

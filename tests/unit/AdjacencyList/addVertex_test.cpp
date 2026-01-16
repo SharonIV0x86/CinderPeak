@@ -61,7 +61,8 @@ TEST_F(AdjacencyStorageShardTest, AddVerticesString) {
 }
 
 TEST(AdjacencyListCustomTest, CustomVertexType) {
-  AdjacencyList<CustomVertex, float> customGraph{PolicyHandler()};
+  PolicyHandler policy;
+  AdjacencyList<CustomVertex, float> customGraph{policy};
 
   CustomVertex v1{1, "Node1"};
   CustomVertex v2{2, "Node2"};
