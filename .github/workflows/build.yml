@@ -96,76 +96,76 @@ jobs:
     - name: Run clang-format (check)
       run: clang-format --Werror --dry-run $(git ls-files '*.cpp' '*.h' || true)
 
-clang-tidy-full:
-  name: Clang-Tidy Full Project Analysis
-  runs-on: ubuntu-latest
-  continue-on-error: true
+  clang-tidy-full-analysis:
+    name: Clang-Tidy Full Project Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
 
-  steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-  - name: Install dependencies
-    run: |
-      sudo apt-get update
-      sudo apt-get install -y clang clang-tidy python3
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang clang-tidy python3
 
-  - name: Configure CMake (export compile_commands)
-    run: |
-      cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+    - name: Configure CMake (export compile_commands)
+      run: |
+        cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
-  - name: Build project
-    run: |
-      cmake --build build -- -j$(nproc)
+    - name: Build project
+      run: |
+        cmake --build build -- -j$(nproc)
 
-  - name: Run clang-tidy on ALL C/C++ files (FULL REPORT)
-    id: run_tidy
-    run: |
-      mkdir -p tidy-reports
+    - name: Run clang-tidy on ALL C/C++ files (FULL REPORT)
+      id: run_tidy
+      run: |
+        mkdir -p tidy-reports
 
-      echo "Collecting all C/C++ source and header files..."
+        echo "Collecting all C/C++ source and header files..."
 
-      find . \
-        -type f \
-        \( \
-          -name '*.c' -o \
-          -name '*.cc' -o \
-          -name '*.cpp' -o \
-          -name '*.cxx' -o \
-          -name '*.h' -o \
-          -name '*.hpp' \
-        \) \
-        ! -path './build/*' \
-        > tidy-reports/files.txt
+        find . \
+          -type f \
+          \( \
+            -name '*.c' -o \
+            -name '*.cc' -o \
+            -name '*.cpp' -o \
+            -name '*.cxx' -o \
+            -name '*.h' -o \
+            -name '*.hpp' \
+          \) \
+          ! -path './build/*' \
+          > tidy-reports/files.txt
 
-      FILE_COUNT=$(wc -l < tidy-reports/files.txt)
-      echo "Found $FILE_COUNT files"
+        FILE_COUNT=$(wc -l < tidy-reports/files.txt)
+        echo "Found $FILE_COUNT files"
 
-      if [ "$FILE_COUNT" -eq 0 ]; then
-        echo "No C/C++ files found."
-        exit 0
-      fi
+        if [ "$FILE_COUNT" -eq 0 ]; then
+          echo "No C/C++ files found."
+          exit 0
+        fi
 
-      echo "Running clang-tidy (this may take time)..."
+        echo "Running clang-tidy (this may take time)..."
 
-      set +e
-      while IFS= read -r file; do
-        echo "===== $file =====" >> tidy-reports/clang-tidy-report.txt
-        clang-tidy "$file" -p build \
-          >> tidy-reports/clang-tidy-report.txt 2>&1
-        echo "" >> tidy-reports/clang-tidy-report.txt
-      done < tidy-reports/files.txt
-      set -e
+        set +e
+        while IFS= read -r file; do
+          echo "===== $file =====" >> tidy-reports/clang-tidy-report.txt
+          clang-tidy "$file" -p build \
+            >> tidy-reports/clang-tidy-report.txt 2>&1
+          echo "" >> tidy-reports/clang-tidy-report.txt
+        done < tidy-reports/files.txt
+        set -e
 
-      echo "Clang-tidy analysis completed."
+        echo "Clang-tidy analysis completed."
 
-  - name: Upload clang-tidy report
-    uses: actions/upload-artifact@v4
-    with:
-      name: clang-tidy-full-report
-      path: tidy-reports/clang-tidy-report.txt
+    - name: Upload clang-tidy report
+      uses: actions/upload-artifact@v4
+      with:
+        name: clang-tidy-full-report
+        path: tidy-reports/clang-tidy-report.txt
 
   release:
     name: Release Packaging
