@@ -80,8 +80,9 @@ public:
       _vertex_data.try_emplace(assignedId, v);
       _adj.try_emplace(assignedId);
 
+      //TODO: this is a test log for output check so remove it in future.
       logMsg =
-          std::string("Vertex added with id=") + std::to_string(assignedId);
+          std::string("Vertex added with id= ") + std::to_string(assignedId);
     }
 
     // perform logging outside of the lock to avoid blocking critical sections
@@ -120,7 +121,7 @@ public:
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    // Append neighbor; duplicate edges allowed only if policy allows, this is
+    // Append neighbor; duplicate edges allowed only if policy allows.
     auto &neighbors = _adj[srcId];
     neighbors.emplace_back(destId, weight);
     return PeakStatus::OK();

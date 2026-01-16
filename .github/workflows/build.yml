@@ -3,8 +3,8 @@
 on:
   pull_request:
   push:
-    branches: [main]
-    tags: ["v*"]
+    branches: [ main ]
+    tags: [ "v*" ]
 
 jobs:
   build-and-test:
@@ -13,162 +13,178 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        compiler: [gcc, clang, msvc]
-        build_type: [Debug, Release]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        compiler: [ gcc, clang, msvc ]
+        build_type: [ Debug, Release ]
         exclude:
-          - os: macos-latest
-            compiler: msvc
-          - os: windows-latest
-            compiler: gcc
-          - os: windows-latest
-            compiler: clang
+        - os: macos-latest
+          compiler: msvc
+        - os: windows-latest
+          compiler: gcc
+        - os: windows-latest
+          compiler: clang
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1
-        with:
-          cmake-version: '3.20'
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v1
+      with:
+        cmake-version: '3.20'
 
-      - name: Setup Ninja
-        if: matrix.os == 'windows-latest'
-        uses: seanmiddleditch/gha-setup-ninja@master
+    - name: Setup Ninja
+      if: matrix.os == 'windows-latest'
+      uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Setup MSVC
-        if: matrix.compiler == 'msvc'
-        uses: ilammy/msvc-dev-cmd@v1
+    - name: Setup MSVC
+      if: matrix.compiler == 'msvc'
+      uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+    - name: Configure CMake
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
 
-      - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
+    - name: Build
+      run: cmake --build build --config ${{ matrix.build_type }}
 
-      - name: Run Tests (CTest)
-        run: ctest --test-dir build --output-on-failure
+    - name: Run Tests (CTest)
+      run: ctest --test-dir build --output-on-failure
 
-      - name: Upload binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: binaries-${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.build_type }}
-          path: build/bin/
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: binaries-${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.build_type }}
+        path: build/bin/
 
   coverage:
     name: Coverage (Linux GCC)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install gcovr
-        run: sudo apt-get update && sudo apt-get install -y gcovr
-      - name: Configure CMake (Coverage)
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCOVERAGE=ON
-      - name: Build
-        run: cmake --build build
-      - name: Run Tests
-        run: ctest --test-dir build --output-on-failure
-      - name: Generate Coverage
-        run: gcovr -r . --xml-pretty > coverage.xml
-      - uses: codecov/codecov-action@v4
-        with:
-          files: coverage.xml
+    - uses: actions/checkout@v4
+    - name: Install gcovr
+      run: sudo apt-get update && sudo apt-get install -y gcovr
+    - name: Configure CMake (Coverage)
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCOVERAGE=ON
+    - name: Build
+      run: cmake --build build
+    - name: Run Tests
+      run: ctest --test-dir build --output-on-failure
+    - name: Generate Coverage
+      run: gcovr -r . --xml-pretty > coverage.xml
+    - uses: codecov/codecov-action@v4
+      with:
+        files: coverage.xml
 
   sanitizers:
     name: Sanitizers (Linux Clang)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure (ASAN + UBSAN)
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE_ADDRESS=ON -DSANITIZE_UNDEFINED=ON
-      - name: Build
-        run: cmake --build build
-      - name: Run Tests
-        run: ctest --test-dir build --output-on-failure
+    - uses: actions/checkout@v4
+    - name: Configure (ASAN + UBSAN)
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE_ADDRESS=ON -DSANITIZE_UNDEFINED=ON
+    - name: Build
+      run: cmake --build build
+    - name: Run Tests
+      run: ctest --test-dir build --output-on-failure
 
   lint:
     name: Lint & Static Analysis
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install tools
-        run: sudo apt-get update && sudo apt-get install -y clang-format python3-pip
-      - name: Run clang-format (check)
-        run: clang-format --Werror --dry-run $(git ls-files '*.cpp' '*.h' || true)
+    - uses: actions/checkout@v4
+    - name: Install tools
+      run: sudo apt-get update && sudo apt-get install -y clang-format python3-pip
+    - name: Run clang-format (check)
+      run: clang-format --Werror --dry-run $(git ls-files '*.cpp' '*.h' || true)
 
-  clang-tidy-report:
-    name: Clang-Tidy (CI-only, report only)
-    runs-on: ubuntu-latest
-    # Only run on PRs, main branch, or tags (adjust if you want different triggers)
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+clang-tidy-full:
+  name: Clang-Tidy Full Project Analysis
+  runs-on: ubuntu-latest
+  continue-on-error: true
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1
-        with:
-          cmake-version: '3.20'
+  steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
 
-      - name: Install clang-tidy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-tidy
+  - name: Install dependencies
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y clang clang-tidy python3
 
-      - name: Configure (export compile_commands.json)
-        run: cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  - name: Configure CMake (export compile_commands)
+    run: |
+      cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
-      - name: Run clang-tidy (produce report, do not fail)
-        id: run_tidy
-        continue-on-error: true
-        run: |
-          mkdir -p tidy-reports
-          files=$(git ls-files '*.cpp' '*.cc' '*.cxx' '*.c' 2>/dev/null || true)
-          if [ -z "$files" ]; then
-            echo "No C/C++ files found."
-            echo "report_path=none" >> $GITHUB_OUTPUT
-            exit 0
-          fi
+  - name: Build project
+    run: |
+      cmake --build build -- -j$(nproc)
 
-          echo "Running clang-tidy on: $files"
-          # don't let clang-tidy non-zero exit fail the step (report only)
-          set +e
+  - name: Run clang-tidy on ALL C/C++ files (FULL REPORT)
+    id: run_tidy
+    run: |
+      mkdir -p tidy-reports
 
-          for f in $files; do
-            echo "===== $f =====" >> tidy-reports/clang-tidy.txt
-            # -p build points clang-tidy at compile_commands.json generated by CMake
-            clang-tidy -p build "$f" >> tidy-reports/clang-tidy.txt 2>&1
-            echo "" >> tidy-reports/clang-tidy.txt
-          done
+      echo "Collecting all C/C++ source and header files..."
 
-          set -e
-          echo "report_path=tidy-reports/clang-tidy.txt" >> $GITHUB_OUTPUT
+      find . \
+        -type f \
+        \( \
+          -name '*.c' -o \
+          -name '*.cc' -o \
+          -name '*.cpp' -o \
+          -name '*.cxx' -o \
+          -name '*.h' -o \
+          -name '*.hpp' \
+        \) \
+        ! -path './build/*' \
+        > tidy-reports/files.txt
 
-      - name: Upload clang-tidy report
-        if: steps.run_tidy.outputs.report_path != 'none'
-        uses: actions/upload-artifact@v4
-        with:
-          name: clang-tidy-report
-          path: tidy-reports/clang-tidy.txt
+      FILE_COUNT=$(wc -l < tidy-reports/files.txt)
+      echo "Found $FILE_COUNT files"
+
+      if [ "$FILE_COUNT" -eq 0 ]; then
+        echo "No C/C++ files found."
+        exit 0
+      fi
+
+      echo "Running clang-tidy (this may take time)..."
+
+      set +e
+      while IFS= read -r file; do
+        echo "===== $file =====" >> tidy-reports/clang-tidy-report.txt
+        clang-tidy "$file" -p build \
+          >> tidy-reports/clang-tidy-report.txt 2>&1
+        echo "" >> tidy-reports/clang-tidy-report.txt
+      done < tidy-reports/files.txt
+      set -e
+
+      echo "Clang-tidy analysis completed."
+
+  - name: Upload clang-tidy report
+    uses: actions/upload-artifact@v4
+    with:
+      name: clang-tidy-full-report
+      path: tidy-reports/clang-tidy-report.txt
 
   release:
     name: Release Packaging
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-      - name: Build
-        run: cmake --build build --config Release
-      - name: Package
-        run: cpack -C Release
-      - name: Upload Release Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-packages
-          path: build/*.tar.gz
-      - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: build/*.tar.gz
+    - uses: actions/checkout@v4
+    - name: Configure CMake
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    - name: Build
+      run: cmake --build build --config Release
+    - name: Package
+      run: cpack -C Release
+    - name: Upload Release Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-packages
+        path: build/*.tar.gz
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: build/*.tar.gz
