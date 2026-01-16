@@ -17,18 +17,11 @@
 
 namespace CinderPeak {
 
-// Engine-level stable vertex identifier
 using VertexId = uint64_t;
 
-// Graph creation options (unchanged)
 class GraphCreationOptions {
 public:
-  enum GraphType {
-    Directed = 0,
-    SelfLoops,
-    ParallelEdges,
-    Undirected,
-  };
+  enum GraphType { Directed = 0, SelfLoops, ParallelEdges, Undirected };
   GraphCreationOptions(std::initializer_list<GraphType> graph_types) {
     for (auto type : graph_types) {
       options.set(type);
@@ -55,19 +48,28 @@ template <typename T>
 struct VertexHasher<
     T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T> ||
                         std::is_same_v<T, std::string>>> {
-  std::size_t operator()(const T &v) const { return std::hash<T>{}(v); }
+  std::size_t operator()(const T &v) const noexcept {
+    return std::hash<T>{}(v);
+  }
 };
+
+// Helper to detect __id_ member for user-defined types
+template <typename, typename = void> struct has___id : std::false_type {};
+template <typename T>
+struct has___id<T, std::void_t<decltype(std::declval<T>().__id_)>>
+    : std::true_type {};
 
 // Class types (user-defined vertex classes).
 // IMPORTANT: Only hash stable identity fields (e.g. __id_). Do NOT rely on
-// mutable names.
+// mutable names. This will fail at compile-time if the user type does not
+// provide a stable __id_. This is desirable: it forces the user to expose a
+// stable identity for consistent hashing.
 template <typename T>
 struct VertexHasher<T, std::enable_if_t<std::is_class_v<T> &&
                                         !std::is_same_v<T, std::string>>> {
-  std::size_t operator()(const T &v) const {
-    // Expectation: user-defined vertex types provide a stable __id_ (size_t)
-    // Fallback: if no __id_ exists at compile time, this will fail to compile,
-    // which is desirable (forces user to provide the field).
+  static_assert(has___id<T>::value,
+                "VertexType must provide a stable member '__id_' for hashing");
+  std::size_t operator()(const T &v) const noexcept {
     return std::hash<size_t>{}(v.__id_);
   }
   VertexHasher() = default;
@@ -80,25 +82,37 @@ template <typename T>
 struct EdgeHasher<
     T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T> ||
                         std::is_same_v<T, std::string>>> {
-  std::size_t operator()(const T &v) const { return std::hash<T>{}(v); }
+  std::size_t operator()(const T &v) const noexcept {
+    return std::hash<T>{}(v);
+  }
 };
 
 // Pair hasher for (VertexType, EdgeType) pairs (used rarely)
 template <typename VertexType, typename EdgeType> struct PairHasher {
-  std::size_t operator()(const std::pair<VertexType, EdgeType> &p) const {
+  std::size_t
+  operator()(const std::pair<VertexType, EdgeType> &p) const noexcept {
     return VertexHasher<VertexType>{}(p.first) ^
            (EdgeHasher<EdgeType>{}(p.second) << 1);
   }
 };
 
-// Random name generator (unchanged)
+// Random name generator (improved: thread_local RNG to avoid repeated
+// expensive reseeding on every call)
 inline std::string __generate_vertex_name() {
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  thread_local std::mt19937 gen([] {
+    std::random_device rd;
+    std::seed_seq seq{
+        rd(), rd(), rd(),
+        static_cast<unsigned>(std::chrono::high_resolution_clock::now()
+                                  .time_since_epoch()
+                                  .count())};
+    return std::mt19937(seq);
+  }());
+
   const std::string charset =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const size_t name_length = 10;
-  std::uniform_int_distribution<> dist(0, (int)charset.size() - 1);
+  std::uniform_int_distribution<> dist(0, static_cast<int>(charset.size() - 1));
   std::stringstream ss;
   for (size_t i = 0; i < name_length; ++i) {
     ss << charset[dist(gen)];
@@ -107,7 +121,9 @@ inline std::string __generate_vertex_name() {
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
                       now.time_since_epoch())
                       .count();
-  ss << "_" << duration;
+  static std::atomic<uint64_t> name_counter{0};
+  ss << "_" << duration << "_"
+     << name_counter.fetch_add(1, std::memory_order_relaxed);
   return ss.str();
 }
 
@@ -136,7 +152,7 @@ public:
   bool operator!=(const CinderVertex &other) const {
     return this->__id_ != other.__id_;
   }
-
+  virtual ~CinderVertex() = default;
   const std::string __to_vertex_string() const { return __v___name; }
 };
 
@@ -161,6 +177,7 @@ public:
   bool operator!=(const CinderEdge &other) const {
     return this->__id_ != other.__id_;
   }
+  virtual ~CinderEdge() = default;
 
   const std::string __to_edge_string() const { return __e___name; }
 };
