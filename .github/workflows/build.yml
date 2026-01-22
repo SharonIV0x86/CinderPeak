@@ -40,13 +40,13 @@ jobs:
         if: matrix.compiler == 'msvc'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Configure CMake
+      - name: Configure CMake (Build & Test)
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
 
-      - name: Build
+      - name: Build (Build & Test)
         run: cmake --build build --config ${{ matrix.build_type }}
 
-      - name: Run Tests (CTest)
+      - name: Run Tests (Build & Test)
         run: ctest --test-dir build --output-on-failure
 
       - name: Upload binaries
@@ -64,9 +64,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gcovr
       - name: Configure CMake (Coverage)
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON
-      - name: Build
+      - name: Build (Coverage)
         run: cmake --build build
-      - name: Run Tests
+      - name: Run Tests (Coverage)
         run: ctest --test-dir build --output-on-failure
       - name: Generate Coverage
         run: gcovr -r . --xml-pretty > coverage.xml
@@ -79,11 +79,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configure (ASAN + UBSAN)
+      - name: Configure (Sanitizers)
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE=ON
-      - name: Build
+      - name: Build (Sanitizers)
         run: cmake --build build
-      - name: Run Tests
+      - name: Run Tests (Sanitizers)
         run: ctest --test-dir build --output-on-failure
 
   lint:
@@ -178,9 +178,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - uses: actions/checkout@v4
-      - name: Configure CMake
+      - name: Configure CMake (Release)
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-      - name: Build
+      - name: Build (Release)
         run: cmake --build build --config Release
       - name: Package
         run: cpack -C Release
