@@ -3,7 +3,7 @@ import os
 import subprocess
 
 # Only these folders (and their subfolders) will be formatted
-INCLUDED_DIRS = ["src", "examples", "tests"]
+INCLUDED_DIRS = ["src", "examples", "tests", "Algorithms"]
 EXCLUDE_FILES = ["src/ArialFontDataEmbed.hpp"]
 # File extensions to check
 EXTENSIONS = (".cpp", ".hpp", ".h", ".cc", ".cxx")

@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
@@ -192,6 +193,10 @@ public:
     }
     return {std::make_optional(data), true};
   }
+  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+    return peak_store->bfs(src);
+  }
+
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
@@ -203,7 +208,6 @@ public:
   CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
     return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
   }
-
   const CinderGraphRowProxy<VertexType, EdgeType>
   operator[](const VertexType &v) const {
     return CinderGraphRowProxy<VertexType, EdgeType>(
