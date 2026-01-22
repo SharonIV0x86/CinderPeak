@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
@@ -319,5 +320,37 @@ namespace CinderPeak
       return result;
     }
   };
+    return {newWeight, true};
+  }
+  GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) {
+    LOG_INFO("Called getEdge");
+    auto [data, status] = peak_store->getEdge(src, dest);
+    if (!status.isOK()) {
+      Exceptions::handle_exception_map(status);
+      return {std::nullopt, false};
+    }
+    return {std::make_optional(data), true};
+  }
+  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+    return peak_store->bfs(src);
+  }
+
+  std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
+  size_t numEdges() const { return peak_store->numEdges(); }
+  size_t numVertices() const { return peak_store->numVertices(); }
+
+  static void setConsoleLogging(const bool toggle) {
+    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
+        toggle);
+  }
+  CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
+    return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
+  }
+  const CinderGraphRowProxy<VertexType, EdgeType>
+  operator[](const VertexType &v) const {
+    return CinderGraphRowProxy<VertexType, EdgeType>(
+        const_cast<CinderGraph<VertexType, EdgeType> &>(*this), v);
+  }
+};
 
 } // namespace CinderPeak
