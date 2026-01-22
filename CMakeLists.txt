@@ -55,48 +55,102 @@ function(apply_warning_flags target_name)
             -Wall               # Enable most warning flags
             -Wextra             # Enable extra warning flags
             -Wpedantic          # Warn on language extensions
+        )
+        
+        # Additional safe warnings that work across all versions
+        target_compile_options(${target_name} PRIVATE
             -Wshadow            # Warn when a local variable shadows another
             -Wformat=2          # Extra format string checks
-            -Wconversion        # Warn on implicit type conversions
-            -Wold-style-cast    # Warn on C-style casts
-            -Wcast-align        # Warn on pointer casts with increased alignment
             -Wunused            # Warn on unused entities
-            -Woverloaded-virtual # Warn when derived class hides virtual function
-            -Wdouble-promotion  # Warn on implicit float to double promotion
             -Wnon-virtual-dtor  # Warn on non-virtual destructor
-            -Wno-error          # Do NOT treat warnings as errors
         )
+        
+        # More aggressive warnings (may not be supported on all compilers)
+        # Only add if compiler supports them
+        include(CheckCXXCompilerFlag)
+        
+        check_cxx_compiler_flag("-Wconversion" HAS_WCONVERSION)
+        if(HAS_WCONVERSION)
+            target_compile_options(${target_name} PRIVATE -Wconversion)
+        endif()
+        
+        check_cxx_compiler_flag("-Wold-style-cast" HAS_WOLD_STYLE_CAST)
+        if(HAS_WOLD_STYLE_CAST)
+            target_compile_options(${target_name} PRIVATE -Wold-style-cast)
+        endif()
+        
+        check_cxx_compiler_flag("-Wcast-align" HAS_WCAST_ALIGN)
+        if(HAS_WCAST_ALIGN)
+            target_compile_options(${target_name} PRIVATE -Wcast-align)
+        endif()
+        
+        check_cxx_compiler_flag("-Woverloaded-virtual" HAS_WOVERLOADED_VIRTUAL)
+        if(HAS_WOVERLOADED_VIRTUAL)
+            target_compile_options(${target_name} PRIVATE -Woverloaded-virtual)
+        endif()
+        
+        check_cxx_compiler_flag("-Wdouble-promotion" HAS_WDOUBLE_PROMOTION)
+        if(HAS_WDOUBLE_PROMOTION)
+            target_compile_options(${target_name} PRIVATE -Wdouble-promotion)
+        endif()
+        
+        # IMPORTANT: Do NOT treat warnings as errors - only show them
+        target_compile_options(${target_name} PRIVATE -Wno-error)
         
         # GCC-specific warnings
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-            target_compile_options(${target_name} PRIVATE
-                -Wlogical-op    # Warn on suspicious logical operations
-            )
+            check_cxx_compiler_flag("-Wlogical-op" HAS_WLOGICAL_OP)
+            if(HAS_WLOGICAL_OP)
+                target_compile_options(${target_name} PRIVATE -Wlogical-op)
+            endif()
             
-            # GCC 7+ only warnings
+            # GCC 7+ warnings
             if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7.0)
-                target_compile_options(${target_name} PRIVATE
-                    -Wnull-dereference      # Warn if a null dereference is detected
-                    -Wduplicated-branches   # Warn on duplicated branches
-                    -Wimplicit-fallthrough  # Warn on implicit fallthrough in switch
-                )
+                check_cxx_compiler_flag("-Wnull-dereference" HAS_WNULL_DEREF)
+                if(HAS_WNULL_DEREF)
+                    target_compile_options(${target_name} PRIVATE -Wnull-dereference)
+                endif()
+                
+                check_cxx_compiler_flag("-Wduplicated-branches" HAS_WDUP_BRANCHES)
+                if(HAS_WDUP_BRANCHES)
+                    target_compile_options(${target_name} PRIVATE -Wduplicated-branches)
+                endif()
+                
+                check_cxx_compiler_flag("-Wimplicit-fallthrough" HAS_WIMPLICIT_FALLTHROUGH)
+                if(HAS_WIMPLICIT_FALLTHROUGH)
+                    target_compile_options(${target_name} PRIVATE -Wimplicit-fallthrough)
+                endif()
             endif()
             
             # GCC 6+ warnings
             if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 6.0)
-                target_compile_options(${target_name} PRIVATE
-                    -Wduplicated-cond       # Warn on duplicated conditions
-                    -Wmisleading-indentation # Warn on misleading indentation
-                    -Wuseless-cast          # Warn on useless casts
-                )
+                check_cxx_compiler_flag("-Wduplicated-cond" HAS_WDUP_COND)
+                if(HAS_WDUP_COND)
+                    target_compile_options(${target_name} PRIVATE -Wduplicated-cond)
+                endif()
+                
+                check_cxx_compiler_flag("-Wmisleading-indentation" HAS_WMISLEADING_INDENT)
+                if(HAS_WMISLEADING_INDENT)
+                    target_compile_options(${target_name} PRIVATE -Wmisleading-indentation)
+                endif()
+                
+                check_cxx_compiler_flag("-Wuseless-cast" HAS_WUSELESS_CAST)
+                if(HAS_WUSELESS_CAST)
+                    target_compile_options(${target_name} PRIVATE -Wuseless-cast)
+                endif()
             endif()
         endif()
         
         # Clang-specific warnings
         if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            check_cxx_compiler_flag("-Wrange-loop-analysis" HAS_WRANGE_LOOP)
+            if(HAS_WRANGE_LOOP)
+                target_compile_options(${target_name} PRIVATE -Wrange-loop-analysis)
+            endif()
+            
+            # Disable C++98 compatibility warnings for Clang
             target_compile_options(${target_name} PRIVATE
-                -Wrange-loop-analysis   # Warn on range loop issues
-                -Wno-c++98-compat       # Don't warn about C++98 compatibility
+                -Wno-c++98-compat
                 -Wno-c++98-compat-pedantic
             )
         endif()

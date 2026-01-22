@@ -63,7 +63,7 @@ jobs:
     - name: Install gcovr
       run: sudo apt-get update && sudo apt-get install -y gcovr
     - name: Configure CMake (Coverage)
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCOVERAGE=ON
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON
     - name: Build
       run: cmake --build build
     - name: Run Tests
@@ -80,7 +80,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Configure (ASAN + UBSAN)
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE_ADDRESS=ON -DSANITIZE_UNDEFINED=ON
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE=ON
     - name: Build
       run: cmake --build build
     - name: Run Tests
