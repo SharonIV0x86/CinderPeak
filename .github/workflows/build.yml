@@ -80,7 +80,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure (ASAN + UBSAN)
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE=ON
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE=ON
+      - name: Build
+        run: cmake --build build
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
+
+  lint:
     name: Lint & Static Analysis
     runs-on: ubuntu-latest
     steps:
@@ -88,15 +94,18 @@ jobs:
       - name: Install tools
         run: sudo apt-get update && sudo apt-get install -y clang-format python3-pip
       - name: Run clang-format (check)
-      run: |
-        FILES=$(git ls-files '*.cpp' '*.hpp' '*.h' 2>/dev/null || echo "")
-        if [ -n "$FILES" ]; then
-          echo "$FILES" | xargs clang-format --Werror --dry-run
-        else
-          echo "No C++ files found to check"
-        fi
-    continue-on-error: true
+        run: |
+          FILES=$(git ls-files '*.cpp' '*.hpp' '*.h' 2>/dev/null || echo "")
+          if [ -n "$FILES" ]; then
+            echo "$FILES" | xargs clang-format --Werror --dry-run
+          else
+            echo "No C++ files found to check"
+          fi
 
+  clang-tidy-full-analysis:
+    name: Clang-Tidy Full Project Analysis
+    runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
