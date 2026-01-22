@@ -29,6 +29,80 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(BIN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 
+# === Comprehensive Warning Flags (applied per-target) ===
+option(PEDANTIC_WARNINGS "Enable comprehensive compiler warnings" ON)
+
+# Function to apply warnings to a target
+function(apply_warning_flags target_name)
+    if(NOT PEDANTIC_WARNINGS)
+        return()
+    endif()
+    
+    if(MSVC)
+        # MSVC: Show all useful warnings
+        target_compile_options(${target_name} PRIVATE
+            /W4                 # Enable level 4 warnings (most warnings)
+            /permissive-        # Enforce standards conformance
+            # Disable specific noisy warnings that are not actionable
+            /wd4100             # Unreferenced formal parameter (common in interfaces/templates)
+            /wd4201             # Nonstandard extension used: nameless struct/union
+            /wd4458             # Declaration hides class member
+            /wd4459             # Declaration hides global declaration
+        )
+    else()
+        # GCC/Clang: Enable comprehensive warnings
+        target_compile_options(${target_name} PRIVATE
+            -Wall               # Enable most warning flags
+            -Wextra             # Enable extra warning flags
+            -Wpedantic          # Warn on language extensions
+            -Wshadow            # Warn when a local variable shadows another
+            -Wformat=2          # Extra format string checks
+            -Wconversion        # Warn on implicit type conversions
+            -Wold-style-cast    # Warn on C-style casts
+            -Wcast-align        # Warn on pointer casts with increased alignment
+            -Wunused            # Warn on unused entities
+            -Woverloaded-virtual # Warn when derived class hides virtual function
+            -Wdouble-promotion  # Warn on implicit float to double promotion
+            -Wnon-virtual-dtor  # Warn on non-virtual destructor
+            -Wno-error          # Do NOT treat warnings as errors
+        )
+        
+        # GCC-specific warnings
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            target_compile_options(${target_name} PRIVATE
+                -Wlogical-op    # Warn on suspicious logical operations
+            )
+            
+            # GCC 7+ only warnings
+            if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 7.0)
+                target_compile_options(${target_name} PRIVATE
+                    -Wnull-dereference      # Warn if a null dereference is detected
+                    -Wduplicated-branches   # Warn on duplicated branches
+                    -Wimplicit-fallthrough  # Warn on implicit fallthrough in switch
+                )
+            endif()
+            
+            # GCC 6+ warnings
+            if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 6.0)
+                target_compile_options(${target_name} PRIVATE
+                    -Wduplicated-cond       # Warn on duplicated conditions
+                    -Wmisleading-indentation # Warn on misleading indentation
+                    -Wuseless-cast          # Warn on useless casts
+                )
+            endif()
+        endif()
+        
+        # Clang-specific warnings
+        if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+            target_compile_options(${target_name} PRIVATE
+                -Wrange-loop-analysis   # Warn on range loop issues
+                -Wno-c++98-compat       # Don't warn about C++98 compatibility
+                -Wno-c++98-compat-pedantic
+            )
+        endif()
+    endif()
+endfunction()
+
 add_library(CinderPeak INTERFACE)
 target_include_directories(CinderPeak INTERFACE 
     ${CMAKE_SOURCE_DIR}/src
@@ -41,7 +115,8 @@ if(BUILD_TESTS)
     include(FetchContent)
     FetchContent_Declare(
         googletest
-        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
@@ -60,6 +135,9 @@ foreach(test_file ${TEST_SOURCES})
 
     add_executable(${test_name} ${test_file})
     target_link_libraries(${test_name} PRIVATE CinderPeak GTest::gtest_main)
+    
+    # Apply warning flags to this test target
+    apply_warning_flags(${test_name})
 
     set_target_properties(${test_name} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${BIN_OUTPUT_DIR}/tests/${test_dir}
@@ -97,6 +175,9 @@ if(BUILD_EXAMPLES)
 
         add_executable(${example_target}_example ${example})
         target_link_libraries(${example_target}_example PRIVATE CinderPeak)
+        
+        # Apply warning flags to this example target
+        apply_warning_flags(${example_target}_example)
 
         # Preserve directory structure in output
         set_target_properties(${example_target}_example PROPERTIES
