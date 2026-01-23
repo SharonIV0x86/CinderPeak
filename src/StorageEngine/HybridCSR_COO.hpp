@@ -199,9 +199,10 @@ public:
   }
 
   void orchestrator_rebuildFromAdjList(
-      const std::unordered_map<VertexType,
-                               std::vector<std::pair<VertexType, EdgeType>>,
-                               VertexHasher<VertexType>> &adj_list) {
+    const std::unordered_map<VertexType,
+    std::vector<std::pair<VertexType, EdgeType>>,
+    VertexHasher<VertexType>> &adj_list
+  ) {
     populateFromAdjList(adj_list);
   }
 
