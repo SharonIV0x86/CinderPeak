@@ -197,6 +197,8 @@ public:
     return peak_store->bfs(src);
   }
 
+  std::string toDot() { return peak_store->toDot(); }
+
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }

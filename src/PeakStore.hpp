@@ -210,6 +210,11 @@ public:
     return ctx->metadata->numVertices();
   }
 
+  std::string toDot() {
+    bool directed = ctx->create_options->hasOption(GraphCreationOptions::Directed);
+    return ctx->adjacency_storage->impl_toDot(directed);
+  }
+
   const std::string getGraphStatistics() {
     bool directed;
     if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
