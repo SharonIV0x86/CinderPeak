@@ -80,7 +80,7 @@ public:
       _vertex_data.try_emplace(assignedId, v);
       _adj.try_emplace(assignedId);
 
-      //TODO: this is a test log for output check so remove it in future.
+      // TODO: this is a test log for output check so remove it in future.
       logMsg =
           std::string("Vertex added with id= ") + std::to_string(assignedId);
     }

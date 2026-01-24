@@ -1,28 +1,25 @@
 #include "StorageEngine/HybridCSR_COO.hpp"
+#include <atomic>
 #include <gtest/gtest.h>
 #include <thread>
-#include <vector>
 #include <unordered_map>
-#include <atomic>
+#include <vector>
 
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
 class HybridStorageOrchestratorTest : public ::testing::Test {
 protected:
-  void SetUp() override {
-    graph = std::make_unique<HybridCSR_COO<int, int>>();
-  }
+  void SetUp() override { graph = std::make_unique<HybridCSR_COO<int, int>>(); }
 
-  void TearDown() override {
-    graph.reset();
-  }
+  void TearDown() override { graph.reset(); }
 
   std::unique_ptr<HybridCSR_COO<int, int>> graph;
 };
 
 TEST_F(HybridStorageOrchestratorTest, RebuildFromAdjList) {
-  std::unordered_map<int, std::vector<std::pair<int, int>>, VertexHasher<int>> adj_list;
+  std::unordered_map<int, std::vector<std::pair<int, int>>, VertexHasher<int>>
+      adj_list;
   adj_list[1] = {{2, 10}, {3, 20}};
   adj_list[2] = {{3, 30}};
   adj_list[3] = {};
@@ -36,7 +33,7 @@ TEST_F(HybridStorageOrchestratorTest, RebuildFromAdjList) {
   auto [w2, s2] = graph->impl_getEdge(2, 3);
   EXPECT_TRUE(s2.isOK()) << "Edge (2,3) should exist after rebuild";
   EXPECT_EQ(w2, 30) << "Weight of (2,3) incorrect";
-  
+
   EXPECT_TRUE(graph->impl_hasVertex(3)) << "Vertex 3 should exist";
 }
 
@@ -70,7 +67,7 @@ TEST_F(HybridStorageOrchestratorTest, BuildIfNeeded) {
   graph->impl_addVertex(2);
   graph->impl_addEdge(1, 2, 50); // In COO
 
-  graph->orchestrator_buildIfNeeded(); 
+  graph->orchestrator_buildIfNeeded();
 
   auto [w, s] = graph->impl_getEdge(1, 2);
   EXPECT_TRUE(s.isOK()) << "Edge (1,2) should exist";
@@ -86,9 +83,9 @@ TEST_F(HybridStorageOrchestratorTest, SetCOOThreshold) {
 TEST_F(HybridStorageOrchestratorTest, ConcurrentMergeAndAdd) {
   graph->impl_addVertex(1);
   graph->impl_addVertex(2);
-  
+
   std::atomic<bool> done{false};
-  
+
   std::thread merger([&]() {
     while (!done.load()) {
       graph->orchestrator_mergeBuffer();
@@ -100,15 +97,15 @@ TEST_F(HybridStorageOrchestratorTest, ConcurrentMergeAndAdd) {
   const int NUM_THREADS = 4;
   const int NUM_OPS = 1000;
 
-  for(int i = 0; i < NUM_THREADS; ++i) {
+  for (int i = 0; i < NUM_THREADS; ++i) {
     writers.emplace_back([&, i]() {
-      for(int j = 0; j < NUM_OPS; ++j) {
+      for (int j = 0; j < NUM_OPS; ++j) {
         graph->impl_addEdge(1, 2, j + (i * 1000));
       }
     });
   }
 
-  for(auto& t : writers) {
+  for (auto &t : writers) {
     t.join();
   }
   done.store(true);
