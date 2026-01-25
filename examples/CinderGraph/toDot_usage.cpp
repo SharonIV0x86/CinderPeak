@@ -117,6 +117,12 @@ int main() {
         cout << "\n --- DOT Export (String Vertices) ---" << endl;
         cout << g5.toDot() << endl;
 
+        // ===== 8. File Export Verification =====
+        cout << "\n--- DOT File Export ---" << endl;
+        string filename = "graph_output.dot";
+        g5.toDot(filename);
+        cout << "Exported g1 to file: " << filename << endl;
+
         return 0;
     } catch (const exception& e){
         cerr << "Error: " << e.what() << endl;

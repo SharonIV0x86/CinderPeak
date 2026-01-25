@@ -396,10 +396,21 @@ public:
   }
 
   // Export to DOT format
-  std::string impl_toDot(bool isDirected) const {
+  template <typename V = VertexType, typename E = EdgeType>
+  auto impl_toDot(const GraphCreationOptions &options) const
+      -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
+                              (Traits::isTypePrimitive<E>() ||
+                               Traits::is_unweighted_v<E>),
+                          std::string> {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::stringstream ss;
 
+    bool isDirected = options.hasOption(GraphCreationOptions::Directed);
+    bool allowParallel = options.hasOption(GraphCreationOptions::ParallelEdges);
+
+    if (!allowParallel) {
+      ss << "strict ";
+    }
     ss << (isDirected ? "digraph" : "graph") << " G {\n";
     ss << "  rankdir=LR;\n";
     ss << "  node [shape=circle style=filled fillcolor=\"#E3F2FD\" fontname=\"Arial\"];\n";
@@ -426,8 +437,11 @@ public:
         const EdgeType &weight = edge.second;
 
         ss << "  node_" << srcId << " " << connector << " node_" << destId;
-        // Label with weight
-        ss << " [label=\"" << weight << "\"];\n";
+        
+        if constexpr (!Traits::is_unweighted_v<E>) {
+             ss << " [label=\"" << weight << "\"]";
+        }
+        ss << ";\n";
       }
     }
     ss << "}\n";

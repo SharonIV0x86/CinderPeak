@@ -198,6 +198,10 @@ public:
   }
 
   std::string toDot() { return peak_store->toDot(); }
+  
+  void toDot(const std::string &filename) {
+    peak_store->toDot(filename);
+  }
 
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }

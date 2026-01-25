@@ -12,6 +12,7 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include <fstream>
 namespace CinderPeak {
 namespace PeakStore {
 
@@ -211,8 +212,26 @@ public:
   }
 
   std::string toDot() {
-    bool directed = ctx->create_options->hasOption(GraphCreationOptions::Directed);
-    return ctx->adjacency_storage->impl_toDot(directed);
+    return ctx->adjacency_storage->impl_toDot(*ctx->create_options);
+  }
+
+  void toDot(const std::string &filename) {
+      if (filename.empty()) {
+        LOG_ERROR("Empty filename provided for toDot output");
+        return;
+      }
+
+      std::ofstream outFile(filename);
+      if (!outFile) {
+        LOG_ERROR("Could not open file for writing: " + filename);
+        return;
+      }
+
+      std::string content = toDot();
+      outFile << content;
+      outFile.close();
+      
+      LOG_INFO("Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {

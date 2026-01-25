@@ -203,19 +203,24 @@ int main() {
 - Attempts to add an unweighted edge, which logs a critical error (as the graph is weighted).
 - Correctly adds a weighted edge (`1 -> 2` with weight `10`).
 
-### `std::string toDot()`
+### `std::string toDot()` / `void toDot(const std::string& filename)`
 - **Description**: Export the current graph to the [Graphviz DOT format](https://graphviz.org/doc/info/lang.html).
-- **Returns**: A string containing the DOT representation of the graph.
+- **Overloads**:
+  1. `std::string toDot()`: Returns the DOT string.
+  2. `void toDot(const std::string& filename)`: Writes the DOT output directly to the specified file.
 - **Behavior**:
   - Automatically detects if the graph is **Directed** (`digraph`) or **Undirected** (`graph`).
   - Vertices are labeled with their values.
   - Edges are labeled with their weights (if any).
-  - Isolated vertices are included.
+  - Uses `strict` mode if **ParallelEdges** are not enabled in options.
+  - **Compile-time Check**: Only available for graphs with primitive vertex/edge types.
 - **Example**:
   ```cpp
+  // Get string
   std::string dotOutput = graph.toDot();
-  std::cout << dotOutput << std::endl;
-  // Output can be piped to a file: graph.dot
+  
+  // Write to file
+  graph.toDot("graph_output.dot");
   ```
 
 ## Notes
