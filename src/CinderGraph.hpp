@@ -231,6 +231,11 @@ namespace CinderPeak
       PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(toggle);
     }
 
+    Algorithms::BFSResult<VertexType> bfs(const VertexType &src)
+    {
+      return peak_store->bfs(src);
+    }
+
     CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v)
     {
       return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);

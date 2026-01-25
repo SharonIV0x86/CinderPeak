@@ -34,6 +34,9 @@ namespace CinderPeak
         ctx->adjacency_storage =
             std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
         ctx->active_storage = ctx->adjacency_storage;
+        ctx->algorithms = std::make_shared<
+            Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
+            ctx->hybrid_storage);
       }
 
     public:
@@ -298,6 +301,19 @@ namespace CinderPeak
       const GraphInternalMetadata &getMetadata() const
       {
         return *ctx->metadata;
+      }
+
+      Algorithms::BFSResult<VertexType> bfs(const VertexType &src)
+      {
+        Algorithms::BFSResult<VertexType> result;
+        if (!hasVertex(src))
+        {
+          result._status =
+              PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
+          return result;
+        }
+        result = std::move(ctx->algorithms->bfs(src));
+        return result;
       }
     };
   } // namespace PeakStore
