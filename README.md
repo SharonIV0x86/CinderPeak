@@ -9,6 +9,7 @@ A fast and efficient, open-source C++ graph library built to handle a wide range
 ---
 
 ## Table of Contents
+
 - 🚀 Key Features
 - 🗓️ Development Notice
 - 📂 Project Structure
@@ -21,15 +22,19 @@ A fast and efficient, open-source C++ graph library built to handle a wide range
 ---
 
 ## Key Features
+
 - **Flexible Graph Representations** - Supports adjacency lists, adjacency matrices, and hybrid CSR/COO formats for efficient storage.
 - **Customizable & Templated** - Fully templated design allows you to define custom vertex and edge types.
 - **Thread Safety** - Designed to work seamlessly in multi-threaded applications.
 - **High Performance** - Leverages modern C++ features like smart pointers and STL containers for optimized execution.
+- **Graph Serialization** - Save and load graphs to/from JSON files for persistent storage and data sharing.
 - **Comprehensive Testing** - Built with Google Test (GTest) to ensure reliability and robustness.
 - **Extensive Documentation** - Detailed usage guides, examples, and API references are hosted with Docusaurus.
 
 ---
+
 # Example
+
 ```cpp
 #include <iostream>
 #include "CinderPeak.hpp"
@@ -55,7 +60,7 @@ int main() {
 
   MyVertex v1(1);
   MyVertex v2(2);
-  
+
   MyEdge e1(0.5f);
   MyEdge e2(0.8f);
 
@@ -79,6 +84,20 @@ int main() {
   std::cout << "Vertices: " << intGraph.numVertices()
             << ", Edges: " << intGraph.numEdges() << "\n";
 
+  // --- Graph Serialization ---
+  // Save graph to file
+  auto saveResult = intGraph.save("my_graph.json");
+  if (saveResult.success) {
+    std::cout << "Graph saved successfully!\n";
+  }
+
+  // Load graph from file
+  CinderGraph<int, int> loadedGraph;
+  auto loadResult = loadedGraph.load("my_graph.json");
+  if (loadResult.success) {
+    std::cout << "Graph loaded successfully!\n";
+  }
+
   // --- Unweighted Graph ---
   CinderGraph<int, Unweighted> unweighted(optsD);
   unweighted.addVertex(1);
@@ -87,15 +106,16 @@ int main() {
 }
 ```
 
-
-
 ## Development Notice
 
-CinderPeak is currently under active development. We are committed to delivering a polished and comprehensive release. The stable version, with refined functionalities and complete documentation, is scheduled to be available soon.
+Cindnlohmann/json\*\*: Modern JSON library for graph serialization and deserialization.
+
+- \*\*erPeak is currently under active development. We are committed to delivering a polished and comprehensive release. The stable version, with refined functionalities and complete documentation, is scheduled to be available soon.
 
 ---
 
 ## Getting Started
+
 1. **Installation**: Follow the [installation guide](docs/installation.md) to set up CinderPeak with CMake.
 2. **Usage**: Check the [usage guide](docs/usage.md) for API details and the [examples](examples/) directory for sample code.
 3. **Documentation**: Explore the full documentation hosted with Docusaurus in the [docs](docs/) directory.
@@ -103,6 +123,7 @@ CinderPeak is currently under active development. We are committed to delivering
 ---
 
 ## Technology Stack
+
 - **C++17/C++20**: Leverages modern C++ features for performance and flexibility.
 - **Google Test**: Provides the framework for robust unit testing.
 - **Docusaurus**: Hosts comprehensive documentation with examples and API references.
@@ -111,16 +132,19 @@ CinderPeak is currently under active development. We are committed to delivering
 ---
 
 ## Why CinderPeak?
+
 CinderPeak strikes a balance between **performance, flexibility, and ease of use**. Whether you're building complex network models, analyzing graph-based data, or managing relationships, CinderPeak provides a robust and intuitive solution. Its open-source nature encourages community contributions, and its modular design makes it easy to extend for specialized use cases.
 
 ---
 
 ## Community & Contributions
+
 We welcome contributions! See the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to get involved. Join the CinderPeak community on [GitHub](https://github.com/SharonIV0X86/CinderPeak) to report issues, suggest features, or contribute code.
 
 ---
 
 ## 🌟 Contributors
+
 <a href="https://github.com/SharonIV0X86/CinderPeak/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=SharonIV0X86/CinderPeak" />
 </a>
@@ -128,4 +152,5 @@ We welcome contributions! See the [CONTRIBUTING.md](CONTRIBUTING.md) file for gu
 ---
 
 ## License
+
 This project is licensed under the [MIT License](./License).

@@ -29,11 +29,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(BIN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/bin)
 
+# === Fetch nlohmann/json for serialization (keeping for compatibility) ===
+# Future: Migrate to MessagePack or Protocol Buffers for production
+include(FetchContent)
+FetchContent_Declare(
+    json
+    URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+)
+FetchContent_MakeAvailable(json)
+
 add_library(CinderPeak INTERFACE)
 target_include_directories(CinderPeak INTERFACE 
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/tests/integration/CinderGraph/common
 )
+target_link_libraries(CinderPeak INTERFACE nlohmann_json::nlohmann_json)
 
 # === Build Tests ===
 option(BUILD_TESTS "Build and run unit tests" ON)
