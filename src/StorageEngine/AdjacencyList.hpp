@@ -58,7 +58,6 @@ public:
   }
 
   const PeakStatus impl_addVertex(const VertexType &v) override {
-    std::string logMsg;
     VertexId assignedId = 0;
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
@@ -79,13 +78,12 @@ public:
       _vertex_lookup.try_emplace(v, assignedId);
       _vertex_data.try_emplace(assignedId, v);
       _adj.try_emplace(assignedId);
-
-      // TODO: this is a test log for output check so remove it in future.
-      logMsg =
-          std::string("Vertex added with id= ") + std::to_string(assignedId);
     }
 
-    // perform logging outside of the lock to avoid blocking critical sections
+    // perform string construction and logging outside of the lock to avoid blocking critical sections
+    // TODO: this is a test log for output check so remove it in future.
+    std::string logMsg =
+        std::string("Vertex added with id= ") + std::to_string(assignedId);
     pHandler.log(LogLevel::INFO, logMsg);
     return PeakStatus::OK();
   }
@@ -129,48 +127,55 @@ public:
 
   template <typename EdgeContainer>
   const PeakStatus impl_addEdges(const EdgeContainer &edges) {
-    std::unique_lock<std::shared_mutex> lock(_mtx);
+    std::vector<std::string> warnings;
     PeakStatus overall = PeakStatus::OK();
+    
+    {
+      std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    for (const auto &edge : edges) {
-      VertexType src;
-      VertexType dest;
-      EdgeType weight = EdgeType();
+      for (const auto &edge : edges) {
+        VertexType src;
+        VertexType dest;
+        EdgeType weight = EdgeType();
 
-      if constexpr (std::is_same_v<typename EdgeContainer::value_type,
-                                   std::pair<VertexType, VertexType>>) {
-        src = edge.first;
-        dest = edge.second;
-      } else if constexpr (std::is_same_v<
-                               typename EdgeContainer::value_type,
-                               std::tuple<VertexType, VertexType, EdgeType>>) {
-        src = std::get<0>(edge);
-        dest = std::get<1>(edge);
-        weight = std::get<2>(edge);
-      } else {
-        overall = PeakStatus::Unimplemented();
-        continue;
+        if constexpr (std::is_same_v<typename EdgeContainer::value_type,
+                                     std::pair<VertexType, VertexType>>) {
+          src = edge.first;
+          dest = edge.second;
+        } else if constexpr (std::is_same_v<
+                                 typename EdgeContainer::value_type,
+                                 std::tuple<VertexType, VertexType, EdgeType>>) {
+          src = std::get<0>(edge);
+          dest = std::get<1>(edge);
+          weight = std::get<2>(edge);
+        } else {
+          overall = PeakStatus::Unimplemented();
+          continue;
+        }
+
+        auto srcIt = _vertex_lookup.find(src);
+        if (srcIt == _vertex_lookup.end()) {
+          warnings.push_back("The vertex does not exist (src)");
+          overall = PeakStatus::VertexNotFound();
+          continue;
+        }
+        auto destIt = _vertex_lookup.find(dest);
+        if (destIt == _vertex_lookup.end()) {
+          warnings.push_back("The vertex does not exist (dest)");
+          overall = PeakStatus::VertexNotFound();
+          continue;
+        }
+
+        VertexId srcId = srcIt->second;
+        VertexId destId = destIt->second;
+
+        _adj[srcId].emplace_back(destId, weight);
       }
+    }
 
-      auto srcIt = _vertex_lookup.find(src);
-      if (srcIt == _vertex_lookup.end()) {
-        LOG_WARNING(
-            (std::ostringstream() << "The vertex does not exist (src)").str());
-        overall = PeakStatus::VertexNotFound();
-        continue;
-      }
-      auto destIt = _vertex_lookup.find(dest);
-      if (destIt == _vertex_lookup.end()) {
-        LOG_WARNING(
-            (std::ostringstream() << "The vertex does not exist (dest)").str());
-        overall = PeakStatus::VertexNotFound();
-        continue;
-      }
-
-      VertexId srcId = srcIt->second;
-      VertexId destId = destIt->second;
-
-      _adj[srcId].emplace_back(destId, weight);
+    // perform logging outside of the lock to avoid blocking critical sections
+    for (const auto &warning : warnings) {
+      LOG_WARNING(warning);
     }
 
     return overall;
@@ -301,22 +306,42 @@ public:
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
-    std::shared_lock<std::shared_mutex> lock(_mtx);
+    // data copied under lock
+    std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
+    std::unordered_map<VertexId, VertexType> vertex_data_snapshot;
+    
+    {
+      std::shared_lock<std::shared_mutex> lock(_mtx);
 
-    auto it = _vertex_lookup.find(vertex);
-    if (it == _vertex_lookup.end()) {
-      static const std::vector<std::pair<VertexType, EdgeType>> empty_vec;
-      return std::make_pair(empty_vec, PeakStatus::VertexNotFound());
+      auto it = _vertex_lookup.find(vertex);
+      if (it == _vertex_lookup.end()) {
+        return std::make_pair(
+          std::vector<std::pair<VertexType, EdgeType>>{},
+          PeakStatus::VertexNotFound());
+      
+      }
+
+      VertexId id = it->second;
+      const auto &neighbors = _adj.at(id);
+
+      // copy neighbor list
+      neighbor_ids = neighbors;
+
+      // copy relevant vertex data for neighbors
+      for (const auto &p : neighbor_ids) {
+        auto vdataIt = _vertex_data.find(p.first);
+        if (vdataIt != _vertex_data.end()) {
+          vertex_data_snapshot.try_emplace(vdataIt->first, vdataIt->second);
+        }
+      }
     }
 
-    VertexId id = it->second;
-    const auto &neighbors = _adj.at(id);
-
+    // build result outside of lock
     std::vector<std::pair<VertexType, EdgeType>> result;
-    result.reserve(neighbors.size());
-    for (const auto &p : neighbors) {
-      auto vdataIt = _vertex_data.find(p.first);
-      if (vdataIt != _vertex_data.end()) {
+    result.reserve(neighbor_ids.size());
+    for (const auto &p : neighbor_ids) {
+      auto vdataIt = vertex_data_snapshot.find(p.first);
+      if (vdataIt != vertex_data_snapshot.end()) {
         result.emplace_back(vdataIt->second, p.second);
       }
     }
@@ -368,22 +393,37 @@ public:
   }
 
   void print_adj_list() {
-    std::shared_lock<std::shared_mutex> lock(_mtx);
-    for (const auto &kv : _adj) {
-      VertexId id = kv.first;
-      auto vdIt = _vertex_data.find(id);
-      if (vdIt == _vertex_data.end())
-        continue;
-      const VertexType &v = vdIt->second;
-      std::cout << "Vertex (id=" << id << "): " << "\n";
-      for (const auto &pr : kv.second) {
-        VertexId nbId = pr.first;
-        auto nbIt = _vertex_data.find(nbId);
-        if (nbIt != _vertex_data.end()) {
-          std::cout << "  Neighbor id=" << nbId << "\n";
-        } else {
-          std::cout << "  Neighbor id=" << nbId << " (no data)\n";
-        }
+    // data copied under lock
+    struct VertexInfo {
+      VertexId id;
+      VertexType vertex_data;
+      std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
+    };
+    std::vector<VertexInfo> vertices_to_print;
+
+    {
+      std::shared_lock<std::shared_mutex> lock(_mtx);
+      for (const auto &kv : _adj) {
+        VertexId id = kv.first;
+        auto vdIt = _vertex_data.find(id);
+        if (vdIt == _vertex_data.end())
+          continue;
+
+        VertexInfo info;
+        info.id = id;
+        info.vertex_data = vdIt->second;
+        info.neighbor_ids = kv.second;
+
+        vertices_to_print.push_back(info);
+      }
+    }
+
+    // perform all I/O outside of lock
+    for (const auto &vertex_info : vertices_to_print) {
+      std::cout << "Vertex (id=" << vertex_info.id << "): " << "\n";
+      for (const auto &neighbor_pair : vertex_info.neighbor_ids) {
+        VertexId nbId = neighbor_pair.first;
+        std::cout << "  Neighbor id=" << nbId << "\n";
       }
     }
   }
