@@ -197,6 +197,14 @@ public:
     return peak_store->bfs(src);
   }
 
+  template <typename V = VertexType, typename E = EdgeType>
+  auto toDot(const std::string &filename)
+      -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
+                          (Traits::isTypePrimitive<E>() ||
+                           Traits::is_unweighted_v<E>)> {
+    peak_store->toDot(filename);
+  }
+
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }

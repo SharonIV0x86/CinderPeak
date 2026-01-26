@@ -435,6 +435,51 @@ public:
     return _adj;
   }
 
+  std::string impl_toDot(bool isDirected, bool allowParallel) const {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::stringstream ss;
+
+    if (!allowParallel) {
+      ss << "strict ";
+    }
+    ss << (isDirected ? "digraph" : "graph") << " G {\n";
+    ss << "  rankdir=LR;\n";
+    ss << "  node [shape=circle style=filled fillcolor=\"#E3F2FD\" "
+          "fontname=\"Arial\"];\n";
+    ss << "  edge [fontname=\"Arial\" fontsize=10];\n\n";
+
+    // declare all nodes first (ensures isolated nodes appear)
+    for (const auto &kv : _vertex_data) {
+      VertexId id = kv.first;
+      const VertexType &v = kv.second;
+
+      ss << "  node_" << id << " [label=\"";
+      ss << v;
+      ss << "\"];\n";
+    }
+
+    // draw Edges
+    std::string connector = isDirected ? "->" : "--";
+    for (const auto &kv : _adj) {
+      VertexId srcId = kv.first;
+      const auto &neighbors = kv.second;
+
+      for (const auto &edge : neighbors) {
+        VertexId destId = edge.first;
+        const EdgeType &weight = edge.second;
+
+        ss << "  node_" << srcId << " " << connector << " node_" << destId;
+
+        if constexpr (!Traits::is_unweighted_v<EdgeType>) {
+          ss << " [label=\"" << weight << "\"]";
+        }
+        ss << ";\n";
+      }
+    }
+    ss << "}\n";
+    return ss.str();
+  }
+
   const std::unordered_map<CinderPeak::VertexId, VertexType> &
   getVertexDataMap() const {
     return _vertex_data;
