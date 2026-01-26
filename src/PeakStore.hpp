@@ -8,11 +8,11 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <type_traits>
 #include <vector>
-#include <fstream>
 namespace CinderPeak {
 namespace PeakStore {
 
@@ -213,25 +213,28 @@ public:
 
   // Export to DOT format (File Output Only)
   void toDot(const std::string &filename) {
-      if (filename.empty()) {
-        LOG_ERROR("Empty filename provided for toDot output");
-        return;
-      }
+    if (filename.empty()) {
+      LOG_ERROR("Empty filename provided for toDot output");
+      return;
+    }
 
-      std::ofstream outFile(filename);
-      if (!outFile) {
-        LOG_ERROR("Could not open file for writing: " + filename);
-        return;
-      }
+    std::ofstream outFile(filename);
+    if (!outFile) {
+      LOG_ERROR("Could not open file for writing: " + filename);
+      return;
+    }
 
-      bool isDirected = ctx->create_options->hasOption(GraphCreationOptions::Directed);
-      bool allowParallel = ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
+    bool isDirected =
+        ctx->create_options->hasOption(GraphCreationOptions::Directed);
+    bool allowParallel =
+        ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
 
-      std::string content = ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
-      outFile << content;
-      outFile.close();
-      
-      LOG_INFO("Successfully wrote DOT output to: " + filename);
+    std::string content =
+        ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
+    outFile << content;
+    outFile.close();
+
+    LOG_INFO("Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {

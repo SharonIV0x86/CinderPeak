@@ -1,6 +1,6 @@
 #include "AdjacencyListTestBase.hpp"
-#include "gtest/gtest.h"
 #include "CinderGraph.hpp"
+#include "gtest/gtest.h"
 
 TEST_F(AdjacencyStorageShardTest, ToDotDirectedGraph) {
   intGraph.impl_clearVertices(); // Start fresh to ensure IDs are 1, 2, 3
@@ -53,39 +53,40 @@ TEST_F(AdjacencyStorageShardTest, ToDotFileExport) {
   EXPECT_TRUE(intGraph.impl_addEdge(100, 200, 50).isOK());
 
   std::string filename = "test_graph_output.dot";
-    
-    GraphCreationOptions opts({GraphCreationOptions::Directed});
-    // We cannot easily wrap `intGraph`, so we make a new one.
-    CinderGraph<int, int> tempGraph(opts);
-    tempGraph.addVertex(100);
-    tempGraph.addVertex(200);
-    tempGraph.addEdge(100, 200, 50);
 
-    tempGraph.toDot(filename);
+  GraphCreationOptions opts({GraphCreationOptions::Directed});
+  // We cannot easily wrap `intGraph`, so we make a new one.
+  CinderGraph<int, int> tempGraph(opts);
+  tempGraph.addVertex(100);
+  tempGraph.addVertex(200);
+  tempGraph.addEdge(100, 200, 50);
 
-    std::ifstream inFile(filename);
-    ASSERT_TRUE(inFile.good());
-    
-    std::stringstream buffer;
-    buffer << inFile.rdbuf();
-    std::string content = buffer.str();
-    inFile.close();
+  tempGraph.toDot(filename);
 
-    EXPECT_NE(content.find("digraph"), std::string::npos);
-    EXPECT_NE(content.find("node_1 -> node_2 [label=\"50\"]"), std::string::npos);
+  std::ifstream inFile(filename);
+  ASSERT_TRUE(inFile.good());
 
-    std::remove(filename.c_str());
+  std::stringstream buffer;
+  buffer << inFile.rdbuf();
+  std::string content = buffer.str();
+  inFile.close();
+
+  EXPECT_NE(content.find("digraph"), std::string::npos);
+  EXPECT_NE(content.find("node_1 -> node_2 [label=\"50\"]"), std::string::npos);
+
+  std::remove(filename.c_str());
 }
 
 TEST_F(AdjacencyStorageShardTest, ToDotParallelEdges) {
   intGraph.impl_clearVertices();
   EXPECT_TRUE(intGraph.impl_addVertex(1).isOK());
   EXPECT_TRUE(intGraph.impl_addVertex(2).isOK());
-  
+
   // Directly forcing parallel edges into storage for testing visualization
-  // Note: Standard addEdge might reject duplicates depending on policy, 
+  // Note: Standard addEdge might reject duplicates depending on policy,
   // but we are testing the visualization of 'WHAT IS THERE'.
-  // impl_addEdge in AdjacencyList simply appends, so duplicates are possible if checks are skipped
+  // impl_addEdge in AdjacencyList simply appends, so duplicates are possible if
+  // checks are skipped
   EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 100).isOK());
   EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 200).isOK());
 

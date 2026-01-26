@@ -80,7 +80,7 @@ public:
       _vertex_data.try_emplace(assignedId, v);
       _adj.try_emplace(assignedId);
 
-      //TODO: this is a test log for output check so remove it in future.
+      // TODO: this is a test log for output check so remove it in future.
       logMsg =
           std::string("Vertex added with id= ") + std::to_string(assignedId);
     }
@@ -404,16 +404,17 @@ public:
     }
     ss << (isDirected ? "digraph" : "graph") << " G {\n";
     ss << "  rankdir=LR;\n";
-    ss << "  node [shape=circle style=filled fillcolor=\"#E3F2FD\" fontname=\"Arial\"];\n";
+    ss << "  node [shape=circle style=filled fillcolor=\"#E3F2FD\" "
+          "fontname=\"Arial\"];\n";
     ss << "  edge [fontname=\"Arial\" fontsize=10];\n\n";
 
     // declare all nodes first (ensures isolated nodes appear)
     for (const auto &kv : _vertex_data) {
       VertexId id = kv.first;
       const VertexType &v = kv.second;
-      
+
       ss << "  node_" << id << " [label=\"";
-      ss << v; 
+      ss << v;
       ss << "\"];\n";
     }
 
@@ -428,9 +429,9 @@ public:
         const EdgeType &weight = edge.second;
 
         ss << "  node_" << srcId << " " << connector << " node_" << destId;
-        
+
         if constexpr (!Traits::is_unweighted_v<EdgeType>) {
-             ss << " [label=\"" << weight << "\"]";
+          ss << " [label=\"" << weight << "\"]";
         }
         ss << ";\n";
       }
