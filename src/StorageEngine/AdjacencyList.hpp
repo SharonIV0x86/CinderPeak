@@ -395,18 +395,9 @@ public:
     return _adj;
   }
 
-  // Export to DOT format
-  template <typename V = VertexType, typename E = EdgeType>
-  auto impl_toDot(const GraphCreationOptions &options) const
-      -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
-                              (Traits::isTypePrimitive<E>() ||
-                               Traits::is_unweighted_v<E>),
-                          std::string> {
+  std::string impl_toDot(bool isDirected, bool allowParallel) const {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::stringstream ss;
-
-    bool isDirected = options.hasOption(GraphCreationOptions::Directed);
-    bool allowParallel = options.hasOption(GraphCreationOptions::ParallelEdges);
 
     if (!allowParallel) {
       ss << "strict ";
@@ -438,7 +429,7 @@ public:
 
         ss << "  node_" << srcId << " " << connector << " node_" << destId;
         
-        if constexpr (!Traits::is_unweighted_v<E>) {
+        if constexpr (!Traits::is_unweighted_v<EdgeType>) {
              ss << " [label=\"" << weight << "\"]";
         }
         ss << ";\n";

@@ -197,9 +197,11 @@ public:
     return peak_store->bfs(src);
   }
 
-  std::string toDot() { return peak_store->toDot(); }
-  
-  void toDot(const std::string &filename) {
+  template <typename V = VertexType, typename E = EdgeType>
+  auto toDot(const std::string &filename)
+      -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
+                          (Traits::isTypePrimitive<E>() ||
+                           Traits::is_unweighted_v<E>)> {
     peak_store->toDot(filename);
   }
 

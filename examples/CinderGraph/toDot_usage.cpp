@@ -102,20 +102,24 @@ int main() {
 
         // ===== 7. DOT Export Verification =====
         cout << "\n--- DOT Export (Directed Graph) ---" << endl;
-        cout << "Paste into https://edotor.net/ or Graphviz:" << endl;
-        cout << g1.toDot() << endl;
+        g1.toDot("g1_directed.dot");
+        cout << "Exported to g1_directed.dot" << endl;
 
         cout << "\n--- DOT Export (Isolated Nodes) ---" << endl;
-        cout << g2.toDot() << endl;
+        g2.toDot("g2_isolated.dot");
+        cout << "Exported to g2_isolated.dot" << endl;
 
         cout << "\n --- DOT Export (Parallel Edges) ---" << endl;
-        cout << g3.toDot() << endl;
+        g3.toDot("g3_parallel.dot");
+        cout << "Exported to g3_parallel.dot" << endl;
 
         cout << "\n --- DOT Export (Undirected Graph) ---" << endl;
-        cout << g4.toDot() << endl;
+        g4.toDot("g4_undirected.dot");
+        cout << "Exported to g4_undirected.dot" << endl;
 
         cout << "\n --- DOT Export (String Vertices) ---" << endl;
-        cout << g5.toDot() << endl;
+        g5.toDot("g5_string.dot");
+        cout << "Exported to g5_string.dot" << endl;
 
         // ===== 8. File Export Verification =====
         cout << "\n--- DOT File Export ---" << endl;

@@ -211,10 +211,7 @@ public:
     return ctx->metadata->numVertices();
   }
 
-  std::string toDot() {
-    return ctx->adjacency_storage->impl_toDot(*ctx->create_options);
-  }
-
+  // Export to DOT format (File Output Only)
   void toDot(const std::string &filename) {
       if (filename.empty()) {
         LOG_ERROR("Empty filename provided for toDot output");
@@ -227,7 +224,10 @@ public:
         return;
       }
 
-      std::string content = toDot();
+      bool isDirected = ctx->create_options->hasOption(GraphCreationOptions::Directed);
+      bool allowParallel = ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
+
+      std::string content = ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
       outFile << content;
       outFile.close();
       
