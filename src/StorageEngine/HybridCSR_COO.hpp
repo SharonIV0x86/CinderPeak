@@ -194,6 +194,26 @@ public:
     buildStructures();
   }
 
+  void setCOOThreshold(size_t threshold) {
+    COO_BUFFER_THRESHOLD_.store(threshold, std::memory_order_relaxed);
+  }
+
+  void orchestrator_rebuildFromAdjList(
+      const std::unordered_map<VertexType,
+                               std::vector<std::pair<VertexType, EdgeType>>,
+                               VertexHasher<VertexType>> &adj_list) {
+    populateFromAdjList(adj_list);
+  }
+
+  void orchestrator_mergeBuffer() {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    incrementalUpdate();
+  }
+
+  void orchestrator_clearAll() { impl_clearVertices(); }
+
+  void orchestrator_buildIfNeeded() { buildStructures(); }
+
   void exc() const {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
