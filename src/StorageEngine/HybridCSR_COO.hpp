@@ -477,9 +477,9 @@ public:
     if (is_built_.load(std::memory_order_relaxed)) {
       std::vector<size_t> new_csr_cols;
       std::vector<EdgeType> new_csr_weights;
-      std::vector<size_t> new_row_offsets(vertex_order.size(), 0)
+      std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
 
-          size_t current_offset = 0;
+      size_t current_offset = 0;
       size_t new_row_idx = 0;
 
       new_row_offsets[0] = 0;
