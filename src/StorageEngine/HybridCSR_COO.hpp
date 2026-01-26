@@ -17,11 +17,11 @@ template <typename VertexType, typename EdgeType>
 class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
 private:
   alignas(64) std::vector<size_t> csr_row_offsets;
-  alignas(64) std::vector<VertexType> csr_col_vals;
+  alignas(64) std::vector<size_t> csr_col_vals;
   alignas(64) std::vector<EdgeType> csr_weights;
 
-  alignas(64) std::vector<VertexType> coo_src;
-  alignas(64) std::vector<VertexType> coo_dest;
+  alignas(64) std::vector<size_t> coo_src;
+  alignas(64) std::vector<size_t> coo_dest;
   alignas(64) std::vector<EdgeType> coo_weights;
 
   std::vector<VertexType> vertex_order;
@@ -47,9 +47,8 @@ private:
     csr_weights.clear();
 
     for (size_t i = 0; i < coo_src.size(); ++i) {
-      if (vertex_to_index.count(coo_src[i])) {
-        size_t idx = vertex_to_index[coo_src[i]];
-        csr_row_offsets[idx + 1]++;
+      if (coo_src[i] < num_vertices) {
+        csr_row_offsets[coo_src[i] + 1]++;
       }
     }
 
@@ -61,22 +60,20 @@ private:
     csr_weights.resize(csr_row_offsets[num_vertices]);
 
     std::vector<size_t> insert_offsets = csr_row_offsets;
-    std::vector<std::vector<std::pair<VertexType, EdgeType>>> temp_rows(
+    std::vector<std::vector<std::pair<size_t, EdgeType>>> temp_rows(
         num_vertices);
     for (size_t i = 0; i < coo_src.size(); ++i) {
-      if (vertex_to_index.count(coo_src[i]) &&
-          vertex_to_index.count(coo_dest[i])) {
-        size_t row = vertex_to_index[coo_src[i]];
-        temp_rows[row].emplace_back(coo_dest[i], coo_weights[i]);
+      if (coo_src[i] < num_vertices && coo_dest[i] < num_vertices) {
+        temp_rows[coo_src[i]].emplace_back(coo_dest[i], coo_weights[i]);
       }
     }
 
     for (size_t row = 0; row < num_vertices; ++row) {
       std::sort(temp_rows[row].begin(), temp_rows[row].end(),
                 [](const auto &a, const auto &b) { return a.first < b.first; });
-      for (const auto &[dest, weight] : temp_rows[row]) {
+      for (const auto &[dest_idx, weight] : temp_rows[row]) {
         size_t pos = insert_offsets[row]++;
-        csr_col_vals[pos] = dest;
+        csr_col_vals[pos] = dest_idx;
         csr_weights[pos] = weight;
       }
     }
@@ -93,8 +90,8 @@ private:
     std::vector<size_t> new_edge_counts(num_vertices, 0);
 
     for (size_t i = 0; i < coo_src.size(); ++i) {
-      if (vertex_to_index.count(coo_src[i])) {
-        new_edge_counts[vertex_to_index[coo_src[i]]]++;
+      if (coo_src[i] < num_vertices) {
+        new_edge_counts[coo_src[i]]++;
       }
     }
 
@@ -106,22 +103,21 @@ private:
                                new_edge_counts[i];
     }
 
-    std::vector<VertexType> new_col_vals(new_row_offsets.back());
+    std::vector<size_t> new_col_vals(new_row_offsets.back());
     std::vector<EdgeType> new_weights(new_row_offsets.back());
 
     std::vector<size_t> insert_offsets = new_row_offsets;
     for (size_t row = 0; row < num_vertices; ++row) {
-      VertexType src = vertex_order[row];
       size_t old_start = csr_row_offsets[row];
       size_t old_end = csr_row_offsets[row + 1];
-      std::vector<std::pair<VertexType, EdgeType>> merged_neighbors;
+      std::vector<std::pair<size_t, EdgeType>> merged_neighbors;
 
       for (size_t i = old_start; i < old_end; ++i) {
         merged_neighbors.emplace_back(csr_col_vals[i], csr_weights[i]);
       }
 
       for (size_t i = 0; i < coo_src.size(); ++i) {
-        if (coo_src[i] == src && vertex_to_index.count(coo_dest[i])) {
+        if (coo_src[i] == row && coo_dest[i] < num_vertices) {
           merged_neighbors.emplace_back(coo_dest[i], coo_weights[i]);
         }
       }
@@ -129,9 +125,9 @@ private:
       std::sort(merged_neighbors.begin(), merged_neighbors.end(),
                 [](const auto &a, const auto &b) { return a.first < b.first; });
 
-      for (const auto &[dest, weight] : merged_neighbors) {
+      for (const auto &[dest_idx, weight] : merged_neighbors) {
         size_t pos = insert_offsets[row]++;
-        new_col_vals[pos] = dest;
+        new_col_vals[pos] = dest_idx;
         new_weights[pos] = weight;
       }
     }
@@ -185,11 +181,19 @@ public:
           vertex_to_index[dest] = vertex_order.size();
           vertex_order.push_back(dest);
         }
-        coo_src.push_back(src);
-        coo_dest.push_back(dest);
+      }
+    }
+
+    for (const auto &[src, neighbors] : adj_list) {
+      size_t src_idx = vertex_to_index[src];
+      for (const auto &[dest, weight] : neighbors) {
+        size_t dest_idx = vertex_to_index[dest];
+        coo_src.push_back(src_idx);
+        coo_dest.push_back(dest_idx);
         coo_weights.push_back(weight);
       }
     }
+
     lock.unlock();
     buildStructures();
   }
@@ -217,11 +221,13 @@ public:
   void exc() const {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
-    std::cout << "HybridCSR_COO CSR:\n";
+    std::cout << "HybridCSR_COO CSR (Indices):\n";
     for (size_t i = 0; i < vertex_order.size(); ++i) {
-      std::cout << vertex_order[i] << " -> ";
+      std::cout << vertex_order[i] << " [" << i << "] -> ";
       for (size_t j = csr_row_offsets[i]; j < csr_row_offsets[i + 1]; ++j) {
-        std::cout << "(" << csr_col_vals[j] << ", " << csr_weights[j] << ") ";
+        size_t neighbor_idx = csr_col_vals[j];
+        std::cout << "(" << vertex_order[neighbor_idx] << " [" << neighbor_idx
+                  << "], " << csr_weights[j] << ") ";
       }
       std::cout << "\n";
     }
@@ -251,8 +257,8 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    coo_src.push_back(src);
-    coo_dest.push_back(dest);
+    coo_src.push_back(vertex_to_index[src]);
+    coo_dest.push_back(vertex_to_index[dest]);
     coo_weights.push_back(weight);
 
     if (is_built_.load(std::memory_order_relaxed) &&
@@ -273,8 +279,11 @@ public:
       return std::make_pair(weight, PeakStatus::VertexNotFound());
     }
 
+    size_t src_idx = vertex_to_index[src];
+    size_t dest_idx = vertex_to_index[dest];
+
     for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
+      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
         coo_src.erase(coo_src.begin() + (i - 1));
         coo_dest.erase(coo_dest.begin() + (i - 1));
         weight = coo_weights[i - 1];
@@ -287,14 +296,14 @@ public:
       return std::make_pair(weight, PeakStatus::EdgeNotFound());
     }
 
-    size_t row = vertex_to_index.at(src);
+    size_t row = src_idx;
     size_t start = csr_row_offsets[row];
     size_t end = csr_row_offsets[row + 1];
 
     auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest);
+                               csr_col_vals.begin() + end, dest_idx);
 
-    if (it != csr_col_vals.begin() + end && *it == dest) {
+    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
       size_t edge_idx = std::distance(csr_col_vals.begin(), it);
 
       weight = csr_weights[edge_idx];
@@ -317,14 +326,14 @@ public:
     if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
       return PeakStatus::VertexNotFound();
     }
-    if (!impl_doesEdgeExist(src, dest)) {
-      return PeakStatus::EdgeNotFound();
-    }
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
+    size_t src_idx = vertex_to_index[src];
+    size_t dest_idx = vertex_to_index[dest];
+
     for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
+      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
         coo_weights[i - 1] = newWeight;
         return PeakStatus::OK();
       }
@@ -336,16 +345,20 @@ public:
       lock.lock();
     }
 
-    size_t row = vertex_to_index.at(src);
+    size_t row = src_idx;
     size_t start = csr_row_offsets[row];
     size_t end = csr_row_offsets[row + 1];
 
     auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest);
+                               csr_col_vals.begin() + end, dest_idx);
 
-    size_t idx = std::distance(csr_col_vals.begin(), it);
-    csr_weights[idx] = newWeight;
-    return PeakStatus::OK();
+    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
+      size_t idx = std::distance(csr_col_vals.begin(), it);
+      csr_weights[idx] = newWeight;
+      return PeakStatus::OK();
+    }
+
+    return PeakStatus::EdgeNotFound();
   }
 
   const PeakStatus impl_clearVertices() override {
@@ -354,7 +367,6 @@ public:
 
     if (is_built_.load(std::memory_order_relaxed)) {
       csr_row_offsets.clear();
-      csr_col_vals.clear();
       csr_col_vals.clear();
       csr_weights.clear();
       csr_col_vals.shrink_to_fit();
@@ -407,8 +419,15 @@ public:
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
+    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
+      return {EdgeType{}, PeakStatus::VertexNotFound()};
+    }
+
+    size_t src_idx = vertex_to_index.at(src);
+    size_t dest_idx = vertex_to_index.at(dest);
+
     for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src && coo_dest[i - 1] == dest) {
+      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
         return {coo_weights[i - 1], PeakStatus::OK()};
       }
     }
@@ -419,16 +438,13 @@ public:
       lock.lock();
     }
 
-    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
-      return {EdgeType{}, PeakStatus::VertexNotFound()};
-    }
-    size_t row = vertex_to_index.at(src);
+    size_t row = src_idx;
     size_t start = csr_row_offsets[row];
     size_t end = csr_row_offsets[row + 1];
 
     auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest);
-    if (it != csr_col_vals.begin() + end && *it == dest) {
+                               csr_col_vals.begin() + end, dest_idx);
+    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
       size_t idx = std::distance(csr_col_vals.begin(), it);
       return {csr_weights[idx], PeakStatus::OK()};
     }
@@ -442,39 +458,52 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    size_t idx = vertex_to_index[vtx];
+    size_t idx_to_remove = vertex_to_index[vtx];
 
     for (size_t i = 0; i < coo_src.size();) {
-      if (coo_src[i] == vtx || coo_dest[i] == vtx) {
+      if (coo_src[i] == idx_to_remove || coo_dest[i] == idx_to_remove) {
         coo_src.erase(coo_src.begin() + i);
         coo_dest.erase(coo_dest.begin() + i);
         coo_weights.erase(coo_weights.begin() + i);
       } else {
+        if (coo_src[i] > idx_to_remove)
+          coo_src[i]--;
+        if (coo_dest[i] > idx_to_remove)
+          coo_dest[i]--;
         ++i;
       }
     }
 
     if (is_built_.load(std::memory_order_relaxed)) {
-      std::vector<VertexType> new_csr_cols;
+      std::vector<size_t> new_csr_cols;
       std::vector<EdgeType> new_csr_weights;
       std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
 
-      for (size_t row = 0; row < vertex_order.size(); ++row) {
-        if (row == idx)
+      size_t current_offset = 0;
+      size_t new_row_idx = 0;
+
+      new_row_offsets[0] = 0;
+
+      for (size_t old_row = 0; old_row < vertex_order.size(); ++old_row) {
+        if (old_row == idx_to_remove)
           continue;
-        size_t start = csr_row_offsets[row];
-        size_t end = csr_row_offsets[row + 1];
+
+        size_t start = csr_row_offsets[old_row];
+        size_t end = csr_row_offsets[old_row + 1];
+
         for (size_t j = start; j < end; ++j) {
-          if (csr_col_vals[j] != vtx) {
-            new_row_offsets[row + 1]++;
-            new_csr_cols.push_back(csr_col_vals[j]);
+          size_t neighbor_idx = csr_col_vals[j];
+          if (neighbor_idx != idx_to_remove) {
+            size_t new_neighbor_idx = (neighbor_idx > idx_to_remove)
+                                          ? neighbor_idx - 1
+                                          : neighbor_idx;
+            new_csr_cols.push_back(new_neighbor_idx);
             new_csr_weights.push_back(csr_weights[j]);
+            current_offset++;
           }
         }
-      }
-
-      for (size_t i = 1; i < new_row_offsets.size(); ++i) {
-        new_row_offsets[i] += new_row_offsets[i - 1];
+        new_row_idx++;
+        new_row_offsets[new_row_idx] = current_offset;
       }
 
       csr_row_offsets = std::move(new_row_offsets);
@@ -482,7 +511,7 @@ public:
       csr_weights = std::move(new_csr_weights);
     }
 
-    vertex_order.erase(vertex_order.begin() + idx);
+    vertex_order.erase(vertex_order.begin() + idx_to_remove);
 
     vertex_to_index.clear();
     for (size_t i = 0; i < vertex_order.size(); ++i) {
