@@ -80,7 +80,8 @@ public:
       _adj.try_emplace(assignedId);
     }
 
-    // perform string construction and logging outside of the lock to avoid blocking critical sections
+    // perform string construction and logging outside of the lock to avoid
+    // blocking critical sections
     // TODO: this is a test log for output check so remove it in future.
     std::string logMsg =
         std::string("Vertex added with id= ") + std::to_string(assignedId);
@@ -129,7 +130,7 @@ public:
   const PeakStatus impl_addEdges(const EdgeContainer &edges) {
     std::vector<std::string> warnings;
     PeakStatus overall = PeakStatus::OK();
-    
+
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -142,9 +143,9 @@ public:
                                      std::pair<VertexType, VertexType>>) {
           src = edge.first;
           dest = edge.second;
-        } else if constexpr (std::is_same_v<
-                                 typename EdgeContainer::value_type,
-                                 std::tuple<VertexType, VertexType, EdgeType>>) {
+        } else if constexpr (std::is_same_v<typename EdgeContainer::value_type,
+                                            std::tuple<VertexType, VertexType,
+                                                       EdgeType>>) {
           src = std::get<0>(edge);
           dest = std::get<1>(edge);
           weight = std::get<2>(edge);
@@ -309,16 +310,14 @@ public:
     // data copied under lock
     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
     std::unordered_map<VertexId, VertexType> vertex_data_snapshot;
-    
+
     {
       std::shared_lock<std::shared_mutex> lock(_mtx);
 
       auto it = _vertex_lookup.find(vertex);
       if (it == _vertex_lookup.end()) {
-        return std::make_pair(
-          std::vector<std::pair<VertexType, EdgeType>>{},
-          PeakStatus::VertexNotFound());
-      
+        return std::make_pair(std::vector<std::pair<VertexType, EdgeType>>{},
+                              PeakStatus::VertexNotFound());
       }
 
       VertexId id = it->second;
