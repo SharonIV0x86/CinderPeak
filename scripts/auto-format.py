@@ -3,10 +3,11 @@ import os
 import subprocess
 
 # Only these folders (and their subfolders) will be formatted
-INCLUDED_DIRS = ["src", "examples", "tests", "Algorithms"]
+INCLUDED_DIRS = ["src", "examples", "tests", "src/Algorithms"]
 EXCLUDE_FILES = ["src/ArialFontDataEmbed.hpp"]
 # File extensions to check
 EXTENSIONS = (".cpp", ".hpp", ".h", ".cc", ".cxx")
+
 
 def get_all_files():
     """Collect all source files under INCLUDED_DIRS recursively."""
@@ -18,6 +19,7 @@ def get_all_files():
                 if f.endswith(EXTENSIONS):
                     yield os.path.join(dirpath, f)
 
+
 def main():
     print(f"🔍 Formatting only in folders: {', '.join(INCLUDED_DIRS)}")
     files = list(get_all_files())
@@ -28,11 +30,13 @@ def main():
     print(f"Found {len(files)} files. Running clang-format...\n")
 
     for file in files:
-        if(file in EXCLUDE_FILES): continue
+        if file in EXCLUDE_FILES:
+            continue
         print(f"-> Formatting: {file}")
         subprocess.run(["clang-format", "-i", file], check=False)
 
     print("\n✅ Formatting complete!")
+
 
 if __name__ == "__main__":
     main()
