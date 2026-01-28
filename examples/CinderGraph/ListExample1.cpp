@@ -27,7 +27,7 @@ int main() {
   graph.addVertex(3);
 
   // add vertices (check insertion result)
-  graph.addVertex(1); 
+  graph.addVertex(1);
   graph.addVertex(2);
   graph.addVertex(3);
   std::cout << "Number of vertices: " << graph.numVertices() << "\n";

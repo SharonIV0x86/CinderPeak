@@ -33,18 +33,16 @@ public:
   };
 
   PolicyConfiguration(
-    const ErrorPolicy &errorPolicy_ = ErrorPolicy::Ignore,
-    const LoggingPolicy &loggingPolicy_ = LoggingPolicy::Silent,
-    const std::string &logfilePath_ = "")
-    : errorPolicy(errorPolicy_),
-      loggingPolicy(loggingPolicy_),
-      logfilePath(logfilePath_) {
+      const ErrorPolicy &errorPolicy_ = ErrorPolicy::Ignore,
+      const LoggingPolicy &loggingPolicy_ = LoggingPolicy::Silent,
+      const std::string &logfilePath_ = "")
+      : errorPolicy(errorPolicy_), loggingPolicy(loggingPolicy_),
+        logfilePath(logfilePath_) {
 
-  if (loggingPolicy == LoggingPolicy::LogFile) {
-    std::ofstream(this->logfilePath, std::ios::trunc).close();
+    if (loggingPolicy == LoggingPolicy::LogFile) {
+      std::ofstream(this->logfilePath, std::ios::trunc).close();
+    }
   }
-}
-
 
   const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
   const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
@@ -88,9 +86,7 @@ public:
   PolicyHandler(const PolicyConfiguration &config) {
     this->cfg = std::make_shared<PolicyConfiguration>(config);
   }
-  PolicyHandler() {
-    this->cfg = std::make_shared<PolicyConfiguration>();
-  }
+  PolicyHandler() { this->cfg = std::make_shared<PolicyConfiguration>(); }
   inline void handleException(const PeakStatus &status) {
     if (status.isOK())
       return;
