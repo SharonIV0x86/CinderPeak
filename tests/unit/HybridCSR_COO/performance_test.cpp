@@ -37,7 +37,9 @@ protected:
     auto start = high_resolution_clock::now();
     func();
     auto end = high_resolution_clock::now();
-    double time_ms = static_cast<double>(duration_cast<microseconds>(end - start).count()) / 1000.0;
+    double time_ms =
+        static_cast<double>(duration_cast<microseconds>(end - start).count()) /
+        1000.0;
     std::cout << operation_name << ": " << std::fixed << std::setprecision(2)
               << time_ms << " ms\n";
   }
