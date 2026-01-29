@@ -17,12 +17,12 @@ int main() {
 
   // Add cycle edges
   auto e1 = graph.addEdge(1, 2, 50);
-  auto e2 = graph.addEdge(2, 3, 60);
-  auto e3 = graph.addEdge(3, 4, 70);
-  auto e4 = graph.addEdge(4, 5, 80);
-  auto e5 = graph.addEdge(5, 6, 90);
-  auto e6 = graph.addEdge(6, 7, 100);
-  auto e7 = graph.addEdge(7, 8, 110);
+  graph.addEdge(2, 3, 60);
+  graph.addEdge(3, 4, 70);
+  graph.addEdge(4, 5, 80);
+  graph.addEdge(5, 6, 90);
+  graph.addEdge(6, 7, 100);
+  graph.addEdge(7, 8, 110);
   auto e8 = graph.addEdge(8, 1, 120);
 
   std::cout << "Edge add (1->2) status: " << e1.second << "\n";
