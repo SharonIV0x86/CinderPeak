@@ -37,7 +37,9 @@ protected:
     auto start = high_resolution_clock::now();
     func();
     auto end = high_resolution_clock::now();
-    double time_ms = duration_cast<microseconds>(end - start).count() / 1000.0;
+    double time_ms =
+        static_cast<double>(duration_cast<microseconds>(end - start).count()) /
+        1000.0;
     std::cout << operation_name << ": " << std::fixed << std::setprecision(2)
               << time_ms << " ms\n";
   }
@@ -108,7 +110,7 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeRetrievalPerformance) {
     auto [src, dest, weight] = edges[i % edges.size()];
     queries.emplace_back(src, dest);
   }
-  for (int i = queries.size(); i < NUM_QUERIES; ++i) {
+  for (size_t i = queries.size(); i < static_cast<size_t>(NUM_QUERIES); ++i) {
     queries.emplace_back(vertex_dis(gen), vertex_dis(gen));
   }
   std::shuffle(queries.begin(), queries.end(), gen);
