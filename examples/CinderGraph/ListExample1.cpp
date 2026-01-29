@@ -4,7 +4,7 @@ using namespace CinderPeak;
 class ListVertex : public CinderVertex {
 public:
   int data;
-  ListVertex(int data) : data{data} {};
+  ListVertex(int value) : data{value} {};
   ListVertex() = default;
 };
 

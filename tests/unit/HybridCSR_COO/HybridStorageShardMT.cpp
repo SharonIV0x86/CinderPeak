@@ -183,7 +183,7 @@ TEST_F(HybridStorageShardTestMT, PerformanceRegression) {
 }
 
 TEST_F(HybridStorageShardTestMT, ConcurrentVertexAdditionAndRemoval) {
-  const int NUM_THREADS = 6;
+  [[maybe_unused]] const int NUM_THREADS = 8;
   const int NUM_OPERATIONS = 1000;
 
   std::atomic<bool> stop_flag{false};
@@ -301,7 +301,7 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
 
-  auto mixed_worker = [&](int thread_id) {
+  auto mixed_worker = [&]([[maybe_unused]] int thread_id) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> op_dis(0, 4);
@@ -465,7 +465,7 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
 
-  auto worker = [&](int thread_id) {
+  auto worker = [&]([[maybe_unused]] int thread_id) {
     std::vector<std::string> vertices = {"vertex0", "vertex1", "vertex2"};
     std::vector<std::string> new_vertices = {"vertex3", "vertex4", "vertex5",
                                              "vertex6", "vertex7"};
@@ -579,7 +579,7 @@ TEST_F(HybridStorageShardTestMT, HighContentionOnSingleVertex) {
   std::atomic<bool> stop_flag{false};
   std::atomic<int> success_count{0};
 
-  auto high_contention_worker = [&](int thread_id) {
+  auto high_contention_worker = [&]([[maybe_unused]] int thread_id) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> op_dis(0, 3);
@@ -632,7 +632,7 @@ TEST_F(HybridStorageShardTestMT, LongRunningStressTest) {
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
 
-  auto long_running_worker = [&](int thread_id) {
+  auto long_running_worker = [&]([[maybe_unused]] int thread_id) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> op_dis(0, 4);
