@@ -25,11 +25,6 @@ int main() {
   graph.addVertex(1);
   graph.addVertex(2);
   graph.addVertex(3);
-
-  // add vertices (check insertion result)
-  graph.addVertex(1);
-  graph.addVertex(2);
-  graph.addVertex(3);
   std::cout << "Number of vertices: " << graph.numVertices() << "\n";
   graph.addVertex(4);
   graph.addVertex(5);
@@ -114,7 +109,7 @@ int main() {
   listGraph.addVertex(lv2);
 
   // add weighted edge with ListEdge
-  auto [listWeKey, listAdded] = listGraph.addEdge(lv1, lv2, e1);
+  auto [_, listAdded] = listGraph.addEdge(lv1, lv2, e1);
   if (listAdded)
     std::cout << "Added ListEdge between lv1 and lv2 with weight "
               << e1.edge_weight << "\n";

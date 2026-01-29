@@ -172,12 +172,14 @@ public:
     vertex_to_index.clear();
 
     for (const auto &[src, neighbors] : adj_list) {
-      if (!vertex_to_index.count(src)) {
+      auto src_it = vertex_to_index.find(src);
+      if (src_it == vertex_to_index.end()) {
         vertex_to_index[src] = vertex_order.size();
         vertex_order.push_back(src);
       }
       for (const auto &[dest, weight] : neighbors) {
-        if (!vertex_to_index.count(dest)) {
+        auto dest_it = vertex_to_index.find(dest);
+        if (dest_it == vertex_to_index.end()) {
           vertex_to_index[dest] = vertex_order.size();
           vertex_order.push_back(dest);
         }
@@ -236,7 +238,8 @@ public:
   const PeakStatus impl_addVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (vertex_to_index.count(vtx)) {
+    auto vtx_it = vertex_to_index.find(vtx);
+    if (vtx_it != vertex_to_index.end()) {
       return PeakStatus::AlreadyExists();
     }
     size_t new_idx = vertex_order.size();
@@ -253,12 +256,14 @@ public:
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
+    auto src_it = vertex_to_index.find(src);
+    auto dest_it = vertex_to_index.find(dest);
+    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
       return PeakStatus::VertexNotFound();
     }
 
-    coo_src.push_back(vertex_to_index[src]);
-    coo_dest.push_back(vertex_to_index[dest]);
+    coo_src.push_back(src_it->second);
+    coo_dest.push_back(dest_it->second);
     coo_weights.push_back(weight);
 
     if (is_built_.load(std::memory_order_relaxed) &&
@@ -275,12 +280,14 @@ public:
 
     auto weight = EdgeType();
 
-    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
+    auto src_it = vertex_to_index.find(src);
+    auto dest_it = vertex_to_index.find(dest);
+    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
       return std::make_pair(weight, PeakStatus::VertexNotFound());
     }
 
-    size_t src_idx = vertex_to_index[src];
-    size_t dest_idx = vertex_to_index[dest];
+    size_t src_idx = src_it->second;
+    size_t dest_idx = dest_it->second;
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
@@ -323,14 +330,16 @@ public:
   const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) override {
-    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
+    auto src_it = vertex_to_index.find(src);
+    auto dest_it = vertex_to_index.find(dest);
+    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
       return PeakStatus::VertexNotFound();
     }
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    size_t src_idx = vertex_to_index[src];
-    size_t dest_idx = vertex_to_index[dest];
+    size_t src_idx = src_it->second;
+    size_t dest_idx = dest_it->second;
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
@@ -419,12 +428,14 @@ public:
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
-    if (!vertex_to_index.count(src) || !vertex_to_index.count(dest)) {
+    auto src_it = vertex_to_index.find(src);
+    auto dest_it = vertex_to_index.find(dest);
+    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
       return {EdgeType{}, PeakStatus::VertexNotFound()};
     }
 
-    size_t src_idx = vertex_to_index.at(src);
-    size_t dest_idx = vertex_to_index.at(dest);
+    size_t src_idx = src_it->second;
+    size_t dest_idx = dest_it->second;
 
     for (size_t i = coo_src.size(); i > 0; --i) {
       if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
@@ -454,11 +465,12 @@ public:
   const PeakStatus impl_removeVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (!vertex_to_index.count(vtx)) {
+    auto vtx_it = vertex_to_index.find(vtx);
+    if (vtx_it == vertex_to_index.end()) {
       return PeakStatus::VertexNotFound();
     }
 
-    size_t idx_to_remove = vertex_to_index[vtx];
+    size_t idx_to_remove = vtx_it->second;
 
     for (size_t i = 0; i < coo_src.size();) {
       if (coo_src[i] == idx_to_remove || coo_dest[i] == idx_to_remove) {
