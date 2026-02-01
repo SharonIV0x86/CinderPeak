@@ -109,7 +109,8 @@ int main() {
   listGraph.addVertex(lv2);
 
   // add weighted edge with ListEdge
-  auto [_, listAdded] = listGraph.addEdge(lv1, lv2, e1);
+  auto [listWeKey, listAdded] = listGraph.addEdge(lv1, lv2, e1);
+  (void)listWeKey;
   if (listAdded)
     std::cout << "Added ListEdge between lv1 and lv2 with weight "
               << e1.edge_weight << "\n";
