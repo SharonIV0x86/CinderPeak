@@ -23,6 +23,7 @@ int main() {
   graph.addEdge(5, 6, 90);
   graph.addEdge(6, 7, 100);
   graph.addEdge(7, 8, 110);
+
   auto e8 = graph.addEdge(8, 1, 120);
 
   std::cout << "Edge add (1->2) status: " << e1.second << "\n";
