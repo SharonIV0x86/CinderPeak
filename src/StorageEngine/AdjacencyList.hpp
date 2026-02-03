@@ -80,9 +80,8 @@ public:
       _adj.try_emplace(assignedId);
     }
 
-    // perform string construction and logging outside of the lock to avoid
+    // Perform string construction and logging outside of the lock to avoid
     // blocking critical sections
-    // TODO: this is a test log for output check so remove it in future.
     std::string logMsg =
         std::string("Vertex added with id= ") + std::to_string(assignedId);
     pHandler.log(LogLevel::INFO, logMsg);
