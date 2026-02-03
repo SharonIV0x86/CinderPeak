@@ -44,7 +44,6 @@ public:
     LogLevel::INFO,
     "Successfully initialized context object."
 );
-  }
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
     if (!hasVertex(src)) {
