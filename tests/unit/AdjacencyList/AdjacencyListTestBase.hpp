@@ -35,17 +35,18 @@ class ComplexAdjVertex : public CinderVertex {
 public:
   int vertexData;
   std::string nodeName;
-  ComplexAdjVertex(int vertexData_, std::string node_name)
-      : vertexData{vertexData_}, nodeName{node_name} {}
+  ComplexAdjVertex(int vertex_data, std::string node_name)
+      : vertexData{vertex_data}, nodeName{node_name} {}
   ComplexAdjVertex() = default;
 };
 
 class ComplexAdjEdge : public CinderEdge {
 public:
   float edgeValue;
-  ComplexAdjEdge(float edgeValue_) : edgeValue{edgeValue_} {}
+  ComplexAdjEdge(float edge_value) : edgeValue{edge_value} {}
   ComplexAdjEdge() = default;
 };
+
 
 class ComplexGraph : public ::testing::Test {
 public:
