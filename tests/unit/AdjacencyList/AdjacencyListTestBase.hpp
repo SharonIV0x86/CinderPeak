@@ -47,7 +47,6 @@ public:
   ComplexAdjEdge() = default;
 };
 
-
 class ComplexGraph : public ::testing::Test {
 public:
   ComplexAdjVertex v1, v2, v3;
