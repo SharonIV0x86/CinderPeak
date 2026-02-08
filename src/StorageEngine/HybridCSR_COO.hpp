@@ -494,8 +494,6 @@ public:
       size_t current_offset = 0;
       size_t new_row_idx = 0;
 
-      new_row_offsets[0] = 0;
-
       for (size_t old_row = 0; old_row < vertex_order.size(); ++old_row) {
         if (old_row == idx_to_remove)
           continue;

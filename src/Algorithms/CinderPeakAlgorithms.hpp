@@ -14,8 +14,8 @@ public:
       nullptr;
   CinderPeakAlgorithms(
       const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>>
-          &hcsr)
-      : hcsr(hcsr) {}
+          &hybridcsr)
+      : hcsr(hybridcsr) {}
   BFSResult<VertexType> bfs([[maybe_unused]] const VertexType &src) {
     std::cout << "Algorithms::bfs called\n";
 
