@@ -174,11 +174,6 @@ public:
       }
     }
 
-    // perform logging outside of the lock to avoid blocking critical sections
-    for (const auto &warning : warnings) {
-      LOG_WARNING(warning);
-    }
-
     return overall;
   }
 

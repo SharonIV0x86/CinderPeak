@@ -12,13 +12,13 @@ int main() {
          << endl;
 
     // 2. Adding multiple vertices
-    auto [v2, added2] = g1.addVertex(2);
-    auto [v3, added3] = g1.addVertex(3);
+    [[maybe_unused]] auto [v2, added2] = g1.addVertex(2);
+    [[maybe_unused]] auto [v3, added3] = g1.addVertex(3);
     cout << "Added vertices 2 and 3" << endl;
     cout << "Total vertices: " << g1.numVertices() << endl;
 
     // 3. Duplicate vertex handling
-    auto [v4, added4] = g1.addVertex(1);
+    [[maybe_unused]] auto [v4, added4] = g1.addVertex(1);
     cout << "Adding duplicate vertex 1: " << (added4 ? "success" : "failed")
          << endl;
 
