@@ -24,9 +24,9 @@ int main() {
 
     // 4. String vertices
     CinderGraph<string, double> g2;
-    auto [vs1, addedS1] = g2.addVertex("NodeA");
-    auto [vs2, addedS2] = g2.addVertex("NodeB");
-    auto [vs3, addedS3] = g2.addVertex("NodeC");
+    [[maybe_unused]] auto [vs1, addedS1] = g2.addVertex("NodeA");
+    [[maybe_unused]] auto [vs2, addedS2] = g2.addVertex("NodeB");
+    [[maybe_unused]] auto [vs3, addedS3] = g2.addVertex("NodeC");
     cout << "\nAdded string vertices: " << g2.numVertices() << endl;
 
     // 5. Adding vertices in a loop

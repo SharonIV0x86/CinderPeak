@@ -16,7 +16,7 @@ public:
       const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>>
           &hcsr)
       : hcsr(hcsr) {}
-  BFSResult<VertexType> bfs(const VertexType &src) {
+  BFSResult<VertexType> bfs([[maybe_unused]] const VertexType &src) {
     std::cout << "Algorithms::bfs called\n";
 
     BFSResult<VertexType> result;
