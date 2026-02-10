@@ -40,10 +40,10 @@ public:
             const GraphCreationOptions &options =
                 CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
             const PolicyConfiguration &cfg = PolicyConfiguration())
-      : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
-    initializeContext(metadata, options, cfg);
-    LOG_INFO("Successfully initialized context object.");
-  }
+      : ctx->pHandler->log(
+    LogLevel::INFO,
+    "Successfully initialized context object."
+);
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
     if (!hasVertex(src)) {
