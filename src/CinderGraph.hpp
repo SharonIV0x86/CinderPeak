@@ -142,7 +142,7 @@ public:
     }
   }
 
-  bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
+  bool hasVertex(const VertexType &v) const { return peak_store->hasVertex(v); }
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
@@ -183,7 +183,7 @@ public:
 
     return {newWeight, true};
   }
-  GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) {
+  GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) const {
     LOG_INFO("Called getEdge");
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
@@ -192,6 +192,20 @@ public:
     }
     return {std::make_optional(data), true};
   }
+
+  std::vector<std::pair<VertexType, EdgeType>> getNeighbors(const VertexType &v) const {
+    auto [neighbors, status] = peak_store->getNeighbors(v);
+    if (!status.isOK()) {
+      Exceptions::handle_exception_map(status);
+      return {};
+    }
+    return neighbors;
+  }
+
+  std::vector<VertexType> getAllVertices() const {
+    return peak_store->getAllVertices();
+  }
+
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }

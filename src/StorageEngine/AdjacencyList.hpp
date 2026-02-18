@@ -228,13 +228,13 @@ public:
     return PeakStatus::EdgeNotFound();
   }
 
-  bool impl_hasVertex(const VertexType &v) override {
+  bool impl_hasVertex(const VertexType &v) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return _vertex_lookup.find(v) != _vertex_lookup.end();
   }
 
   bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
+                          const VertexType &dest) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -256,7 +256,7 @@ public:
   }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
+                          const EdgeType &weight) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -278,7 +278,7 @@ public:
   }
 
   const std::pair<EdgeType, PeakStatus>
-  impl_getEdge(const VertexType &src, const VertexType &dest) override {
+  impl_getEdge(const VertexType &src, const VertexType &dest) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);

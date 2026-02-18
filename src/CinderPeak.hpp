@@ -5,6 +5,7 @@
 #include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/Utils.hpp"
+#include "Algorithms.hpp"
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;

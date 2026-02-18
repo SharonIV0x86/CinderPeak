@@ -28,16 +28,16 @@ public:
                                            const EdgeType &newWeight) = 0;
 
   // Method to check whether a Vertex exists or not
-  virtual bool impl_hasVertex(const VertexType &v) = 0;
+  virtual bool impl_hasVertex(const VertexType &v) const = 0;
 
   virtual bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                                  const EdgeType &weight) = 0;
+                                  const EdgeType &weight) const = 0;
 
   virtual bool impl_doesEdgeExist(const VertexType &src,
-                                  const VertexType &dest) = 0;
+                                  const VertexType &dest) const = 0;
 
   virtual const std::pair<EdgeType, PeakStatus>
-  impl_getEdge(const VertexType &src, const VertexType &dest) = 0;
+  impl_getEdge(const VertexType &src, const VertexType &dest) const = 0;
 
   virtual ~PeakStorageInterface() = default;
 };

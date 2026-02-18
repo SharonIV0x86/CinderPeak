@@ -115,7 +115,7 @@ public:
   }
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
-                                          const VertexType &dest) {
+                                          const VertexType &dest) const {
     LOG_INFO("Called adjacency:getEdge()");
     auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
@@ -134,7 +134,7 @@ public:
   }
 
   // Helper method to call impl_hasVertex from AdjacencyList
-  bool hasVertex(const VertexType &v) {
+  bool hasVertex(const VertexType &v) const {
     LOG_INFO("Called peakStore:hasVertex");
     return ctx->active_storage->impl_hasVertex(v);
   }
@@ -148,6 +148,18 @@ public:
     }
     return status;
   }
+
+  std::vector<VertexType> getAllVertices() const {
+    LOG_INFO("Called peakStore:getAllVertices");
+    auto vertexMap = ctx->adjacency_storage->getVertexDataMap();
+    std::vector<VertexType> vertices;
+    vertices.reserve(vertexMap.size());
+    for (auto const& [id, data] : vertexMap) {
+      vertices.push_back(data);
+    }
+    return vertices;
+  }
+
   const std::shared_ptr<GraphContext<VertexType, EdgeType>> &
   getContext() const {
     return ctx;
