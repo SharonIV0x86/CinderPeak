@@ -35,9 +35,9 @@ private:
   mutable std::shared_mutex _mtx;
 
 public:
-  GraphInternalMetadata(const std::string &graph_type, bool vertex_tp_p,
+  GraphInternalMetadata(const std::string &graphType, bool vertex_tp_p,
                         bool edge_tp_p, bool weighted, bool unweighted)
-      : graph_type(graph_type), is_vertex_type_primitive(vertex_tp_p),
+      : graph_type(graphType), is_vertex_type_primitive(vertex_tp_p),
         is_edge_type_primitive(edge_tp_p) {
 
     num_vertices = 0;
@@ -85,11 +85,11 @@ public:
   GraphInternalMetadata(GraphInternalMetadata &&) = delete;
   GraphInternalMetadata &operator=(GraphInternalMetadata &&) = delete;
 
-  const bool isGraphWeighted() {
+  bool isGraphWeighted() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return is_graph_weighted;
   }
-  const bool isGraphUnweighted() {
+  bool isGraphUnweighted() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return is_graph_unweighted;
   }
@@ -102,7 +102,7 @@ public:
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return num_vertices;
   }
-  const std::string graphType() {
+  std::string graphType() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return graph_type;
   }
@@ -165,7 +165,7 @@ public:
       density = 2 * directed_density;
   }
 
-  const std::string getGraphStatistics(bool directed) {
+  std::string getGraphStatistics(bool directed) {
     updateDensity(directed);
 
     std::shared_lock<std::shared_mutex> lock(_mtx);

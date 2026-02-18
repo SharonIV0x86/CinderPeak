@@ -22,6 +22,8 @@ FLAG_MAP = {
     "with_examples": ("-DBUILD_EXAMPLES=ON",),
     "sanitize": ("-DSANITIZE=ON",),
     "coverage": ("-DBUILD_COVERAGE=ON",),
+    "pedantic_warnings": ("-DPEDANTIC_WARNINGS=ON",),
+    "no_warnings": ("-DPEDANTIC_WARNINGS=OFF",),
 }
 
 def handle_build_errors(func):
@@ -82,6 +84,7 @@ def detect_generator() -> Optional[str]:
 def configure(build_dir: str = None, build_type: str = None,
               with_tests: bool = False, with_examples: bool = False,
               sanitize: bool = False, coverage: bool = False,
+              pedantic_warnings: bool = True, no_warnings: bool = False,
               generator: Optional[str] = None, toolchain: Optional[str] = None,
               cmake_path: str = None, ninja: bool = False,
               D: Optional[List[str]] = None, **kwargs: Any) -> None:
@@ -105,6 +108,12 @@ def configure(build_dir: str = None, build_type: str = None,
         cmake_options.extend(FLAG_MAP["sanitize"])
     if coverage:
         cmake_options.extend(FLAG_MAP["coverage"])
+    
+    # Enable comprehensive warnings by default unless explicitly disabled
+    if no_warnings:
+        cmake_options.extend(FLAG_MAP["no_warnings"])
+    elif pedantic_warnings:
+        cmake_options.extend(FLAG_MAP["pedantic_warnings"])
         
     if ninja:
         cmake_options.append("-GNinja")
@@ -352,6 +361,7 @@ def package(subcommand: str = None, release_version: str = None, **kwargs: Any) 
 def all_command(build_dir: str = None, build_type: str = None,
                 with_tests: bool = False, with_examples: bool = False,
                 sanitize: bool = False, coverage: bool = False,
+                pedantic_warnings: bool = True, no_warnings: bool = False,
                 jobs: Optional[int] = None, skip_tests: bool = False,
                 config: Optional[str] = None, **kwargs: Any) -> None:
     build_dir = build_dir or Config.DEFAULT_BUILD_DIR
@@ -361,7 +371,8 @@ def all_command(build_dir: str = None, build_type: str = None,
     
     configure(build_dir=build_dir, build_type=build_type,
               with_tests=with_tests, with_examples=with_examples,
-              sanitize=sanitize, coverage=coverage, **kwargs)
+              sanitize=sanitize, coverage=coverage,
+              pedantic_warnings=pedantic_warnings, no_warnings=no_warnings, **kwargs)
     
     build(build_dir=build_dir, jobs=jobs, config=config, **kwargs)
     
@@ -385,6 +396,10 @@ if __name__ == '__main__':
     p.add_argument('--with-examples', action='store_true')
     p.add_argument('--sanitize', action='store_true')
     p.add_argument('--coverage', action='store_true')
+    p.add_argument('--pedantic-warnings', action='store_true', default=True,
+                   help='Enable comprehensive compiler warnings (default: ON)')
+    p.add_argument('--no-warnings', action='store_true',
+                   help='Disable comprehensive compiler warnings')
     p.add_argument('--generator')
     p.add_argument('--toolchain')
     p.add_argument('--cmake-path', default='cmake')
@@ -452,6 +467,10 @@ if __name__ == '__main__':
     p.add_argument('--with-examples', action='store_true')
     p.add_argument('--sanitize', action='store_true')
     p.add_argument('--coverage', action='store_true')
+    p.add_argument('--pedantic-warnings', action='store_true', default=True,
+                   help='Enable comprehensive compiler warnings (default: ON)')
+    p.add_argument('--no-warnings', action='store_true',
+                   help='Disable comprehensive compiler warnings')
     p.add_argument('-j', '--jobs', type=int, help="Number of parallel build jobs")
     p.add_argument('--config', help='Build/test configuration (Debug, Release, etc.)')
     p.add_argument('--skip-tests', action='store_true', help="Skip running tests")

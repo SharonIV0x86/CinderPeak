@@ -11,3 +11,5 @@ CMakeFiles/
 Makefile
 cmake_install.cmake
 .DS_Store
+*.dot
+.vscode/

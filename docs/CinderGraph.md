@@ -203,6 +203,22 @@ int main() {
 - Attempts to add an unweighted edge, which logs a critical error (as the graph is weighted).
 - Correctly adds a weighted edge (`1 -> 2` with weight `10`).
 
+### `void toDot(const std::string& filename)`
+- **Description**: Export the current graph to the [Graphviz DOT format](https://graphviz.org/doc/info/lang.html).
+- **Parameters**: 
+  - `filename`: The path to the output file. (Mandatory)
+- **Behavior**:
+  - Automatically detects if the graph is **Directed** (`digraph`) or **Undirected** (`graph`).
+  - Vertices are labeled with their values.
+  - Edges are labeled with their weights (if any).
+  - Uses `strict` mode if **ParallelEdges** are not enabled in options.
+  - **Compile-time Check**: Only available for graphs with primitive vertex/edge types.
+- **Example**:
+  ```cpp
+  // Write to file
+  graph.toDot("graph_output.dot");
+  ```
+
 ## Notes
 - **Error Handling**: The `CinderGraph` class uses `Exceptions::handle_exception_map` to manage errors from `PeakStore` operations. Ensure that the `Exceptions` namespace is properly configured to handle errors gracefully.
 - **Type Safety**: The `VertexType` and `EdgeType` must be compatible with the `PeakStore` backend and support operations like default construction (for `getEdge` error cases).

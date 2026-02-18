@@ -17,8 +17,8 @@ TEST_F(AdjacencyStorageShardTest, UpdateEdgeWithWeight) {
   EXPECT_EQ(edge2.first, 1);
 }
 TEST_F(ComplexGraph, UpdateEdgeOnComplexGraph) {
-  ComplexAdjEdge newEdgeValue1(4.3);
-  ComplexAdjEdge newEdgeValue2(467.32);
+  ComplexAdjEdge newEdgeValue1(4.3f);
+  ComplexAdjEdge newEdgeValue2(467.32f);
   EXPECT_TRUE(complexGraph.impl_addEdge(v1, v2, e1).isOK());
   EXPECT_TRUE(complexGraph.impl_addEdge(v2, v3, e2).isOK());
 

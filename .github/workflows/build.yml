@@ -30,7 +30,7 @@ jobs:
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v1
       with:
-        cmake-version: '3.20'
+        cmake-version: "3.20"
 
     - name: Setup Ninja
       if: matrix.os == 'windows-latest'
@@ -63,13 +63,13 @@ jobs:
     - name: Install gcovr
       run: sudo apt-get update && sudo apt-get install -y gcovr
     - name: Configure CMake (Coverage)
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCOVERAGE=ON
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DBUILD_COVERAGE=ON
     - name: Build
       run: cmake --build build
     - name: Run Tests
       run: ctest --test-dir build --output-on-failure
     - name: Generate Coverage
-      run: gcovr -r . --xml-pretty > coverage.xml
+      run: gcovr --gcov-ignore-parse-errors=negative_hits.warn -r . --xml-pretty > coverage.xml
     - uses: codecov/codecov-action@v4
       with:
         files: coverage.xml
@@ -80,7 +80,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Configure (ASAN + UBSAN)
-      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE_ADDRESS=ON -DSANITIZE_UNDEFINED=ON
+      run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DSANITIZE=ON
     - name: Build
       run: cmake --build build
     - name: Run Tests
@@ -89,12 +89,21 @@ jobs:
   lint:
     name: Lint & Static Analysis
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
+
     - name: Install tools
-      run: sudo apt-get update && sudo apt-get install -y clang-format python3-pip
+      run: sudo apt-get update && sudo apt-get install -y clang-format
+
     - name: Run clang-format (check)
-      run: clang-format --Werror --dry-run $(git ls-files '*.cpp' '*.h' || true)
+      run: |
+        FILES=$(git ls-files '*.cpp' '*.hpp')
+        if [ -z "$FILES" ]; then
+          echo "No C++ source files found!"
+          exit 1
+        fi
+        echo "$FILES" | xargs clang-format --dry-run --Werror
 
   clang-tidy-full-analysis:
     name: Clang-Tidy Full Project Analysis

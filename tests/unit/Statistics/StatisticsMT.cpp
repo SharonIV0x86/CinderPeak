@@ -82,7 +82,7 @@ TEST_F(GraphStatisticsThreadTest, ConcurrentReadOperations) {
           try {
             for (int j = 0; j < reads_per_thread; ++j) {
               size_t vertices = graph.numVertices();
-              size_t edges = graph.numEdges();
+              [[maybe_unused]] size_t edges = graph.numEdges();
               std::string stats = graph.getGraphStatistics();
 
               if (vertices != 100 || stats.empty()) {
@@ -181,7 +181,7 @@ TEST_F(GraphStatisticsThreadTest, MixedReadWriteOperations) {
         while (!stop_test &&
                read_operations < operations_per_thread * num_reader_threads) {
           size_t vertices = graph.numVertices();
-          size_t edges = graph.numEdges();
+          [[maybe_unused]] size_t edges = graph.numEdges();
 
           if (vertices != 30) {
             test_failed = true;

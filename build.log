@@ -1,0 +1,105 @@
+[0/2] Re-checking globbed directories...
+[1/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_removeVertex_test.dir/tests/integration/CinderGraph/functional/removeVertex_test.cpp.o
+[2/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_hasVertex_test.dir/tests/integration/CinderGraph/functional/hasVertex_test.cpp.o
+[3/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_addVertex_test.dir/tests/integration/CinderGraph/functional/addVertex_test.cpp.o
+[4/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_clearEdges_test.dir/tests/integration/CinderGraph/functional/clearEdges_test.cpp.o
+[5/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_updateEdge_test.dir/tests/integration/CinderGraph/functional/updateEdge_test.cpp.o
+[6/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_addEdge_test.dir/tests/integration/CinderGraph/functional/addEdge_test.cpp.o
+[7/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_getEdge_test.dir/tests/integration/CinderGraph/functional/getEdge_test.cpp.o
+[8/127] Building CXX object CMakeFiles/integration_CinderGraph_functional_removeEdge_test.dir/tests/integration/CinderGraph/functional/removeEdge_test.cpp.o
+[9/127] Building CXX object CMakeFiles/integration_CinderGraph_scenarios_BasicConnectivity_test.dir/tests/integration/CinderGraph/scenarios/BasicConnectivity_test.cpp.o
+[10/127] Building CXX object CMakeFiles/unit_AdjacencyList_AdjacencyShardMT.dir/tests/unit/AdjacencyList/AdjacencyShardMT.cpp.o
+[11/127] Building CXX object CMakeFiles/integration_CinderGraph_scenarios_UpdateAndQueryFlow_test.dir/tests/integration/CinderGraph/scenarios/UpdateAndQueryFlow_test.cpp.o
+[12/127] Building CXX object CMakeFiles/unit_AdjacencyList_addEdge_test.dir/tests/unit/AdjacencyList/addEdge_test.cpp.o
+[13/127] Building CXX object CMakeFiles/integration_CinderGraph_scenarios_BulkInsertionStress_test.dir/tests/integration/CinderGraph/scenarios/BulkInsertionStress_test.cpp.o
+[14/127] Building CXX object CMakeFiles/integration_CinderGraph_scenarios_ClearAndReuseGraph_test.dir/tests/integration/CinderGraph/scenarios/ClearAndReuseGraph_test.cpp.o
+[15/127] Building CXX object CMakeFiles/unit_AdjacencyList_addEdges_test.dir/tests/unit/AdjacencyList/addEdges_test.cpp.o
+[16/127] Building CXX object CMakeFiles/unit_AdjacencyList_addVertex_test.dir/tests/unit/AdjacencyList/addVertex_test.cpp.o
+[17/127] Building CXX object CMakeFiles/unit_AdjacencyList_getEdge_test.dir/tests/unit/AdjacencyList/getEdge_test.cpp.o
+[18/127] Building CXX object CMakeFiles/unit_AdjacencyList_removeEdge_test.dir/tests/unit/AdjacencyList/removeEdge_test.cpp.o
+[19/127] Building CXX object CMakeFiles/unit_AdjacencyList_clearVertices_test.dir/tests/unit/AdjacencyList/clearVertices_test.cpp.o
+[20/127] Building CXX object CMakeFiles/unit_AdjacencyList_removeVertex_test.dir/tests/unit/AdjacencyList/removeVertex_test.cpp.o
+[21/127] Building CXX object CMakeFiles/unit_AdjacencyList_hasVertex_test.dir/tests/unit/AdjacencyList/hasVertex_test.cpp.o
+[22/127] Building CXX object CMakeFiles/unit_AdjacencyList_updateEdge_test.dir/tests/unit/AdjacencyList/updateEdge_test.cpp.o
+[23/127] Building CXX object CMakeFiles/unit_AdjacencyList_toDot_test.dir/tests/unit/AdjacencyList/toDot_test.cpp.o
+[24/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_Orchestrator_test.dir/tests/unit/HybridCSR_COO/Orchestrator_test.cpp.o
+[25/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_HybridStorageShardMT.dir/tests/unit/HybridCSR_COO/HybridStorageShardMT.cpp.o
+[26/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_addVertex_test.dir/tests/unit/HybridCSR_COO/addVertex_test.cpp.o
+[27/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_addEdge_test.dir/tests/unit/HybridCSR_COO/addEdge_test.cpp.o
+[28/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_clearEdges_test.dir/tests/unit/HybridCSR_COO/clearEdges_test.cpp.o
+[29/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_doesEdgeExist_test.dir/tests/unit/HybridCSR_COO/doesEdgeExist_test.cpp.o
+[30/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_getEdge_test.dir/tests/unit/HybridCSR_COO/getEdge_test.cpp.o
+[31/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_clearVertices_test.dir/tests/unit/HybridCSR_COO/clearVertices_test.cpp.o
+[32/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_performance_test.dir/tests/unit/HybridCSR_COO/performance_test.cpp.o
+[33/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_hasVertex_test.dir/tests/unit/HybridCSR_COO/hasVertex_test.cpp.o
+[34/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_populateFromAdjList_test.dir/tests/unit/HybridCSR_COO/populateFromAdjList_test.cpp.o
+[35/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_removeVertex_test.dir/tests/unit/HybridCSR_COO/removeVertex_test.cpp.o
+[36/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_removeEdge_test.dir/tests/unit/HybridCSR_COO/removeEdge_test.cpp.o
+[37/127] Building CXX object CMakeFiles/unit_Policies_EPShard_IgnoreAndLogConsole.dir/tests/unit/Policies/EPShard_IgnoreAndLogConsole.cpp.o
+[38/127] Building CXX object CMakeFiles/unit_HybridCSR_COO_updateEdge_test.dir/tests/unit/HybridCSR_COO/updateEdge_test.cpp.o
+[39/127] Building CXX object CMakeFiles/unit_Policies_EPShard_ThrowAndLogConsole.dir/tests/unit/Policies/EPShard_ThrowAndLogConsole.cpp.o
+[40/127] Building CXX object CMakeFiles/unit_Policies_EPShard_IgnoreAndConsoleAndFile.dir/tests/unit/Policies/EPShard_IgnoreAndConsoleAndFile.cpp.o
+[41/127] Building CXX object CMakeFiles/Algorithms_cinderpeak_bfs_example.dir/examples/Algorithms/cinderpeak_bfs.cpp.o
+[42/127] Building CXX object CMakeFiles/unit_Statistics_StatisticsMT.dir/tests/unit/Statistics/StatisticsMT.cpp.o
+[43/127] Building CXX object CMakeFiles/unit_Statistics_Statistics.dir/tests/unit/Statistics/Statistics.cpp.o
+[44/127] Building CXX object CMakeFiles/unit_Policies_EPShard_IgnoreAndLogFile.dir/tests/unit/Policies/EPShard_IgnoreAndLogFile.cpp.o
+[45/127] Building CXX object CMakeFiles/unit_Policies_EPShard_ThrowAndConsoleAndFile.dir/tests/unit/Policies/EPShard_ThrowAndConsoleAndFile.cpp.o
+[46/127] Building CXX object CMakeFiles/unit_Policies_EPShard_ThrowAndLogFile.dir/tests/unit/Policies/EPShard_ThrowAndLogFile.cpp.o
+[47/127] Building CXX object CMakeFiles/CinderGraph_PrimitiveGraph_example.dir/examples/CinderGraph/PrimitiveGraph.cpp.o
+[48/127] Building CXX object CMakeFiles/CinderGraph_ListExample1_example.dir/examples/CinderGraph/ListExample1.cpp.o
+[49/127] Building CXX object CMakeFiles/CinderGraph_hasVertex_usage_example.dir/examples/CinderGraph/hasVertex_usage.cpp.o
+[50/127] Building CXX object CMakeFiles/CinderGraph_addVertex_usage_example.dir/examples/CinderGraph/addVertex_usage.cpp.o
+/home/jasper/Development/CP-DEV-SELF/something/CinderPeak/examples/CinderGraph/addVertex_usage.cpp: In function ‘int main()’:
+/home/jasper/Development/CP-DEV-SELF/something/CinderPeak/examples/CinderGraph/addVertex_usage.cpp:15:10: warning: structured binding declaration set but not used [-Wunused-but-set-variable]
+   15 |     auto [v2, added2] = g1.addVertex(2);
+      |          ^~~~~~~~~~~~
+/home/jasper/Development/CP-DEV-SELF/something/CinderPeak/examples/CinderGraph/addVertex_usage.cpp:16:10: warning: structured binding declaration set but not used [-Wunused-but-set-variable]
+   16 |     auto [v3, added3] = g1.addVertex(3);
+      |          ^~~~~~~~~~~~
+[51/127] Building CXX object CMakeFiles/CinderGraph_clearEdges_usage_example.dir/examples/CinderGraph/clearEdges_usage.cpp.o
+[52/127] Building CXX object CMakeFiles/CinderGraph_addEdge_usage_example.dir/examples/CinderGraph/addEdge_usage.cpp.o
+[53/127] Building CXX object CMakeFiles/CinderGraph_numEdges_usage_example.dir/examples/CinderGraph/numEdges_usage.cpp.o
+[54/127] Building CXX object CMakeFiles/CinderGraph_getEdge_usage_example.dir/examples/CinderGraph/getEdge_usage.cpp.o
+[55/127] Building CXX object CMakeFiles/CinderGraph_operator_access_usage_example.dir/examples/CinderGraph/operator_access_usage.cpp.o
+[56/127] Building CXX object CMakeFiles/CinderGraph_numVertices_usage_example.dir/examples/CinderGraph/numVertices_usage.cpp.o
+[57/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/addEdge_test
+[58/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/addVertex_test
+[59/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/clearEdges_test
+[60/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/getEdge_test
+[61/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/hasVertex_test
+[62/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/removeEdge_test
+[63/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/removeVertex_test
+[64/127] Linking CXX executable bin/tests/integration/CinderGraph/functional/updateEdge_test
+[65/127] Linking CXX executable bin/tests/integration/CinderGraph/scenarios/BasicConnectivity_test
+[66/127] Building CXX object CMakeFiles/experimental_HybridExample_example.dir/examples/experimental/HybridExample.cpp.o
+[67/127] Linking CXX executable bin/tests/integration/CinderGraph/scenarios/BulkInsertionStress_test
+[68/127] Linking CXX executable bin/tests/integration/CinderGraph/scenarios/ClearAndReuseGraph_test
+[69/127] Linking CXX executable bin/tests/integration/CinderGraph/scenarios/UpdateAndQueryFlow_test
+[70/127] Linking CXX executable bin/tests/unit/AdjacencyList/AdjacencyShardMT
+[71/127] Linking CXX executable bin/tests/unit/AdjacencyList/addEdge_test
+[72/127] Linking CXX executable bin/tests/unit/AdjacencyList/addEdges_test
+[73/127] Linking CXX executable bin/tests/unit/AdjacencyList/addVertex_test
+[74/127] Linking CXX executable bin/tests/unit/AdjacencyList/clearVertices_test
+[75/127] Linking CXX executable bin/tests/unit/AdjacencyList/getEdge_test
+[76/127] Linking CXX executable bin/tests/unit/AdjacencyList/removeEdge_test
+[77/127] Linking CXX executable bin/tests/unit/AdjacencyList/hasVertex_test
+[78/127] Linking CXX executable bin/tests/unit/AdjacencyList/removeVertex_test
+[79/127] Linking CXX executable bin/tests/unit/AdjacencyList/toDot_test
+[80/127] Building CXX object CMakeFiles/experimental_PeakExample_example.dir/examples/experimental/PeakExample.cpp.o
+[81/127] Linking CXX executable bin/tests/unit/AdjacencyList/updateEdge_test
+[82/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/HybridStorageShardMT
+[83/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/addEdge_test
+[84/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/Orchestrator_test
+[85/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/addVertex_test
+[86/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/clearVertices_test
+[87/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/doesEdgeExist_test
+[88/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/clearEdges_test
+[89/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/hasVertex_test
+[90/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/getEdge_test
+[91/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/performance_test
+[92/127] Linking CXX executable bin/tests/unit/HybridCSR_COO/removeEdge_test
+
+
+Build interrupted by user.
+$ /usr/bin/cmake --build build -j 8
+ninja: build stopped: interrupted by user.

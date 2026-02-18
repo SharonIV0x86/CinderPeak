@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
@@ -7,6 +8,7 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -28,6 +30,9 @@ private:
     ctx->adjacency_storage =
         std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
     ctx->active_storage = ctx->adjacency_storage;
+    ctx->algorithms = std::make_shared<
+        Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
+        ctx->hybrid_storage);
   }
 
 public:
@@ -39,7 +44,16 @@ public:
     initializeContext(metadata, options, cfg);
     LOG_INFO("Successfully initialized context object.");
   }
-
+  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+    Algorithms::BFSResult<VertexType> result;
+    if (!hasVertex(src)) {
+      result._status =
+          PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
+      return result;
+    }
+    result = std::move(ctx->algorithms->bfs(src));
+    return result;
+  }
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
     bool isWeighted = ctx->metadata->isGraphWeighted();
@@ -207,6 +221,32 @@ public:
   size_t numVertices() const {
     LOG_INFO("Called peakStore:numVertices");
     return ctx->metadata->numVertices();
+  }
+
+  // Export to DOT format (File Output Only)
+  void toDot(const std::string &filename) {
+    if (filename.empty()) {
+      LOG_ERROR("Empty filename provided for toDot output");
+      return;
+    }
+
+    std::ofstream outFile(filename);
+    if (!outFile) {
+      LOG_ERROR("Could not open file for writing: " + filename);
+      return;
+    }
+
+    bool isDirected =
+        ctx->create_options->hasOption(GraphCreationOptions::Directed);
+    bool allowParallel =
+        ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
+
+    std::string content =
+        ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
+    outFile << content;
+    outFile.close();
+
+    LOG_INFO("Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {

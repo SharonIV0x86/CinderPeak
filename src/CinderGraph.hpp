@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
@@ -204,6 +205,16 @@ public:
 
   std::vector<VertexType> getAllVertices() const {
     return peak_store->getAllVertices();
+  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+    return peak_store->bfs(src);
+  }
+
+  template <typename V = VertexType, typename E = EdgeType>
+  auto toDot(const std::string &filename)
+      -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
+                          (Traits::isTypePrimitive<E>() ||
+                           Traits::is_unweighted_v<E>)> {
+    peak_store->toDot(filename);
   }
 
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
@@ -217,7 +228,6 @@ public:
   CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
     return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
   }
-
   const CinderGraphRowProxy<VertexType, EdgeType>
   operator[](const VertexType &v) const {
     return CinderGraphRowProxy<VertexType, EdgeType>(
