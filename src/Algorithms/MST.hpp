@@ -1,5 +1,5 @@
 #pragma once
-#include "../CinderGraph.hpp"
+#include "../StorageInterface.hpp"
 #include <vector>
 #include <queue>
 #include <unordered_map>
@@ -19,12 +19,12 @@ struct MSTEdge {
 };
 
 template <typename VertexType, typename EdgeType>
-std::vector<MSTEdge<VertexType, EdgeType>> primMST(const CinderGraph<VertexType, EdgeType>& graph) {
+std::vector<MSTEdge<VertexType, EdgeType>> primMST(const PeakStorageInterface<VertexType, EdgeType>& storage) {
     STATIC_ASSERT_WEIGHTED(EdgeType);
     STATIC_ASSERT_NUMERIC_EDGE(EdgeType);
 
     std::vector<MSTEdge<VertexType, EdgeType>> mst;
-    auto vertices = graph.getAllVertices();
+    auto vertices = storage.impl_getAllVertices();
     if (vertices.empty()) return mst;
 
     std::unordered_set<VertexType, VertexHasher<VertexType>> visited;
@@ -34,7 +34,9 @@ std::vector<MSTEdge<VertexType, EdgeType>> primMST(const CinderGraph<VertexType,
     visited.insert(startNode);
 
     auto addEdges = [&](const VertexType& u) {
-        auto neighbors = graph.getNeighbors(u);
+        auto [neighbors, status] = storage.impl_getNeighbors(u);
+        if (!status.isOK()) return;
+
         for (const auto& edge : neighbors) {
             if (visited.find(edge.first) == visited.end()) {
                 pq.push({u, edge.first, edge.second});

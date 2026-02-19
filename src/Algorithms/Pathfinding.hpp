@@ -1,5 +1,5 @@
 #pragma once
-#include "../CinderGraph.hpp"
+#include "../StorageInterface.hpp"
 #include <queue>
 #include <unordered_map>
 #include <vector>
@@ -15,7 +15,7 @@ struct DijkstraResult {
 };
 
 template <typename VertexType, typename EdgeType>
-DijkstraResult<VertexType, EdgeType> dijkstra(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& startVertex) {
+DijkstraResult<VertexType, EdgeType> dijkstra(const PeakStorageInterface<VertexType, EdgeType>& storage, const VertexType& startVertex) {
     STATIC_ASSERT_WEIGHTED(EdgeType);
     STATIC_ASSERT_NUMERIC_EDGE(EdgeType);
 
@@ -25,7 +25,7 @@ DijkstraResult<VertexType, EdgeType> dijkstra(const CinderGraph<VertexType, Edge
     DistanceMap distances;
     PredecessorMap predecessors;
     
-    auto vertices = graph.getAllVertices();
+    auto vertices = storage.impl_getAllVertices();
     for (const auto& v : vertices) {
         distances[v] = std::numeric_limits<EdgeType>::max();
     }
@@ -48,7 +48,9 @@ DijkstraResult<VertexType, EdgeType> dijkstra(const CinderGraph<VertexType, Edge
 
         if (d > distances[u]) continue;
 
-        auto neighbors = graph.getNeighbors(u);
+        auto [neighbors, status] = storage.impl_getNeighbors(u);
+        if (!status.isOK()) continue;
+
         for (const auto& edge : neighbors) {
             VertexType v = edge.first;
             EdgeType weight = edge.second;
@@ -72,11 +74,11 @@ struct BellmanFordResult {
 };
 
 template <typename VertexType, typename EdgeType>
-BellmanFordResult<VertexType, EdgeType> bellmanFord(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& startVertex) {
+BellmanFordResult<VertexType, EdgeType> bellmanFord(const PeakStorageInterface<VertexType, EdgeType>& storage, const VertexType& startVertex) {
     STATIC_ASSERT_WEIGHTED(EdgeType);
     STATIC_ASSERT_NUMERIC_EDGE(EdgeType);
 
-    auto vertices = graph.getAllVertices();
+    auto vertices = storage.impl_getAllVertices();
     std::unordered_map<VertexType, EdgeType, VertexHasher<VertexType>> distances;
     std::unordered_map<VertexType, VertexType, VertexHasher<VertexType>> predecessors;
 
@@ -94,7 +96,9 @@ BellmanFordResult<VertexType, EdgeType> bellmanFord(const CinderGraph<VertexType
         bool changed = false;
         for (const auto& u : vertices) {
             if (distances[u] == std::numeric_limits<EdgeType>::max()) continue;
-            auto neighbors = graph.getNeighbors(u);
+            auto [neighbors, status] = storage.impl_getNeighbors(u);
+            if (!status.isOK()) continue;
+
             for (const auto& edge : neighbors) {
                 if (distances[u] + edge.second < distances[edge.first]) {
                     distances[edge.first] = distances[u] + edge.second;
@@ -109,7 +113,9 @@ BellmanFordResult<VertexType, EdgeType> bellmanFord(const CinderGraph<VertexType
     // Check for negative cycles
     for (const auto& u : vertices) {
         if (distances[u] == std::numeric_limits<EdgeType>::max()) continue;
-        auto neighbors = graph.getNeighbors(u);
+        auto [neighbors, status] = storage.impl_getNeighbors(u);
+        if (!status.isOK()) continue;
+
         for (const auto& edge : neighbors) {
             if (distances[u] + edge.second < distances[edge.first]) {
                 return {distances, predecessors, true};

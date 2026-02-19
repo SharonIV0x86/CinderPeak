@@ -8,7 +8,6 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <type_traits>
@@ -256,6 +255,52 @@ public:
     if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
       directed = false;
     return ctx->metadata->getGraphStatistics(directed);
+  }
+
+  std::shared_ptr<HybridCSR_COO<VertexType, EdgeType>> getHybridSnapshot() const {
+    ctx->adjacency_storage->snapshotToHybrid(*(ctx->hybrid_storage));
+    return ctx->hybrid_storage;
+  }
+
+  // Algorithm Implementations following API -> PeakStore -> Algorithms flow
+  void bfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    auto snapshot = getHybridSnapshot();
+    CinderPeak::Algorithms::bfs(*snapshot, startVertex, visitor);
+  }
+
+  void dfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    auto snapshot = getHybridSnapshot();
+    CinderPeak::Algorithms::dfs(*snapshot, startVertex, visitor);
+  }
+
+  CinderPeak::Algorithms::DijkstraResult<VertexType, EdgeType>
+  dijkstra(const VertexType &startVertex) const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::dijkstra(*snapshot, startVertex);
+  }
+
+  CinderPeak::Algorithms::BellmanFordResult<VertexType, EdgeType>
+  bellmanFord(const VertexType &startVertex) const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::bellmanFord(*snapshot, startVertex);
+  }
+
+  std::vector<VertexType> topologicalSort() const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::topologicalSort(*snapshot);
+  }
+
+  bool hasCycle() const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::hasCycle(*snapshot);
+  }
+
+  std::vector<CinderPeak::Algorithms::MSTEdge<VertexType, EdgeType>>
+  primMST() const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::primMST(*snapshot);
   }
 };
 

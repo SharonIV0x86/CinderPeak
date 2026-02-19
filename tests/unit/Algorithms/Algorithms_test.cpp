@@ -44,7 +44,7 @@ protected:
 
 TEST_F(GraphAlgorithmsTest, BFSTest) {
     std::vector<std::string> visited;
-    bfs(unweightedGraph, std::string("A"), [&](const std::string& v) {
+    unweightedGraph.bfs(std::string("A"), [&](const std::string& v) {
         visited.push_back(v);
     });
 
@@ -60,7 +60,7 @@ TEST_F(GraphAlgorithmsTest, BFSTest) {
 
 TEST_F(GraphAlgorithmsTest, DFSTest) {
     std::vector<std::string> visited;
-    dfs(unweightedGraph, std::string("A"), [&](const std::string& v) {
+    unweightedGraph.dfs(std::string("A"), [&](const std::string& v) {
         visited.push_back(v);
     });
 
@@ -71,7 +71,7 @@ TEST_F(GraphAlgorithmsTest, DFSTest) {
 }
 
 TEST_F(GraphAlgorithmsTest, DijkstraTest) {
-    auto result = dijkstra(weightedGraph, std::string("A"));
+    auto result = weightedGraph.dijkstra(std::string("A"));
 
     EXPECT_EQ(result.distances["A"], 0);
     EXPECT_EQ(result.distances["B"], 1);
@@ -100,7 +100,7 @@ TEST_F(GraphAlgorithmsTest, TopologicalSortTest) {
     dag.addEdge("11", "10");
     dag.addEdge("8", "9");
 
-    auto sorted = topologicalSort(dag);
+    auto sorted = dag.topologicalSort();
     ASSERT_EQ(sorted.size(), 8);
 
     // Verify topological order: for every edge u -> v, u comes before v
@@ -143,7 +143,7 @@ TEST_F(GraphAlgorithmsTest, PrimMSTTest) {
     addUndirected("B", "D", 1);
     addUndirected("C", "D", 6);
 
-    auto mst = primMST(mstGraph);
+    auto mst = mstGraph.primMST();
     
     // MST should have 3 edges (4 vertices - 1)
     ASSERT_EQ(mst.size(), 3);
@@ -160,13 +160,13 @@ TEST_F(GraphAlgorithmsTest, PrimMSTTest) {
 
 TEST_F(GraphAlgorithmsTest, EmptyGraphTest) {
     CinderGraph<std::string, int> emptyGraph;
-    auto result = dijkstra(emptyGraph, std::string("A"));
+    auto result = emptyGraph.dijkstra(std::string("A"));
     EXPECT_TRUE(result.distances.empty());
 
-    auto mst = primMST(emptyGraph);
+    auto mst = emptyGraph.primMST();
     EXPECT_TRUE(mst.empty());
 
     CinderGraph<std::string, Unweighted> emptyUnweighted;
-    auto sorted = topologicalSort(emptyUnweighted);
+    auto sorted = emptyUnweighted.topologicalSort();
     EXPECT_TRUE(sorted.empty());
 }

@@ -5,7 +5,9 @@
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <functional>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <tuple>
 #include <utility>
@@ -205,6 +207,8 @@ public:
 
   std::vector<VertexType> getAllVertices() const {
     return peak_store->getAllVertices();
+  }
+
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     return peak_store->bfs(src);
   }
@@ -215,6 +219,44 @@ public:
                           (Traits::isTypePrimitive<E>() ||
                            Traits::is_unweighted_v<E>)> {
     peak_store->toDot(filename);
+  }
+
+  std::shared_ptr<CinderPeak::PeakStore::HybridCSR_COO<VertexType, EdgeType>> getHybridSnapshot() const {
+      return peak_store->getHybridSnapshot();
+  }
+
+  // Graph Algorithms API
+  void bfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    peak_store->bfs(startVertex, visitor);
+  }
+
+  void dfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    peak_store->dfs(startVertex, visitor);
+  }
+
+  auto dijkstra(const VertexType &startVertex) const
+      -> Algorithms::DijkstraResult<VertexType, EdgeType> {
+    return peak_store->dijkstra(startVertex);
+  }
+
+  auto bellmanFord(const VertexType &startVertex) const
+      -> Algorithms::BellmanFordResult<VertexType, EdgeType> {
+    return peak_store->bellmanFord(startVertex);
+  }
+
+  std::vector<VertexType> topologicalSort() const {
+    return peak_store->topologicalSort();
+  }
+
+  bool hasCycle() const {
+    return peak_store->hasCycle();
+  }
+
+  auto primMST() const
+      -> std::vector<Algorithms::MSTEdge<VertexType, EdgeType>> {
+    return peak_store->primMST();
   }
 
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }

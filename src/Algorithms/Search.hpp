@@ -1,5 +1,5 @@
 #pragma once
-#include "../CinderGraph.hpp"
+#include "../StorageInterface.hpp"
 #include <queue>
 #include <stack>
 #include <unordered_set>
@@ -9,9 +9,9 @@
 namespace CinderPeak::Algorithms {
 
 template <typename VertexType, typename EdgeType>
-void bfs(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& startVertex,
+void bfs(const PeakStorageInterface<VertexType, EdgeType>& storage, const VertexType& startVertex,
          std::function<void(const VertexType&)> visitor) {
-    if (!graph.hasVertex(startVertex)) {
+    if (!storage.impl_hasVertex(startVertex)) {
         return;
     }
 
@@ -27,7 +27,9 @@ void bfs(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& start
 
         visitor(current);
 
-        auto neighbors = graph.getNeighbors(current);
+        auto [neighbors, status] = storage.impl_getNeighbors(current);
+        if (!status.isOK()) continue;
+
         for (const auto& neighbor : neighbors) {
             if (visited.find(neighbor.first) == visited.end()) {
                 visited.insert(neighbor.first);
@@ -38,9 +40,9 @@ void bfs(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& start
 }
 
 template <typename VertexType, typename EdgeType>
-void dfs(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& startVertex,
+void dfs(const PeakStorageInterface<VertexType, EdgeType>& storage, const VertexType& startVertex,
          std::function<void(const VertexType&)> visitor) {
-    if (!graph.hasVertex(startVertex)) {
+    if (!storage.impl_hasVertex(startVertex)) {
         return;
     }
 
@@ -57,7 +59,9 @@ void dfs(const CinderGraph<VertexType, EdgeType>& graph, const VertexType& start
             visited.insert(current);
             visitor(current);
 
-            auto neighbors = graph.getNeighbors(current);
+            auto [neighbors, status] = storage.impl_getNeighbors(current);
+            if (!status.isOK()) continue;
+
             for (auto it = neighbors.rbegin(); it != neighbors.rend(); ++it) {
                 if (visited.find(it->first) == visited.end()) {
                     s.push(it->first);
