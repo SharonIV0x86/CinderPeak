@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms.hpp"
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
 #include "PolicyConfiguration.hpp"
@@ -8,8 +9,11 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <fstream>
+#include <functional>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <vector>
 namespace CinderPeak {

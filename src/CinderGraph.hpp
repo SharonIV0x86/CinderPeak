@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms.hpp"
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
@@ -255,7 +256,7 @@ public:
   }
 
   auto primMST() const
-      -> std::vector<Algorithms::MSTEdge<VertexType, EdgeType>> {
+      -> std::vector<Algorithms::MSTEdge<VertexType, EdgeType> > {
     return peak_store->primMST();
   }
 
