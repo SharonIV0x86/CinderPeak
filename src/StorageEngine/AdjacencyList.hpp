@@ -229,13 +229,13 @@ public:
     return PeakStatus::EdgeNotFound();
   }
 
-  bool impl_hasVertex(const VertexType &v) override {
+  bool impl_hasVertex(const VertexType &v) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return _vertex_lookup.find(v) != _vertex_lookup.end();
   }
 
   bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
+                          const VertexType &dest) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -257,7 +257,7 @@ public:
   }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
+                          const EdgeType &weight) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -279,7 +279,7 @@ public:
   }
 
   const std::pair<EdgeType, PeakStatus>
-  impl_getEdge(const VertexType &src, const VertexType &dest) override {
+  impl_getEdge(const VertexType &src, const VertexType &dest) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -301,7 +301,7 @@ public:
   }
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
-  impl_getNeighbors(const VertexType &vertex) const {
+  impl_getNeighbors(const VertexType &vertex) const override {
     // data copied under lock
     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
     std::unordered_map<VertexId, VertexType> vertex_data_snapshot;
@@ -340,6 +340,16 @@ public:
       }
     }
     return std::make_pair(result, PeakStatus::OK());
+  }
+
+  std::vector<VertexType> impl_getAllVertices() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<VertexType> result;
+    result.reserve(_vertex_data.size());
+    for (const auto &kv : _vertex_data) {
+      result.push_back(kv.second);
+    }
+    return result;
   }
 
   const PeakStatus impl_removeVertex(const VertexType &v) override {
@@ -427,6 +437,31 @@ public:
       std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
   getInternalAdjacency() const {
     return _adj;
+  }
+
+  void snapshotToHybrid(HybridCSR_COO<VertexType, EdgeType> &hybrid) const {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
+    std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
+                       VertexHasher<VertexType>>
+        adj_map;
+
+    for (const auto &[srcId, neighbors] : _adj) {
+      auto bit = _vertex_data.find(srcId);
+      if (bit == _vertex_data.end())
+         continue;
+      VertexType src = bit->second;
+      std::vector<std::pair<VertexType, EdgeType>> neighbor_list;
+      for (const auto &p : neighbors) {
+        auto dit = _vertex_data.find(p.first);
+        if (dit != _vertex_data.end()) {
+          neighbor_list.emplace_back(dit->second, p.second);
+        }
+      }
+      adj_map[src] = std::move(neighbor_list);
+    }
+
+    hybrid.populateFromAdjList(adj_map);
   }
 
   std::string impl_toDot(bool isDirected, bool allowParallel) const {

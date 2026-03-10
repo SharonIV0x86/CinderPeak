@@ -16,13 +16,13 @@ namespace PeakStore {
 template <typename VertexType, typename EdgeType>
 class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
 private:
-  alignas(64) std::vector<size_t> csr_row_offsets;
-  alignas(64) std::vector<size_t> csr_col_vals;
-  alignas(64) std::vector<EdgeType> csr_weights;
+  mutable std::vector<size_t> csr_row_offsets;
+  mutable std::vector<size_t> csr_col_vals;
+  mutable std::vector<EdgeType> csr_weights;
 
-  alignas(64) std::vector<size_t> coo_src;
-  alignas(64) std::vector<size_t> coo_dest;
-  alignas(64) std::vector<EdgeType> coo_weights;
+  mutable std::vector<size_t> coo_src;
+  mutable std::vector<size_t> coo_dest;
+  mutable std::vector<EdgeType> coo_weights;
 
   std::vector<VertexType> vertex_order;
   std::unordered_map<VertexType, size_t, VertexHasher<VertexType>>
@@ -32,7 +32,7 @@ private:
   mutable std::atomic<bool> is_built_{false};
   std::atomic<size_t> COO_BUFFER_THRESHOLD_{1024};
 
-  void buildStructures() {
+  void buildStructures() const {
     if (is_built_.load(std::memory_order_acquire))
       return;
 
@@ -139,7 +139,7 @@ private:
     clearCOOArrays();
   }
 
-  void clearCOOArrays() {
+  void clearCOOArrays() const {
     coo_src.clear();
     coo_dest.clear();
     coo_weights.clear();
@@ -327,85 +327,7 @@ public:
     return std::make_pair(weight, PeakStatus::EdgeNotFound());
   }
 
-  const PeakStatus impl_updateEdge(const VertexType &src,
-                                   const VertexType &dest,
-                                   const EdgeType &newWeight) override {
-    auto src_it = vertex_to_index.find(src);
-    auto dest_it = vertex_to_index.find(dest);
-    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return PeakStatus::VertexNotFound();
-    }
-
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-
-    size_t src_idx = src_it->second;
-    size_t dest_idx = dest_it->second;
-
-    for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
-        coo_weights[i - 1] = newWeight;
-        return PeakStatus::OK();
-      }
-    }
-
-    if (!is_built_.load(std::memory_order_relaxed)) {
-      lock.unlock();
-      buildStructures();
-      lock.lock();
-    }
-
-    size_t row = src_idx;
-    size_t start = csr_row_offsets[row];
-    size_t end = csr_row_offsets[row + 1];
-
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
-
-    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
-      size_t idx = std::distance(csr_col_vals.begin(), it);
-      csr_weights[idx] = newWeight;
-      return PeakStatus::OK();
-    }
-
-    return PeakStatus::EdgeNotFound();
-  }
-
-  const PeakStatus impl_clearVertices() override {
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-    clearCOOArrays();
-
-    if (is_built_.load(std::memory_order_relaxed)) {
-      csr_row_offsets.clear();
-      csr_col_vals.clear();
-      csr_weights.clear();
-      csr_col_vals.shrink_to_fit();
-      csr_weights.shrink_to_fit();
-    }
-
-    vertex_order.clear();
-    vertex_to_index.clear();
-
-    is_built_.store(false, std::memory_order_relaxed);
-
-    return PeakStatus::OK();
-  }
-
-  const PeakStatus impl_clearEdges() override {
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-    clearCOOArrays();
-
-    if (is_built_.load(std::memory_order_relaxed)) {
-      std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
-      csr_col_vals.clear();
-      csr_weights.clear();
-      csr_col_vals.shrink_to_fit();
-      csr_weights.shrink_to_fit();
-    }
-
-    return PeakStatus::OK();
-  }
-
-  bool impl_hasVertex(const VertexType &v) override {
+  bool impl_hasVertex(const VertexType &v) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     if (!vertex_to_index.count(v)) {
       return false;
@@ -414,18 +336,18 @@ public:
   }
 
   bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
+                          const EdgeType &weight) const override {
     auto edge = impl_getEdge(src, dest);
     return edge.second.isOK() && edge.first == weight;
   }
 
   bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
+                          const VertexType &dest) const override {
     return impl_getEdge(src, dest).second.isOK();
   }
 
   const std::pair<EdgeType, PeakStatus>
-  impl_getEdge(const VertexType &src, const VertexType &dest) override {
+  impl_getEdge(const VertexType &src, const VertexType &dest) const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto src_it = vertex_to_index.find(src);
@@ -529,6 +451,111 @@ public:
     }
 
     return PeakStatus::OK();
+  }
+
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
+  impl_getNeighbors(const VertexType &src) const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
+    auto src_it = vertex_to_index.find(src);
+    if (src_it == vertex_to_index.end()) {
+      return {{}, PeakStatus::VertexNotFound()};
+    }
+
+    size_t src_idx = src_it->second;
+    std::vector<std::pair<VertexType, EdgeType>> result;
+
+    if (!is_built_.load(std::memory_order_acquire)) {
+      lock.unlock();
+      buildStructures();
+      lock.lock();
+    }
+
+    // From CSR
+    size_t start = csr_row_offsets[src_idx];
+    size_t end = csr_row_offsets[src_idx + 1];
+    for (size_t i = start; i < end; ++i) {
+      result.emplace_back(vertex_order[csr_col_vals[i]], csr_weights[i]);
+    }
+
+    // From COO (anything not yet merged)
+    for (size_t i = 0; i < coo_src.size(); ++i) {
+      if (coo_src[i] == src_idx) {
+        result.emplace_back(vertex_order[coo_dest[i]], coo_weights[i]);
+      }
+    }
+
+    return {result, PeakStatus::OK()};
+  }
+
+  std::vector<VertexType> impl_getAllVertices() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return vertex_order;
+  }
+
+  const PeakStatus impl_clearEdges() override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    clearCOOArrays();
+
+    if (is_built_.load(std::memory_order_relaxed)) {
+      std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
+      csr_col_vals.clear();
+      csr_weights.clear();
+    }
+    return PeakStatus::OK();
+  }
+
+  const PeakStatus impl_clearVertices() override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    clearCOOArrays();
+
+    if (is_built_.load(std::memory_order_relaxed)) {
+      csr_row_offsets.clear();
+      csr_col_vals.clear();
+      csr_weights.clear();
+    }
+
+    vertex_order.clear();
+    vertex_to_index.clear();
+    is_built_.store(false, std::memory_order_relaxed);
+
+    return PeakStatus::OK();
+  }
+
+  const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
+                                   const EdgeType &newWeight) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    auto src_it = vertex_to_index.find(src);
+    auto dest_it = vertex_to_index.find(dest);
+    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
+      return PeakStatus::VertexNotFound();
+    }
+
+    size_t src_idx = src_it->second;
+    size_t dest_idx = dest_it->second;
+
+    for (size_t i = coo_src.size(); i > 0; --i) {
+      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
+        coo_weights[i - 1] = newWeight;
+        return PeakStatus::OK();
+      }
+    }
+
+    if (!is_built_.load(std::memory_order_acquire)) {
+      buildStructures();
+    }
+
+    size_t start = csr_row_offsets[src_idx];
+    size_t end = csr_row_offsets[src_idx + 1];
+    auto it = std::lower_bound(csr_col_vals.begin() + start,
+                               csr_col_vals.begin() + end, dest_idx);
+    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
+      size_t idx = std::distance(csr_col_vals.begin(), it);
+      csr_weights[idx] = newWeight;
+      return PeakStatus::OK();
+    }
+
+    return PeakStatus::EdgeNotFound();
   }
 };
 

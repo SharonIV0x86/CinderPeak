@@ -1,11 +1,14 @@
 #pragma once
+#include "Algorithms.hpp"
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <functional>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <tuple>
 #include <utility>
@@ -143,7 +146,7 @@ public:
     }
   }
 
-  bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
+  bool hasVertex(const VertexType &v) const { return peak_store->hasVertex(v); }
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
@@ -184,7 +187,7 @@ public:
 
     return {newWeight, true};
   }
-  GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) {
+  GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) const {
     LOG_INFO("Called getEdge");
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
@@ -193,6 +196,20 @@ public:
     }
     return {std::make_optional(data), true};
   }
+
+  std::vector<std::pair<VertexType, EdgeType>> getNeighbors(const VertexType &v) const {
+    auto [neighbors, status] = peak_store->getNeighbors(v);
+    if (!status.isOK()) {
+      Exceptions::handle_exception_map(status);
+      return {};
+    }
+    return neighbors;
+  }
+
+  std::vector<VertexType> getAllVertices() const {
+    return peak_store->getAllVertices();
+  }
+
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     return peak_store->bfs(src);
   }
@@ -203,6 +220,44 @@ public:
                           (Traits::isTypePrimitive<E>() ||
                            Traits::is_unweighted_v<E>)> {
     peak_store->toDot(filename);
+  }
+
+  std::shared_ptr<CinderPeak::PeakStore::HybridCSR_COO<VertexType, EdgeType>> getHybridSnapshot() const {
+      return peak_store->getHybridSnapshot();
+  }
+
+  // Graph Algorithms API
+  void bfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    peak_store->bfs(startVertex, visitor);
+  }
+
+  void dfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    peak_store->dfs(startVertex, visitor);
+  }
+
+  auto dijkstra(const VertexType &startVertex) const
+      -> Algorithms::DijkstraResult<VertexType, EdgeType> {
+    return peak_store->dijkstra(startVertex);
+  }
+
+  auto bellmanFord(const VertexType &startVertex) const
+      -> Algorithms::BellmanFordResult<VertexType, EdgeType> {
+    return peak_store->bellmanFord(startVertex);
+  }
+
+  std::vector<VertexType> topologicalSort() const {
+    return peak_store->topologicalSort();
+  }
+
+  bool hasCycle() const {
+    return peak_store->hasCycle();
+  }
+
+  auto primMST() const
+      -> std::vector<Algorithms::MSTEdge<VertexType, EdgeType> > {
+    return peak_store->primMST();
   }
 
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }

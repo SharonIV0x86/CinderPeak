@@ -1,4 +1,5 @@
 #pragma once
+#include "Algorithms.hpp"
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
 #include "PolicyConfiguration.hpp"
@@ -9,8 +10,10 @@
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <vector>
 namespace CinderPeak {
@@ -129,7 +132,7 @@ public:
   }
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
-                                          const VertexType &dest) {
+                                          const VertexType &dest) const {
     LOG_INFO("Called adjacency:getEdge()");
     auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
@@ -148,7 +151,7 @@ public:
   }
 
   // Helper method to call impl_hasVertex from AdjacencyList
-  bool hasVertex(const VertexType &v) {
+  bool hasVertex(const VertexType &v) const {
     LOG_INFO("Called peakStore:hasVertex");
     return ctx->active_storage->impl_hasVertex(v);
   }
@@ -162,6 +165,18 @@ public:
     }
     return status;
   }
+
+  std::vector<VertexType> getAllVertices() const {
+    LOG_INFO("Called peakStore:getAllVertices");
+    auto vertexMap = ctx->adjacency_storage->getVertexDataMap();
+    std::vector<VertexType> vertices;
+    vertices.reserve(vertexMap.size());
+    for (auto const& [id, data] : vertexMap) {
+      vertices.push_back(data);
+    }
+    return vertices;
+  }
+
   const std::shared_ptr<GraphContext<VertexType, EdgeType>> &
   getContext() const {
     return ctx;
@@ -244,6 +259,52 @@ public:
     if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
       directed = false;
     return ctx->metadata->getGraphStatistics(directed);
+  }
+
+  std::shared_ptr<HybridCSR_COO<VertexType, EdgeType>> getHybridSnapshot() const {
+    ctx->adjacency_storage->snapshotToHybrid(*(ctx->hybrid_storage));
+    return ctx->hybrid_storage;
+  }
+
+  // Algorithm Implementations following API -> PeakStore -> Algorithms flow
+  void bfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    auto snapshot = getHybridSnapshot();
+    CinderPeak::Algorithms::bfs(*snapshot, startVertex, visitor);
+  }
+
+  void dfs(const VertexType &startVertex,
+           std::function<void(const VertexType &)> visitor) const {
+    auto snapshot = getHybridSnapshot();
+    CinderPeak::Algorithms::dfs(*snapshot, startVertex, visitor);
+  }
+
+  CinderPeak::Algorithms::DijkstraResult<VertexType, EdgeType>
+  dijkstra(const VertexType &startVertex) const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::dijkstra(*snapshot, startVertex);
+  }
+
+  CinderPeak::Algorithms::BellmanFordResult<VertexType, EdgeType>
+  bellmanFord(const VertexType &startVertex) const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::bellmanFord(*snapshot, startVertex);
+  }
+
+  std::vector<VertexType> topologicalSort() const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::topologicalSort(*snapshot);
+  }
+
+  bool hasCycle() const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::hasCycle(*snapshot);
+  }
+
+  std::vector<CinderPeak::Algorithms::MSTEdge<VertexType, EdgeType>>
+  primMST() const {
+    auto snapshot = getHybridSnapshot();
+    return CinderPeak::Algorithms::primMST(*snapshot);
   }
 };
 
