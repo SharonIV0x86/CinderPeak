@@ -69,8 +69,7 @@ private:
     }
 
     for (size_t row = 0; row < num_vertices; ++row) {
-      std::sort(temp_rows[row].begin(), temp_rows[row].end(),
-                [](const auto &a, const auto &b) { return a.first < b.first; });
+      std::sort(temp_rows[row].begin(), temp_rows[row].end(),[](const auto &a, const auto &b) { return a.first < b.first; });
       for (const auto &[dest_idx, weight] : temp_rows[row]) {
         size_t pos = insert_offsets[row]++;
         csr_col_vals[pos] = dest_idx;
@@ -122,8 +121,7 @@ private:
         }
       }
 
-      std::sort(merged_neighbors.begin(), merged_neighbors.end(),
-                [](const auto &a, const auto &b) { return a.first < b.first; });
+      std::sort(merged_neighbors.begin(), merged_neighbors.end(),[](const auto &a, const auto &b) { return a.first < b.first; });
 
       for (const auto &[dest_idx, weight] : merged_neighbors) {
         size_t pos = insert_offsets[row]++;
@@ -139,7 +137,7 @@ private:
     clearCOOArrays();
   }
 
-  void clearCOOArrays() noexcept{
+  void clearCOOArrays() noexcept {
     coo_src.clear();
     coo_dest.clear();
     coo_weights.clear();
@@ -235,7 +233,8 @@ public:
     }
   }
 
-  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus
+  impl_addVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
@@ -251,8 +250,9 @@ public:
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                const EdgeType &weight = EdgeType()) override {
+  [[nodiscard]] const PeakStatus
+  impl_addEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &weight = EdgeType()) override {
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -327,9 +327,9 @@ public:
     return std::make_pair(weight, PeakStatus::EdgeNotFound());
   }
 
-  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType &src,
-                                   const VertexType &dest,
-                                   const EdgeType &newWeight) override {
+  [[nodiscard]] const PeakStatus
+  impl_updateEdge(const VertexType &src, const VertexType &dest,
+                  const EdgeType &newWeight) override {
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
@@ -413,14 +413,16 @@ public:
     return true;
   }
 
-  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) noexcept override {
+  [[nodiscard]] bool
+  impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
+                     const EdgeType &weight) noexcept override {
     auto edge = impl_getEdge(src, dest);
     return edge.second.isOK() && edge.first == weight;
   }
 
-  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) noexcept override {
+  [[nodiscard]] bool
+  impl_doesEdgeExist(const VertexType &src,
+                     const VertexType &dest) noexcept override {
     return impl_getEdge(src, dest).second.isOK();
   }
 
@@ -462,7 +464,8 @@ public:
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
 
-  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus
+  impl_removeVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
