@@ -89,7 +89,7 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
+  [[nodiscard]] const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     PeakStatus final_status = PeakStatus::OK();
 
@@ -127,7 +127,7 @@ public:
   }
 
   template <typename EdgeContainer>
-  const PeakStatus impl_addEdges(const EdgeContainer &edges) {
+  [[nodiscard]] const PeakStatus impl_addEdges(const EdgeContainer &edges) {
     std::vector<std::string> warnings;
     PeakStatus overall = PeakStatus::OK();
 

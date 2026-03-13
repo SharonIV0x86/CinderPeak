@@ -405,7 +405,7 @@ public:
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override  {
+  [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     if (!vertex_to_index.count(v)) {
       return false;
@@ -414,7 +414,7 @@ public:
   }
 
   [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) noexcept override  {
+                          const EdgeType &weight) noexcept override {
     auto edge = impl_getEdge(src, dest);
     return edge.second.isOK() && edge.first == weight;
   }

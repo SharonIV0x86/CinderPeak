@@ -35,7 +35,7 @@ public:
                                   const EdgeType &weight) noexcept = 0;
 
   [[nodiscard]] virtual bool impl_doesEdgeExist(const VertexType &src,
-                                  const VertexType &dest)noexcept = 0;
+                                  const VertexType &dest) noexcept = 0;
 
   [[nodiscard]] virtual const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) = 0;
