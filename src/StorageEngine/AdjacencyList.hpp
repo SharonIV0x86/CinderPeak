@@ -57,7 +57,7 @@ public:
     _vertex_lookup.reserve(1024);
   }
 
-  const PeakStatus impl_addVertex(const VertexType &v) override {
+    [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &v) override {
     VertexId assignedId = 0;
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
@@ -106,7 +106,7 @@ public:
     return final_status;
   }
 
-  const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
+   [[nodiscard]] const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
                                 const EdgeType &weight = EdgeType()) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -177,7 +177,7 @@ public:
     return overall;
   }
 
-  const std::pair<EdgeType, PeakStatus>
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     EdgeType retWeight = EdgeType();
@@ -204,7 +204,7 @@ public:
     return std::make_pair(retWeight, PeakStatus::OK());
   }
 
-  const PeakStatus impl_updateEdge(const VertexType &src,
+  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType &src,
                                    const VertexType &dest,
                                    const EdgeType &newWeight) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
@@ -229,13 +229,13 @@ public:
     return PeakStatus::EdgeNotFound();
   }
 
-  bool impl_hasVertex(const VertexType &v) override {
+  [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return _vertex_lookup.find(v) != _vertex_lookup.end();
   }
 
-  bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src,
+                          const VertexType &dest) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -256,8 +256,8 @@ public:
     return false;
   }
 
-  bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
+   [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
+                          const EdgeType &weight) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -278,7 +278,7 @@ public:
     return false;
   }
 
-  const std::pair<EdgeType, PeakStatus>
+   [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
@@ -342,7 +342,7 @@ public:
     return std::make_pair(result, PeakStatus::OK());
   }
 
-  const PeakStatus impl_removeVertex(const VertexType &v) override {
+   [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType &v) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _vertex_lookup.find(v);
@@ -369,7 +369,7 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_clearVertices() override {
+   [[nodiscard]] const PeakStatus impl_clearVertices() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     _adj.clear();
     _vertex_lookup.clear();
@@ -378,7 +378,7 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_clearEdges() override {
+   [[nodiscard]] const PeakStatus impl_clearEdges() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     for (auto &pair : _adj) {
       pair.second.clear();
