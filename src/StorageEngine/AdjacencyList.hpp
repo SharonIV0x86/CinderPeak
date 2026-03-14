@@ -472,7 +472,7 @@ public:
         ss << "  node_" << srcId << " " << connector << " node_" << destId;
 
         if constexpr (!Traits::is_unweighted_v<EdgeType>) {
-          ss << "[label=\"" << weight << "\"]";
+          ss << " [label=\"" << weight << "\"]";
         }
         ss << ";\n";
       }
