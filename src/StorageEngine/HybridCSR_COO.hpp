@@ -69,7 +69,8 @@ private:
     }
 
     for (size_t row = 0; row < num_vertices; ++row) {
-      std::sort(temp_rows[row].begin(), temp_rows[row].end(),[](const auto &a, const auto &b) { return a.first < b.first; });
+      std::sort(temp_rows[row].begin(), temp_rows[row].end(),
+                [](const auto &a, const auto &b) { return a.first < b.first; });
       for (const auto &[dest_idx, weight] : temp_rows[row]) {
         size_t pos = insert_offsets[row]++;
         csr_col_vals[pos] = dest_idx;
@@ -121,7 +122,8 @@ private:
         }
       }
 
-      std::sort(merged_neighbors.begin(), merged_neighbors.end(),[](const auto &a, const auto &b) { return a.first < b.first; });
+      std::sort(merged_neighbors.begin(), merged_neighbors.end(),
+                [](const auto &a, const auto &b) { return a.first < b.first; });
 
       for (const auto &[dest_idx, weight] : merged_neighbors) {
         size_t pos = insert_offsets[row]++;

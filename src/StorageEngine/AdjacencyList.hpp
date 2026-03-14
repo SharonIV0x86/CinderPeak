@@ -57,8 +57,7 @@ public:
     _vertex_lookup.reserve(1024);
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_addVertex(const VertexType &v) override {
+  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &v) override {
     VertexId assignedId = 0;
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
