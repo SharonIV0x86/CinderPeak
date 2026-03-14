@@ -419,8 +419,7 @@ public:
 
     // perform all I/O outside of lock
     for (const auto &vertex_info : vertices_to_print) {
-      std::cout << "Vertex (id=" << vertex_info.id << "): "
-                << "\n";
+      std::cout << "Vertex (id=" << vertex_info.id << "): " << "\n";
       for (const auto &neighbor_pair : vertex_info.neighbor_ids) {
         VertexId nbId = neighbor_pair.first;
         std::cout << "  Neighbor id=" << nbId << "\n";
