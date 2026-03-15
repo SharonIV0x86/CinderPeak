@@ -139,7 +139,7 @@ private:
     clearCOOArrays();
   }
 
-  void clearCOOArrays() {
+  void clearCOOArrays() noexcept {
     coo_src.clear();
     coo_dest.clear();
     coo_weights.clear();
@@ -235,7 +235,8 @@ public:
     }
   }
 
-  const PeakStatus impl_addVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus
+  impl_addVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
@@ -251,8 +252,9 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                const EdgeType &weight = EdgeType()) override {
+  [[nodiscard]] const PeakStatus
+  impl_addEdge(const VertexType &src, const VertexType &dest,
+               const EdgeType &weight = EdgeType()) override {
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -274,7 +276,7 @@ public:
     return PeakStatus::OK();
   }
 
-  const std::pair<EdgeType, PeakStatus>
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -327,9 +329,9 @@ public:
     return std::make_pair(weight, PeakStatus::EdgeNotFound());
   }
 
-  const PeakStatus impl_updateEdge(const VertexType &src,
-                                   const VertexType &dest,
-                                   const EdgeType &newWeight) override {
+  [[nodiscard]] const PeakStatus
+  impl_updateEdge(const VertexType &src, const VertexType &dest,
+                  const EdgeType &newWeight) override {
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
@@ -370,7 +372,7 @@ public:
     return PeakStatus::EdgeNotFound();
   }
 
-  const PeakStatus impl_clearVertices() override {
+  [[nodiscard]] const PeakStatus impl_clearVertices() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     clearCOOArrays();
 
@@ -390,7 +392,7 @@ public:
     return PeakStatus::OK();
   }
 
-  const PeakStatus impl_clearEdges() override {
+  [[nodiscard]] const PeakStatus impl_clearEdges() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
     clearCOOArrays();
 
@@ -405,7 +407,7 @@ public:
     return PeakStatus::OK();
   }
 
-  bool impl_hasVertex(const VertexType &v) override {
+  [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     if (!vertex_to_index.count(v)) {
       return false;
@@ -413,18 +415,20 @@ public:
     return true;
   }
 
-  bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                          const EdgeType &weight) override {
+  [[nodiscard]] bool
+  impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
+                     const EdgeType &weight) noexcept override {
     auto edge = impl_getEdge(src, dest);
     return edge.second.isOK() && edge.first == weight;
   }
 
-  bool impl_doesEdgeExist(const VertexType &src,
-                          const VertexType &dest) override {
+  [[nodiscard]] bool
+  impl_doesEdgeExist(const VertexType &src,
+                     const VertexType &dest) noexcept override {
     return impl_getEdge(src, dest).second.isOK();
   }
 
-  const std::pair<EdgeType, PeakStatus>
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
@@ -462,7 +466,8 @@ public:
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
 
-  const PeakStatus impl_removeVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus
+  impl_removeVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
