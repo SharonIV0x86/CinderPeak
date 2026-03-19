@@ -1,6 +1,7 @@
 #pragma once
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
+#include "PeakLogger.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
