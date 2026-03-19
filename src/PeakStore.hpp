@@ -42,7 +42,7 @@ public:
             const PolicyConfiguration &cfg = PolicyConfiguration())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options, cfg);
-    LOG_INFO("Successfully initialized context object.");
+    ctx->pHandler->log(Loglevel::INFO,"Successfully initialized context object.");
   }
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
@@ -68,16 +68,16 @@ public:
       if ((isWeighted && !ctx->create_options->hasOption(
                              GraphCreationOptions::ParallelEdges)) ||
           !isWeighted) {
-        LOG_DEBUG("Edge already exists");
+        ctx->pHandler->log(logLevel::DEBUG,"Edge already exists");
         return PeakStatus::EdgeAlreadyExists();
       }
     }
 
     if (isWeighted) {
-      LOG_INFO("Called weighted PeakStore::addEdge");
+      ctx->pHandler->log(LogLevel::INFO,"Called weighted PeakStore::addEdge");
       status = ctx->active_storage->impl_addEdge(src, dest, weight);
     } else {
-      LOG_INFO("Called unweighted PeakStore::addEdge");
+      ctx->pHandler->log(LogLevel::INFO,"Called unweighted PeakStore::addEdge");
       status = ctx->active_storage->impl_addEdge(src, dest);
     }
 
@@ -98,7 +98,7 @@ public:
 
   std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src,
                                              const VertexType &dest) {
-    LOG_INFO("Called adjacency:removeEdge()");
+    ctx->pHandler->log(LogLevel::INFO,"Called adjacency:removeEdge()");
     auto result = ctx->active_storage->impl_removeEdge(src, dest);
     if (result.second.isOK())
       ctx->metadata->updateEdgeCount(UpdateOp::Remove);
@@ -108,7 +108,7 @@ public:
   std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
                                              const VertexType &dest,
                                              const EdgeType &newWeight) {
-    LOG_INFO("Called adjacency:updateEdge()");
+    ctx->pHandler->log(Loglevel::INFO,"Called adjacency:updateEdge()");
 
     PeakStatus resp =
         ctx->active_storage->impl_updateEdge(src, dest, newWeight);
@@ -130,7 +130,7 @@ public:
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
-    LOG_INFO("Called adjacency:getEdge()");
+    ctx->pHandler->log(Loglevel::INFO,"Called adjacency:getEdge()");
     auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
       return {EdgeType(), status.second};
@@ -138,7 +138,7 @@ public:
     return {status.first, status.second};
   }
   PeakStatus addVertex(const VertexType &src) {
-    LOG_INFO("Called peakStore:addVertex");
+    ctx->pHandler->log(LogLevel::INFO,"Called peakStore:addVertex");
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
         !resp.isOK())
       return resp;
@@ -149,13 +149,13 @@ public:
 
   // Helper method to call impl_hasVertex from AdjacencyList
   bool hasVertex(const VertexType &v) {
-    LOG_INFO("Called peakStore:hasVertex");
+    ctx->pHandler->log(LogLevel::INFO,"Called peakStore:hasVertex");
     return ctx->active_storage->impl_hasVertex(v);
   }
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
-    LOG_INFO("Called adjacency:getNeighbors()");
+    ctx->pHandler->log(LogLevel::INFO,"Called adjacency:getNeighbors()");
     auto status = ctx->adjacency_storage->impl_getNeighbors(src);
     if (!status.second.isOK()) {
       std::cout << status.second.message() << "\n";
@@ -177,7 +177,7 @@ public:
 
   // Helper method to call impl_clearVertices from AdjacencyList
   PeakStatus clearVertices() {
-    LOG_INFO("Called peakStore:clearVertices");
+    ctx->pHandler->log(LogLevel::INFO,"Called peakStore:clearVertices");
     auto status = ctx->active_storage->impl_clearVertices();
     if (status.isOK()) {
       ctx->metadata->updateVertexCount(UpdateOp::Clear);
@@ -190,7 +190,7 @@ public:
 
   // Helper method to call impl_clearEdges from AdjacencyList
   PeakStatus clearEdges() {
-    LOG_INFO("Called peakStore:clearEdges");
+    ctx->pHandler->log(LogLevel::INFO,"Called peakStore:clearEdges");
     auto status = ctx->active_storage->impl_clearEdges();
     if (status.isOK()) {
       ctx->metadata->updateEdgeCount(UpdateOp::Clear);
@@ -207,20 +207,20 @@ public:
   size_t numEdges() const { return ctx->metadata->numEdges(); }
 
   size_t numVertices() const {
-    LOG_INFO("Called peakStore:numVertices");
+    ctx->pHandler->log(LogLevel::INFO,"Called peakStore:numVertices");
     return ctx->metadata->numVertices();
   }
 
   // Export to DOT format (File Output Only)
   void toDot(const std::string &filename) {
     if (filename.empty()) {
-      LOG_ERROR("Empty filename provided for toDot output");
+      ctx->pHandler->log(LogLevel::ERROR,"Empty filename provided for toDot output");
       return;
     }
 
     std::ofstream outFile(filename);
     if (!outFile) {
-      LOG_ERROR("Could not open file for writing: " + filename);
+      ctx->pHandler->log(LogLevel::ERROR,"Could not open file for writing: " + filename);
       return;
     }
 
@@ -234,7 +234,7 @@ public:
     outFile << content;
     outFile.close();
 
-    LOG_INFO("Successfully wrote DOT output to: " + filename);
+    ctx->pHandler->log(LogLevel::ERROR,"Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {
