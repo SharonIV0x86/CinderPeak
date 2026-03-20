@@ -69,7 +69,7 @@ public:
       if ((isWeighted && !ctx->create_options->hasOption(
                              GraphCreationOptions::ParallelEdges)) ||
           !isWeighted) {
-        ctx->pHandler->log(logLevel::DEBUG, "Edge already exists");
+        ctx->pHandler->log(LogLevel::DEBUG, "Edge already exists");
         return PeakStatus::EdgeAlreadyExists();
       }
     }
