@@ -178,7 +178,7 @@ public:
 
   // Helper method to call impl_clearVertices from AdjacencyList
   PeakStatus clearVertices() {
-    ctx->pHandler->log(LogLevel::INFO,"Called peakStore:clearVertices");
+    ctx->pHandler->log(LogLevel::INFO, "Called peakStore:clearVertices");
     auto status = ctx->active_storage->impl_clearVertices();
     if (status.isOK()) {
       ctx->metadata->updateVertexCount(UpdateOp::Clear);
