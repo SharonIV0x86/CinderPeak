@@ -43,7 +43,8 @@ public:
             const PolicyConfiguration &cfg = PolicyConfiguration())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options, cfg);
-    ctx->pHandler->log(LogLevel::INFO, "Successfully initialized context object.");
+    ctx->pHandler->log(LogLevel::INFO,
+      "Successfully initialized context object.");
   }
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
@@ -78,7 +79,8 @@ public:
       ctx->pHandler->log(LogLevel::INFO, "Called weighted PeakStore::addEdge");
       status = ctx->active_storage->impl_addEdge(src, dest, weight);
     } else {
-      ctx->pHandler->log(LogLevel::INFO, "Called unweighted PeakStore::addEdge");
+      ctx->pHandler->log(LogLevel::INFO,
+        "Called unweighted PeakStore::addEdge");
       status = ctx->active_storage->impl_addEdge(src, dest);
     }
 
@@ -215,13 +217,15 @@ public:
   // Export to DOT format (File Output Only)
   void toDot(const std::string &filename) {
     if (filename.empty()) {
-      ctx->pHandler->log(LogLevel::ERROR, "Empty filename provided for toDot output");
+      ctx->pHandler->log(LogLevel::ERROR,
+        "Empty filename provided for toDot output");
       return;
     }
 
     std::ofstream outFile(filename);
     if (!outFile) {
-      ctx->pHandler->log(LogLevel::ERROR, "Could not open file for writing: " + filename);
+      ctx->pHandler->log(LogLevel::ERROR,
+        "Could not open file for writing: " + filename);
       return;
     }
 
@@ -235,7 +239,8 @@ public:
     outFile << content;
     outFile.close();
 
-    ctx->pHandler->log(LogLevel::ERROR, "Successfully wrote DOT output to: " + filename);
+    ctx->pHandler->log(LogLevel::ERROR,
+      "Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {
