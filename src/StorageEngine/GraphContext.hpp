@@ -26,6 +26,12 @@ public:
   std::shared_ptr<PolicyHandler> pHandler = nullptr;
   std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>
       algorithms = nullptr;
+
+  inline void log(LogLevel level, const std::string &msg) {
+    if (pHandler) {
+      pHandler->log(level, msg);
+    }
+  }
 };
 
 } // namespace PeakStore

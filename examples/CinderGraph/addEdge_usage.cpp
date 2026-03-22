@@ -10,6 +10,7 @@ int main() {
     PolicyConfiguration p(PolicyConfiguration::ErrorPolicy::Throw,
                           PolicyConfiguration::LoggingPolicy::LogConsole);
     CinderGraph<int, Unweighted> g1;
+    g1.setConsoleLogging(true);
     g1.addVertex(1);
     g1.addVertex(2);
     g1.addVertex(3);
