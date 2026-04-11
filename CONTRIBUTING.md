@@ -7,7 +7,7 @@ Welcome to **CinderPeak**, a graph library designed to simplify graph representa
 ## Open-Source Participation
 
 CinderPeak is an independent, community-driven project that occasionally takes part in recognized open-source programs. 
-<!-- This year, it is participating in **DSCWoC-26** (Data Science Club Winter of Code) and **ECWoC** (Elite Coders Winter of Code) 2026.. -->
+This year, we are taking part in **NSOC'26** ([Nexus Spring of Code](https://www.nsoc.in/#home)).
 
 Contributions are welcome from everyone, whether you are participating through an open-source program or contributing independently. All contributors are expected to follow the project's contribution guidelines, code of conduct, and established best practices to ensure a respectful and productive collaboration.
 
