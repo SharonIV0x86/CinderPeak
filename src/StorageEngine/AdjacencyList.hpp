@@ -66,12 +66,12 @@ public:
       if (auto it = _vertex_lookup.find(v); it != _vertex_lookup.end()) {
         if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
                           VertexType>) {
-          pHandler.log(LogLevel::WARN,
+          pHandler.log(LogLevel::WARNING,
                        "Failed to add Vertex: Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
-          pHandler.log(LogLevel::WARN, "Failed to add Non Premitive Vertex: "
+          pHandler.log(LogLevel::WARNING, "Failed to add Non Premitive Vertex: "
                                        "Non Premitive Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
@@ -101,7 +101,7 @@ public:
     for (const auto &v : vertices) {
       if (_vertex_lookup.find(v) != _vertex_lookup.end()) {
         final_status = PeakStatus::VertexAlreadyExists();
-        pHandler.log(LogLevel::WARN, "Vertex already Exist.");
+        pHandler.log(LogLevel::WARNING, "Vertex already Exist.");
         continue;
       }
       VertexId id = _next_vertex_id.fetch_add(1, std::memory_order_relaxed);
@@ -127,7 +127,7 @@ public:
 
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end()) {
-      pHandler.log(LogLevel::WARN, "Vertex not found.");
+      pHandler.log(LogLevel::WARNING, "Vertex not found.");
       return PeakStatus::VertexNotFound();
     }
 
@@ -217,7 +217,7 @@ public:
                            [&](const auto &p) { return p.first == destId; });
 
     if (it == neighbors.end()) {
-      pHandler.log(LogLevel::WARN, "Edge not found.");
+      pHandler.log(LogLevel::WARNING, "Edge not found.");
       return std::make_pair(retWeight, PeakStatus::EdgeNotFound());
     }
 
@@ -236,12 +236,12 @@ public:
 
     auto srcIt = _vertex_lookup.find(src);
     if (srcIt == _vertex_lookup.end()) {
-      pHandler.log(LogLevel::WARN, "Vertex not found.");
+      pHandler.log(LogLevel::WARNING, "Vertex not found.");
       return PeakStatus::VertexNotFound();
     }
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end()) {
-      pHandler.log(LogLevel::WARN, "Vertex not found.");
+      pHandler.log(LogLevel::WARNING, "Vertex not found.");
       return PeakStatus::VertexNotFound();
     }
 
