@@ -342,34 +342,6 @@ EdgeType weight = graph.getEdge(source, destination);
 
 ---
 
-## **Logging**
-
-Logging behavior is controlled exclusively via `PolicyConfiguration` passed at graph construction time. There is no runtime toggle method.
-
-```cpp
-// Console logging
-PolicyConfiguration cfg(PolicyConfiguration::Ignore, PolicyConfiguration::LogConsole);
-CinderGraph<int, int> g(opts, cfg);
-
-// Silent (no logging)
-PolicyConfiguration cfg(PolicyConfiguration::Ignore, PolicyConfiguration::Silent);
-
-// File logging
-PolicyConfiguration cfg(PolicyConfiguration::Ignore, PolicyConfiguration::LogFile);
-
-// Console and file
-PolicyConfiguration cfg(PolicyConfiguration::Ignore, PolicyConfiguration::ConsoleAndFile);
-```
-
-| Logging Policy | Behavior |
-| :---- | :---- |
-| `LogConsole` | Logs to console (stderr) |
-| `Silent` | No logging output |
-| `LogFile` | Logs to a file |
-| `ConsoleAndFile` | Logs to both console and file |
-
----
-
 ## **Error Handling**
 
 CinderPeak uses an internal error handling system. When operations fail, they are logged internally:
