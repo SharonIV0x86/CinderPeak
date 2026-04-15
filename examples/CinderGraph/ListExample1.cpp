@@ -20,7 +20,7 @@ int main() {
   GraphCreationOptions opts({GraphCreationOptions::Directed});
   CinderGraph<int, int> graph(opts);
 
-  CinderGraph<int, int>::setConsoleLogging(false); // Disabling log display
+  graph.setConsoleLogging(false); // Disabling log display
 
   graph.addVertex(1);
   graph.addVertex(2);

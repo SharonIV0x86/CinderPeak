@@ -1,5 +1,6 @@
 #pragma once
 #include "Algorithms/CinderPeakAlgorithms.hpp"
+#include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
@@ -26,7 +27,7 @@ public:
   std::shared_ptr<PolicyHandler> pHandler = nullptr;
   std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>
       algorithms = nullptr;
-
+  std::shared_ptr<GraphRuntime> runtime = nullptr;
   inline void log(LogLevel level, const std::string &msg) {
     if (pHandler) {
       pHandler->log(level, msg);

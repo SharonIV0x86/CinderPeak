@@ -1,6 +1,7 @@
 #pragma once
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
+#include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
@@ -35,6 +36,8 @@ private:
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
         ctx->hybrid_storage);
+    ctx->runtime = std::make_shared<CinderPeak::GraphRuntime>();
+    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
   }
 
 public:
@@ -45,6 +48,7 @@ public:
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options, cfg);
     ctx->log(LogLevel::INFO, "Successfully initialized context object.");
+    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 1\n");
   }
 
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
@@ -60,6 +64,8 @@ public:
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
+    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 2\n");
+
     bool isWeighted = ctx->metadata->isGraphWeighted();
     bool edgeExists;
     PeakStatus status = PeakStatus::OK();
@@ -202,9 +208,16 @@ public:
     return status;
   }
 
-  static void setConsoleLogging(const bool toggle) {
-    Logger::enableConsoleLogging = toggle;
+  void setConsoleLogging(const bool toggle) {
+    ctx->runtime->setConsoleLogging(toggle);
   }
+  void setThrowExceptions(bool toggle) {
+    ctx->runtime->setThrowExceptions(toggle);
+  }
+  void setFileLogging(const std::string &path) {
+    ctx->runtime->setFileLogging(path);
+  }
+  void unsetFileLogging() { ctx->runtime->disableFileLogging(); }
 
   size_t numEdges() const { return ctx->metadata->numEdges(); }
 
