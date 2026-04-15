@@ -209,10 +209,17 @@ public:
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
 
-  static void setConsoleLogging(const bool toggle) {
-    CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>::setConsoleLogging(
-        toggle);
+  void setConsoleLogging(const bool toggle) {
+    peak_store->setConsoleLogging(toggle);
   }
+  void setThrowExceptions(bool toggle) {
+    peak_store->setThrowExceptions(toggle);
+  }
+  void setFileLogging(const std::string &path) {
+    peak_store->setFileLogging(path);
+  }
+  void unsetFileLogging() { peak_store->unsetFileLogging(); }
+
   CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
     return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
   }

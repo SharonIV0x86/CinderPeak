@@ -69,6 +69,23 @@ public:
       logFile.close();
     }
   }
+  static void log(const LogLevel &level, const std::string &msg,
+                  bool consoleEnabled, bool fileEnabled,
+                  const std::string &logFileP) {
+
+    if (!consoleEnabled && !fileEnabled) {
+      return;
+    }
+
+    if (consoleEnabled) {
+      logToConsole(level, msg);
+    }
+
+    if (fileEnabled) {
+      ensureFileOpen(logFileP);
+      logToFile(level, msg);
+    }
+  }
 
 private:
   inline static std::mutex logMutex;
