@@ -208,9 +208,6 @@ public:
     return status;
   }
 
-  void setConsoleLogging(const bool toggle) {
-    ctx->runtime->setConsoleLogging(toggle);
-  }
   void setThrowExceptions(bool toggle) {
     ctx->runtime->setThrowExceptions(toggle);
   }

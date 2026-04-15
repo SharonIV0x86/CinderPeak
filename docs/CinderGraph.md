@@ -221,6 +221,7 @@ int main() {
 
 ## Notes
 - **Error Handling**: The `CinderGraph` class uses `Exceptions::handle_exception_map` to manage errors from `PeakStore` operations. Ensure that the `Exceptions` namespace is properly configured to handle errors gracefully.
+- **Logging**: Logging behavior is controlled exclusively via `PolicyConfiguration` passed at construction time. Use `PolicyConfiguration::LogConsole`, `LogFile`, `ConsoleAndFile`, or `Silent` as the logging policy.
 - **Type Safety**: The `VertexType` and `EdgeType` must be compatible with the `PeakStore` backend and support operations like default construction (for `getEdge` error cases).
 ## Dependencies
 - `CinderPeak.hpp`: Provides `GraphCreationOptions`, `PeakStore`, and related utilities.

@@ -33,7 +33,6 @@ enum LoggingPolicy {
 
 class Logger {
 public:
-  inline static bool enableConsoleLogging = false;
   inline static bool enableFileLogging = false;
 
   static void log(const LogLevel &level, const std::string &msg,
@@ -42,8 +41,8 @@ public:
     if (loggingPolicy == LoggingPolicy::Silent) {
       return;
     }
-    enableConsoleLogging = false;
-    enableFileLogging = false;
+    bool enableConsoleLogging = false;
+    bool enableFileLogging = false;
 
     if (loggingPolicy == LoggingPolicy::ConsoleAndFile) {
       enableConsoleLogging = true;
