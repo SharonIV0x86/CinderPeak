@@ -37,7 +37,7 @@ private:
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
         ctx->hybrid_storage);
     ctx->runtime = std::make_shared<CinderPeak::GraphRuntime>();
-    ctx->runtime->log(LogLevel::CRITICAL, "Lemon from ctx\n");
+    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
   }
 
 public:
@@ -48,7 +48,7 @@ public:
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options, cfg);
     ctx->log(LogLevel::INFO, "Successfully initialized context object.");
-    ctx->runtime->log(LogLevel::CRITICAL, "Lemon from ctx1\n");
+    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 1\n");
   }
 
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
@@ -64,7 +64,7 @@ public:
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
-    ctx->runtime->log(LogLevel::CRITICAL, "Lemon from ctx2\n");
+    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 2\n");
 
     bool isWeighted = ctx->metadata->isGraphWeighted();
     bool edgeExists;
