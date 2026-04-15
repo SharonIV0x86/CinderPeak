@@ -71,8 +71,9 @@ public:
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
-          pHandler.log(LogLevel::WARNING, "Failed to add Non Premitive Vertex: "
-                                          "Non Premitive Vertex Already Exist.");
+          pHandler.log(LogLevel::WARNING,
+                       "Failed to add Non Premitive Vertex: Non Premitive "
+                       "Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
         }
