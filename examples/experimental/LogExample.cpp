@@ -1,17 +1,17 @@
-#include "PeakLogger.hpp"
+#include "CinderPeak.hpp"
+#include <iostream>
+using namespace CinderPeak;
 
 int main() {
-  // Toggle based on user preferences / build flags / env
-  Logger::enableConsoleLogging = true;
-  Logger::enableFileLogging = true;
-  // Logger::logFileName = "custom_logs.txt";
+  // Console logging via Policies
+  PolicyConfiguration cfg(PolicyConfiguration::Ignore,
+                          PolicyConfiguration::LogConsole);
+  CinderGraph<int, int> g({GraphCreationOptions::getDefaultCreateOptions()},
+                          cfg);
+  g.addVertex(1);
+  g.addVertex(2);
+  g.addEdge(1, 2, 10);
 
-  LOG_INFO("System initialized");
-  LOG_WARNING("This might be risky...");
-  LOG_ERROR("Something failed badly!");
-  LOG_DEBUG("This is a debug message");
-  LOG_TRACE("This is a trace");
-  LOG_CRITICAL("Hardward read write faliure");
-
-  // Logger::shutdown(); // optional cleanup
+  std::cout << "Logging is controlled via PolicyConfiguration.\n";
+  return 0;
 }

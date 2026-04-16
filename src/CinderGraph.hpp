@@ -209,9 +209,6 @@ public:
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
 
-  void setConsoleLogging(const bool toggle) {
-    peak_store->setConsoleLogging(toggle);
-  }
   void setThrowExceptions(bool toggle) {
     peak_store->setThrowExceptions(toggle);
   }
