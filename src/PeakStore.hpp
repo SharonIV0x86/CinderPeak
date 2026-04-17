@@ -3,7 +3,6 @@
 #include "CinderPeak.hpp"
 #include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
-#include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
 #include "StorageEngine/GraphContext.hpp"

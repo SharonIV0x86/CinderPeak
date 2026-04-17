@@ -2,7 +2,6 @@
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
-#include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include "StorageInterface.hpp"

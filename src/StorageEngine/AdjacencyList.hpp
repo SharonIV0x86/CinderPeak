@@ -1,6 +1,5 @@
 #pragma once
 #include "Concepts.hpp"
-#include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "Utils.hpp"
