@@ -100,7 +100,7 @@ jobs:
 
     - name: Check formatting
       run: |
-        python3 scripts/format.py
+        python3 scripts/auto-format.py
 
         echo "Checking formatting..."
         git diff --exit-code || (echo "❌ Formatting issues found" && exit 1)
