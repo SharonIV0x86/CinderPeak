@@ -29,7 +29,6 @@ private:
   std::atomic<CinderPeak::VertexId> _next_vertex_id{1};
 
   mutable std::shared_mutex _mtx;
-  const PolicyHandler pHandler;
 
   std::optional<CinderPeak::VertexId>
   lookupVertexId_nolock(const VertexType &v) const {
@@ -67,13 +66,13 @@ public:
         if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
                           VertexType>) {
           // pHandler.log(LogLevel::WARNING,
-                      //  "Failed to add Vertex: Vertex Already Exist.");
+          //  "Failed to add Vertex: Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
           // pHandler.log(LogLevel::WARNING,
-                      //  "Failed to add Non Premitive Vertex: Non Premitive "
-                      //  "Vertex Already Exist.");
+          //  "Failed to add Non Premitive Vertex: Non Premitive "
+          //  "Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
         }
@@ -139,7 +138,8 @@ public:
     auto &neighbors = _adj[srcId];
     neighbors.emplace_back(destId, weight);
 
-    // pHandler.log(LogLevel::INFO, "Edge successfully added between vertices.");
+    // pHandler.log(LogLevel::INFO, "Edge successfully added between
+    // vertices.");
 
     return PeakStatus::OK();
   }
@@ -224,7 +224,8 @@ public:
 
     retWeight = it->second;
     neighbors.erase(it);
-    // pHandler.log(LogLevel::INFO, "Edge successfully removed between vertices.");
+    // pHandler.log(LogLevel::INFO, "Edge successfully removed between
+    // vertices.");
 
     return std::make_pair(retWeight, PeakStatus::OK());
   }
@@ -385,7 +386,8 @@ public:
         result.emplace_back(vdataIt->second, p.second);
       }
     }
-    // pHandler.log(LogLevel::INFO, "Edge successfully added between vertices.");
+    // pHandler.log(LogLevel::INFO, "Edge successfully added between
+    // vertices.");
     return std::make_pair(result, PeakStatus::OK());
   }
 
