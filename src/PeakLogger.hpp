@@ -144,7 +144,6 @@ private:
 
   static void ensureFileOpen(const std::string &path) {
     if (!logFile.is_open()) {
-      std::cout << "\nopening and creating file: " << path << "\n";
       logFile.open(path, std::ios::app);
     }
   }
