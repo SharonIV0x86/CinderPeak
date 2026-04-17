@@ -47,11 +47,8 @@ struct MyEdge : CinderPeak::CinderEdge {
 
 int main() {
   // --- Complex Graph (custom vertex + weighted edge) ---
-  GraphCreationOptions optsU({GraphCreationOptions::Undirected});
-  PolicyConfiguration cfg(PolicyConfiguration::Throw,
-                          PolicyConfiguration::Silent);
 
-  CinderGraph<MyVertex, MyEdge> customGraph(optsU, cfg);
+  CinderGraph<MyVertex, MyEdge> customGraph(optsU);
 
   MyVertex v1(1);
   MyVertex v2(2);
@@ -66,8 +63,6 @@ int main() {
 
   // --- Simple Weighted Graph (int vertices/edges) ---
   GraphCreationOptions optsD({GraphCreationOptions::Directed});
-  PolicyConfiguration cfg(PolicyConfiguration::Throw,
-                          PolicyConfiguration::LogConsole);
 
   CinderGraph<int, int> intGraph(optsD);
 

@@ -3,7 +3,6 @@
 #include "CinderPeak.hpp"
 #include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
-#include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
 #include "StorageEngine/GraphContext.hpp"
@@ -23,15 +22,14 @@ template <typename VertexType, typename EdgeType> class PeakStore {
 private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
   void initializeContext(const GraphInternalMetadata &metadata,
-                         const GraphCreationOptions &options,
-                         const PolicyConfiguration &cfg) {
+                         const GraphCreationOptions &options) {
     ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
     ctx->hybrid_storage =
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
-    ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
+    // ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
     ctx->adjacency_storage =
-        std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
+        std::make_shared<AdjacencyList<VertexType, EdgeType>>();
     ctx->active_storage = ctx->adjacency_storage;
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
@@ -43,10 +41,9 @@ private:
 public:
   PeakStore(const GraphInternalMetadata &metadata,
             const GraphCreationOptions &options =
-                CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
-            const PolicyConfiguration &cfg = PolicyConfiguration())
+                CinderPeak::GraphCreationOptions::getDefaultCreateOptions())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
-    initializeContext(metadata, options, cfg);
+    initializeContext(metadata, options);
     ctx->log(LogLevel::INFO, "Successfully initialized context object.");
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 1\n");
   }

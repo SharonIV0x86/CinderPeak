@@ -23,46 +23,9 @@
 #define COLOR_BOLD_CRIT "\033[1;91m"
 
 enum LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
-enum ErrorPolicy { Throw = 1, Ignore = 2 };
-enum LoggingPolicy {
-  LogConsole = 1,
-  Silent = 3,
-  LogFile = 4,
-  ConsoleAndFile = 5
-};
 
 class Logger {
 public:
-  inline static bool enableConsoleLogging = false;
-  inline static bool enableFileLogging = false;
-  [[deprecated]] static void log(const LogLevel &level, const std::string &msg,
-                                 const int &loggingPolicy,
-                                 const std::string &logFileP) {
-
-    if (loggingPolicy == LoggingPolicy::Silent) {
-      return;
-    }
-    enableConsoleLogging = false;
-    enableFileLogging = false;
-
-    if (loggingPolicy == LoggingPolicy::ConsoleAndFile) {
-      enableConsoleLogging = true;
-      enableFileLogging = true;
-      ensureFileOpen(logFileP);
-    } else if (loggingPolicy == LoggingPolicy::LogConsole) {
-      enableConsoleLogging = true;
-    } else if (loggingPolicy == LoggingPolicy::LogFile) {
-      enableFileLogging = true;
-      ensureFileOpen(logFileP);
-    }
-
-    if (enableConsoleLogging)
-      logToConsole(level, msg);
-
-    if (enableFileLogging)
-      logToFile(level, msg);
-  }
-
   static void shutdown() {
     std::lock_guard<std::mutex> lock(logMutex);
     if (logFile.is_open()) {

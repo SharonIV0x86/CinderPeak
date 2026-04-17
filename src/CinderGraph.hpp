@@ -2,7 +2,6 @@
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
-#include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
@@ -88,8 +87,7 @@ template <typename VertexType, typename EdgeType> class CinderGraph {
 
 public:
   CinderGraph(const GraphCreationOptions &options =
-                  GraphCreationOptions::getDefaultCreateOptions(),
-              const PolicyConfiguration &cfg = PolicyConfiguration()) {
+                  GraphCreationOptions::getDefaultCreateOptions()) {
     PeakStore::GraphInternalMetadata metadata(
         "cinder_graph", Traits::isTypePrimitive<VertexType>(),
         Traits::isTypePrimitive<EdgeType>(),
@@ -97,7 +95,7 @@ public:
         !Traits::isGraphWeighted<EdgeType>());
 
     peak_store = std::make_unique<PeakStore::PeakStore<VertexType, EdgeType>>(
-        metadata, options, cfg);
+        metadata, options);
   }
   VertexAddResult addVertex(const VertexType &v) {
     auto resp = peak_store->addVertex(v);

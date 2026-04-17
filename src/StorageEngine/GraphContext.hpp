@@ -2,7 +2,6 @@
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
-#include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include "StorageInterface.hpp"
@@ -24,14 +23,13 @@ public:
       nullptr;
   std::shared_ptr<PeakStorageInterface<VertexType, EdgeType>> active_storage =
       nullptr;
-  std::shared_ptr<PolicyHandler> pHandler = nullptr;
   std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>
       algorithms = nullptr;
   std::shared_ptr<GraphRuntime> runtime = nullptr;
   inline void log(LogLevel level, const std::string &msg) {
-    if (pHandler) {
-      pHandler->log(level, msg);
-    }
+    // if (pHandler) {
+    //   pHandler->log(level, msg);
+    // }
   }
 };
 
