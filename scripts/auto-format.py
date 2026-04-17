@@ -1,39 +1,59 @@
 #!/usr/bin/env python3
-import os
 import subprocess
 
-# Only these folders (and their subfolders) will be formatted
-INCLUDED_DIRS = ["src", "examples", "tests", "src/Algorithms"]
-EXCLUDE_FILES = ["src/ArialFontDataEmbed.hpp"]
-# File extensions to check
+# Only include these directories
+INCLUDED_DIRS = ["src", "examples", "tests"]
+
+# Exclude specific files
+EXCLUDE_FILES = {"src/ArialFontDataEmbed.hpp"}
+
+# File extensions
 EXTENSIONS = (".cpp", ".hpp", ".h", ".cc", ".cxx")
 
 
-def get_all_files():
-    """Collect all source files under INCLUDED_DIRS recursively."""
-    for root_dir in INCLUDED_DIRS:
-        if not os.path.exists(root_dir):
+def get_files():
+    """Get tracked files from git matching extensions and directories."""
+    try:
+        result = subprocess.run(
+            ["git", "ls-files"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        files = result.stdout.splitlines()
+    except subprocess.CalledProcessError:
+        print("❌ Failed to run git ls-files")
+        return []
+
+    filtered = []
+    for f in files:
+        if not f.endswith(EXTENSIONS):
             continue
-        for dirpath, _, filenames in os.walk(root_dir):
-            for f in filenames:
-                if f.endswith(EXTENSIONS):
-                    yield os.path.join(dirpath, f)
+
+        if not any(f.startswith(d + "/") for d in INCLUDED_DIRS):
+            continue
+
+        if f in EXCLUDE_FILES:
+            continue
+
+        filtered.append(f)
+
+    return filtered
 
 
 def main():
-    print(f"🔍 Formatting only in folders: {', '.join(INCLUDED_DIRS)}")
-    files = list(get_all_files())
+    print(f"🔍 Formatting only in: {', '.join(INCLUDED_DIRS)}")
+
+    files = get_files()
     if not files:
-        print("No files found to format.")
+        print("No files found.")
         return
 
-    print(f"Found {len(files)} files. Running clang-format...\n")
+    print(f"Found {len(files)} files.\n")
 
-    for file in files:
-        if file in EXCLUDE_FILES:
-            continue
-        print(f"-> Formatting: {file}")
-        subprocess.run(["clang-format", "-i", file], check=False)
+    for f in files:
+        print(f"-> Formatting: {f}")
+        subprocess.run(["clang-format", "-i", f], check=False)
 
     print("\n✅ Formatting complete!")
 

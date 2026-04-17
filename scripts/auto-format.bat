@@ -1,17 +1,28 @@
 @echo off
-REM Auto-format only selected folders recursively
-REM Update the list in INCLUDED_DIRS if needed
+setlocal enabledelayedexpansion
 
+REM Included directories
 set INCLUDED_DIRS=src examples tests
 
-echo 🔍 Formatting only in folders: %INCLUDED_DIRS%
+REM Excluded files (space-separated)
+set EXCLUDE_FILES=src\ArialFontDataEmbed.hpp
+
+echo 🔍 Formatting only in: %INCLUDED_DIRS%
 echo.
 
 for %%d in (%INCLUDED_DIRS%) do (
     if exist %%d (
         for /r %%d %%f in (*.cpp *.hpp *.h *.cc *.cxx) do (
-            echo -> Formatting: %%f
-            clang-format -i "%%f"
+
+            set "skip=false"
+            for %%e in (%EXCLUDE_FILES%) do (
+                if "%%f"=="%%e" set "skip=true"
+            )
+
+            if "!skip!"=="false" (
+                echo -> Formatting: %%f
+                clang-format -i "%%f"
+            )
         )
     )
 )

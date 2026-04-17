@@ -85,7 +85,6 @@ jobs:
       run: cmake --build build
     - name: Run Tests
       run: ctest --test-dir build --output-on-failure
-
   lint:
     name: Lint & Formatting
     runs-on: ubuntu-latest
@@ -101,14 +100,11 @@ jobs:
 
     - name: Check formatting
       run: |
-        FILES=$(git ls-files '*.cpp' '*.hpp')
-        if [ -z "$FILES" ]; then
-          echo "No C++ source files found!"
-          exit 0
-        fi
+        python3 scripts/format.py
 
-        echo "Running clang-format check..."
-        git ls-files '*.cpp' '*.hpp' -z | xargs -0 clang-format --dry-run --Werror
+        echo "Checking formatting..."
+        git diff --exit-code || (echo "❌ Formatting issues found" && exit 1)
+
   clang-tidy-full-analysis:
     name: Clang-Tidy Full Project Analysis
     runs-on: ubuntu-latest
