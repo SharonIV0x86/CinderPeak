@@ -7,8 +7,6 @@ int main() {
   try {
     // 1. Unweighted graph
     cout << "--- Unweighted Graph ---" << endl;
-    //     PolicyConfiguration p(PolicyConfiguration::ErrorPolicy::Throw,
-    //                           PolicyConfiguration::LoggingPolicy::LogConsole);
     CinderGraph<int, Unweighted> g1(
         {GraphCreationOptions::getDefaultCreateOptions()});
     g1.addVertex(1);

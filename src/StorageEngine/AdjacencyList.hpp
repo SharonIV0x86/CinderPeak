@@ -51,7 +51,7 @@ private:
   }
 
 public:
-  AdjacencyList(const PolicyHandler &handler) : pHandler(handler) {
+  AdjacencyList() : {
     _adj.reserve(1024);
     _vertex_data.reserve(1024);
     _vertex_lookup.reserve(1024);

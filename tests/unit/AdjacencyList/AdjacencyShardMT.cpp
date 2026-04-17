@@ -8,9 +8,8 @@ using namespace PeakStore;
 
 class AdjacencyStorageTestMT : public ::testing::Test, public CinderVertex {
 protected:
-  PolicyHandler policyHandler;
-  AdjacencyList<int, int> intGraph{policyHandler};
-  AdjacencyList<std::string, float> stringGraph{policyHandler};
+  AdjacencyList<int, int> intGraph;
+  AdjacencyList<std::string, float> stringGraph;
 
   void SetUp() override {
     intGraph.impl_addVertex(1);
@@ -30,8 +29,7 @@ protected:
 };
 class AdjacencyListThreadTest : public ::testing::Test {
 protected:
-  PolicyHandler policy;
-  AdjacencyList<int, int> threadGraph{policy};
+  AdjacencyList<int, int> threadGraph;
 
   void SetUp() override {
     for (int i = 1; i <= 100; ++i) {
