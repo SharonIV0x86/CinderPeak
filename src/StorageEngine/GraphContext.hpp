@@ -23,7 +23,6 @@ public:
       nullptr;
   std::shared_ptr<PeakStorageInterface<VertexType, EdgeType>> active_storage =
       nullptr;
-  // std::shared_ptr<PolicyHandler> pHandler = nullptr;
   std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>
       algorithms = nullptr;
   std::shared_ptr<GraphRuntime> runtime = nullptr;
