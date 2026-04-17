@@ -1,7 +1,4 @@
 #pragma once
-#include "../StorageInterface.hpp"
-#include "StorageEngine/GraphContext.hpp"
-#include "Utils.hpp"
 #include <algorithm>
 #include <atomic>
 #include <iostream>
@@ -9,13 +6,18 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../StorageInterface.hpp"
+#include "StorageEngine/GraphContext.hpp"
+#include "Utils.hpp"
+
 namespace CinderPeak {
-template <typename, typename> class PeakStorageInterface;
+template <typename, typename>
+class PeakStorageInterface;
 namespace PeakStore {
 
 template <typename VertexType, typename EdgeType>
 class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
-private:
+ private:
   alignas(64) std::vector<size_t> csr_row_offsets;
   alignas(64) std::vector<size_t> csr_col_vals;
   alignas(64) std::vector<EdgeType> csr_weights;
@@ -25,21 +27,18 @@ private:
   alignas(64) std::vector<EdgeType> coo_weights;
 
   std::vector<VertexType> vertex_order;
-  std::unordered_map<VertexType, size_t, VertexHasher<VertexType>>
-      vertex_to_index;
+  std::unordered_map<VertexType, size_t, VertexHasher<VertexType>> vertex_to_index;
 
   mutable std::shared_mutex _mtx;
   mutable std::atomic<bool> is_built_{false};
   std::atomic<size_t> COO_BUFFER_THRESHOLD_{1024};
 
   void buildStructures() {
-    if (is_built_.load(std::memory_order_acquire))
-      return;
+    if (is_built_.load(std::memory_order_acquire)) return;
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    if (is_built_.load(std::memory_order_relaxed))
-      return;
+    if (is_built_.load(std::memory_order_relaxed)) return;
 
     const size_t num_vertices = vertex_order.size();
     csr_row_offsets.assign(num_vertices + 1, 0);
@@ -60,8 +59,7 @@ private:
     csr_weights.resize(csr_row_offsets[num_vertices]);
 
     std::vector<size_t> insert_offsets = csr_row_offsets;
-    std::vector<std::vector<std::pair<size_t, EdgeType>>> temp_rows(
-        num_vertices);
+    std::vector<std::vector<std::pair<size_t, EdgeType>>> temp_rows(num_vertices);
     for (size_t i = 0; i < coo_src.size(); ++i) {
       if (coo_src[i] < num_vertices && coo_dest[i] < num_vertices) {
         temp_rows[coo_src[i]].emplace_back(coo_dest[i], coo_weights[i]);
@@ -83,8 +81,7 @@ private:
   }
 
   void incrementalUpdate() {
-    if (!is_built_.load(std::memory_order_relaxed) || coo_src.empty())
-      return;
+    if (!is_built_.load(std::memory_order_relaxed) || coo_src.empty()) return;
 
     const size_t num_vertices = vertex_order.size();
     std::vector<size_t> new_edge_counts(num_vertices, 0);
@@ -98,9 +95,7 @@ private:
     std::vector<size_t> new_row_offsets(num_vertices + 1, 0);
     new_row_offsets[0] = csr_row_offsets[0];
     for (size_t i = 0; i < num_vertices; ++i) {
-      new_row_offsets[i + 1] = new_row_offsets[i] +
-                               (csr_row_offsets[i + 1] - csr_row_offsets[i]) +
-                               new_edge_counts[i];
+      new_row_offsets[i + 1] = new_row_offsets[i] + (csr_row_offsets[i + 1] - csr_row_offsets[i]) + new_edge_counts[i];
     }
 
     std::vector<size_t> new_col_vals(new_row_offsets.back());
@@ -148,7 +143,7 @@ private:
     coo_weights.shrink_to_fit();
   }
 
-public:
+ public:
   HybridCSR_COO() {
     csr_row_offsets.reserve(1024);
     csr_col_vals.reserve(4096);
@@ -160,10 +155,8 @@ public:
     vertex_to_index.reserve(1024);
   }
 
-  void populateFromAdjList(
-      const std::unordered_map<VertexType,
-                               std::vector<std::pair<VertexType, EdgeType>>,
-                               VertexHasher<VertexType>> &adj_list) {
+  void populateFromAdjList(const std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
+                                                    VertexHasher<VertexType>> &adj_list) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     is_built_.store(false, std::memory_order_relaxed);
@@ -200,14 +193,11 @@ public:
     buildStructures();
   }
 
-  void setCOOThreshold(size_t threshold) {
-    COO_BUFFER_THRESHOLD_.store(threshold, std::memory_order_relaxed);
-  }
+  void setCOOThreshold(size_t threshold) { COO_BUFFER_THRESHOLD_.store(threshold, std::memory_order_relaxed); }
 
   void orchestrator_rebuildFromAdjList(
-      const std::unordered_map<VertexType,
-                               std::vector<std::pair<VertexType, EdgeType>>,
-                               VertexHasher<VertexType>> &adj_list) {
+      const std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>, VertexHasher<VertexType>>
+          &adj_list) {
     populateFromAdjList(adj_list);
   }
 
@@ -228,15 +218,13 @@ public:
       std::cout << vertex_order[i] << " [" << i << "] -> ";
       for (size_t j = csr_row_offsets[i]; j < csr_row_offsets[i + 1]; ++j) {
         size_t neighbor_idx = csr_col_vals[j];
-        std::cout << "(" << vertex_order[neighbor_idx] << " [" << neighbor_idx
-                  << "], " << csr_weights[j] << ") ";
+        std::cout << "(" << vertex_order[neighbor_idx] << " [" << neighbor_idx << "], " << csr_weights[j] << ") ";
       }
       std::cout << "\n";
     }
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_addVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
@@ -252,10 +240,8 @@ public:
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_addEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &weight = EdgeType()) override {
-
+  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
+                                              const EdgeType &weight = EdgeType()) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto src_it = vertex_to_index.find(src);
@@ -269,15 +255,14 @@ public:
     coo_weights.push_back(weight);
 
     if (is_built_.load(std::memory_order_relaxed) &&
-        coo_src.size() >=
-            COO_BUFFER_THRESHOLD_.load(std::memory_order_relaxed)) {
+        coo_src.size() >= COO_BUFFER_THRESHOLD_.load(std::memory_order_relaxed)) {
       incrementalUpdate();
     }
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
-  impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_removeEdge(const VertexType &src,
+                                                                      const VertexType &dest) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto weight = EdgeType();
@@ -309,8 +294,7 @@ public:
     size_t start = csr_row_offsets[row];
     size_t end = csr_row_offsets[row + 1];
 
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
+    auto it = std::lower_bound(csr_col_vals.begin() + start, csr_col_vals.begin() + end, dest_idx);
 
     if (it != csr_col_vals.begin() + end && *it == dest_idx) {
       size_t edge_idx = std::distance(csr_col_vals.begin(), it);
@@ -329,9 +313,8 @@ public:
     return std::make_pair(weight, PeakStatus::EdgeNotFound());
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_updateEdge(const VertexType &src, const VertexType &dest,
-                  const EdgeType &newWeight) override {
+  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
+                                                 const EdgeType &newWeight) override {
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
@@ -360,8 +343,7 @@ public:
     size_t start = csr_row_offsets[row];
     size_t end = csr_row_offsets[row + 1];
 
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
+    auto it = std::lower_bound(csr_col_vals.begin() + start, csr_col_vals.begin() + end, dest_idx);
 
     if (it != csr_col_vals.begin() + end && *it == dest_idx) {
       size_t idx = std::distance(csr_col_vals.begin(), it);
@@ -415,21 +397,18 @@ public:
     return true;
   }
 
-  [[nodiscard]] bool
-  impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                     const EdgeType &weight) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
+                                        const EdgeType &weight) noexcept override {
     auto edge = impl_getEdge(src, dest);
     return edge.second.isOK() && edge.first == weight;
   }
 
-  [[nodiscard]] bool
-  impl_doesEdgeExist(const VertexType &src,
-                     const VertexType &dest) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest) noexcept override {
     return impl_getEdge(src, dest).second.isOK();
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
-  impl_getEdge(const VertexType &src, const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType &src,
+                                                                   const VertexType &dest) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto src_it = vertex_to_index.find(src);
@@ -457,8 +436,7 @@ public:
     size_t start = csr_row_offsets[row];
     size_t end = csr_row_offsets[row + 1];
 
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
+    auto it = std::lower_bound(csr_col_vals.begin() + start, csr_col_vals.begin() + end, dest_idx);
     if (it != csr_col_vals.begin() + end && *it == dest_idx) {
       size_t idx = std::distance(csr_col_vals.begin(), it);
       return {csr_weights[idx], PeakStatus::OK()};
@@ -466,8 +444,7 @@ public:
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_removeVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
@@ -483,10 +460,8 @@ public:
         coo_dest.erase(coo_dest.begin() + i);
         coo_weights.erase(coo_weights.begin() + i);
       } else {
-        if (coo_src[i] > idx_to_remove)
-          coo_src[i]--;
-        if (coo_dest[i] > idx_to_remove)
-          coo_dest[i]--;
+        if (coo_src[i] > idx_to_remove) coo_src[i]--;
+        if (coo_dest[i] > idx_to_remove) coo_dest[i]--;
         ++i;
       }
     }
@@ -500,8 +475,7 @@ public:
       size_t new_row_idx = 0;
 
       for (size_t old_row = 0; old_row < vertex_order.size(); ++old_row) {
-        if (old_row == idx_to_remove)
-          continue;
+        if (old_row == idx_to_remove) continue;
 
         size_t start = csr_row_offsets[old_row];
         size_t end = csr_row_offsets[old_row + 1];
@@ -509,9 +483,7 @@ public:
         for (size_t j = start; j < end; ++j) {
           size_t neighbor_idx = csr_col_vals[j];
           if (neighbor_idx != idx_to_remove) {
-            size_t new_neighbor_idx = (neighbor_idx > idx_to_remove)
-                                          ? neighbor_idx - 1
-                                          : neighbor_idx;
+            size_t new_neighbor_idx = (neighbor_idx > idx_to_remove) ? neighbor_idx - 1 : neighbor_idx;
             new_csr_cols.push_back(new_neighbor_idx);
             new_csr_weights.push_back(csr_weights[j]);
             current_offset++;
@@ -537,5 +509,5 @@ public:
   }
 };
 
-} // namespace PeakStore
-} // namespace CinderPeak
+}  // namespace PeakStore
+}  // namespace CinderPeak

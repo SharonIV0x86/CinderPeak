@@ -1,17 +1,19 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
+#include <gtest/gtest.h>
+
 #include <algorithm>
 #include <atomic>
-#include <gtest/gtest.h>
 #include <limits>
 #include <random>
 #include <set>
 #include <thread>
 #include <vector>
 
+#include "StorageEngine/HybridCSR_COO.hpp"
+
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -288,32 +290,31 @@ TEST_F(HybridStorageShardTest, HasVertices_StressTestConcurrent) {
   std::atomic<bool> allTestsPassed{true};
 
   for (int t = 0; t < numThreads; t++) {
-    threads.emplace_back(
-        [&testGraph, &allTestsPassed, t, numOperationsPerThread]() {
-          int baseVertex = t * numOperationsPerThread;
+    threads.emplace_back([&testGraph, &allTestsPassed, t, numOperationsPerThread]() {
+      int baseVertex = t * numOperationsPerThread;
 
-          for (int i = 0; i < numOperationsPerThread; i++) {
-            int vertex = baseVertex + i;
+      for (int i = 0; i < numOperationsPerThread; i++) {
+        int vertex = baseVertex + i;
 
-            testGraph->impl_addVertex(vertex);
+        testGraph->impl_addVertex(vertex);
 
-            if (!testGraph->impl_hasVertex(vertex)) {
-              allTestsPassed = false;
-            }
+        if (!testGraph->impl_hasVertex(vertex)) {
+          allTestsPassed = false;
+        }
 
-            testGraph->impl_removeVertex(vertex);
+        testGraph->impl_removeVertex(vertex);
 
-            if (testGraph->impl_hasVertex(vertex)) {
-              allTestsPassed = false;
-            }
+        if (testGraph->impl_hasVertex(vertex)) {
+          allTestsPassed = false;
+        }
 
-            testGraph->impl_addVertex(vertex);
+        testGraph->impl_addVertex(vertex);
 
-            if (!testGraph->impl_hasVertex(vertex)) {
-              allTestsPassed = false;
-            }
-          }
-        });
+        if (!testGraph->impl_hasVertex(vertex)) {
+          allTestsPassed = false;
+        }
+      }
+    });
   }
 
   for (auto &thread : threads) {
@@ -339,22 +340,21 @@ TEST_F(HybridStorageShardTest, HasVertices_RaceConditionDetection) {
   std::atomic<int> falseCount{0};
 
   for (int t = 0; t < numThreads; t++) {
-    threads.emplace_back(
-        [&testGraph, &trueCount, &falseCount, targetVertex, t]() {
-          for (int i = 0; i < 100; i++) {
-            if (t % 2 == 0) {
-              testGraph->impl_addVertex(targetVertex);
-            } else {
-              testGraph->impl_removeVertex(targetVertex);
-            }
+    threads.emplace_back([&testGraph, &trueCount, &falseCount, targetVertex, t]() {
+      for (int i = 0; i < 100; i++) {
+        if (t % 2 == 0) {
+          testGraph->impl_addVertex(targetVertex);
+        } else {
+          testGraph->impl_removeVertex(targetVertex);
+        }
 
-            if (testGraph->impl_hasVertex(targetVertex)) {
-              trueCount++;
-            } else {
-              falseCount++;
-            }
-          }
-        });
+        if (testGraph->impl_hasVertex(targetVertex)) {
+          trueCount++;
+        } else {
+          falseCount++;
+        }
+      }
+    });
   }
 
   for (auto &thread : threads) {

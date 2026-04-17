@@ -1,5 +1,6 @@
-#include <atomic>
 #include <gtest/gtest.h>
+
+#include <atomic>
 #include <thread>
 
 #include "StorageEngine/HybridCSR_COO.hpp"
@@ -8,7 +9,7 @@ using namespace CinderPeak::PeakStore;
 using namespace std::chrono;
 
 class HybridStorageShardTestMT : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -19,8 +20,7 @@ protected:
     string_graph.reset();
   }
 
-  std::vector<std::tuple<int, int, int>>
-  generateTestEdges(int num_vertices, int num_edges, int seed = 42) {
+  std::vector<std::tuple<int, int, int>> generateTestEdges(int num_vertices, int num_edges, int seed = 42) {
     std::vector<std::tuple<int, int, int>> edges;
     std::mt19937 gen(seed);
     std::uniform_int_distribution<> vertex_dis(0, num_vertices - 1);
@@ -70,8 +70,7 @@ TEST_F(HybridStorageShardTestMT, ConcurrentReads) {
 }
 
 TEST_F(HybridStorageShardTestMT, MixedReadWrite) {
-  for (int i = 0; i < 50; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 50; ++i) graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   auto writer = [&]() {
@@ -100,32 +99,26 @@ TEST_F(HybridStorageShardTestMT, MixedReadWrite) {
 
 TEST_F(HybridStorageShardTestMT, StressTestMultipleThreads) {
   const int NUM_THREADS = 8;
-  for (int i = 0; i < 500; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 500; ++i) graph->impl_addVertex(i);
 
   auto worker = [&](int id) {
     for (int i = 0; i < 2000; ++i) {
       int src = (i + id) % 500;
       int dst = (i * 13 + id) % 500;
-      if (src != dst)
-        graph->impl_addEdge(src, dst, src + dst);
+      if (src != dst) graph->impl_addEdge(src, dst, src + dst);
     }
   };
 
   std::vector<std::thread> threads;
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(worker, i);
-  for (auto &t : threads)
-    t.join();
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(worker, i);
+  for (auto &t : threads) t.join();
 
   auto [w, status] = graph->impl_getEdge(1, 2);
-  if (status.isOK())
-    SUCCEED() << "Edge found after stress test.";
+  if (status.isOK()) SUCCEED() << "Edge found after stress test.";
 }
 
 TEST_F(HybridStorageShardTestMT, ProperRaceDetection) {
-  for (int i = 0; i < 10; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 10; ++i) graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> write_counter{0};
@@ -161,12 +154,10 @@ TEST_F(HybridStorageShardTestMT, ProperRaceDetection) {
 }
 
 TEST_F(HybridStorageShardTestMT, PerformanceRegression) {
-  for (int i = 0; i < 2000; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 2000; ++i) graph->impl_addVertex(i);
 
   auto edges = generateTestEdges(2000, 5000);
-  for (auto &[src, dst, w] : edges)
-    graph->impl_addEdge(src, dst, w);
+  for (auto &[src, dst, w] : edges) graph->impl_addEdge(src, dst, w);
 
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < 10000; ++i) {
@@ -175,9 +166,7 @@ TEST_F(HybridStorageShardTestMT, PerformanceRegression) {
     graph->impl_doesEdgeExist(src, dst);
   }
   auto end = std::chrono::high_resolution_clock::now();
-  auto duration_ms =
-      std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-          .count();
+  auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
   EXPECT_LT(duration_ms, 500) << "Performance regression: took too long!";
 }
@@ -189,8 +178,7 @@ TEST_F(HybridStorageShardTestMT, ConcurrentVertexAdditionAndRemoval) {
   std::atomic<bool> stop_flag{false};
   std::atomic<int> vertex_counter{50};
 
-  for (int i = 0; i < 50; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 50; ++i) graph->impl_addVertex(i);
 
   auto adder = [&]() {
     for (int i = 0; i < NUM_OPERATIONS; ++i) {
@@ -225,31 +213,25 @@ TEST_F(HybridStorageShardTestMT, ConcurrentVertexAdditionAndRemoval) {
 
   std::vector<std::thread> threads;
 
-  for (int i = 0; i < 2; ++i)
-    threads.emplace_back(adder);
+  for (int i = 0; i < 2; ++i) threads.emplace_back(adder);
 
-  for (int i = 0; i < 2; ++i)
-    threads.emplace_back(remover);
+  for (int i = 0; i < 2; ++i) threads.emplace_back(remover);
 
-  for (int i = 0; i < 2; ++i)
-    threads.emplace_back(reader);
+  for (int i = 0; i < 2; ++i) threads.emplace_back(reader);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   stop_flag.store(true);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
-  SUCCEED()
-      << "Concurrent vertex addition and removal completed without crashing";
+  SUCCEED() << "Concurrent vertex addition and removal completed without crashing";
 }
 
 TEST_F(HybridStorageShardTestMT, EdgeUpdateRaceConditions) {
   const int NUM_THREADS = 4;
   const int NUM_UPDATES = 1000;
 
-  for (int i = 0; i < 10; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 10; ++i) graph->impl_addVertex(i);
 
   graph->impl_addEdge(0, 1, 100);
 
@@ -270,20 +252,16 @@ TEST_F(HybridStorageShardTestMT, EdgeUpdateRaceConditions) {
     for (int i = 0; i < NUM_UPDATES * 2; ++i) {
       auto [weight, status] = graph->impl_getEdge(0, 1);
       if (status.isOK()) {
-
         EXPECT_GE(weight, 0);
       }
     }
   };
 
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(updater, i);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(updater, i);
 
-  for (int i = 0; i < 2; ++i)
-    threads.emplace_back(reader);
+  for (int i = 0; i < 2; ++i) threads.emplace_back(reader);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   auto [final_weight, final_status] = graph->impl_getEdge(0, 1);
   EXPECT_TRUE(final_status.isOK());
@@ -295,8 +273,7 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
   const int NUM_OPERATIONS = 2000;
   const int NUM_VERTICES = 100;
 
-  for (int i = 0; i < NUM_VERTICES; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < NUM_VERTICES; ++i) graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
@@ -318,21 +295,21 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
       }
 
       switch (op) {
-      case 0:
-        graph->impl_addEdge(src, dst, weight_dis(gen));
-        break;
-      case 1:
-        graph->impl_doesEdgeExist(src, dst);
-        break;
-      case 2:
-        graph->impl_getEdge(src, dst);
-        break;
-      case 3:
-        graph->impl_updateEdge(src, dst, weight_dis(gen));
-        break;
-      case 4:
-        graph->impl_hasVertex(src);
-        break;
+        case 0:
+          graph->impl_addEdge(src, dst, weight_dis(gen));
+          break;
+        case 1:
+          graph->impl_doesEdgeExist(src, dst);
+          break;
+        case 2:
+          graph->impl_getEdge(src, dst);
+          break;
+        case 3:
+          graph->impl_updateEdge(src, dst, weight_dis(gen));
+          break;
+        case 4:
+          graph->impl_hasVertex(src);
+          break;
       }
 
       operations_count.fetch_add(1);
@@ -340,11 +317,9 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
   };
 
   std::vector<std::thread> threads;
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(mixed_worker, i);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(mixed_worker, i);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   EXPECT_GE(operations_count.load(), NUM_THREADS * NUM_OPERATIONS);
   SUCCEED() << "Mixed operations stress test completed without crashes";
@@ -353,11 +328,9 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
 TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
   const int NUM_THREADS = 4;
 
-  for (int i = 0; i < 1000; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 1000; ++i) graph->impl_addVertex(i);
 
-  for (int i = 0; i < 5000; ++i)
-    graph->impl_addEdge(i % 1000, (i + 1) % 1000, i);
+  for (int i = 0; i < 5000; ++i) graph->impl_addEdge(i % 1000, (i + 1) % 1000, i);
 
   std::atomic<bool> stop_flag{false};
 
@@ -393,16 +366,14 @@ TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
 
   std::vector<std::thread> threads;
 
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(reader);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(reader);
 
   threads.emplace_back(writer);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   stop_flag.store(true);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   SUCCEED() << "Concurrent access during structure building completed without "
                "crashes";
@@ -411,11 +382,9 @@ TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
 TEST_F(HybridStorageShardTestMT, ClearEdgesUnderLoad) {
   const int NUM_THREADS = 4;
 
-  for (int i = 0; i < 100; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 100; ++i) graph->impl_addVertex(i);
 
-  for (int i = 0; i < 500; ++i)
-    graph->impl_addEdge(i % 100, (i + 1) % 100, i);
+  for (int i = 0; i < 500; ++i) graph->impl_addEdge(i % 100, (i + 1) % 100, i);
 
   std::atomic<bool> stop_flag{false};
 
@@ -440,16 +409,14 @@ TEST_F(HybridStorageShardTestMT, ClearEdgesUnderLoad) {
 
   std::vector<std::thread> threads;
 
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(reader);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(reader);
 
   threads.emplace_back(clear_edges);
 
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   stop_flag.store(true);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   SUCCEED() << "Clear edges under load test completed without crashes";
 }
@@ -467,8 +434,7 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
 
   auto worker = [&]([[maybe_unused]] int thread_id) {
     std::vector<std::string> vertices = {"vertex0", "vertex1", "vertex2"};
-    std::vector<std::string> new_vertices = {"vertex3", "vertex4", "vertex5",
-                                             "vertex6", "vertex7"};
+    std::vector<std::string> new_vertices = {"vertex3", "vertex4", "vertex5", "vertex6", "vertex7"};
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -481,27 +447,26 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
       int op = op_dis(gen);
 
       switch (op) {
-      case 0: {
-        int src_idx = vertex_dis(gen);
-        int dst_idx = vertex_dis(gen);
-        if (src_idx != dst_idx) {
-          string_graph->impl_addEdge(vertices[src_idx], vertices[dst_idx],
-                                     weight_dis(gen));
+        case 0: {
+          int src_idx = vertex_dis(gen);
+          int dst_idx = vertex_dis(gen);
+          if (src_idx != dst_idx) {
+            string_graph->impl_addEdge(vertices[src_idx], vertices[dst_idx], weight_dis(gen));
+          }
+          break;
         }
-        break;
-      }
-      case 1: {
-        int src_idx = vertex_dis(gen);
-        int dst_idx = vertex_dis(gen);
-        string_graph->impl_getEdge(vertices[src_idx], vertices[dst_idx]);
-        break;
-      }
-      case 2:
-        string_graph->impl_addVertex(new_vertices[new_vertex_dis(gen)]);
-        break;
-      case 3:
-        string_graph->impl_hasVertex(vertices[vertex_dis(gen)]);
-        break;
+        case 1: {
+          int src_idx = vertex_dis(gen);
+          int dst_idx = vertex_dis(gen);
+          string_graph->impl_getEdge(vertices[src_idx], vertices[dst_idx]);
+          break;
+        }
+        case 2:
+          string_graph->impl_addVertex(new_vertices[new_vertex_dis(gen)]);
+          break;
+        case 3:
+          string_graph->impl_hasVertex(vertices[vertex_dis(gen)]);
+          break;
       }
 
       operations_count.fetch_add(1);
@@ -509,11 +474,9 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
   };
 
   std::vector<std::thread> threads;
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(worker, i);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(worker, i);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   EXPECT_GE(operations_count.load(), NUM_THREADS * NUM_OPERATIONS);
   SUCCEED() << "String type concurrency test completed without crashes";
@@ -524,8 +487,7 @@ TEST_F(HybridStorageShardTestMT, MemoryConsistencyAfterConcurrentOperations) {
   const int NUM_OPERATIONS = 1000;
   const int NUM_VERTICES = 20;
 
-  for (int i = 0; i < NUM_VERTICES; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < NUM_VERTICES; ++i) graph->impl_addVertex(i);
 
   auto worker = [&](int thread_id) {
     std::random_device rd;
@@ -543,27 +505,24 @@ TEST_F(HybridStorageShardTestMT, MemoryConsistencyAfterConcurrentOperations) {
       }
 
       switch (op_dis(gen)) {
-      case 0:
-        graph->impl_addEdge(src, dst, weight_dis(gen));
-        break;
-      case 1:
-        graph->impl_updateEdge(src, dst, weight_dis(gen));
-        break;
+        case 0:
+          graph->impl_addEdge(src, dst, weight_dis(gen));
+          break;
+        case 1:
+          graph->impl_updateEdge(src, dst, weight_dis(gen));
+          break;
       }
     }
   };
 
   std::vector<std::thread> threads;
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(worker, i);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(worker, i);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   for (int i = 0; i < NUM_VERTICES; ++i) {
     bool exists = graph->impl_hasVertex(i);
-    EXPECT_TRUE(exists) << "Vertex " << i
-                        << " should exist after concurrent operations";
+    EXPECT_TRUE(exists) << "Vertex " << i << " should exist after concurrent operations";
   }
 
   SUCCEED() << "Memory consistency test completed without crashes";
@@ -589,45 +548,41 @@ TEST_F(HybridStorageShardTestMT, HighContentionOnSingleVertex) {
       int op = op_dis(gen);
 
       switch (op) {
-      case 0:
-        if (graph->impl_updateEdge(0, 1, weight_dis(gen)).isOK()) {
-          success_count.fetch_add(1);
-        }
-        break;
-      case 1:
-        graph->impl_getEdge(0, 1);
-        break;
-      case 2:
-        graph->impl_doesEdgeExist(0, 1);
-        break;
-      case 3:
-        graph->impl_addEdge(0, 1, weight_dis(gen));
-        break;
+        case 0:
+          if (graph->impl_updateEdge(0, 1, weight_dis(gen)).isOK()) {
+            success_count.fetch_add(1);
+          }
+          break;
+        case 1:
+          graph->impl_getEdge(0, 1);
+          break;
+        case 2:
+          graph->impl_doesEdgeExist(0, 1);
+          break;
+        case 3:
+          graph->impl_addEdge(0, 1, weight_dis(gen));
+          break;
       }
     }
   };
 
   std::vector<std::thread> threads;
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(high_contention_worker, i);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(high_contention_worker, i);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   auto [final_weight, final_status] = graph->impl_getEdge(0, 1);
   EXPECT_TRUE(final_status.isOK());
   EXPECT_GE(final_weight, 0);
 
-  SUCCEED() << "High contention test completed without crashes. Success count: "
-            << success_count.load();
+  SUCCEED() << "High contention test completed without crashes. Success count: " << success_count.load();
 }
 
 TEST_F(HybridStorageShardTestMT, LongRunningStressTest) {
   const int NUM_THREADS = 8;
   const int DURATION_MS = 5000;
 
-  for (int i = 0; i < 100; ++i)
-    graph->impl_addVertex(i);
+  for (int i = 0; i < 100; ++i) graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
@@ -651,43 +606,39 @@ TEST_F(HybridStorageShardTestMT, LongRunningStressTest) {
       }
 
       switch (op) {
-      case 0:
-        graph->impl_addEdge(src, dst, weight_dis(gen));
-        break;
-      case 1:
-        graph->impl_getEdge(src, dst);
-        break;
-      case 2:
-        graph->impl_updateEdge(src, dst, weight_dis(gen));
-        break;
-      case 3:
-        graph->impl_hasVertex(src);
-        break;
-      case 4:
-        graph->impl_doesEdgeExist(src, dst);
-        break;
+        case 0:
+          graph->impl_addEdge(src, dst, weight_dis(gen));
+          break;
+        case 1:
+          graph->impl_getEdge(src, dst);
+          break;
+        case 2:
+          graph->impl_updateEdge(src, dst, weight_dis(gen));
+          break;
+        case 3:
+          graph->impl_hasVertex(src);
+          break;
+        case 4:
+          graph->impl_doesEdgeExist(src, dst);
+          break;
       }
 
       operations_count.fetch_add(1);
 
       auto now = std::chrono::steady_clock::now();
-      if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
-              .count() >= DURATION_MS) {
+      if (std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() >= DURATION_MS) {
         break;
       }
     }
   };
 
   std::vector<std::thread> threads;
-  for (int i = 0; i < NUM_THREADS; ++i)
-    threads.emplace_back(long_running_worker, i);
+  for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(long_running_worker, i);
   std::this_thread::sleep_for(std::chrono::milliseconds(DURATION_MS));
   stop_flag.store(true);
 
-  for (auto &t : threads)
-    t.join();
+  for (auto &t : threads) t.join();
 
   EXPECT_GT(operations_count.load(), 0);
-  SUCCEED() << "Long running stress test completed. Operations: "
-            << operations_count.load();
+  SUCCEED() << "Long running stress test completed. Operations: " << operations_count.load();
 }

@@ -1,24 +1,24 @@
-#include "CinderExceptions.hpp"
-#include "PolicyConfiguration.hpp"
-#include "StorageEngine/AdjacencyList.hpp"
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstdio>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <regex>
 #include <set>
 #include <sstream>
 #include <thread>
+
+#include "CinderExceptions.hpp"
+#include "PolicyConfiguration.hpp"
+#include "StorageEngine/AdjacencyList.hpp"
 
 using namespace CinderPeak;
 
 static const std::string kTestLogPath = "test_logconsole_policy.log";
 
 class IgnoreAndLogConsolePolicyTest : public ::testing::Test {
-public:
-  PolicyConfiguration ignoreAndLogC_cfg{PolicyConfiguration::Ignore,
-                                        PolicyConfiguration::LogConsole};
+ public:
+  PolicyConfiguration ignoreAndLogC_cfg{PolicyConfiguration::Ignore, PolicyConfiguration::LogConsole};
   PolicyHandler policy;
 
   PeakStatus sc_notFound = PeakStatus::NotFound();
@@ -44,29 +44,20 @@ public:
     std::this_thread::sleep_for(std::chrono::milliseconds(120));
   }
 
-  void verifyConsoleOutput(const std::string &expectedMessage,
-                           const std::string &capturedOutput) {
-    EXPECT_FALSE(capturedOutput.empty())
-        << "LogConsole policy should print to console";
+  void verifyConsoleOutput(const std::string &expectedMessage, const std::string &capturedOutput) {
+    EXPECT_FALSE(capturedOutput.empty()) << "LogConsole policy should print to console";
 
     EXPECT_TRUE(capturedOutput.find(expectedMessage) != std::string::npos)
-        << "Console output should contain: " << expectedMessage
-        << "\nActual output:\n"
+        << "Console output should contain: " << expectedMessage << "\nActual output:\n"
         << capturedOutput;
 
-    EXPECT_TRUE(capturedOutput.find("TRACE") != std::string::npos)
-        << "Missing TRACE level in console output";
-    EXPECT_TRUE(capturedOutput.find("DEBUG") != std::string::npos)
-        << "Missing DEBUG level in console output";
-    EXPECT_TRUE(capturedOutput.find("INFO") != std::string::npos)
-        << "Missing INFO level in console output";
-    EXPECT_TRUE(capturedOutput.find("WARN") != std::string::npos ||
-                capturedOutput.find("WARNING") != std::string::npos)
+    EXPECT_TRUE(capturedOutput.find("TRACE") != std::string::npos) << "Missing TRACE level in console output";
+    EXPECT_TRUE(capturedOutput.find("DEBUG") != std::string::npos) << "Missing DEBUG level in console output";
+    EXPECT_TRUE(capturedOutput.find("INFO") != std::string::npos) << "Missing INFO level in console output";
+    EXPECT_TRUE(capturedOutput.find("WARN") != std::string::npos || capturedOutput.find("WARNING") != std::string::npos)
         << "Missing WARNING level in console output";
-    EXPECT_TRUE(capturedOutput.find("ERROR") != std::string::npos)
-        << "Missing ERROR level in console output";
-    EXPECT_TRUE(capturedOutput.find("CRITICAL") != std::string::npos)
-        << "Missing CRITICAL level in console output";
+    EXPECT_TRUE(capturedOutput.find("ERROR") != std::string::npos) << "Missing ERROR level in console output";
+    EXPECT_TRUE(capturedOutput.find("CRITICAL") != std::string::npos) << "Missing CRITICAL level in console output";
   }
 };
 
@@ -164,6 +155,5 @@ TEST_F(IgnoreAndLogConsolePolicyTest, IgnoreAndLogConsole_NoFileOutput) {
   writeAllLogLevels("Test Message");
 
   std::ifstream logFile(kTestLogPath);
-  EXPECT_FALSE(logFile.good())
-      << "LogConsole policy should not create a log file";
+  EXPECT_FALSE(logFile.good()) << "LogConsole policy should not create a log file";
 }

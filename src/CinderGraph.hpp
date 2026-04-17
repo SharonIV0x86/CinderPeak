@@ -1,27 +1,30 @@
 #pragma once
+#include <iostream>
+#include <optional>
+#include <tuple>
+#include <utility>
+
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
-#include <iostream>
-#include <optional>
-#include <tuple>
-#include <utility>
 
 namespace CinderPeak {
 namespace PeakStore {
-template <typename VertexType, typename EdgeType> class PeakStore;
+template <typename VertexType, typename EdgeType>
+class PeakStore;
 }
-template <typename VertexType, typename EdgeType> class CinderGraph;
-template <typename VertexType, typename EdgeType> class CinderGraphRowProxy {
+template <typename VertexType, typename EdgeType>
+class CinderGraph;
+template <typename VertexType, typename EdgeType>
+class CinderGraphRowProxy {
   CinderGraph<VertexType, EdgeType> &graph;
   VertexType src;
 
-public:
-  CinderGraphRowProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s)
-      : graph(g), src(s) {}
+ public:
+  CinderGraphRowProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s) : graph(g), src(s) {}
 
   EdgeType operator[](const VertexType &dest) const {
     auto [optWeight, found] = graph.getEdge(src, dest);
@@ -33,8 +36,7 @@ public:
 
   CinderGraphRowProxy &operator=(const EdgeType &newWeight) = delete;
 
-  CinderGraphRowProxy &operator()(const VertexType &dest,
-                                  const EdgeType &weight) {
+  CinderGraphRowProxy &operator()(const VertexType &dest, const EdgeType &weight) {
     graph.addEdge(src, dest, weight);
     return *this;
   }
@@ -43,8 +45,7 @@ public:
     CinderGraph<VertexType, EdgeType> &graph;
     VertexType src, dest;
 
-    EdgeAssignProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s,
-                    const VertexType &d)
+    EdgeAssignProxy(CinderGraph<VertexType, EdgeType> &g, const VertexType &s, const VertexType &d)
         : graph(g), src(s), dest(d) {}
 
     EdgeAssignProxy &operator=(const EdgeType &weight) {
@@ -58,14 +59,12 @@ public:
     }
   };
 
-  EdgeAssignProxy operator[](const VertexType &dest) {
-    return EdgeAssignProxy(graph, src, dest);
-  }
+  EdgeAssignProxy operator[](const VertexType &dest) { return EdgeAssignProxy(graph, src, dest); }
 };
 
-template <typename VertexType, typename EdgeType> class CinderGraph {
-  std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
-      peak_store;
+template <typename VertexType, typename EdgeType>
+class CinderGraph {
+  std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>> peak_store;
 
   using EdgeKey = std::pair<VertexType, VertexType>;
   using WeightedEdgeKey = std::tuple<VertexType, VertexType, EdgeType>;
@@ -86,18 +85,14 @@ template <typename VertexType, typename EdgeType> class CinderGraph {
 
   using RemoveEdgeResult = std::pair<std::optional<EdgeType>, bool>;
 
-public:
-  CinderGraph(const GraphCreationOptions &options =
-                  GraphCreationOptions::getDefaultCreateOptions(),
+ public:
+  CinderGraph(const GraphCreationOptions &options = GraphCreationOptions::getDefaultCreateOptions(),
               const PolicyConfiguration &cfg = PolicyConfiguration()) {
-    PeakStore::GraphInternalMetadata metadata(
-        "cinder_graph", Traits::isTypePrimitive<VertexType>(),
-        Traits::isTypePrimitive<EdgeType>(),
-        Traits::isGraphWeighted<EdgeType>(),
-        !Traits::isGraphWeighted<EdgeType>());
+    PeakStore::GraphInternalMetadata metadata("cinder_graph", Traits::isTypePrimitive<VertexType>(),
+                                              Traits::isTypePrimitive<EdgeType>(), Traits::isGraphWeighted<EdgeType>(),
+                                              !Traits::isGraphWeighted<EdgeType>());
 
-    peak_store = std::make_unique<PeakStore::PeakStore<VertexType, EdgeType>>(
-        metadata, options, cfg);
+    peak_store = std::make_unique<PeakStore::PeakStore<VertexType, EdgeType>>(metadata, options, cfg);
   }
   VertexAddResult addVertex(const VertexType &v) {
     auto resp = peak_store->addVertex(v);
@@ -146,8 +141,7 @@ public:
   bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
   template <typename E = EdgeType>
   auto addEdge(const VertexType &src, const VertexType &dest)
-      -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
-                          UnweightedEdgeAddResult> {
+      -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>, UnweightedEdgeAddResult> {
     auto resp = peak_store->addEdge(src, dest);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -157,10 +151,8 @@ public:
   }
 
   template <typename E = EdgeType>
-  auto addEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &weight)
-      -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>,
-                          WeightedEdgeAddResult> {
+  auto addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight)
+      -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>, WeightedEdgeAddResult> {
     auto resp = peak_store->addEdge(src, dest, weight);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -170,11 +162,8 @@ public:
   }
 
   template <typename E = EdgeType>
-  auto updateEdge(const VertexType &src, const VertexType &dest,
-                  const EdgeType &newWeight)
-      -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
-                          UpdateEdgeResult> {
-
+  auto updateEdge(const VertexType &src, const VertexType &dest, const EdgeType &newWeight)
+      -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>, UpdateEdgeResult> {
     auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
 
     if (!status.isOK()) {
@@ -193,15 +182,12 @@ public:
     }
     return {std::make_optional(data), true};
   }
-  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
-    return peak_store->bfs(src);
-  }
+  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) { return peak_store->bfs(src); }
 
   template <typename V = VertexType, typename E = EdgeType>
   auto toDot(const std::string &filename)
       -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
-                          (Traits::isTypePrimitive<E>() ||
-                           Traits::is_unweighted_v<E>)> {
+                          (Traits::isTypePrimitive<E>() || Traits::is_unweighted_v<E>)> {
     peak_store->toDot(filename);
   }
 
@@ -209,22 +195,16 @@ public:
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }
   void setConsoleLogging(bool toggle) { peak_store->setConsoleLogging(toggle); }
-  void setThrowExceptions(bool toggle) {
-    peak_store->setThrowExceptions(toggle);
-  }
-  void setFileLogging(const std::string &path) {
-    peak_store->setFileLogging(path);
-  }
+  void setThrowExceptions(bool toggle) { peak_store->setThrowExceptions(toggle); }
+  void setFileLogging(const std::string &path) { peak_store->setFileLogging(path); }
   void unsetFileLogging() { peak_store->unsetFileLogging(); }
 
   CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) {
     return CinderGraphRowProxy<VertexType, EdgeType>(*this, v);
   }
-  const CinderGraphRowProxy<VertexType, EdgeType>
-  operator[](const VertexType &v) const {
-    return CinderGraphRowProxy<VertexType, EdgeType>(
-        const_cast<CinderGraph<VertexType, EdgeType> &>(*this), v);
+  const CinderGraphRowProxy<VertexType, EdgeType> operator[](const VertexType &v) const {
+    return CinderGraphRowProxy<VertexType, EdgeType>(const_cast<CinderGraph<VertexType, EdgeType> &>(*this), v);
   }
 };
 
-} // namespace CinderPeak
+}  // namespace CinderPeak

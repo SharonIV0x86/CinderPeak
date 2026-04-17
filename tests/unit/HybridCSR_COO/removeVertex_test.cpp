@@ -1,11 +1,13 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
 #include <thread>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -61,10 +63,8 @@ TEST_F(HybridStorageShardTest, RemoveVertex_String) {
   string_graph->impl_addEdge("prasad", "omkar", 1.5);
   auto status = string_graph->impl_removeVertex("prasad");
   EXPECT_TRUE(status.isOK()) << "Failed to remove string vertex";
-  EXPECT_FALSE(string_graph->impl_hasVertex("prasad"))
-      << "String vertex still exists";
-  EXPECT_FALSE(string_graph->impl_doesEdgeExist("prasad", "omkar"))
-      << "Edge still exists";
+  EXPECT_FALSE(string_graph->impl_hasVertex("prasad")) << "String vertex still exists";
+  EXPECT_FALSE(string_graph->impl_doesEdgeExist("prasad", "omkar")) << "Edge still exists";
 }
 
 // Test concurrent vertex removal

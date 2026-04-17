@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 
 using namespace CinderPeak;
 using namespace CinderPeak::PeakStore;
@@ -11,8 +12,7 @@ int main() {
   // Add vertices
   for (int i = 1; i <= 8; ++i) {
     auto vResult = graph.addVertex(i);
-    std::cout << "Adding vertex " << i
-              << (vResult.second ? " succeeded\n" : " failed\n");
+    std::cout << "Adding vertex " << i << (vResult.second ? " succeeded\n" : " failed\n");
   }
 
   // Add cycle edges

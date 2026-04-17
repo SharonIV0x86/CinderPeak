@@ -1,12 +1,14 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
 #include <random>
 #include <set>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();

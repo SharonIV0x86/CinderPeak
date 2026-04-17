@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -8,8 +9,7 @@ int main() {
     // 1. Basic vertex addition
     CinderGraph<int, Unweighted> g1;
     auto [v1, added1] = g1.addVertex(1);
-    cout << "Added vertex " << v1 << ": " << (added1 ? "success" : "failed")
-         << endl;
+    cout << "Added vertex " << v1 << ": " << (added1 ? "success" : "failed") << endl;
 
     // 2. Adding multiple vertices
     [[maybe_unused]] auto [v2, added2] = g1.addVertex(2);
@@ -19,8 +19,7 @@ int main() {
 
     // 3. Duplicate vertex handling
     [[maybe_unused]] auto [v4, added4] = g1.addVertex(1);
-    cout << "Adding duplicate vertex 1: " << (added4 ? "success" : "failed")
-         << endl;
+    cout << "Adding duplicate vertex 1: " << (added4 ? "success" : "failed") << endl;
 
     // 4. String vertices
     CinderGraph<string, double> g2;
@@ -33,8 +32,7 @@ int main() {
     CinderGraph<int, int> g3;
     for (int i = 0; i < 5; i++) {
       auto [v, added] = g3.addVertex(i * 10);
-      cout << "Added vertex " << v << ": " << (added ? "success" : "failed")
-           << endl;
+      cout << "Added vertex " << v << ": " << (added ? "success" : "failed") << endl;
     }
     cout << "Total vertices in g3: " << g3.numVertices() << endl;
 

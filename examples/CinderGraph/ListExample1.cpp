@@ -2,14 +2,14 @@
 using namespace CinderPeak;
 
 class ListVertex : public CinderVertex {
-public:
+ public:
   int data;
   ListVertex(int value) : data{value} {};
   ListVertex() = default;
 };
 
 class ListEdge : public CinderEdge {
-public:
+ public:
   float edge_weight;
   ListEdge(float weight) : edge_weight{weight} {};
   ListEdge() = default;
@@ -33,28 +33,20 @@ int main() {
   graph.addEdge(4, 2, 52);
   graph.addEdge(5, 3, 53);
 
-  if (graph.hasVertex(5))
-    std::cout << "Vertex 5 exists.\n";
-  if (graph.hasVertex(6))
-    std::cout << "Vertex 6 exists.\n";
+  if (graph.hasVertex(5)) std::cout << "Vertex 5 exists.\n";
+  if (graph.hasVertex(6)) std::cout << "Vertex 6 exists.\n";
 
-  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
-            << "\n"; // Check edge existence
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second << "\n";  // Check edge existence
   graph.removeEdge(5, 3);
-  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
-            << "\n"; // Check edge existence after removal
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second << "\n";  // Check edge existence after removal
 
-  std::cout << "Number of vertices: " << graph.numVertices()
-            << "\n"; // Number of vertices before clearing
-  std::cout << "Number of edges: " << graph.numEdges()
-            << "\n"; // Number of edges before clearing
+  std::cout << "Number of vertices: " << graph.numVertices() << "\n";  // Number of vertices before clearing
+  std::cout << "Number of edges: " << graph.numEdges() << "\n";        // Number of edges before clearing
 
   graph.clearEdges();
 
-  std::cout << "Number of vertices: " << graph.numVertices()
-            << "\n"; // Number of vertices after clearing
-  std::cout << "Number of edges: " << graph.numEdges()
-            << "\n"; // Number of edges after clearing
+  std::cout << "Number of vertices: " << graph.numVertices() << "\n";  // Number of vertices after clearing
+  std::cout << "Number of edges: " << graph.numEdges() << "\n";        // Number of edges after clearing
 
   // add weighted edge (returns {{src,dst,weight}, inserted})
   auto [weKey, edgeInserted] = graph.addEdge(1, 3, 5);
@@ -91,8 +83,7 @@ int main() {
     std::cout << "Failed to add unweighted edge 1->2\n";
   }
 
-  std::cout << "Number of vertices (unweighted): "
-            << unweighted_graph.numVertices() << "\n";
+  std::cout << "Number of vertices (unweighted): " << unweighted_graph.numVertices() << "\n";
 
   // ---------------- Graph 3 (custom vertex/edge types) ----------------
   GraphCreationOptions options({GraphCreationOptions::Undirected});
@@ -110,16 +101,14 @@ int main() {
   auto [listWeKey, listAdded] = listGraph.addEdge(lv1, lv2, e1);
   (void)listWeKey;
   if (listAdded)
-    std::cout << "Added ListEdge between lv1 and lv2 with weight "
-              << e1.edge_weight << "\n";
+    std::cout << "Added ListEdge between lv1 and lv2 with weight " << e1.edge_weight << "\n";
   else
     std::cout << "Failed to add ListEdge lv1->lv2\n";
 
   // getEdge returns pair<optional<Edge_t>, bool>
   auto [maybeBeforeEdge, foundBefore] = listGraph.getEdge(lv1, lv2);
   if (foundBefore && maybeBeforeEdge)
-    std::cout << "Edge value before update: " << maybeBeforeEdge->edge_weight
-              << "\n";
+    std::cout << "Edge value before update: " << maybeBeforeEdge->edge_weight << "\n";
   else
     std::cout << "Edge not found before update\n";
 
@@ -127,15 +116,13 @@ int main() {
 
   auto [prevListW, listUpdated] = listGraph.updateEdge(lv1, lv2, e2);
   if (listUpdated)
-    std::cout << "updateEdge succeeded. previous weight = "
-              << prevListW.edge_weight << "\n";
+    std::cout << "updateEdge succeeded. previous weight = " << prevListW.edge_weight << "\n";
   else
     std::cout << "updateEdge failed for lv1->lv2\n";
 
   auto [maybeAfterEdge, foundAfter] = listGraph.getEdge(lv1, lv2);
   if (foundAfter && maybeAfterEdge)
-    std::cout << "Edge value after the update: " << maybeAfterEdge->edge_weight
-              << "\n";
+    std::cout << "Edge value after the update: " << maybeAfterEdge->edge_weight << "\n";
   else
     std::cout << "Edge not found after update\n";
 

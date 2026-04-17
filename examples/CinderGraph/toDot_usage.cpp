@@ -1,15 +1,15 @@
-#include "CinderPeak.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "CinderPeak.hpp"
 
 using namespace CinderPeak;
 using namespace std;
 
 int main() {
   try {
-    PolicyConfiguration policy(PolicyConfiguration::ErrorPolicy::Throw,
-                               PolicyConfiguration::LoggingPolicy::LogConsole);
+    PolicyConfiguration policy(PolicyConfiguration::ErrorPolicy::Throw, PolicyConfiguration::LoggingPolicy::LogConsole);
 
     // ===== 1. Directed + Weighted Graph with Cycles =====
     cout << "\n--- Directed Weighted Graph (Cycles) ---" << endl;
@@ -24,8 +24,8 @@ int main() {
     g1.addEdge(1, 2, 100);
     g1.addEdge(2, 3, 200);
     g1.addEdge(3, 4, 300);
-    g1.addEdge(4, 1, 400); // cycle
-    g1.addEdge(1, 3, 500); // cross edge
+    g1.addEdge(4, 1, 400);  // cycle
+    g1.addEdge(1, 3, 500);  // cross edge
 
     cout << "Vertices: " << g1.numVertices() << endl;
     cout << "Edges:" << g1.numEdges() << endl;
@@ -36,7 +36,7 @@ int main() {
     CinderGraph<int, int> g2(directedOpts, policy);
     g2.addVertex(10);
     g2.addVertex(20);
-    g2.addVertex(30); // isolated
+    g2.addVertex(30);  // isolated
     g2.addEdge(10, 20, 210);
 
     cout << "Vertices " << g2.numVertices() << endl;
@@ -45,8 +45,7 @@ int main() {
     // ===== 3. Parallel Edges (Directed) =====
     cout << "\n--- Parallel Edges ---" << endl;
 
-    GraphCreationOptions parallelOpts(
-        {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
+    GraphCreationOptions parallelOpts({GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
 
     CinderGraph<int, int> g3(parallelOpts, policy);
     g3.addVertex(1);

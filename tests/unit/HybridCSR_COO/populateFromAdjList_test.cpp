@@ -1,10 +1,11 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -21,9 +22,7 @@ protected:
 
 // Test populating from adjacency list
 TEST_F(HybridStorageShardTest, PopulateFromAdjList_Basic) {
-  std::unordered_map<int, std::vector<std::pair<int, int>>,
-                     CinderPeak::VertexHasher<int>>
-      adj_list;
+  std::unordered_map<int, std::vector<std::pair<int, int>>, CinderPeak::VertexHasher<int>> adj_list;
   adj_list[1] = {{2, 12}, {3, 13}, {4, 14}};
   adj_list[2] = {{3, 23}, {4, 24}};
   adj_list[3] = {{4, 34}};
@@ -45,9 +44,7 @@ TEST_F(HybridStorageShardTest, PopulateFromAdjList_Basic) {
 
 // Test populating from empty adjacency list
 TEST_F(HybridStorageShardTest, PopulateFromAdjList_Empty) {
-  std::unordered_map<int, std::vector<std::pair<int, int>>,
-                     CinderPeak::VertexHasher<int>>
-      empty_adj_list;
+  std::unordered_map<int, std::vector<std::pair<int, int>>, CinderPeak::VertexHasher<int>> empty_adj_list;
   graph->populateFromAdjList(empty_adj_list);
   auto [weight, status] = graph->impl_getEdge(1, 2);
   EXPECT_FALSE(status.isOK()) << "Edge found in empty graph";
@@ -55,18 +52,14 @@ TEST_F(HybridStorageShardTest, PopulateFromAdjList_Empty) {
 
 // Test populating from large adjacency list
 TEST_F(HybridStorageShardTest, PopulateFromAdjList_Large) {
-  std::unordered_map<int, std::vector<std::pair<int, int>>,
-                     CinderPeak::VertexHasher<int>>
-      adj_list;
+  std::unordered_map<int, std::vector<std::pair<int, int>>, CinderPeak::VertexHasher<int>> adj_list;
   for (int i = 0; i < 100; ++i) {
     adj_list[i] = {{(i + 1) % 100, i * 10}};
   }
   graph->populateFromAdjList(adj_list);
   for (int i = 0; i < 100; ++i) {
     auto [weight, status] = graph->impl_getEdge(i, (i + 1) % 100);
-    EXPECT_TRUE(status.isOK())
-        << "Edge (" << i << "," << (i + 1) % 100 << ") not found";
-    EXPECT_EQ(weight, i * 10)
-        << "Incorrect weight for edge (" << i << "," << (i + 1) % 100 << ")";
+    EXPECT_TRUE(status.isOK()) << "Edge (" << i << "," << (i + 1) % 100 << ") not found";
+    EXPECT_EQ(weight, i * 10) << "Incorrect weight for edge (" << i << "," << (i + 1) % 100 << ")";
   }
 }

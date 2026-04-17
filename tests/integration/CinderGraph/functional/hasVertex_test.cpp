@@ -4,7 +4,7 @@
 using namespace CinderPeak;
 
 class CinderGraphFunctionalTest : public ::testing::Test {
-protected:
+ protected:
   DummyGraph builder;
 };
 
@@ -16,7 +16,7 @@ TEST_F(CinderGraphFunctionalTest, HasVertexPrimitive) {
 
   EXPECT_TRUE(intGraph.hasVertex(1));
   EXPECT_TRUE(intGraph.hasVertex(2));
-  EXPECT_FALSE(intGraph.hasVertex(3)); // not added
+  EXPECT_FALSE(intGraph.hasVertex(3));  // not added
 }
 
 TEST_F(CinderGraphFunctionalTest, HasVertexString) {
@@ -27,7 +27,7 @@ TEST_F(CinderGraphFunctionalTest, HasVertexString) {
 
   EXPECT_TRUE(stringGraph.hasVertex("A"));
   EXPECT_TRUE(stringGraph.hasVertex("B"));
-  EXPECT_FALSE(stringGraph.hasVertex("C")); // not added
+  EXPECT_FALSE(stringGraph.hasVertex("C"));  // not added
 }
 
 TEST_F(CinderGraphFunctionalTest, HasVertexCustomType) {
@@ -41,5 +41,5 @@ TEST_F(CinderGraphFunctionalTest, HasVertexCustomType) {
 
   EXPECT_TRUE(customGraph.hasVertex(v1));
   EXPECT_TRUE(customGraph.hasVertex(v2));
-  EXPECT_FALSE(customGraph.hasVertex(ListVertex(30))); // not added
+  EXPECT_FALSE(customGraph.hasVertex(ListVertex(30)));  // not added
 }

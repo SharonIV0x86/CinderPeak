@@ -24,21 +24,14 @@
 
 enum LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
 enum ErrorPolicy { Throw = 1, Ignore = 2 };
-enum LoggingPolicy {
-  LogConsole = 1,
-  Silent = 3,
-  LogFile = 4,
-  ConsoleAndFile = 5
-};
+enum LoggingPolicy { LogConsole = 1, Silent = 3, LogFile = 4, ConsoleAndFile = 5 };
 
 class Logger {
-public:
+ public:
   inline static bool enableConsoleLogging = false;
   inline static bool enableFileLogging = false;
-  [[deprecated]] static void log(const LogLevel &level, const std::string &msg,
-                                 const int &loggingPolicy,
+  [[deprecated]] static void log(const LogLevel &level, const std::string &msg, const int &loggingPolicy,
                                  const std::string &logFileP) {
-
     if (loggingPolicy == LoggingPolicy::Silent) {
       return;
     }
@@ -56,11 +49,9 @@ public:
       ensureFileOpen(logFileP);
     }
 
-    if (enableConsoleLogging)
-      logToConsole(level, msg);
+    if (enableConsoleLogging) logToConsole(level, msg);
 
-    if (enableFileLogging)
-      logToFile(level, msg);
+    if (enableFileLogging) logToFile(level, msg);
   }
 
   static void shutdown() {
@@ -69,10 +60,8 @@ public:
       logFile.close();
     }
   }
-  static void log(const LogLevel &level, const std::string &msg,
-                  bool consoleEnabled, bool fileEnabled,
+  static void log(const LogLevel &level, const std::string &msg, bool consoleEnabled, bool fileEnabled,
                   const std::string &logFileP) {
-
     if (!consoleEnabled && !fileEnabled) {
       return;
     }
@@ -87,58 +76,56 @@ public:
     }
   }
 
-private:
+ private:
   inline static std::mutex logMutex;
   inline static std::ofstream logFile;
 
   static const char *levelToString(LogLevel level) {
     switch (level) {
-    case LogLevel::TRACE:
-      return "TRACE";
-    case LogLevel::DEBUG:
-      return "DEBUG";
-    case LogLevel::INFO:
-      return "INFO";
-    case LogLevel::WARNING:
-      return "WARN";
-    case LogLevel::ERROR:
-      return "ERROR";
-    case LogLevel::CRITICAL:
-      return "CRITICAL";
-    default:
-      return "UNKNOWN";
+      case LogLevel::TRACE:
+        return "TRACE";
+      case LogLevel::DEBUG:
+        return "DEBUG";
+      case LogLevel::INFO:
+        return "INFO";
+      case LogLevel::WARNING:
+        return "WARN";
+      case LogLevel::ERROR:
+        return "ERROR";
+      case LogLevel::CRITICAL:
+        return "CRITICAL";
+      default:
+        return "UNKNOWN";
     }
   }
 
   static const char *levelToColor(LogLevel level) {
     switch (level) {
-    case LogLevel::TRACE:
-      return COLOR_TRACE;
-    case LogLevel::DEBUG:
-      return COLOR_BOLD_DEBUG;
-    case LogLevel::INFO:
-      return COLOR_BOLD_INFO;
-    case LogLevel::WARNING:
-      return COLOR_BOLD_WARN;
-    case LogLevel::ERROR:
-      return COLOR_BOLD_ERROR;
-    case LogLevel::CRITICAL:
-      return COLOR_BOLD_CRIT;
-    default:
-      return COLOR_WHITE;
+      case LogLevel::TRACE:
+        return COLOR_TRACE;
+      case LogLevel::DEBUG:
+        return COLOR_BOLD_DEBUG;
+      case LogLevel::INFO:
+        return COLOR_BOLD_INFO;
+      case LogLevel::WARNING:
+        return COLOR_BOLD_WARN;
+      case LogLevel::ERROR:
+        return COLOR_BOLD_ERROR;
+      case LogLevel::CRITICAL:
+        return COLOR_BOLD_CRIT;
+      default:
+        return COLOR_WHITE;
     }
   }
 
   static std::string getTimestamp() {
     auto now = std::chrono::system_clock::now();
     auto t_c = std::chrono::system_clock::to_time_t(now);
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  now.time_since_epoch()) %
-              1000;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
 
     std::ostringstream oss;
-    oss << std::put_time(std::localtime(&t_c), "%Y-%m-%d %H:%M:%S") << '.'
-        << std::setw(3) << std::setfill('0') << ms.count();
+    oss << std::put_time(std::localtime(&t_c), "%Y-%m-%d %H:%M:%S") << '.' << std::setw(3) << std::setfill('0')
+        << ms.count();
     return oss.str();
   }
 
@@ -154,15 +141,13 @@ private:
     std::string timestamp = getTimestamp();
     const char *levelStr = levelToString(level);
     const char *levelColor = levelToColor(level);
-    std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp
-              << COLOR_BOLD_WHITE << "] [" << COLOR_RESET << levelColor
-              << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]"
-              << COLOR_RESET << " " << msg << std::endl;
+    std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp << COLOR_BOLD_WHITE << "] [" << COLOR_RESET
+              << levelColor << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]" << COLOR_RESET << " " << msg
+              << std::endl;
   }
 
   static void logToFile(LogLevel level, const std::string &msg) {
-    if (!logFile.is_open())
-      return;
+    if (!logFile.is_open()) return;
 
     std::lock_guard<std::mutex> lock(logMutex);
 

@@ -1,13 +1,15 @@
-#include "CinderPeak.hpp"
 #include <gtest/gtest.h>
+
 #include <sstream>
 #include <thread>
+
+#include "CinderPeak.hpp"
 
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
 class GraphStatisticsThreadTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     original_cout = std::cout.rdbuf();
     original_cerr = std::cerr.rdbuf();
@@ -22,21 +24,16 @@ protected:
 
   void displayStats(const std::string &title, const std::string &stats) {
     std::cout.rdbuf(original_cout);
-    std::cout << "\n"
-              << title << "\n"
-              << std::string(40, '=') << "\n"
-              << stats << std::endl;
+    std::cout << "\n" << title << "\n" << std::string(40, '=') << "\n" << stats << std::endl;
     std::cout.rdbuf(null_stream.rdbuf());
   }
 
   int extractValue(const std::string &stats, const std::string &label) {
     size_t pos = stats.find(label);
-    if (pos == std::string::npos)
-      return -1;
+    if (pos == std::string::npos) return -1;
     pos += label.length();
     size_t end = stats.find('\n', pos);
-    if (end == std::string::npos)
-      end = stats.length();
+    if (end == std::string::npos) end = stats.length();
     try {
       return std::stoi(stats.substr(pos, end - pos));
     } catch (...) {
@@ -77,25 +74,24 @@ TEST_F(GraphStatisticsThreadTest, ConcurrentReadOperations) {
   std::atomic<bool> test_failed{false};
 
   for (int i = 0; i < num_threads; ++i) {
-    threads.emplace_back(
-        [&graph, &successful_reads, &test_failed, reads_per_thread]() {
-          try {
-            for (int j = 0; j < reads_per_thread; ++j) {
-              size_t vertices = graph.numVertices();
-              [[maybe_unused]] size_t edges = graph.numEdges();
-              std::string stats = graph.getGraphStatistics();
+    threads.emplace_back([&graph, &successful_reads, &test_failed, reads_per_thread]() {
+      try {
+        for (int j = 0; j < reads_per_thread; ++j) {
+          size_t vertices = graph.numVertices();
+          [[maybe_unused]] size_t edges = graph.numEdges();
+          std::string stats = graph.getGraphStatistics();
 
-              if (vertices != 100 || stats.empty()) {
-                test_failed = true;
-                return;
-              }
-
-              successful_reads++;
-            }
-          } catch (...) {
+          if (vertices != 100 || stats.empty()) {
             test_failed = true;
+            return;
           }
-        });
+
+          successful_reads++;
+        }
+      } catch (...) {
+        test_failed = true;
+      }
+    });
   }
 
   for (auto &t : threads) {
@@ -122,8 +118,7 @@ TEST_F(GraphStatisticsThreadTest, ConcurrentWriteOperations) {
   std::atomic<bool> test_failed{false};
 
   for (int i = 0; i < num_threads; ++i) {
-    threads.emplace_back([&graph, &successful_operations, &test_failed,
-                          operations_per_thread, i]() {
+    threads.emplace_back([&graph, &successful_operations, &test_failed, operations_per_thread, i]() {
       try {
         std::mt19937 gen(i * 1000);
         std::uniform_int_distribution<> vertex_dist(1, 50);
@@ -178,8 +173,7 @@ TEST_F(GraphStatisticsThreadTest, MixedReadWriteOperations) {
   for (int i = 0; i < num_reader_threads; ++i) {
     threads.emplace_back([&]() {
       try {
-        while (!stop_test &&
-               read_operations < operations_per_thread * num_reader_threads) {
+        while (!stop_test && read_operations < operations_per_thread * num_reader_threads) {
           size_t vertices = graph.numVertices();
           [[maybe_unused]] size_t edges = graph.numEdges();
 
@@ -212,8 +206,7 @@ TEST_F(GraphStatisticsThreadTest, MixedReadWriteOperations) {
         std::uniform_int_distribution<> vertex_dist(1, 30);
         std::uniform_int_distribution<> weight_dist(1, 100);
 
-        while (!stop_test &&
-               write_operations < operations_per_thread * num_writer_threads) {
+        while (!stop_test && write_operations < operations_per_thread * num_writer_threads) {
           int v1 = vertex_dist(gen);
           int v2 = vertex_dist(gen);
 

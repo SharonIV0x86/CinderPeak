@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -73,8 +74,7 @@ int main() {
     auto [weight, exists] = g3.getEdge(10, 20);
     if (exists && weight.has_value()) {
       if (weight.value() > 10.0f) {
-        cout << "Edge weight " << weight.value() << " is greater than 10.0"
-             << endl;
+        cout << "Edge weight " << weight.value() << " is greater than 10.0" << endl;
       }
     }
 
@@ -91,8 +91,7 @@ int main() {
     for (const auto &[src, dest] : edgesToCheck) {
       auto [w, f] = g4.getEdge(src, dest);
       if (f && w.has_value()) {
-        cout << "Edge (" << src << "," << dest << ") has weight: " << w.value()
-             << endl;
+        cout << "Edge (" << src << "," << dest << ") has weight: " << w.value() << endl;
       } else {
         cout << "Edge (" << src << "," << dest << ") does not exist" << endl;
       }

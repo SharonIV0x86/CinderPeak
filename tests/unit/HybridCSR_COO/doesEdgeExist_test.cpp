@@ -1,13 +1,15 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
 #include <random>
 #include <set>
 #include <thread>
 
+#include "StorageEngine/HybridCSR_COO.hpp"
+
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -25,8 +27,7 @@ protected:
 // Test checking edges in empty graph
 TEST_F(HybridStorageShardTest, DoesEdgeExist_EmptyGraph) {
   EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2)) << "Edge found in empty graph";
-  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 10))
-      << "Weighted edge found in empty graph";
+  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 10)) << "Weighted edge found in empty graph";
 }
 
 // Test advanced edge existence checks
@@ -43,16 +44,11 @@ TEST_F(HybridStorageShardTest, DoesEdgeExist_Advanced) {
   EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2)) << "Edge (1,2) not found";
   EXPECT_TRUE(graph->impl_doesEdgeExist(1, 3)) << "Edge (1,3) not found";
   EXPECT_TRUE(graph->impl_doesEdgeExist(4, 5)) << "Edge (4,5) not found";
-  EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2, 12))
-      << "Weighted edge (1,2,12) not found";
-  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 99))
-      << "Incorrect weighted edge found";
-  EXPECT_FALSE(graph->impl_doesEdgeExist(2, 1))
-      << "Non-existent edge (2,1) found";
-  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 5))
-      << "Non-existent edge (1,5) found";
-  EXPECT_FALSE(graph->impl_doesEdgeExist(5, 1))
-      << "Non-existent edge (5,1) found";
+  EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2, 12)) << "Weighted edge (1,2,12) not found";
+  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 2, 99)) << "Incorrect weighted edge found";
+  EXPECT_FALSE(graph->impl_doesEdgeExist(2, 1)) << "Non-existent edge (2,1) found";
+  EXPECT_FALSE(graph->impl_doesEdgeExist(1, 5)) << "Non-existent edge (1,5) found";
+  EXPECT_FALSE(graph->impl_doesEdgeExist(5, 1)) << "Non-existent edge (5,1) found";
 }
 
 // Test concurrent edge existence checks
@@ -63,10 +59,7 @@ TEST_F(HybridStorageShardTest, DoesEdgeExist_Concurrent) {
   std::vector<std::thread> threads;
   const int NUM_THREADS = 10;
   for (int i = 0; i < NUM_THREADS; ++i) {
-    threads.emplace_back([this]() {
-      EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2))
-          << "Concurrent edge check failed";
-    });
+    threads.emplace_back([this]() { EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2)) << "Concurrent edge check failed"; });
   }
   for (auto &t : threads) {
     t.join();

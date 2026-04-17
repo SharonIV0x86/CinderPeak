@@ -1,9 +1,10 @@
 #pragma once
+#include <iostream>
+#include <memory>
+
 #include "CinderExceptions.hpp"
 #include "PeakLogger.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
-#include <iostream>
-#include <memory>
 
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
@@ -23,22 +24,13 @@
 namespace CinderPeak {
 
 struct PolicyConfiguration {
-public:
+ public:
   enum ErrorPolicy { Throw = 1, Ignore = 2 };
-  enum LoggingPolicy {
-    LogConsole = 1,
-    Silent = 3,
-    LogFile = 4,
-    ConsoleAndFile = 5
-  };
+  enum LoggingPolicy { LogConsole = 1, Silent = 3, LogFile = 4, ConsoleAndFile = 5 };
 
-  PolicyConfiguration(
-      const ErrorPolicy &errorPolicy_ = ErrorPolicy::Ignore,
-      const LoggingPolicy &loggingPolicy_ = LoggingPolicy::Silent,
-      const std::string &logfilePath_ = "")
-      : errorPolicy(errorPolicy_), loggingPolicy(loggingPolicy_),
-        logfilePath(logfilePath_) {
-
+  PolicyConfiguration(const ErrorPolicy &errorPolicy_ = ErrorPolicy::Ignore,
+                      const LoggingPolicy &loggingPolicy_ = LoggingPolicy::Silent, const std::string &logfilePath_ = "")
+      : errorPolicy(errorPolicy_), loggingPolicy(loggingPolicy_), logfilePath(logfilePath_) {
     if (loggingPolicy == LoggingPolicy::LogFile) {
       std::ofstream(this->logfilePath, std::ios::trunc).close();
     }
@@ -48,7 +40,7 @@ public:
   const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
   const std::string &getLogFilePath() const { return logfilePath; }
 
-private:
+ private:
   ErrorPolicy errorPolicy = ErrorPolicy::Ignore;
   LoggingPolicy loggingPolicy = LoggingPolicy::Silent;
   std::string logfilePath = "peak_logs.log";
@@ -56,40 +48,36 @@ private:
 
 class PolicyHandler {
   std::shared_ptr<PolicyConfiguration> cfg;
-  const PeakExceptions::GraphException
-  handleExceptionMap(const PeakStatus &status) {
+  const PeakExceptions::GraphException handleExceptionMap(const PeakStatus &status) {
     switch (status.code()) {
-    case CinderPeak::StatusCode::NOT_FOUND:
-      throw PeakExceptions::NotFoundException(status.message());
-    case CinderPeak::StatusCode::INVALID_ARGUMENT:
-      throw PeakExceptions::InvalidArgumentException(status.message());
-    case CinderPeak::StatusCode::VERTEX_ALREADY_EXISTS:
-      throw PeakExceptions::VertexAlreadyExistsException(status.message());
-    case CinderPeak::StatusCode::INTERNAL_ERROR:
-      throw PeakExceptions::InternalErrorException(status.message());
-    case CinderPeak::StatusCode::EDGE_NOT_FOUND:
-      throw PeakExceptions::EdgeNotFoundException(status.message());
-    case CinderPeak::StatusCode::VERTEX_NOT_FOUND:
-      throw PeakExceptions::VertexNotFoundException(status.message());
-    case CinderPeak::StatusCode::UNIMPLEMENTED:
-      throw PeakExceptions::UnimplementedException(status.message());
-    case CinderPeak::StatusCode::ALREADY_EXISTS:
-      throw PeakExceptions::AlreadyExistsException(status.message());
-    case CinderPeak::StatusCode::EDGE_ALREADY_EXISTS:
-      throw PeakExceptions::EdgeAlreadyExistsException(status.message());
-    default:
-      throw PeakExceptions::UnknownException();
+      case CinderPeak::StatusCode::NOT_FOUND:
+        throw PeakExceptions::NotFoundException(status.message());
+      case CinderPeak::StatusCode::INVALID_ARGUMENT:
+        throw PeakExceptions::InvalidArgumentException(status.message());
+      case CinderPeak::StatusCode::VERTEX_ALREADY_EXISTS:
+        throw PeakExceptions::VertexAlreadyExistsException(status.message());
+      case CinderPeak::StatusCode::INTERNAL_ERROR:
+        throw PeakExceptions::InternalErrorException(status.message());
+      case CinderPeak::StatusCode::EDGE_NOT_FOUND:
+        throw PeakExceptions::EdgeNotFoundException(status.message());
+      case CinderPeak::StatusCode::VERTEX_NOT_FOUND:
+        throw PeakExceptions::VertexNotFoundException(status.message());
+      case CinderPeak::StatusCode::UNIMPLEMENTED:
+        throw PeakExceptions::UnimplementedException(status.message());
+      case CinderPeak::StatusCode::ALREADY_EXISTS:
+        throw PeakExceptions::AlreadyExistsException(status.message());
+      case CinderPeak::StatusCode::EDGE_ALREADY_EXISTS:
+        throw PeakExceptions::EdgeAlreadyExistsException(status.message());
+      default:
+        throw PeakExceptions::UnknownException();
     }
   }
 
-public:
-  PolicyHandler(const PolicyConfiguration &config) {
-    this->cfg = std::make_shared<PolicyConfiguration>(config);
-  }
+ public:
+  PolicyHandler(const PolicyConfiguration &config) { this->cfg = std::make_shared<PolicyConfiguration>(config); }
   PolicyHandler() { this->cfg = std::make_shared<PolicyConfiguration>(); }
   inline void handleException(const PeakStatus &status) {
-    if (status.isOK())
-      return;
+    if (status.isOK()) return;
     if (cfg->getErrorPolicy() == PolicyConfiguration::ErrorPolicy::Ignore) {
       return;
     }
@@ -102,4 +90,4 @@ public:
   }
 };
 
-} // namespace CinderPeak
+}  // namespace CinderPeak

@@ -1,5 +1,6 @@
-#include "CinderGraph.hpp"
 #include <iostream>
+
+#include "CinderGraph.hpp"
 
 int main() {
   CinderPeak::CinderGraph<int, int> g;

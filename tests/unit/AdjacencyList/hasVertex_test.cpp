@@ -1,10 +1,11 @@
-#include "AdjacencyListTestBase.hpp"
 #include <algorithm>
 #include <atomic>
 #include <limits>
 #include <random>
 #include <thread>
 #include <vector>
+
+#include "AdjacencyListTestBase.hpp"
 
 TEST_F(AdjacencyStorageShardTest, HasVertices) {
   EXPECT_TRUE(intGraph.impl_hasVertex(2));
@@ -23,7 +24,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_EmptyGraph) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_MultipleAdditions) {
-
   AdjacencyList<int, int> graph{policyHandler};
   std::vector<int> vertices = {1, 5, 10, 15, 20, 25, 30};
 
@@ -41,7 +41,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_MultipleAdditions) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_Deleted) {
-
   AdjacencyList<int, int> graph{policyHandler};
   graph.impl_addVertex(100);
   graph.impl_addVertex(200);
@@ -56,7 +55,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_Deleted) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_Mix) {
-
   AdjacencyList<int, int> graph{policyHandler};
 
   graph.impl_addVertex(75);
@@ -97,7 +95,6 @@ TEST_F(ComplexGraph, HasComplexVertices) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_LargeGraph) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int numVertices = 100000;
 
@@ -116,7 +113,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_LargeGraph) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentReads) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int numVertices = 1000;
 
@@ -146,7 +142,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentReads) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentAddAndRead) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int numOperations = 500;
   const int numThreads = 4;
@@ -180,7 +175,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentAddAndRead) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int numVertices = 1000;
 
@@ -219,7 +213,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentMix) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int numOperations = 200;
   const int numThreads = 6;
@@ -260,7 +253,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentMix) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int numThreads = 8;
   const int numOperationsPerThread = 1000;
@@ -268,32 +260,31 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
   std::atomic<bool> allTestsPassed{true};
 
   for (int t = 0; t < numThreads; t++) {
-    threads.emplace_back(
-        [&graph, &allTestsPassed, t, numOperationsPerThread]() {
-          int baseVertex = t * numOperationsPerThread;
+    threads.emplace_back([&graph, &allTestsPassed, t, numOperationsPerThread]() {
+      int baseVertex = t * numOperationsPerThread;
 
-          for (int i = 0; i < numOperationsPerThread; i++) {
-            int vertex = baseVertex + i;
+      for (int i = 0; i < numOperationsPerThread; i++) {
+        int vertex = baseVertex + i;
 
-            graph.impl_addVertex(vertex);
+        graph.impl_addVertex(vertex);
 
-            if (!graph.impl_hasVertex(vertex)) {
-              allTestsPassed = false;
-            }
+        if (!graph.impl_hasVertex(vertex)) {
+          allTestsPassed = false;
+        }
 
-            graph.impl_removeVertex(vertex);
+        graph.impl_removeVertex(vertex);
 
-            if (graph.impl_hasVertex(vertex)) {
-              allTestsPassed = false;
-            }
+        if (graph.impl_hasVertex(vertex)) {
+          allTestsPassed = false;
+        }
 
-            graph.impl_addVertex(vertex);
+        graph.impl_addVertex(vertex);
 
-            if (!graph.impl_hasVertex(vertex)) {
-              allTestsPassed = false;
-            }
-          }
-        });
+        if (!graph.impl_hasVertex(vertex)) {
+          allTestsPassed = false;
+        }
+      }
+    });
   }
 
   for (auto &thread : threads) {
@@ -311,7 +302,6 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_RaceConditionDetection) {
-
   AdjacencyList<int, int> graph{policyHandler};
   const int targetVertex = 999;
   const int numThreads = 20;

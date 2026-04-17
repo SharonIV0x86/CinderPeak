@@ -1,25 +1,24 @@
-#include "CinderExceptions.hpp"
-#include "PolicyConfiguration.hpp"
-#include "StorageEngine/AdjacencyList.hpp"
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstdio>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <regex>
 #include <set>
 #include <sstream>
 #include <thread>
 
+#include "CinderExceptions.hpp"
+#include "PolicyConfiguration.hpp"
+#include "StorageEngine/AdjacencyList.hpp"
+
 using namespace CinderPeak;
 
-static const std::string kTestLogPath =
-    "test_console_and_file_ignore_policy.log";
+static const std::string kTestLogPath = "test_console_and_file_ignore_policy.log";
 
 class IgnoreAndConsoleAndFilePolicyTest : public ::testing::Test {
-public:
-  PolicyConfiguration ignoreAndLogFC_cfg{PolicyConfiguration::Ignore,
-                                         PolicyConfiguration::ConsoleAndFile,
+ public:
+  PolicyConfiguration ignoreAndLogFC_cfg{PolicyConfiguration::Ignore, PolicyConfiguration::ConsoleAndFile,
                                          kTestLogPath};
   PolicyHandler policy;
 
@@ -54,8 +53,7 @@ public:
 
   std::string readLogContent() const {
     std::ifstream in(kTestLogPath);
-    if (!in.good())
-      return "";
+    if (!in.good()) return "";
     std::ostringstream ss;
     ss << in.rdbuf();
     return ss.str();
@@ -63,8 +61,7 @@ public:
 
   void verifyLogFormat(const std::string &expectedMessage) {
     std::string content = readLogContent();
-    ASSERT_FALSE(content.empty())
-        << "Log file is empty or not present at: " << kTestLogPath;
+    ASSERT_FALSE(content.empty()) << "Log file is empty or not present at: " << kTestLogPath;
 
     std::regex linePattern(
         R"(\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}\] \[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\] .+)");
@@ -74,57 +71,40 @@ public:
     std::set<std::string> foundLevels;
 
     while (std::getline(lines, line)) {
-      if (line.find(expectedMessage) == std::string::npos)
-        continue;
+      if (line.find(expectedMessage) == std::string::npos) continue;
 
-      EXPECT_TRUE(std::regex_match(line, linePattern))
-          << "Invalid log format: " << line;
+      EXPECT_TRUE(std::regex_match(line, linePattern)) << "Invalid log format: " << line;
 
       std::smatch m;
-      if (std::regex_search(
-              line, m,
-              std::regex(
-                  R"(\[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\])"))) {
+      if (std::regex_search(line, m, std::regex(R"(\[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\])"))) {
         std::string lvl = m[1].str();
-        if (lvl == "WARNING")
-          lvl = "WARN";
+        if (lvl == "WARNING") lvl = "WARN";
         foundLevels.insert(lvl);
       }
     }
 
-    const std::vector<std::string> expectedLevels = {
-        "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
+    const std::vector<std::string> expectedLevels = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
     for (auto &lvl : expectedLevels) {
       EXPECT_TRUE(foundLevels.count(lvl))
-          << "Missing log entry for level: " << lvl
-          << " with message: " << expectedMessage << "\nFull log content:\n"
+          << "Missing log entry for level: " << lvl << " with message: " << expectedMessage << "\nFull log content:\n"
           << content;
     }
   }
 
-  void verifyConsoleOutput(const std::string &expectedMessage,
-                           const std::string &capturedOutput) {
-    EXPECT_FALSE(capturedOutput.empty())
-        << "ConsoleAndFile policy should print to console";
+  void verifyConsoleOutput(const std::string &expectedMessage, const std::string &capturedOutput) {
+    EXPECT_FALSE(capturedOutput.empty()) << "ConsoleAndFile policy should print to console";
 
     EXPECT_TRUE(capturedOutput.find(expectedMessage) != std::string::npos)
-        << "Console output should contain: " << expectedMessage
-        << "\nActual output:\n"
+        << "Console output should contain: " << expectedMessage << "\nActual output:\n"
         << capturedOutput;
 
-    EXPECT_TRUE(capturedOutput.find("TRACE") != std::string::npos)
-        << "Missing TRACE level in console output";
-    EXPECT_TRUE(capturedOutput.find("DEBUG") != std::string::npos)
-        << "Missing DEBUG level in console output";
-    EXPECT_TRUE(capturedOutput.find("INFO") != std::string::npos)
-        << "Missing INFO level in console output";
-    EXPECT_TRUE(capturedOutput.find("WARN") != std::string::npos ||
-                capturedOutput.find("WARNING") != std::string::npos)
+    EXPECT_TRUE(capturedOutput.find("TRACE") != std::string::npos) << "Missing TRACE level in console output";
+    EXPECT_TRUE(capturedOutput.find("DEBUG") != std::string::npos) << "Missing DEBUG level in console output";
+    EXPECT_TRUE(capturedOutput.find("INFO") != std::string::npos) << "Missing INFO level in console output";
+    EXPECT_TRUE(capturedOutput.find("WARN") != std::string::npos || capturedOutput.find("WARNING") != std::string::npos)
         << "Missing WARNING level in console output";
-    EXPECT_TRUE(capturedOutput.find("ERROR") != std::string::npos)
-        << "Missing ERROR level in console output";
-    EXPECT_TRUE(capturedOutput.find("CRITICAL") != std::string::npos)
-        << "Missing CRITICAL level in console output";
+    EXPECT_TRUE(capturedOutput.find("ERROR") != std::string::npos) << "Missing ERROR level in console output";
+    EXPECT_TRUE(capturedOutput.find("CRITICAL") != std::string::npos) << "Missing CRITICAL level in console output";
   }
 };
 
@@ -139,8 +119,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_NotFound) {
   verifyConsoleOutput("Not Found", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_InvalidArgument) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_InvalidArgument) {
   EXPECT_NO_THROW(policy.handleException(sc_invalidArgument));
 
   testing::internal::CaptureStderr();
@@ -151,8 +130,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Invalid Argument", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_VertexAlreadyExists) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_VertexAlreadyExists) {
   EXPECT_NO_THROW(policy.handleException(sc_vertexAlreadyExists));
 
   testing::internal::CaptureStderr();
@@ -163,8 +141,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Vertex Already Exists", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_InternalError) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_InternalError) {
   EXPECT_NO_THROW(policy.handleException(sc_internalError));
 
   testing::internal::CaptureStderr();
@@ -175,8 +152,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Internal Error", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_EdgeNotFound) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_EdgeNotFound) {
   EXPECT_NO_THROW(policy.handleException(sc_edgeNotFound));
 
   testing::internal::CaptureStderr();
@@ -187,8 +163,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Edge Not Found", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_VertexNotFound) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_VertexNotFound) {
   EXPECT_NO_THROW(policy.handleException(sc_vertexNotFound));
 
   testing::internal::CaptureStderr();
@@ -199,8 +174,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Vertex Not Found", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_Unimplemented) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_Unimplemented) {
   EXPECT_NO_THROW(policy.handleException(sc_unimplemented));
 
   testing::internal::CaptureStderr();
@@ -211,8 +185,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Method is not implemented", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_AlreadyExists) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_AlreadyExists) {
   EXPECT_NO_THROW(policy.handleException(sc_alreadyExists));
 
   testing::internal::CaptureStderr();
@@ -223,8 +196,7 @@ TEST_F(IgnoreAndConsoleAndFilePolicyTest,
   verifyConsoleOutput("Already Exists", consoleOutput);
 }
 
-TEST_F(IgnoreAndConsoleAndFilePolicyTest,
-       IgnoreAndConsoleAndFile_EdgeAlreadyExists) {
+TEST_F(IgnoreAndConsoleAndFilePolicyTest, IgnoreAndConsoleAndFile_EdgeAlreadyExists) {
   EXPECT_NO_THROW(policy.handleException(sc_edgeAlreadyExists));
 
   testing::internal::CaptureStderr();

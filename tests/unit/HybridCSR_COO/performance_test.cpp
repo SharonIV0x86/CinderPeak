@@ -1,21 +1,22 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
-#include <chrono>
 #include <gtest/gtest.h>
+
+#include <chrono>
 #include <random>
 #include <set>
 #include <vector>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 using namespace std::chrono;
 
 class HybridCSRCOOPerformanceTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override { graph = std::make_unique<HybridCSR_COO<int, int>>(); }
 
   void TearDown() override { graph.reset(); }
 
-  std::vector<std::tuple<int, int, int>>
-  generateTestEdges(int num_vertices, int num_edges, int seed = 42) {
+  std::vector<std::tuple<int, int, int>> generateTestEdges(int num_vertices, int num_edges, int seed = 42) {
     std::vector<std::tuple<int, int, int>> edges;
     std::mt19937 gen(seed);
     std::uniform_int_distribution<> vertex_dis(0, num_vertices - 1);
@@ -37,11 +38,8 @@ protected:
     auto start = high_resolution_clock::now();
     func();
     auto end = high_resolution_clock::now();
-    double time_ms =
-        static_cast<double>(duration_cast<microseconds>(end - start).count()) /
-        1000.0;
-    std::cout << operation_name << ": " << std::fixed << std::setprecision(2)
-              << time_ms << " ms\n";
+    double time_ms = static_cast<double>(duration_cast<microseconds>(end - start).count()) / 1000.0;
+    std::cout << operation_name << ": " << std::fixed << std::setprecision(2) << time_ms << " ms\n";
   }
 
   std::unique_ptr<HybridCSR_COO<int, int>> graph;
@@ -61,8 +59,7 @@ TEST_F(HybridCSRCOOPerformanceTest, VertexInsertionPerformance) {
   std::uniform_int_distribution<> dis(0, NUM_VERTICES - 1);
   for (int test = 0; test < 100; ++test) {
     int v = dis(gen);
-    EXPECT_FALSE(graph->impl_addVertex(v).isOK())
-        << "Adding duplicate vertex " << v << " should fail";
+    EXPECT_FALSE(graph->impl_addVertex(v).isOK()) << "Adding duplicate vertex " << v << " should fail";
   }
 }
 
@@ -80,13 +77,11 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeInsertionPerformance) {
     }
   };
   measureTime(insertion_func, "25K Edge Insertion");
-  std::sample(edges.begin(), edges.end(), edges.begin(),
-              std::min(static_cast<size_t>(1000), edges.size()),
+  std::sample(edges.begin(), edges.end(), edges.begin(), std::min(static_cast<size_t>(1000), edges.size()),
               std::mt19937{std::random_device{}()});
   for (int i = 0; i < std::min(1000, static_cast<int>(edges.size())); ++i) {
     auto [src, dest, weight] = edges[i];
-    EXPECT_TRUE(graph->impl_doesEdgeExist(src, dest, weight))
-        << "Edge (" << src << "," << dest << ") should exist";
+    EXPECT_TRUE(graph->impl_doesEdgeExist(src, dest, weight)) << "Edge (" << src << "," << dest << ") should exist";
   }
 }
 
@@ -105,8 +100,7 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeRetrievalPerformance) {
   std::vector<std::pair<int, int>> queries;
   std::mt19937 gen(123);
   std::uniform_int_distribution<> vertex_dis(0, NUM_VERTICES - 1);
-  for (int i = 0; i < NUM_QUERIES * 0.7 && i < static_cast<int>(edges.size());
-       ++i) {
+  for (int i = 0; i < NUM_QUERIES * 0.7 && i < static_cast<int>(edges.size()); ++i) {
     auto [src, dest, weight] = edges[i % edges.size()];
     queries.emplace_back(src, dest);
   }
@@ -121,8 +115,7 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeRetrievalPerformance) {
         found++;
       }
     }
-    std::cout << "Found " << found << " edges out of " << NUM_QUERIES
-              << " queries\n";
+    std::cout << "Found " << found << " edges out of " << NUM_QUERIES << " queries\n";
   };
   measureTime(query_func, "50K Edge Queries");
 }
@@ -159,8 +152,7 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
         checks++;
       }
     }
-    std::cout << "Mixed ops - Adds: " << adds << ", Queries: " << queries
-              << ", Checks: " << checks << "\n";
+    std::cout << "Mixed ops - Adds: " << adds << ", Queries: " << queries << ", Checks: " << checks << "\n";
   };
   measureTime(mixed_func, "10K Mixed Operations");
 }
@@ -169,45 +161,35 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
 TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
   const int NUM_VERTICES = 1000;
   for (int i = 0; i < NUM_VERTICES; ++i) {
-    ASSERT_TRUE(graph->impl_addVertex(i).isOK())
-        << "Adding vertex " << i << " should succeed";
+    ASSERT_TRUE(graph->impl_addVertex(i).isOK()) << "Adding vertex " << i << " should succeed";
   }
   std::set<std::tuple<int, int, int>> expected_edges;
   for (int i = 0; i < NUM_VERTICES; ++i) {
     for (int j = i + 1; j < std::min(i + 10, NUM_VERTICES); ++j) {
       int weight = i * 1000 + j;
-      ASSERT_TRUE(graph->impl_addEdge(i, j, weight).isOK())
-          << "Adding edge (" << i << "," << j << ") should succeed";
+      ASSERT_TRUE(graph->impl_addEdge(i, j, weight).isOK()) << "Adding edge (" << i << "," << j << ") should succeed";
       expected_edges.insert({i, j, weight});
     }
   }
   for (const auto &[src, dest, expected_weight] : expected_edges) {
     auto [actual_weight, status] = graph->impl_getEdge(src, dest);
-    EXPECT_TRUE(status.isOK())
-        << "Edge (" << src << "," << dest << ") should exist";
+    EXPECT_TRUE(status.isOK()) << "Edge (" << src << "," << dest << ") should exist";
     EXPECT_EQ(actual_weight, expected_weight)
-        << "Edge (" << src << "," << dest << ") should have weight "
-        << expected_weight;
-    EXPECT_TRUE(graph->impl_doesEdgeExist(src, dest))
-        << "Edge (" << src << "," << dest << ") should exist";
+        << "Edge (" << src << "," << dest << ") should have weight " << expected_weight;
+    EXPECT_TRUE(graph->impl_doesEdgeExist(src, dest)) << "Edge (" << src << "," << dest << ") should exist";
     EXPECT_TRUE(graph->impl_doesEdgeExist(src, dest, expected_weight))
-        << "Edge (" << src << "," << dest << "," << expected_weight
-        << ") should exist";
+        << "Edge (" << src << "," << dest << "," << expected_weight << ") should exist";
     EXPECT_FALSE(graph->impl_doesEdgeExist(src, dest, expected_weight + 1))
-        << "Edge (" << src << "," << dest << "," << expected_weight + 1
-        << ") should not exist";
+        << "Edge (" << src << "," << dest << "," << expected_weight + 1 << ") should not exist";
   }
   std::mt19937 gen(789);
   std::uniform_int_distribution<> vertex_dis(0, NUM_VERTICES - 1);
   for (int test = 0; test < 1000; ++test) {
     int src = vertex_dis(gen);
     int dest = vertex_dis(gen);
-    if (expected_edges.find({src, dest, src * 1000 + dest}) ==
-            expected_edges.end() &&
-        expected_edges.find({dest, src, dest * 1000 + src}) ==
-            expected_edges.end()) {
-      EXPECT_FALSE(graph->impl_doesEdgeExist(src, dest))
-          << "Unexpected edge (" << src << "," << dest << ") found";
+    if (expected_edges.find({src, dest, src * 1000 + dest}) == expected_edges.end() &&
+        expected_edges.find({dest, src, dest * 1000 + src}) == expected_edges.end()) {
+      EXPECT_FALSE(graph->impl_doesEdgeExist(src, dest)) << "Unexpected edge (" << src << "," << dest << ") found";
     }
   }
 }

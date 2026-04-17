@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -30,7 +31,7 @@ int main() {
     g2.addEdge(1, 3);
 
     cout << "Before removing vertex 2: " << g2.numEdges() << " edges" << endl;
-    g2.removeVertex(2); // Removes edges (1,2) and (2,3)
+    g2.removeVertex(2);  // Removes edges (1,2) and (2,3)
     cout << "After removing vertex 2: " << g2.numEdges() << " edges" << endl;
 
     // Alternative 3: Manual workaround (if you have access to internals)

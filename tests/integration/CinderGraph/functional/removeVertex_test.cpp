@@ -4,7 +4,7 @@
 using namespace CinderPeak;
 
 class CinderGraphFunctionalTest : public ::testing::Test {
-protected:
+ protected:
   DummyGraph builder;
 };
 

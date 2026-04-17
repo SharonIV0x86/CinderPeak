@@ -1,11 +1,13 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
 #include <thread>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -26,18 +28,12 @@ TEST_F(HybridStorageShardTest, UpdateEdge_Basic) {
   for (int v : vertices) {
     graph->impl_addVertex(v);
   }
-  EXPECT_TRUE(graph->impl_addEdge(1, 2, 10).isOK())
-      << "Failed to add edge (1,2)";
-  EXPECT_TRUE(graph->impl_addEdge(2, 3, 20).isOK())
-      << "Failed to add edge (2,3)";
-  EXPECT_TRUE(graph->impl_addEdge(1, 3, 15).isOK())
-      << "Failed to add edge (1,3)";
-  EXPECT_TRUE(graph->impl_updateEdge(1, 2, 15).isOK())
-      << "Failed to update edge (1,2)";
-  EXPECT_TRUE(graph->impl_updateEdge(2, 3, 10).isOK())
-      << "Failed to update edge (2,3)";
-  EXPECT_FALSE(graph->impl_updateEdge(547, 3, 15).isOK())
-      << "Updated non-existent edge";
+  EXPECT_TRUE(graph->impl_addEdge(1, 2, 10).isOK()) << "Failed to add edge (1,2)";
+  EXPECT_TRUE(graph->impl_addEdge(2, 3, 20).isOK()) << "Failed to add edge (2,3)";
+  EXPECT_TRUE(graph->impl_addEdge(1, 3, 15).isOK()) << "Failed to add edge (1,3)";
+  EXPECT_TRUE(graph->impl_updateEdge(1, 2, 15).isOK()) << "Failed to update edge (1,2)";
+  EXPECT_TRUE(graph->impl_updateEdge(2, 3, 10).isOK()) << "Failed to update edge (2,3)";
+  EXPECT_FALSE(graph->impl_updateEdge(547, 3, 15).isOK()) << "Updated non-existent edge";
   auto [w1, s1] = graph->impl_getEdge(1, 2);
   EXPECT_TRUE(s1.isOK()) << "Edge (1,2) not found";
   EXPECT_EQ(w1, 15) << "Incorrect updated weight for (1,2)";
@@ -49,8 +45,7 @@ TEST_F(HybridStorageShardTest, UpdateEdge_Basic) {
 // Test updating non-existent edge
 TEST_F(HybridStorageShardTest, UpdateEdge_NonExistent) {
   graph->impl_addVertex(1);
-  EXPECT_FALSE(graph->impl_updateEdge(1, 2, 10).isOK())
-      << "Updated non-existent edge";
+  EXPECT_FALSE(graph->impl_updateEdge(1, 2, 10).isOK()) << "Updated non-existent edge";
 }
 
 // Test updating edge in string graph
@@ -58,8 +53,7 @@ TEST_F(HybridStorageShardTest, UpdateEdge_String) {
   string_graph->impl_addVertex("prasad");
   string_graph->impl_addVertex("omkar");
   string_graph->impl_addEdge("prasad", "omkar", 1.5);
-  EXPECT_TRUE(string_graph->impl_updateEdge("prasad", "omkar", 2.0).isOK())
-      << "Failed to update string edge";
+  EXPECT_TRUE(string_graph->impl_updateEdge("prasad", "omkar", 2.0).isOK()) << "Failed to update string edge";
   auto [weight, status] = string_graph->impl_getEdge("prasad", "omkar");
   EXPECT_TRUE(status.isOK()) << "String edge not found";
   EXPECT_DOUBLE_EQ(weight, 2.0) << "Incorrect updated weight for string edge";

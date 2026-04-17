@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -61,14 +62,12 @@ int main() {
 
     for (int i = 0; i < 4; i++) {
       g3.addEdge(i, i + 1, i * 1.5);
-      cout << "Edges after connecting vertex " << i << " to " << (i + 1) << ": "
-           << g3.numEdges() << endl;
+      cout << "Edges after connecting vertex " << i << " to " << (i + 1) << ": " << g3.numEdges() << endl;
     }
 
     // Parallel edges (if allowed)
     cout << "\n--- Parallel Edges ---" << endl;
-    GraphCreationOptions opts(
-        {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
+    GraphCreationOptions opts({GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
     CinderGraph<int, int> g4(opts);
 
     g4.addVertex(10);

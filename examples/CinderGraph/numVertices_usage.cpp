@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -35,8 +36,7 @@ int main() {
     cout << "\n--- String Vertices ---" << endl;
     CinderGraph<string, double> g2;
 
-    vector<string> cities = {"New York", "Los Angeles", "Chicago", "Houston",
-                             "Phoenix"};
+    vector<string> cities = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
     for (const auto &city : cities) {
       g2.addVertex(city);
     }

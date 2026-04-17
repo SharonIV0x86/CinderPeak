@@ -1,13 +1,15 @@
-#include "DummyGraphBuilder.hpp"
-#include <chrono>
 #include <gtest/gtest.h>
+
+#include <chrono>
 #include <string>
 #include <vector>
+
+#include "DummyGraphBuilder.hpp"
 
 using namespace CinderPeak;
 
 class BulkInsertionStressTest : public ::testing::Test {
-protected:
+ protected:
   DummyGraph builder;
 };
 

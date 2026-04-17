@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -30,8 +31,7 @@ int main() {
 
     // Try to remove non-existent vertex
     bool removed2 = g.removeVertex(99);
-    cout << "\nTry remove non-existent vertex 99: "
-         << (removed2 ? "success" : "failed") << endl;
+    cout << "\nTry remove non-existent vertex 99: " << (removed2 ? "success" : "failed") << endl;
 
     // Another example with weighted graph
     cout << "\n--- Weighted Graph Example ---" << endl;
@@ -43,13 +43,11 @@ int main() {
     g2.addEdge("B", "C", 20.5);
     g2.addEdge("A", "C", 30.5);
 
-    cout << "Before removal: " << g2.numVertices() << " vertices, "
-         << g2.numEdges() << " edges" << endl;
+    cout << "Before removal: " << g2.numVertices() << " vertices, " << g2.numEdges() << " edges" << endl;
 
     bool removed3 = g2.removeVertex("B");
     cout << "Removed vertex B: " << (removed3 ? "success" : "failed") << endl;
-    cout << "After removal: " << g2.numVertices() << " vertices, "
-         << g2.numEdges() << " edges" << endl;
+    cout << "After removal: " << g2.numVertices() << " vertices, " << g2.numEdges() << " edges" << endl;
 
     return 0;
   } catch (const exception &e) {

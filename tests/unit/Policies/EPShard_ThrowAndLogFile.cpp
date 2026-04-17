@@ -1,24 +1,24 @@
-#include "CinderExceptions.hpp"
-#include "PolicyConfiguration.hpp"
-#include "StorageEngine/AdjacencyList.hpp"
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstdio>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <regex>
 #include <set>
 #include <sstream>
 #include <thread>
+
+#include "CinderExceptions.hpp"
+#include "PolicyConfiguration.hpp"
+#include "StorageEngine/AdjacencyList.hpp"
 
 using namespace CinderPeak;
 
 static const std::string kTestLogPath = "test_logfile_policy.log";
 
 class PolicyShardTest : public ::testing::Test {
-public:
-  PolicyConfiguration throwAndLog_cfg{
-      PolicyConfiguration::Throw, PolicyConfiguration::LogFile, kTestLogPath};
+ public:
+  PolicyConfiguration throwAndLog_cfg{PolicyConfiguration::Throw, PolicyConfiguration::LogFile, kTestLogPath};
   PolicyHandler policy;
 
   PeakStatus sc_notFound = PeakStatus::NotFound();
@@ -52,8 +52,7 @@ public:
 
   std::string readLogContent() const {
     std::ifstream in(kTestLogPath);
-    if (!in.good())
-      return "";
+    if (!in.good()) return "";
     std::ostringstream ss;
     ss << in.rdbuf();
     return ss.str();
@@ -61,8 +60,7 @@ public:
 
   void verifyLogFormat(const std::string &expectedMessage) {
     std::string content = readLogContent();
-    ASSERT_FALSE(content.empty())
-        << "Log file is empty or not present at: " << kTestLogPath;
+    ASSERT_FALSE(content.empty()) << "Log file is empty or not present at: " << kTestLogPath;
 
     std::regex linePattern(
         R"(\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}\] \[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\] .+)");
@@ -72,30 +70,22 @@ public:
     std::set<std::string> foundLevels;
 
     while (std::getline(lines, line)) {
-      if (line.find(expectedMessage) == std::string::npos)
-        continue;
+      if (line.find(expectedMessage) == std::string::npos) continue;
 
-      EXPECT_TRUE(std::regex_match(line, linePattern))
-          << "Invalid log format: " << line;
+      EXPECT_TRUE(std::regex_match(line, linePattern)) << "Invalid log format: " << line;
 
       std::smatch m;
-      if (std::regex_search(
-              line, m,
-              std::regex(
-                  R"(\[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\])"))) {
+      if (std::regex_search(line, m, std::regex(R"(\[(TRACE|DEBUG|INFO|WARN|WARNING|ERROR|CRITICAL)\])"))) {
         std::string lvl = m[1].str();
-        if (lvl == "WARNING")
-          lvl = "WARN";
+        if (lvl == "WARNING") lvl = "WARN";
         foundLevels.insert(lvl);
       }
     }
 
-    const std::vector<std::string> expectedLevels = {
-        "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
+    const std::vector<std::string> expectedLevels = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
     for (auto &lvl : expectedLevels) {
       EXPECT_TRUE(foundLevels.count(lvl))
-          << "Missing log entry for level: " << lvl
-          << " with message: " << expectedMessage << "\nFull log content:\n"
+          << "Missing log entry for level: " << lvl << " with message: " << expectedMessage << "\nFull log content:\n"
           << content;
     }
   }
@@ -183,8 +173,9 @@ TEST_F(PolicyShardTest, ThrowAndLogFile_Unimplemented) {
     policy.handleException(sc_unimplemented);
     FAIL() << "Expected UnimplementedException not thrown";
   } catch (const PeakExceptions::UnimplementedException &unex) {
-    EXPECT_STREQ(unex.what(), "Unimplemented feature: Method is not "
-                              "implemented, there has been an error.");
+    EXPECT_STREQ(unex.what(),
+                 "Unimplemented feature: Method is not "
+                 "implemented, there has been an error.");
   }
 
   writeAllLogLevels("Method is not implemented");
@@ -222,7 +213,5 @@ TEST_F(PolicyShardTest, ThrowAndLogFile_NoConsoleOutput) {
   } catch (...) {
   }
   std::string err = testing::internal::GetCapturedStderr();
-  EXPECT_TRUE(err.empty())
-      << "LogFile policy should not print to console. Got:\n"
-      << err;
+  EXPECT_TRUE(err.empty()) << "LogFile policy should not print to console. Got:\n" << err;
 }

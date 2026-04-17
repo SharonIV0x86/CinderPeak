@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -28,8 +29,7 @@ int main() {
 
     // Update edge weight
     auto [newWeight, updated] = g.updateEdge(1, 2, 25.5);
-    cout << "\nUpdated edge (1,2) to weight " << newWeight << ": "
-         << (updated ? "success" : "failed") << endl;
+    cout << "\nUpdated edge (1,2) to weight " << newWeight << ": " << (updated ? "success" : "failed") << endl;
 
     // Verify update
     auto [verifyWeight, found2] = g.getEdge(1, 2);
@@ -39,14 +39,12 @@ int main() {
 
     // Update another edge
     auto [w2, u2] = g.updateEdge(2, 3, 100.0);
-    cout << "\nUpdated edge (2,3) to weight " << w2 << ": "
-         << (u2 ? "success" : "failed") << endl;
+    cout << "\nUpdated edge (2,3) to weight " << w2 << ": " << (u2 ? "success" : "failed") << endl;
 
     // Try to update non-existent edge
     cout << "\n--- Error Cases ---" << endl;
     auto [w3, u3] = g.updateEdge(1, 99, 5.0);
-    cout << "Update non-existent edge (1,99): " << (u3 ? "success" : "failed")
-         << endl;
+    cout << "Update non-existent edge (1,99): " << (u3 ? "success" : "failed") << endl;
 
     // String vertices
     cout << "\n--- String Vertices ---" << endl;
@@ -57,8 +55,7 @@ int main() {
 
     cout << "Initial distance: 100.5" << endl;
     auto [newDist, distUpdated] = g2.updateEdge("City A", "City B", 125.75f);
-    cout << "Updated distance to " << newDist << ": "
-         << (distUpdated ? "success" : "failed") << endl;
+    cout << "Updated distance to " << newDist << ": " << (distUpdated ? "success" : "failed") << endl;
 
     // Multiple updates
     cout << "\n--- Multiple Updates ---" << endl;

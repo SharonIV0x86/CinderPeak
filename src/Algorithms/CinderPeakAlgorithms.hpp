@@ -1,20 +1,20 @@
 #pragma once
-#include "Result/bfs_result.hpp"
 #include <iostream>
 #include <memory>
+
+#include "Result/bfs_result.hpp"
 namespace CinderPeak {
 namespace PeakStore {
-template <typename VertexType, typename EdgeType> class HybridCSR_COO;
+template <typename VertexType, typename EdgeType>
+class HybridCSR_COO;
 
 }
 namespace Algorithms {
-template <typename VertexType, typename EdgeType> class CinderPeakAlgorithms {
-public:
-  std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> hcsr =
-      nullptr;
-  CinderPeakAlgorithms(
-      const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>>
-          &hybridcsr)
+template <typename VertexType, typename EdgeType>
+class CinderPeakAlgorithms {
+ public:
+  std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> hcsr = nullptr;
+  CinderPeakAlgorithms(const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> &hybridcsr)
       : hcsr(hybridcsr) {}
   BFSResult<VertexType> bfs([[maybe_unused]] const VertexType &src) {
     std::cout << "Algorithms::bfs called\n";
@@ -27,5 +27,5 @@ public:
     return result;
   }
 };
-} // namespace Algorithms
-} // namespace CinderPeak
+}  // namespace Algorithms
+}  // namespace CinderPeak

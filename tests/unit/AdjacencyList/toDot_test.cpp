@@ -3,7 +3,7 @@
 #include "gtest/gtest.h"
 
 TEST_F(AdjacencyStorageShardTest, ToDotDirectedGraph) {
-  intGraph.impl_clearVertices(); // Start fresh to ensure IDs are 1, 2, 3
+  intGraph.impl_clearVertices();  // Start fresh to ensure IDs are 1, 2, 3
   EXPECT_TRUE(intGraph.impl_addVertex(1).isOK());
   EXPECT_TRUE(intGraph.impl_addVertex(2).isOK());
   EXPECT_TRUE(intGraph.impl_addVertex(3).isOK());

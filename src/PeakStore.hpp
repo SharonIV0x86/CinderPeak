@@ -1,4 +1,10 @@
 #pragma once
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <type_traits>
+#include <vector>
+
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
 #include "GraphRuntime.hpp"
@@ -10,40 +16,30 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <type_traits>
-#include <vector>
 
 namespace CinderPeak {
 namespace PeakStore {
 
-template <typename VertexType, typename EdgeType> class PeakStore {
-private:
+template <typename VertexType, typename EdgeType>
+class PeakStore {
+ private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
-  void initializeContext(const GraphInternalMetadata &metadata,
-                         const GraphCreationOptions &options,
+  void initializeContext(const GraphInternalMetadata &metadata, const GraphCreationOptions &options,
                          const PolicyConfiguration &cfg) {
     ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
-    ctx->hybrid_storage =
-        std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
+    ctx->hybrid_storage = std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
-    ctx->adjacency_storage =
-        std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
+    ctx->adjacency_storage = std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
     ctx->active_storage = ctx->adjacency_storage;
-    ctx->algorithms = std::make_shared<
-        Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
-        ctx->hybrid_storage);
+    ctx->algorithms = std::make_shared<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(ctx->hybrid_storage);
     ctx->runtime = std::make_shared<CinderPeak::GraphRuntime>();
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
   }
 
-public:
+ public:
   PeakStore(const GraphInternalMetadata &metadata,
-            const GraphCreationOptions &options =
-                CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
+            const GraphCreationOptions &options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
             const PolicyConfiguration &cfg = PolicyConfiguration())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options, cfg);
@@ -54,16 +50,14 @@ public:
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
     if (!hasVertex(src)) {
-      result._status =
-          PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
+      result._status = PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
       return result;
     }
     result = std::move(ctx->algorithms->bfs(src));
     return result;
   }
 
-  PeakStatus addEdge(const VertexType &src, const VertexType &dest,
-                     const EdgeType &weight = EdgeType()) {
+  PeakStatus addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight = EdgeType()) {
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 2\n");
 
     bool isWeighted = ctx->metadata->isGraphWeighted();
@@ -75,9 +69,7 @@ public:
       edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
     }
     if (edgeExists) {
-      if ((isWeighted && !ctx->create_options->hasOption(
-                             GraphCreationOptions::ParallelEdges)) ||
-          !isWeighted) {
+      if ((isWeighted && !ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges)) || !isWeighted) {
         ctx->log(LogLevel::DEBUG, "Edge already exists");
         return PeakStatus::EdgeAlreadyExists();
       }
@@ -106,29 +98,23 @@ public:
     return status;
   }
 
-  std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src,
-                                             const VertexType &dest) {
+  std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src, const VertexType &dest) {
     ctx->log(LogLevel::INFO, "Called adjacency:removeEdge()");
     auto result = ctx->active_storage->impl_removeEdge(src, dest);
-    if (result.second.isOK())
-      ctx->metadata->updateEdgeCount(UpdateOp::Remove);
+    if (result.second.isOK()) ctx->metadata->updateEdgeCount(UpdateOp::Remove);
     return result;
   }
 
-  std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
-                                             const VertexType &dest,
-                                             const EdgeType &newWeight) {
+  std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src, const VertexType &dest, const EdgeType &newWeight) {
     ctx->log(LogLevel::INFO, "Called adjacency:updateEdge()");
 
-    PeakStatus resp =
-        ctx->active_storage->impl_updateEdge(src, dest, newWeight);
+    PeakStatus resp = ctx->active_storage->impl_updateEdge(src, dest, newWeight);
     if (!resp.isOK()) {
       return {resp, newWeight};
     }
 
     if (ctx->create_options->hasOption(GraphCreationOptions::Undirected)) {
-      PeakStatus resp2 =
-          ctx->active_storage->impl_updateEdge(dest, src, newWeight);
+      PeakStatus resp2 = ctx->active_storage->impl_updateEdge(dest, src, newWeight);
       if (!resp2.isOK()) {
         return {resp2, newWeight};
       }
@@ -137,8 +123,7 @@ public:
     return {PeakStatus::OK(), newWeight};
   }
 
-  std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
-                                          const VertexType &dest) {
+  std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src, const VertexType &dest) {
     ctx->log(LogLevel::INFO, "Called adjacency:getEdge()");
     auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
@@ -149,9 +134,7 @@ public:
 
   PeakStatus addVertex(const VertexType &src) {
     ctx->log(LogLevel::INFO, "Called peakStore:addVertex");
-    if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
-        !resp.isOK())
-      return resp;
+    if (PeakStatus resp = ctx->active_storage->impl_addVertex(src); !resp.isOK()) return resp;
     ctx->metadata->updateVertexCount(UpdateOp::Add);
 
     return PeakStatus::OK();
@@ -162,8 +145,7 @@ public:
     return ctx->active_storage->impl_hasVertex(v);
   }
 
-  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
-  getNeighbors(const VertexType &src) const {
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> getNeighbors(const VertexType &src) const {
     ctx->log(LogLevel::INFO, "Called adjacency:getNeighbors()");
     auto status = ctx->adjacency_storage->impl_getNeighbors(src);
     if (!status.second.isOK()) {
@@ -172,10 +154,7 @@ public:
     return status;
   }
 
-  const std::shared_ptr<GraphContext<VertexType, EdgeType>> &
-  getContext() const {
-    return ctx;
-  }
+  const std::shared_ptr<GraphContext<VertexType, EdgeType>> &getContext() const { return ctx; }
 
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
@@ -207,15 +186,9 @@ public:
     }
     return status;
   }
-  void setConsoleLogging(bool toggle) {
-    ctx->runtime->setConsoleLogging(toggle);
-  }
-  void setThrowExceptions(bool toggle) {
-    ctx->runtime->setThrowExceptions(toggle);
-  }
-  void setFileLogging(const std::string &path) {
-    ctx->runtime->setFileLogging(path);
-  }
+  void setConsoleLogging(bool toggle) { ctx->runtime->setConsoleLogging(toggle); }
+  void setThrowExceptions(bool toggle) { ctx->runtime->setThrowExceptions(toggle); }
+  void setFileLogging(const std::string &path) { ctx->runtime->setFileLogging(path); }
   void unsetFileLogging() { ctx->runtime->disableFileLogging(); }
 
   size_t numEdges() const { return ctx->metadata->numEdges(); }
@@ -237,13 +210,10 @@ public:
       return;
     }
 
-    bool isDirected =
-        ctx->create_options->hasOption(GraphCreationOptions::Directed);
-    bool allowParallel =
-        ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
+    bool isDirected = ctx->create_options->hasOption(GraphCreationOptions::Directed);
+    bool allowParallel = ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
 
-    std::string content =
-        ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
+    std::string content = ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
     outFile << content;
     outFile.close();
 
@@ -252,13 +222,11 @@ public:
 
   const std::string getGraphStatistics() {
     bool directed;
-    if (ctx->create_options->hasOption(GraphCreationOptions::Directed))
-      directed = true;
-    if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
-      directed = false;
+    if (ctx->create_options->hasOption(GraphCreationOptions::Directed)) directed = true;
+    if (ctx->create_options->hasOption(GraphCreationOptions::Undirected)) directed = false;
     return ctx->metadata->getGraphStatistics(directed);
   }
 };
 
-} // namespace PeakStore
-} // namespace CinderPeak
+}  // namespace PeakStore
+}  // namespace CinderPeak

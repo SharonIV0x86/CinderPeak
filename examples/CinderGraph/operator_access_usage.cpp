@@ -1,20 +1,21 @@
-#include "CinderPeak.hpp"
 #include <iostream>
 #include <string>
+
+#include "CinderPeak.hpp"
 
 using namespace CinderPeak;
 
 int main() {
-  CinderGraph<std::string, double> g; // Weighted graph
+  CinderGraph<std::string, double> g;  // Weighted graph
 
   // ====== BASIC ADDITION ======
   g.addVertex("A");
   g.addVertex("B");
   g.addVertex("C");
 
-  g["A"]["B"] = 1.5; // Add A->B edge with weight 1.5
-  g["B"]["C"] = 2.5; // Add B->C
-  g["A"]["C"] = 3.0; // Add A->C
+  g["A"]["B"] = 1.5;  // Add A->B edge with weight 1.5
+  g["B"]["C"] = 2.5;  // Add B->C
+  g["A"]["C"] = 3.0;  // Add A->C
 
   std::cout << "Graph initialized with 3 edges.\n";
 
@@ -39,7 +40,7 @@ int main() {
 
   // ====== HANDLING MISSING EDGES ======
   try {
-    std::cout << "Edge D->E weight: " << g["D"]["E"] << "\n"; // Will throw
+    std::cout << "Edge D->E weight: " << g["D"]["E"] << "\n";  // Will throw
   } catch (const std::runtime_error &e) {
     std::cout << "Caught: " << e.what() << "\n";
   }
@@ -50,13 +51,11 @@ int main() {
   // g["X"]["Y"] = 4.4; // Auto-add vertices X, Y before adding edge
 
   // ====== STATISTICS + SANITY CHECK ======
-  std::cout << "Graph has " << g.numVertices() << " vertices and "
-            << g.numEdges() << " edges.\n";
+  std::cout << "Graph has " << g.numVertices() << " vertices and " << g.numEdges() << " edges.\n";
 
   // ====== CLEANUP ======
   g.removeEdge("A", "C");
-  if (!g["A"]["C"])
-    std::cout << "Edge A->C removed.\n";
+  if (!g["A"]["C"]) std::cout << "Edge A->C removed.\n";
 
   return 0;
 }

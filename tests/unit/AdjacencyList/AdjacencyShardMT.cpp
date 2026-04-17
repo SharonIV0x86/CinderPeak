@@ -1,13 +1,15 @@
+#include <gtest/gtest.h>
+
+#include <thread>
+
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
-#include <gtest/gtest.h>
-#include <thread>
 
 using namespace CinderPeak;
 using namespace PeakStore;
 
 class AdjacencyStorageTestMT : public ::testing::Test, public CinderVertex {
-protected:
+ protected:
   PolicyHandler policyHandler;
   AdjacencyList<int, int> intGraph{policyHandler};
   AdjacencyList<std::string, float> stringGraph{policyHandler};
@@ -29,7 +31,7 @@ protected:
   }
 };
 class AdjacencyListThreadTest : public ::testing::Test {
-protected:
+ protected:
   PolicyHandler policy;
   AdjacencyList<int, int> threadGraph{policy};
 
@@ -187,8 +189,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentReadWriteOperations) {
 
         auto edge = threadGraph.impl_getEdge(vertex1, vertex2);
         readOperations++;
-        if (!edge.second.isOK() &&
-            edge.second.code() != StatusCode::EDGE_NOT_FOUND) {
+        if (!edge.second.isOK() && edge.second.code() != StatusCode::EDGE_NOT_FOUND) {
           readErrors++;
         }
 
@@ -273,8 +274,7 @@ TEST_F(AdjacencyStorageTestMT, ConcurrentMixedOperationsDeadlock) {
     auto start = std::chrono::steady_clock::now();
     while (completed_threads < NUM_THREADS) {
       auto now = std::chrono::steady_clock::now();
-      auto elapsed =
-          std::chrono::duration_cast<std::chrono::seconds>(now - start);
+      auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start);
       if (elapsed.count() > 5) {
         deadlock_detected = true;
         break;
@@ -311,10 +311,8 @@ TEST_F(AdjacencyStorageTestMT, ConcurrentMixedOperationsDeadlock) {
 TEST_F(AdjacencyStorageTestMT, ConcurrentBulkOperationsRace) {
   std::vector<int> vertices1 = {100, 101, 102, 103, 104};
   std::vector<int> vertices2 = {105, 106, 107, 108, 109};
-  std::vector<std::pair<int, int>> edges1 = {
-      {100, 101}, {101, 102}, {102, 103}};
-  std::vector<std::pair<int, int>> edges2 = {
-      {105, 106}, {106, 107}, {107, 108}};
+  std::vector<std::pair<int, int>> edges1 = {{100, 101}, {101, 102}, {102, 103}};
+  std::vector<std::pair<int, int>> edges2 = {{105, 106}, {106, 107}, {107, 108}};
   std::thread t1([&]() {
     intGraph.impl_addVertices(vertices1);
     intGraph.impl_addEdges(edges1);
@@ -376,9 +374,7 @@ TEST_F(AdjacencyStorageTestMT, PotentialReentrancyDeadlock) {
   intGraph.impl_addVertex(101);
   intGraph.impl_addEdge(100, 101);
 
-  auto callback = [&](int from, int to) {
-    return intGraph.impl_doesEdgeExist(from, to);
-  };
+  auto callback = [&](int from, int to) { return intGraph.impl_doesEdgeExist(from, to); };
   std::thread t([&]() {
     auto neighbors = intGraph.impl_getNeighbors(100);
     if (neighbors.second.isOK()) {

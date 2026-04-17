@@ -1,15 +1,17 @@
 #pragma once
 
+#include <gtest/gtest.h>
+
+#include <thread>
+
 #include "PolicyConfiguration.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
-#include <gtest/gtest.h>
-#include <thread>
 
 using namespace CinderPeak;
 using namespace PeakStore;
 
 class AdjacencyStorageShardTest : public ::testing::Test, public CinderVertex {
-protected:
+ protected:
   PolicyHandler policyHandler;
   AdjacencyList<int, int> intGraph{policyHandler};
   AdjacencyList<std::string, float> stringGraph{policyHandler};
@@ -32,23 +34,22 @@ protected:
 };
 
 class ComplexAdjVertex : public CinderVertex {
-public:
+ public:
   int vertexData;
   std::string nodeName;
-  ComplexAdjVertex(int vertex_data, std::string node_name)
-      : vertexData{vertex_data}, nodeName{node_name} {}
+  ComplexAdjVertex(int vertex_data, std::string node_name) : vertexData{vertex_data}, nodeName{node_name} {}
   ComplexAdjVertex() = default;
 };
 
 class ComplexAdjEdge : public CinderEdge {
-public:
+ public:
   float edgeValue;
   ComplexAdjEdge(float edge_value) : edgeValue{edge_value} {}
   ComplexAdjEdge() = default;
 };
 
 class ComplexGraph : public ::testing::Test {
-public:
+ public:
   ComplexAdjVertex v1, v2, v3;
   ComplexAdjEdge e1, e2;
   PolicyHandler pl;

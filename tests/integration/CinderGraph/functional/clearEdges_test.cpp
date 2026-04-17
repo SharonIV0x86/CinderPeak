@@ -4,7 +4,7 @@
 using namespace CinderPeak;
 
 class CinderGraphFunctionalTest : public ::testing::Test {
-protected:
+ protected:
   DummyGraph builder;
 };
 
@@ -23,7 +23,7 @@ TEST_F(CinderGraphFunctionalTest, ClearWeightedEdges) {
 
   intGraph.clearEdges();
   EXPECT_EQ(intGraph.numEdges(), 0);
-  EXPECT_EQ(intGraph.numVertices(), 3); // vertices remain after clear
+  EXPECT_EQ(intGraph.numVertices(), 3);  // vertices remain after clear
 }
 
 TEST_F(CinderGraphFunctionalTest, ClearUnweightedEdges) {
@@ -41,7 +41,7 @@ TEST_F(CinderGraphFunctionalTest, ClearUnweightedEdges) {
 
   intGraph.clearEdges();
   EXPECT_EQ(intGraph.numEdges(), 0);
-  EXPECT_EQ(intGraph.numVertices(), 3); // vertices remain after clear
+  EXPECT_EQ(intGraph.numVertices(), 3);  // vertices remain after clear
 }
 
 TEST_F(CinderGraphFunctionalTest, ClearEdgesCustomTypes) {
@@ -67,5 +67,5 @@ TEST_F(CinderGraphFunctionalTest, ClearEdgesCustomTypes) {
   customGraph.clearEdges();
 
   EXPECT_EQ(customGraph.numEdges(), 0);
-  EXPECT_EQ(customGraph.numVertices(), 3); // vertices remain after clear
+  EXPECT_EQ(customGraph.numVertices(), 3);  // vertices remain after clear
 }

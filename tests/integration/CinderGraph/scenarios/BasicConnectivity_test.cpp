@@ -1,11 +1,13 @@
-#include "DummyGraphBuilder.hpp"
 #include <gtest/gtest.h>
+
 #include <string>
+
+#include "DummyGraphBuilder.hpp"
 
 using namespace CinderPeak;
 
 class BasicConnectivityTest : public ::testing::Test {
-protected:
+ protected:
   DummyGraph builder;
 };
 

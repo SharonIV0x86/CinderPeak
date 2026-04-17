@@ -1,10 +1,11 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -46,7 +47,6 @@ TEST_F(HybridStorageShardTest, ClearVerticesString) {
 }
 
 TEST_F(HybridStorageShardTest, ClearVerticesWithEdges) {
-
   for (int i = 1; i <= 5; i++) {
     EXPECT_TRUE(graph->impl_addVertex(i).isOK());
   }
@@ -105,7 +105,6 @@ TEST_F(HybridStorageShardTest, ClearVerticesAfterVertexRemoval) {
 }
 
 TEST_F(HybridStorageShardTest, ClearVerticesAndReuse) {
-
   for (int i = 1; i <= 5; i++) {
     EXPECT_TRUE(graph->impl_addVertex(i).isOK());
   }

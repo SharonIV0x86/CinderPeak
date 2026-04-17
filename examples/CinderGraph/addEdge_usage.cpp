@@ -1,5 +1,6 @@
-#include "CinderPeak.hpp"
 #include <iostream>
+
+#include "CinderPeak.hpp"
 using namespace CinderPeak;
 using namespace std;
 
@@ -7,21 +8,17 @@ int main() {
   try {
     // 1. Unweighted graph
     cout << "--- Unweighted Graph ---" << endl;
-    PolicyConfiguration p(PolicyConfiguration::ErrorPolicy::Throw,
-                          PolicyConfiguration::LoggingPolicy::LogConsole);
-    CinderGraph<int, Unweighted> g1(
-        {GraphCreationOptions::getDefaultCreateOptions()}, p);
+    PolicyConfiguration p(PolicyConfiguration::ErrorPolicy::Throw, PolicyConfiguration::LoggingPolicy::LogConsole);
+    CinderGraph<int, Unweighted> g1({GraphCreationOptions::getDefaultCreateOptions()}, p);
     g1.addVertex(1);
     g1.addVertex(2);
     g1.addVertex(3);
 
     auto [edge1, added1] = g1.addEdge(1, 2);
-    cout << "Added unweighted edge (1,2): " << (added1 ? "success" : "failed")
-         << endl;
+    cout << "Added unweighted edge (1,2): " << (added1 ? "success" : "failed") << endl;
 
     auto [edge2, added2] = g1.addEdge(2, 3);
-    cout << "Added unweighted edge (2,3): " << (added2 ? "success" : "failed")
-         << endl;
+    cout << "Added unweighted edge (2,3): " << (added2 ? "success" : "failed") << endl;
     cout << "Total edges: " << g1.numEdges() << endl;
 
     // 2. Weighted graph
@@ -32,18 +29,15 @@ int main() {
     g2.addVertex(30);
 
     auto [edge3, added3] = g2.addEdge(10, 20, 5.5);
-    cout << "Added weighted edge (10,20) with weight 5.5: "
-         << (added3 ? "success" : "failed") << endl;
+    cout << "Added weighted edge (10,20) with weight 5.5: " << (added3 ? "success" : "failed") << endl;
 
     auto [edge4, added4] = g2.addEdge(20, 30, 12.75);
-    cout << "Added weighted edge (20,30) with weight 12.75: "
-         << (added4 ? "success" : "failed") << endl;
+    cout << "Added weighted edge (20,30) with weight 12.75: " << (added4 ? "success" : "failed") << endl;
     cout << "Total edges: " << g2.numEdges() << endl;
 
     // 3. Graph with parallel edges
     cout << "\n--- Parallel Edges ---" << endl;
-    GraphCreationOptions parallelOpts(
-        {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
+    GraphCreationOptions parallelOpts({GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
     CinderGraph<int, int> g3(parallelOpts, p);
     g3.addVertex(1);
     g3.addVertex(2);
@@ -59,8 +53,7 @@ int main() {
     cout << "\n--- Error Cases ---" << endl;
     CinderGraph<int, Unweighted> g4;
     auto [edge5, added5] = g4.addEdge(100, 200);
-    cout << "Adding edge without vertices: " << (added5 ? "success" : "failed")
-         << endl;
+    cout << "Adding edge without vertices: " << (added5 ? "success" : "failed") << endl;
 
     // 5. String vertices with weighted edges
     cout << "\n--- String Vertices ---" << endl;

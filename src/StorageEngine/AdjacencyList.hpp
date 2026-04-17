@@ -1,46 +1,41 @@
 #pragma once
-#include "Concepts.hpp"
-#include "PolicyConfiguration.hpp"
-#include "StorageEngine/GraphContext.hpp"
-#include "StorageEngine/GraphStatistics.hpp"
-#include "Utils.hpp"
 #include <algorithm>
 #include <atomic>
 #include <memory>
 #include <optional>
 #include <shared_mutex>
 
+#include "Concepts.hpp"
+#include "PolicyConfiguration.hpp"
+#include "StorageEngine/GraphContext.hpp"
+#include "StorageEngine/GraphStatistics.hpp"
+#include "Utils.hpp"
+
 namespace CinderPeak {
-template <typename, typename> class PeakStorageInterface;
+template <typename, typename>
+class PeakStorageInterface;
 
 namespace PeakStore {
 
 template <typename VertexType, typename EdgeType>
-class AdjacencyList
-    : public CinderPeak::PeakStorageInterface<VertexType, EdgeType> {
-private:
-  std::unordered_map<CinderPeak::VertexId,
-                     std::vector<std::pair<CinderPeak::VertexId, EdgeType>>>
-      _adj;
+class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeType> {
+ private:
+  std::unordered_map<CinderPeak::VertexId, std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> _adj;
   std::unordered_map<CinderPeak::VertexId, VertexType> _vertex_data;
-  std::unordered_map<VertexType, CinderPeak::VertexId, VertexHasher<VertexType>>
-      _vertex_lookup;
+  std::unordered_map<VertexType, CinderPeak::VertexId, VertexHasher<VertexType>> _vertex_lookup;
 
   std::atomic<CinderPeak::VertexId> _next_vertex_id{1};
 
   mutable std::shared_mutex _mtx;
   const PolicyHandler pHandler;
 
-  std::optional<CinderPeak::VertexId>
-  lookupVertexId_nolock(const VertexType &v) const {
+  std::optional<CinderPeak::VertexId> lookupVertexId_nolock(const VertexType &v) const {
     auto it = _vertex_lookup.find(v);
-    if (it == _vertex_lookup.end())
-      return std::nullopt;
+    if (it == _vertex_lookup.end()) return std::nullopt;
     return it->second;
   }
 
-  std::optional<CinderPeak::VertexId>
-  ensureVertexExists_nolock(const VertexType &v, PeakStatus &out_status) const {
+  std::optional<CinderPeak::VertexId> ensureVertexExists_nolock(const VertexType &v, PeakStatus &out_status) const {
     auto id_opt = lookupVertexId_nolock(v);
     if (!id_opt) {
       out_status = PeakStatus::VertexNotFound();
@@ -50,7 +45,7 @@ private:
     return id_opt;
   }
 
-public:
+ public:
   AdjacencyList(const PolicyHandler &handler) : pHandler(handler) {
     _adj.reserve(1024);
     _vertex_data.reserve(1024);
@@ -64,18 +59,14 @@ public:
       std::unique_lock<std::shared_mutex> lock(_mtx);
 
       if (auto it = _vertex_lookup.find(v); it != _vertex_lookup.end()) {
-        if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
-                          VertexType>) {
-          pHandler.log(LogLevel::WARNING,
-                       "Failed to add Vertex: Vertex Already Exist.");
-          return PeakStatus::VertexAlreadyExists(
-              "Primitive Vertex Already Exists");
+        if constexpr (CinderPeak::Traits::is_primitive_or_string_v<VertexType>) {
+          pHandler.log(LogLevel::WARNING, "Failed to add Vertex: Vertex Already Exist.");
+          return PeakStatus::VertexAlreadyExists("Primitive Vertex Already Exists");
         } else {
           pHandler.log(LogLevel::WARNING,
                        "Failed to add Non Premitive Vertex: Non Premitive "
                        "Vertex Already Exist.");
-          return PeakStatus::VertexAlreadyExists(
-              "Non Primitive Vertex Already Exists");
+          return PeakStatus::VertexAlreadyExists("Non Primitive Vertex Already Exists");
         }
       }
 
@@ -93,8 +84,7 @@ public:
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_addVertices(const std::vector<VertexType> &vertices) {
+  [[nodiscard]] const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
     pHandler.log(LogLevel::DEBUG, "Executing impl_addVertices");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     PeakStatus final_status = PeakStatus::OK();
@@ -115,9 +105,8 @@ public:
     return final_status;
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_addEdge(const VertexType &src, const VertexType &dest,
-               const EdgeType &weight = EdgeType()) override {
+  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
+                                              const EdgeType &weight = EdgeType()) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_addEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -158,13 +147,11 @@ public:
         VertexType dest;
         EdgeType weight = EdgeType();
 
-        if constexpr (std::is_same_v<typename EdgeContainer::value_type,
-                                     std::pair<VertexType, VertexType>>) {
+        if constexpr (std::is_same_v<typename EdgeContainer::value_type, std::pair<VertexType, VertexType>>) {
           src = edge.first;
           dest = edge.second;
         } else if constexpr (std::is_same_v<typename EdgeContainer::value_type,
-                                            std::tuple<VertexType, VertexType,
-                                                       EdgeType>>) {
+                                            std::tuple<VertexType, VertexType, EdgeType>>) {
           src = std::get<0>(edge);
           dest = std::get<1>(edge);
           weight = std::get<2>(edge);
@@ -197,25 +184,22 @@ public:
     return overall;
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
-  impl_removeEdge(const VertexType &src, const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_removeEdge(const VertexType &src,
+                                                                      const VertexType &dest) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_removeEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     EdgeType retWeight = EdgeType();
 
     auto srcIt = _vertex_lookup.find(src);
-    if (srcIt == _vertex_lookup.end())
-      return std::make_pair(retWeight, PeakStatus::VertexNotFound());
+    if (srcIt == _vertex_lookup.end()) return std::make_pair(retWeight, PeakStatus::VertexNotFound());
     auto destIt = _vertex_lookup.find(dest);
-    if (destIt == _vertex_lookup.end())
-      return std::make_pair(retWeight, PeakStatus::VertexNotFound());
+    if (destIt == _vertex_lookup.end()) return std::make_pair(retWeight, PeakStatus::VertexNotFound());
 
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
     auto &neighbors = _adj[srcId];
-    auto it = std::find_if(neighbors.begin(), neighbors.end(),
-                           [&](const auto &p) { return p.first == destId; });
+    auto it = std::find_if(neighbors.begin(), neighbors.end(), [&](const auto &p) { return p.first == destId; });
 
     if (it == neighbors.end()) {
       pHandler.log(LogLevel::WARNING, "Edge not found.");
@@ -229,9 +213,8 @@ public:
     return std::make_pair(retWeight, PeakStatus::OK());
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_updateEdge(const VertexType &src, const VertexType &dest,
-                  const EdgeType &newWeight) override {
+  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
+                                                 const EdgeType &newWeight) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_updateEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -268,43 +251,35 @@ public:
     return _vertex_lookup.find(v) != _vertex_lookup.end();
   }
 
-  [[nodiscard]] bool
-  impl_doesEdgeExist(const VertexType &src,
-                     const VertexType &dest) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest) noexcept override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
-    if (srcIt == _vertex_lookup.end())
-      return false;
+    if (srcIt == _vertex_lookup.end()) return false;
     auto destIt = _vertex_lookup.find(dest);
-    if (destIt == _vertex_lookup.end())
-      return false;
+    if (destIt == _vertex_lookup.end()) return false;
 
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
     const auto &neighbors = _adj.at(srcId);
     for (const auto &p : neighbors) {
-      if (p.first == destId)
-        return true;
+      if (p.first == destId) return true;
     }
     pHandler.log(LogLevel::INFO, "Edge found.");
     return false;
   }
 
-  [[nodiscard]] bool
-  impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                     const EdgeType &weight) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
+                                        const EdgeType &weight) noexcept override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
-    if (srcIt == _vertex_lookup.end())
-      return false;
+    if (srcIt == _vertex_lookup.end()) return false;
     auto destIt = _vertex_lookup.find(dest);
-    if (destIt == _vertex_lookup.end())
-      return false;
+    if (destIt == _vertex_lookup.end()) return false;
 
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
@@ -321,32 +296,29 @@ public:
     return false;
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus>
-  impl_getEdge(const VertexType &src, const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType &src,
+                                                                   const VertexType &dest) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_getEdge");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
-    if (srcIt == _vertex_lookup.end())
-      return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
+    if (srcIt == _vertex_lookup.end()) return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
     auto destIt = _vertex_lookup.find(dest);
-    if (destIt == _vertex_lookup.end())
-      return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
+    if (destIt == _vertex_lookup.end()) return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
 
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
     const auto &neighbors = _adj.at(srcId);
     for (const auto &p : neighbors) {
-      if (p.first == destId)
-        return std::make_pair(p.second, PeakStatus::OK());
+      if (p.first == destId) return std::make_pair(p.second, PeakStatus::OK());
     }
     pHandler.log(LogLevel::INFO, "Edge not found");
     return std::make_pair(EdgeType(), PeakStatus::EdgeNotFound());
   }
 
-  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
-  impl_getNeighbors(const VertexType &vertex) const {
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> impl_getNeighbors(
+      const VertexType &vertex) const {
     pHandler.log(LogLevel::DEBUG, "Executing impl_getNeighbors");
     // data copied under lock
     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
@@ -357,8 +329,7 @@ public:
 
       auto it = _vertex_lookup.find(vertex);
       if (it == _vertex_lookup.end()) {
-        return std::make_pair(std::vector<std::pair<VertexType, EdgeType>>{},
-                              PeakStatus::VertexNotFound());
+        return std::make_pair(std::vector<std::pair<VertexType, EdgeType>>{}, PeakStatus::VertexNotFound());
       }
 
       VertexId id = it->second;
@@ -389,14 +360,12 @@ public:
     return std::make_pair(result, PeakStatus::OK());
   }
 
-  [[nodiscard]] const PeakStatus
-  impl_removeVertex(const VertexType &v) override {
+  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType &v) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_removeVertex");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _vertex_lookup.find(v);
-    if (it == _vertex_lookup.end())
-      return PeakStatus::VertexNotFound();
+    if (it == _vertex_lookup.end()) return PeakStatus::VertexNotFound();
 
     VertexId id = it->second;
 
@@ -404,12 +373,9 @@ public:
 
     for (auto &pair : _adj) {
       auto &neighbors = pair.second;
-      neighbors.erase(
-          std::remove_if(neighbors.begin(), neighbors.end(),
-                         [&](const std::pair<VertexId, EdgeType> &edge) {
-                           return edge.first == id;
-                         }),
-          neighbors.end());
+      neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
+                                     [&](const std::pair<VertexId, EdgeType> &edge) { return edge.first == id; }),
+                      neighbors.end());
     }
 
     _vertex_lookup.erase(it);
@@ -456,8 +422,7 @@ public:
       for (const auto &kv : _adj) {
         VertexId id = kv.first;
         auto vdIt = _vertex_data.find(id);
-        if (vdIt == _vertex_data.end())
-          continue;
+        if (vdIt == _vertex_data.end()) continue;
 
         VertexInfo info;
         info.id = id;
@@ -478,9 +443,7 @@ public:
     }
   }
 
-  const std::unordered_map<
-      CinderPeak::VertexId,
-      std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
+  const std::unordered_map<CinderPeak::VertexId, std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
   getInternalAdjacency() const {
     pHandler.log(LogLevel::DEBUG, "Executing getInternalAdjacency");
     return _adj;
@@ -532,13 +495,12 @@ public:
     return ss.str();
   }
 
-  const std::unordered_map<CinderPeak::VertexId, VertexType> &
-  getVertexDataMap() const {
+  const std::unordered_map<CinderPeak::VertexId, VertexType> &getVertexDataMap() const {
     pHandler.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
   }
 };
 
-} // namespace PeakStore
+}  // namespace PeakStore
 
-} // namespace CinderPeak
+}  // namespace CinderPeak

@@ -1,15 +1,17 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
-#include <atomic>
 #include <gtest/gtest.h>
+
+#include <atomic>
 #include <thread>
 #include <unordered_map>
 #include <vector>
+
+#include "StorageEngine/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
 class HybridStorageOrchestratorTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override { graph = std::make_unique<HybridCSR_COO<int, int>>(); }
 
   void TearDown() override { graph.reset(); }
@@ -18,8 +20,7 @@ protected:
 };
 
 TEST_F(HybridStorageOrchestratorTest, RebuildFromAdjList) {
-  std::unordered_map<int, std::vector<std::pair<int, int>>, VertexHasher<int>>
-      adj_list;
+  std::unordered_map<int, std::vector<std::pair<int, int>>, VertexHasher<int>> adj_list;
   adj_list[1] = {{2, 10}, {3, 20}};
   adj_list[2] = {{3, 30}};
   adj_list[3] = {};
@@ -65,7 +66,7 @@ TEST_F(HybridStorageOrchestratorTest, ClearAll) {
 TEST_F(HybridStorageOrchestratorTest, BuildIfNeeded) {
   graph->impl_addVertex(1);
   graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 50); // In COO
+  graph->impl_addEdge(1, 2, 50);  // In COO
 
   graph->orchestrator_buildIfNeeded();
 

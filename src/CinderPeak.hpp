@@ -7,9 +7,11 @@
 #include "StorageEngine/Utils.hpp"
 namespace CinderPeak {
 namespace PeakStore {
-template <typename VertexType, typename EdgeType> class PeakStore;
+template <typename VertexType, typename EdgeType>
+class PeakStore;
 }
 
-template <typename VertexType, typename EdgeType> class CinderGraph;
+template <typename VertexType, typename EdgeType>
+class CinderGraph;
 
-} // namespace CinderPeak
+}  // namespace CinderPeak

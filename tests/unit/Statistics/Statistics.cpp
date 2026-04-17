@@ -1,17 +1,19 @@
-#include "CinderPeak.hpp"
-#include <algorithm>
 #include <gtest/gtest.h>
+
+#include <algorithm>
 #include <iostream>
 #include <random>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include "CinderPeak.hpp"
+
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
 class GraphStatisticsTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     original_cout = std::cout.rdbuf();
     original_cerr = std::cerr.rdbuf();
@@ -26,21 +28,16 @@ protected:
 
   void displayStats(const std::string &title, const std::string &stats) {
     std::cout.rdbuf(original_cout);
-    std::cout << "\n"
-              << title << "\n"
-              << std::string(40, '=') << "\n"
-              << stats << std::endl;
+    std::cout << "\n" << title << "\n" << std::string(40, '=') << "\n" << stats << std::endl;
     std::cout.rdbuf(null_stream.rdbuf());
   }
 
   int extractValue(const std::string &stats, const std::string &label) {
     size_t pos = stats.find(label);
-    if (pos == std::string::npos)
-      return -1;
+    if (pos == std::string::npos) return -1;
     pos += label.length();
     size_t end = stats.find('\n', pos);
-    if (end == std::string::npos)
-      end = stats.length();
+    if (end == std::string::npos) end = stats.length();
     try {
       return std::stoi(stats.substr(pos, end - pos));
     } catch (...) {
@@ -61,8 +58,7 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   const int target_edges = 50000;
 
   std::cout.rdbuf(original_cout);
-  std::cout << "Creating large graph: " << num_vertices << " vertices, "
-            << target_edges << " edges" << std::endl;
+  std::cout << "Creating large graph: " << num_vertices << " vertices, " << target_edges << " edges" << std::endl;
   std::cout.rdbuf(null_stream.rdbuf());
 
   for (int i = 1; i <= num_vertices; ++i) {
@@ -82,8 +78,7 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   }
 
   int edges_added = num_vertices - 1 + 50;
-  for (int attempt = 0;
-       attempt < target_edges * 3 && edges_added < target_edges; ++attempt) {
+  for (int attempt = 0; attempt < target_edges * 3 && edges_added < target_edges; ++attempt) {
     int v1 = vertex_dist(gen);
     int v2 = vertex_dist(gen);
     try {
@@ -94,8 +89,7 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
 
     if (attempt % 10000 == 0) {
       std::cout.rdbuf(original_cout);
-      std::cout << "Progress: " << edges_added << " edges added..."
-                << std::endl;
+      std::cout << "Progress: " << edges_added << " edges added..." << std::endl;
       std::cout.rdbuf(null_stream.rdbuf());
     }
   }
@@ -122,8 +116,7 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
 }
 
 TEST_F(GraphStatisticsTest, MediumGraphs) {
-  std::vector<std::pair<int, int>> configs = {
-      {100, 500}, {200, 1000}, {500, 2500}};
+  std::vector<std::pair<int, int>> configs = {{100, 500}, {200, 1000}, {500, 2500}};
 
   for (auto config : configs) {
     GraphCreationOptions opts({GraphCreationOptions::Undirected});

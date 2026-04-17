@@ -1,17 +1,18 @@
-#include "CinderExceptions.hpp"
-#include "PolicyConfiguration.hpp"
+#include <gtest/gtest.h>
+
 #include <filesystem>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <string>
+
+#include "CinderExceptions.hpp"
+#include "PolicyConfiguration.hpp"
 
 using namespace CinderPeak;
 
 // Fixture for shared policy setup
 class ThrowAndSilentPolicyTest : public ::testing::Test {
-public:
-  PolicyConfiguration throwAndSilent_cfg{PolicyConfiguration::Throw,
-                                         PolicyConfiguration::Silent};
+ public:
+  PolicyConfiguration throwAndSilent_cfg{PolicyConfiguration::Throw, PolicyConfiguration::Silent};
   PolicyHandler policy;
 
   PeakStatus sc_notFound = PeakStatus::NotFound();
@@ -37,8 +38,7 @@ public:
   bool logFileExists() { return std::filesystem::exists(test_log_file); }
 
   bool logFileIsEmpty() {
-    if (!logFileExists())
-      return true;
+    if (!logFileExists()) return true;
     std::ifstream file(test_log_file);
     return file.peek() == std::ifstream::traits_type::eof();
   }
@@ -47,10 +47,8 @@ public:
     std::string stdout_output = testing::internal::GetCapturedStdout();
     std::string stderr_output = testing::internal::GetCapturedStderr();
 
-    EXPECT_TRUE(stdout_output.empty())
-        << "Expected no console stdout output, but got: " << stdout_output;
-    EXPECT_TRUE(stderr_output.empty())
-        << "Expected no console stderr output, but got: " << stderr_output;
+    EXPECT_TRUE(stdout_output.empty()) << "Expected no console stdout output, but got: " << stdout_output;
+    EXPECT_TRUE(stderr_output.empty()) << "Expected no console stderr output, but got: " << stderr_output;
     EXPECT_TRUE(!logFileExists() || logFileIsEmpty())
         << "Expected no log file or empty log file, but file contains data";
   }
@@ -141,8 +139,9 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_Unimplemented) {
   try {
     policy.handleException(sc_unimplemented);
   } catch (const PeakExceptions::UnimplementedException &unex) {
-    EXPECT_STREQ(unex.what(), "Unimplemented feature: Method is not "
-                              "implemented, there has been an error.");
+    EXPECT_STREQ(unex.what(),
+                 "Unimplemented feature: Method is not "
+                 "implemented, there has been an error.");
   }
   policy.log(LogLevel::WARNING, "Unimplemented log message");
   verifyCompletelySilent();
@@ -213,8 +212,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_RepeatedException) {
 
 // 12. EdgeNotFound with custom message
 TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFoundWithCustomMessage) {
-  PeakStatus sc_custom_edgeNotFound =
-      PeakStatus::EdgeNotFound("Custom edge not found message");
+  PeakStatus sc_custom_edgeNotFound = PeakStatus::EdgeNotFound("Custom edge not found message");
   testing::internal::CaptureStdout();
   testing::internal::CaptureStderr();
   try {

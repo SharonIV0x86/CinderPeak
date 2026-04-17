@@ -4,7 +4,7 @@
 using namespace CinderPeak;
 
 class CinderGraphFunctionalTest : public ::testing::Test {
-protected:
+ protected:
   DummyGraph builder;
 };
 
@@ -24,7 +24,7 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgePrimitive) {
   EXPECT_TRUE(status1);
   EXPECT_EQ(new_weight, 50);
 
-  EXPECT_FALSE(intGraph.updateEdge(2, 3, 100).second); // edge doesn't exist
+  EXPECT_FALSE(intGraph.updateEdge(2, 3, 100).second);  // edge doesn't exist
 }
 
 TEST_F(CinderGraphFunctionalTest, UpdateEdgeString) {
@@ -43,8 +43,7 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgeString) {
   EXPECT_TRUE(status1);
   EXPECT_EQ(new_weight, 84);
 
-  EXPECT_FALSE(
-      stringGraph.updateEdge("B", "C", 100).second); // edge doesn't exist
+  EXPECT_FALSE(stringGraph.updateEdge("B", "C", 100).second);  // edge doesn't exist
 }
 
 TEST_F(CinderGraphFunctionalTest, UpdateCustomEdge) {
@@ -66,5 +65,5 @@ TEST_F(CinderGraphFunctionalTest, UpdateCustomEdge) {
   EXPECT_TRUE(status1);
   EXPECT_EQ(new_weight.edge_weight, 7.0f);
 
-  EXPECT_FALSE(customGraph.updateEdge(v2, v1, e1).second); // edge doesn't exist
+  EXPECT_FALSE(customGraph.updateEdge(v2, v1, e1).second);  // edge doesn't exist
 }

@@ -18,7 +18,7 @@ TEST_F(AdjacencyStorageShardTest, AddEdgeWithoutWeight) {
 
   auto edge = intGraph.impl_getEdge(1, 2);
   EXPECT_TRUE(edge.second.isOK());
-  EXPECT_EQ(edge.first, 0); // Default int
+  EXPECT_EQ(edge.first, 0);  // Default int
 }
 
 TEST_F(AdjacencyStorageShardTest, AddEdgeInvalidVertices) {

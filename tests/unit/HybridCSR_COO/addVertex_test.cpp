@@ -1,13 +1,15 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
+
 #include <random>
 #include <set>
 #include <thread>
 
+#include "StorageEngine/HybridCSR_COO.hpp"
+
 using namespace CinderPeak::PeakStore;
 
 class HybridStorageShardTest : public ::testing::Test {
-protected:
+ protected:
   void SetUp() override {
     graph = std::make_unique<HybridCSR_COO<int, int>>();
     string_graph = std::make_unique<HybridCSR_COO<std::string, double>>();
@@ -49,10 +51,8 @@ TEST_F(HybridStorageShardTest, AddVertex_Sequential) {
 TEST_F(HybridStorageShardTest, AddVertex_LargeIDs) {
   int large_id1 = 1000000;
   int large_id2 = 2000000;
-  EXPECT_TRUE(graph->impl_addVertex(large_id1).isOK())
-      << "Failed to add large vertex ID";
-  EXPECT_TRUE(graph->impl_addVertex(large_id2).isOK())
-      << "Failed to add large vertex ID";
+  EXPECT_TRUE(graph->impl_addVertex(large_id1).isOK()) << "Failed to add large vertex ID";
+  EXPECT_TRUE(graph->impl_addVertex(large_id2).isOK()) << "Failed to add large vertex ID";
   EXPECT_TRUE(graph->impl_hasVertex(large_id1)) << "Large vertex ID not found";
   EXPECT_TRUE(graph->impl_hasVertex(large_id2)) << "Large vertex ID not found";
 }
@@ -71,18 +71,12 @@ TEST_F(HybridStorageShardTest, AddVertex_ManyVertices) {
 
 // Test adding string vertices
 TEST_F(HybridStorageShardTest, AddVertex_String) {
-  EXPECT_TRUE(string_graph->impl_addVertex("prasad").isOK())
-      << "Failed to add string vertex";
-  EXPECT_TRUE(string_graph->impl_addVertex("omkar").isOK())
-      << "Failed to add string vertex";
-  EXPECT_TRUE(string_graph->impl_addVertex("tejas").isOK())
-      << "Failed to add string vertex";
-  EXPECT_TRUE(string_graph->impl_hasVertex("prasad"))
-      << "String vertex not found";
-  EXPECT_TRUE(string_graph->impl_hasVertex("omkar"))
-      << "String vertex not found";
-  EXPECT_TRUE(string_graph->impl_hasVertex("tejas"))
-      << "String vertex not found";
+  EXPECT_TRUE(string_graph->impl_addVertex("prasad").isOK()) << "Failed to add string vertex";
+  EXPECT_TRUE(string_graph->impl_addVertex("omkar").isOK()) << "Failed to add string vertex";
+  EXPECT_TRUE(string_graph->impl_addVertex("tejas").isOK()) << "Failed to add string vertex";
+  EXPECT_TRUE(string_graph->impl_hasVertex("prasad")) << "String vertex not found";
+  EXPECT_TRUE(string_graph->impl_hasVertex("omkar")) << "String vertex not found";
+  EXPECT_TRUE(string_graph->impl_hasVertex("tejas")) << "String vertex not found";
 }
 
 // Test concurrent vertex addition (thread-safety)
@@ -99,8 +93,7 @@ TEST_F(HybridStorageShardTest, AddVertex_Concurrent) {
     t.join();
   }
   for (int i = 0; i < NUM_THREADS; ++i) {
-    EXPECT_TRUE(graph->impl_hasVertex(i))
-        << "Concurrent vertex " << i << " not found";
+    EXPECT_TRUE(graph->impl_hasVertex(i)) << "Concurrent vertex " << i << " not found";
   }
 }
 

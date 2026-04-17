@@ -1,8 +1,7 @@
 #include "AdjacencyListTestBase.hpp"
 
 TEST_F(AdjacencyStorageShardTest, AddEdgesPairs) {
-  std::vector<std::pair<int, int>> edges = {
-      {1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}};
+  std::vector<std::pair<int, int>> edges = {{1, 2}, {2, 3}, {3, 4}, {4, 5}, {1, 5}};
 
   auto status = intGraph.impl_addEdges(edges);
   EXPECT_TRUE(status.isOK());
@@ -15,8 +14,7 @@ TEST_F(AdjacencyStorageShardTest, AddEdgesPairs) {
 }
 
 TEST_F(AdjacencyStorageShardTest, AddEdgesTuples) {
-  std::vector<std::tuple<int, int, int>> edges = {
-      {1, 2, 10}, {2, 3, 20}, {3, 4, 30}, {4, 5, 40}};
+  std::vector<std::tuple<int, int, int>> edges = {{1, 2, 10}, {2, 3, 20}, {3, 4, 30}, {4, 5, 40}};
 
   auto status = intGraph.impl_addEdges(edges);
   EXPECT_TRUE(status.isOK());
@@ -28,8 +26,7 @@ TEST_F(AdjacencyStorageShardTest, AddEdgesTuples) {
 }
 
 TEST_F(AdjacencyStorageShardTest, AddEdgesInvalidVertices) {
-  std::vector<std::pair<int, int>> edgesWithInvalid = {
-      {1, 2}, {99, 3}, {4, 5}, {1, 100}};
+  std::vector<std::pair<int, int>> edgesWithInvalid = {{1, 2}, {99, 3}, {4, 5}, {1, 100}};
 
   auto status = intGraph.impl_addEdges(edgesWithInvalid);
   EXPECT_FALSE(status.isOK());
