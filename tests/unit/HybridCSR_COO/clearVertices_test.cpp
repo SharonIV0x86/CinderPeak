@@ -35,13 +35,13 @@ TEST_F(HybridStorageShardTest, ClearVerticesPrimitive) {
 
 TEST_F(HybridStorageShardTest, ClearVerticesString) {
   std::vector<std::string> vertices = {"A", "B", "C", "D", "E"};
-  for (const std::string &v : vertices) {
+  for (const std::string& v : vertices) {
     EXPECT_TRUE(string_graph->impl_addVertex(v).isOK());
   }
 
   EXPECT_TRUE(string_graph->impl_clearVertices().isOK());
 
-  for (const std::string &v : vertices) {
+  for (const std::string& v : vertices) {
     EXPECT_FALSE(string_graph->impl_hasVertex(v));
   }
 }

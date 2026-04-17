@@ -106,7 +106,7 @@ TEST_F(HybridStorageOrchestratorTest, ConcurrentMergeAndAdd) {
     });
   }
 
-  for (auto &t : writers) {
+  for (auto& t : writers) {
     t.join();
   }
   done.store(true);

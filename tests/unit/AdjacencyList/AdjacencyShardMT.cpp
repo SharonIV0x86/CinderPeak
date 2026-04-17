@@ -63,7 +63,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentVertexAddition) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -113,7 +113,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentVertexRemoval) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -127,7 +127,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentVertexRemoval) {
   for (int i = 1; i <= 10000; ++i) {
     auto neighbors = threadGraph.impl_getNeighbors(i);
     if (neighbors.second.isOK()) {
-      for (const auto &[neighbor, weight] : neighbors.first) {
+      for (const auto& [neighbor, weight] : neighbors.first) {
         EXPECT_FALSE(neighbor >= 50001 && neighbor <= 60000);
       }
     }
@@ -158,7 +158,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentEdgeAddition) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -218,7 +218,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentReadWriteOperations) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -257,7 +257,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentBulkOperations) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -302,7 +302,7 @@ TEST_F(AdjacencyStorageTestMT, ConcurrentMixedOperationsDeadlock) {
       completed_threads++;
     });
   }
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
   watchdog.join();
@@ -364,7 +364,7 @@ TEST_F(AdjacencyStorageTestMT, HighReadWriteContention) {
   std::this_thread::sleep_for(std::chrono::seconds(2));
   stop = true;
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
   EXPECT_TRUE(true);
@@ -378,7 +378,7 @@ TEST_F(AdjacencyStorageTestMT, PotentialReentrancyDeadlock) {
   std::thread t([&]() {
     auto neighbors = intGraph.impl_getNeighbors(100);
     if (neighbors.second.isOK()) {
-      for (const auto &[vertex, weight] : neighbors.first) {
+      for (const auto& [vertex, weight] : neighbors.first) {
         bool exists = callback(100, vertex);
         EXPECT_TRUE(exists);
       }

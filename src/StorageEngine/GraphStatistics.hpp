@@ -35,7 +35,7 @@ class GraphInternalMetadata {
   mutable std::shared_mutex _mtx;
 
  public:
-  GraphInternalMetadata(const std::string &graphType, bool vertex_tp_p, bool edge_tp_p, bool weighted, bool unweighted)
+  GraphInternalMetadata(const std::string& graphType, bool vertex_tp_p, bool edge_tp_p, bool weighted, bool unweighted)
       : graph_type(graphType), is_vertex_type_primitive(vertex_tp_p), is_edge_type_primitive(edge_tp_p) {
     num_vertices = 0;
     num_edges = 0;
@@ -47,7 +47,7 @@ class GraphInternalMetadata {
   }
 
   // Custom copy constructor that doesn't copy the mutex
-  GraphInternalMetadata(const GraphInternalMetadata &metadata) : graph_type(metadata.graph_type) {
+  GraphInternalMetadata(const GraphInternalMetadata& metadata) : graph_type(metadata.graph_type) {
     std::shared_lock<std::shared_mutex> lock(metadata._mtx);
     num_vertices = metadata.num_vertices;
     num_edges = metadata.num_edges;
@@ -61,7 +61,7 @@ class GraphInternalMetadata {
   }
 
   // Custom copy assignment operator
-  GraphInternalMetadata &operator=(const GraphInternalMetadata &metadata) {
+  GraphInternalMetadata& operator=(const GraphInternalMetadata& metadata) {
     if (this != &metadata) {
       std::shared_lock<std::shared_mutex> metadata_lock(metadata._mtx);
       std::unique_lock<std::shared_mutex> this_lock(_mtx);
@@ -78,8 +78,8 @@ class GraphInternalMetadata {
     return *this;
   }
 
-  GraphInternalMetadata(GraphInternalMetadata &&) = delete;
-  GraphInternalMetadata &operator=(GraphInternalMetadata &&) = delete;
+  GraphInternalMetadata(GraphInternalMetadata&&) = delete;
+  GraphInternalMetadata& operator=(GraphInternalMetadata&&) = delete;
 
   bool isGraphWeighted() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
@@ -103,7 +103,7 @@ class GraphInternalMetadata {
     return graph_type;
   }
 
-  void updateEdgeCount(const UpdateOp &opt) {
+  void updateEdgeCount(const UpdateOp& opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if (opt == UpdateOp::Add)
@@ -114,7 +114,7 @@ class GraphInternalMetadata {
       num_edges = 0;
   }
 
-  void updateVertexCount(const UpdateOp &opt) {
+  void updateVertexCount(const UpdateOp& opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if (opt == UpdateOp::Add)
@@ -125,7 +125,7 @@ class GraphInternalMetadata {
       num_vertices = 0;
   }
 
-  void updateParallelEdgeCount(const UpdateOp &opt) {
+  void updateParallelEdgeCount(const UpdateOp& opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if (opt == UpdateOp::Add)
@@ -136,7 +136,7 @@ class GraphInternalMetadata {
       num_parallel_edges = 0;
   }
 
-  void updateSelfLoopCount(const UpdateOp &opt) {
+  void updateSelfLoopCount(const UpdateOp& opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     if (opt == UpdateOp::Add)

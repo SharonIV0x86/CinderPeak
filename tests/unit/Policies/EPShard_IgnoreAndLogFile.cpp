@@ -39,7 +39,7 @@ class IngoreAndLogFilePolicyTest : public ::testing::Test {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
-  void writeAllLogLevels(const std::string &msg) {
+  void writeAllLogLevels(const std::string& msg) {
     policy.log(LogLevel::TRACE, msg);
     policy.log(LogLevel::DEBUG, msg);
     policy.log(LogLevel::INFO, msg);
@@ -58,7 +58,7 @@ class IngoreAndLogFilePolicyTest : public ::testing::Test {
     return ss.str();
   }
 
-  void verifyLogFormat(const std::string &expectedMessage) {
+  void verifyLogFormat(const std::string& expectedMessage) {
     std::string content = readLogContent();
     ASSERT_FALSE(content.empty()) << "Log file is empty or not present at: " << kTestLogPath;
 
@@ -83,7 +83,7 @@ class IngoreAndLogFilePolicyTest : public ::testing::Test {
     }
 
     const std::vector<std::string> expectedLevels = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"};
-    for (auto &lvl : expectedLevels) {
+    for (auto& lvl : expectedLevels) {
       EXPECT_TRUE(foundLevels.count(lvl))
           << "Missing log entry for level: " << lvl << " with message: " << expectedMessage << "\nFull log content:\n"
           << content;

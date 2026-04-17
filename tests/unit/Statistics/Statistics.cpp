@@ -26,13 +26,13 @@ class GraphStatisticsTest : public ::testing::Test {
     std::cerr.rdbuf(original_cerr);
   }
 
-  void displayStats(const std::string &title, const std::string &stats) {
+  void displayStats(const std::string& title, const std::string& stats) {
     std::cout.rdbuf(original_cout);
     std::cout << "\n" << title << "\n" << std::string(40, '=') << "\n" << stats << std::endl;
     std::cout.rdbuf(null_stream.rdbuf());
   }
 
-  int extractValue(const std::string &stats, const std::string &label) {
+  int extractValue(const std::string& stats, const std::string& label) {
     size_t pos = stats.find(label);
     if (pos == std::string::npos) return -1;
     pos += label.length();
@@ -46,8 +46,8 @@ class GraphStatisticsTest : public ::testing::Test {
   }
 
   std::stringstream null_stream;
-  std::streambuf *original_cout;
-  std::streambuf *original_cerr;
+  std::streambuf* original_cout;
+  std::streambuf* original_cerr;
 };
 
 TEST_F(GraphStatisticsTest, LargeDenseGraph) {

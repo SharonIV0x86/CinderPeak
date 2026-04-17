@@ -29,13 +29,13 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
   mutable std::shared_mutex _mtx;
   const PolicyHandler pHandler;
 
-  std::optional<CinderPeak::VertexId> lookupVertexId_nolock(const VertexType &v) const {
+  std::optional<CinderPeak::VertexId> lookupVertexId_nolock(const VertexType& v) const {
     auto it = _vertex_lookup.find(v);
     if (it == _vertex_lookup.end()) return std::nullopt;
     return it->second;
   }
 
-  std::optional<CinderPeak::VertexId> ensureVertexExists_nolock(const VertexType &v, PeakStatus &out_status) const {
+  std::optional<CinderPeak::VertexId> ensureVertexExists_nolock(const VertexType& v, PeakStatus& out_status) const {
     auto id_opt = lookupVertexId_nolock(v);
     if (!id_opt) {
       out_status = PeakStatus::VertexNotFound();
@@ -46,13 +46,13 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
   }
 
  public:
-  AdjacencyList(const PolicyHandler &handler) : pHandler(handler) {
+  AdjacencyList(const PolicyHandler& handler) : pHandler(handler) {
     _adj.reserve(1024);
     _vertex_data.reserve(1024);
     _vertex_lookup.reserve(1024);
   }
 
-  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &v) override {
+  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType& v) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_addVertex");
     VertexId assignedId = 0;
     {
@@ -84,12 +84,12 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const PeakStatus impl_addVertices(const std::vector<VertexType> &vertices) {
+  [[nodiscard]] const PeakStatus impl_addVertices(const std::vector<VertexType>& vertices) {
     pHandler.log(LogLevel::DEBUG, "Executing impl_addVertices");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     PeakStatus final_status = PeakStatus::OK();
 
-    for (const auto &v : vertices) {
+    for (const auto& v : vertices) {
       if (_vertex_lookup.find(v) != _vertex_lookup.end()) {
         final_status = PeakStatus::VertexAlreadyExists();
         pHandler.log(LogLevel::WARNING, "Vertex already Exist.");
@@ -105,8 +105,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return final_status;
   }
 
-  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                              const EdgeType &weight = EdgeType()) override {
+  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType& src, const VertexType& dest,
+                                              const EdgeType& weight = EdgeType()) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_addEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -125,7 +125,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     VertexId destId = destIt->second;
 
     // Append neighbor; duplicate edges allowed only if policy allows.
-    auto &neighbors = _adj[srcId];
+    auto& neighbors = _adj[srcId];
     neighbors.emplace_back(destId, weight);
 
     pHandler.log(LogLevel::INFO, "Edge successfully added between vertices.");
@@ -134,7 +134,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
   }
 
   template <typename EdgeContainer>
-  [[nodiscard]] const PeakStatus impl_addEdges(const EdgeContainer &edges) {
+  [[nodiscard]] const PeakStatus impl_addEdges(const EdgeContainer& edges) {
     pHandler.log(LogLevel::DEBUG, "Executing impl_addEdges");
     std::vector<std::string> warnings;
     PeakStatus overall = PeakStatus::OK();
@@ -142,7 +142,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
 
-      for (const auto &edge : edges) {
+      for (const auto& edge : edges) {
         VertexType src;
         VertexType dest;
         EdgeType weight = EdgeType();
@@ -184,8 +184,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return overall;
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_removeEdge(const VertexType &src,
-                                                                      const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_removeEdge(const VertexType& src,
+                                                                      const VertexType& dest) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_removeEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     EdgeType retWeight = EdgeType();
@@ -198,8 +198,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    auto &neighbors = _adj[srcId];
-    auto it = std::find_if(neighbors.begin(), neighbors.end(), [&](const auto &p) { return p.first == destId; });
+    auto& neighbors = _adj[srcId];
+    auto it = std::find_if(neighbors.begin(), neighbors.end(), [&](const auto& p) { return p.first == destId; });
 
     if (it == neighbors.end()) {
       pHandler.log(LogLevel::WARNING, "Edge not found.");
@@ -213,8 +213,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return std::make_pair(retWeight, PeakStatus::OK());
   }
 
-  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
-                                                 const EdgeType &newWeight) override {
+  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType& src, const VertexType& dest,
+                                                 const EdgeType& newWeight) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_updateEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -232,8 +232,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    auto &neighbors = _adj[srcId];
-    for (auto &p : neighbors) {
+    auto& neighbors = _adj[srcId];
+    for (auto& p : neighbors) {
       if (p.first == destId) {
         p.second = newWeight;
         return PeakStatus::OK();
@@ -243,7 +243,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return PeakStatus::EdgeNotFound();
   }
 
-  [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
+  [[nodiscard]] bool impl_hasVertex(const VertexType& v) noexcept override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_hasVertex");
     std::shared_lock<std::shared_mutex> lock(_mtx);
     pHandler.log(LogLevel::INFO, "Vertex lookup.");
@@ -251,7 +251,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return _vertex_lookup.find(v) != _vertex_lookup.end();
   }
 
-  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest) noexcept override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
@@ -263,16 +263,16 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    const auto &neighbors = _adj.at(srcId);
-    for (const auto &p : neighbors) {
+    const auto& neighbors = _adj.at(srcId);
+    for (const auto& p : neighbors) {
       if (p.first == destId) return true;
     }
     pHandler.log(LogLevel::INFO, "Edge found.");
     return false;
   }
 
-  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                                        const EdgeType &weight) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest,
+                                        const EdgeType& weight) noexcept override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
@@ -284,8 +284,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    const auto &neighbors = _adj.at(srcId);
-    for (const auto &p : neighbors) {
+    const auto& neighbors = _adj.at(srcId);
+    for (const auto& p : neighbors) {
       if (p.first == destId && p.second == weight) {
         pHandler.log(LogLevel::INFO, "Edge not exist.");
         return true;
@@ -296,8 +296,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return false;
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType &src,
-                                                                   const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType& src,
+                                                                   const VertexType& dest) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_getEdge");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
@@ -309,8 +309,8 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    const auto &neighbors = _adj.at(srcId);
-    for (const auto &p : neighbors) {
+    const auto& neighbors = _adj.at(srcId);
+    for (const auto& p : neighbors) {
       if (p.first == destId) return std::make_pair(p.second, PeakStatus::OK());
     }
     pHandler.log(LogLevel::INFO, "Edge not found");
@@ -318,7 +318,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
   }
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> impl_getNeighbors(
-      const VertexType &vertex) const {
+      const VertexType& vertex) const {
     pHandler.log(LogLevel::DEBUG, "Executing impl_getNeighbors");
     // data copied under lock
     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
@@ -333,13 +333,13 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
       }
 
       VertexId id = it->second;
-      const auto &neighbors = _adj.at(id);
+      const auto& neighbors = _adj.at(id);
 
       // copy neighbor list
       neighbor_ids = neighbors;
 
       // copy relevant vertex data for neighbors
-      for (const auto &p : neighbor_ids) {
+      for (const auto& p : neighbor_ids) {
         auto vdataIt = _vertex_data.find(p.first);
         if (vdataIt != _vertex_data.end()) {
           vertex_data_snapshot.try_emplace(vdataIt->first, vdataIt->second);
@@ -350,7 +350,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     // build result outside of lock
     std::vector<std::pair<VertexType, EdgeType>> result;
     result.reserve(neighbor_ids.size());
-    for (const auto &p : neighbor_ids) {
+    for (const auto& p : neighbor_ids) {
       auto vdataIt = vertex_data_snapshot.find(p.first);
       if (vdataIt != vertex_data_snapshot.end()) {
         result.emplace_back(vdataIt->second, p.second);
@@ -360,7 +360,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return std::make_pair(result, PeakStatus::OK());
   }
 
-  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType &v) override {
+  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType& v) override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_removeVertex");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -371,10 +371,10 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
 
     _adj.erase(id);
 
-    for (auto &pair : _adj) {
-      auto &neighbors = pair.second;
+    for (auto& pair : _adj) {
+      auto& neighbors = pair.second;
       neighbors.erase(std::remove_if(neighbors.begin(), neighbors.end(),
-                                     [&](const std::pair<VertexId, EdgeType> &edge) { return edge.first == id; }),
+                                     [&](const std::pair<VertexId, EdgeType>& edge) { return edge.first == id; }),
                       neighbors.end());
     }
 
@@ -400,7 +400,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
   [[nodiscard]] const PeakStatus impl_clearEdges() override {
     pHandler.log(LogLevel::DEBUG, "Executing impl_clearEdges");
     std::unique_lock<std::shared_mutex> lock(_mtx);
-    for (auto &pair : _adj) {
+    for (auto& pair : _adj) {
       pair.second.clear();
     }
     pHandler.log(LogLevel::INFO, "cleared all Edges from Graph.");
@@ -419,7 +419,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
 
     {
       std::shared_lock<std::shared_mutex> lock(_mtx);
-      for (const auto &kv : _adj) {
+      for (const auto& kv : _adj) {
         VertexId id = kv.first;
         auto vdIt = _vertex_data.find(id);
         if (vdIt == _vertex_data.end()) continue;
@@ -434,16 +434,16 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     }
 
     // perform all I/O outside of lock
-    for (const auto &vertex_info : vertices_to_print) {
+    for (const auto& vertex_info : vertices_to_print) {
       std::cout << "Vertex (id=" << vertex_info.id << "): " << "\n";
-      for (const auto &neighbor_pair : vertex_info.neighbor_ids) {
+      for (const auto& neighbor_pair : vertex_info.neighbor_ids) {
         VertexId nbId = neighbor_pair.first;
         std::cout << "  Neighbor id=" << nbId << "\n";
       }
     }
   }
 
-  const std::unordered_map<CinderPeak::VertexId, std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
+  const std::unordered_map<CinderPeak::VertexId, std::vector<std::pair<CinderPeak::VertexId, EdgeType>>>&
   getInternalAdjacency() const {
     pHandler.log(LogLevel::DEBUG, "Executing getInternalAdjacency");
     return _adj;
@@ -464,9 +464,9 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     ss << "  edge[fontname=\"Arial\" fontsize=10];\n\n";
 
     // declare all nodes first (ensures isolated nodes appear)
-    for (const auto &kv : _vertex_data) {
+    for (const auto& kv : _vertex_data) {
       VertexId id = kv.first;
-      const VertexType &v = kv.second;
+      const VertexType& v = kv.second;
 
       ss << "  node_" << id << " [label=\"";
       ss << v;
@@ -475,13 +475,13 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
 
     // draw Edges
     std::string connector = isDirected ? "->" : "--";
-    for (const auto &kv : _adj) {
+    for (const auto& kv : _adj) {
       VertexId srcId = kv.first;
-      const auto &neighbors = kv.second;
+      const auto& neighbors = kv.second;
 
-      for (const auto &edge : neighbors) {
+      for (const auto& edge : neighbors) {
         VertexId destId = edge.first;
-        const EdgeType &weight = edge.second;
+        const EdgeType& weight = edge.second;
 
         ss << "  node_" << srcId << " " << connector << " node_" << destId;
 
@@ -495,7 +495,7 @@ class AdjacencyList : public CinderPeak::PeakStorageInterface<VertexType, EdgeTy
     return ss.str();
   }
 
-  const std::unordered_map<CinderPeak::VertexId, VertexType> &getVertexDataMap() const {
+  const std::unordered_map<CinderPeak::VertexId, VertexType>& getVertexDataMap() const {
     pHandler.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
   }

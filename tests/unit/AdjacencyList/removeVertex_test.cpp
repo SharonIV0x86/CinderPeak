@@ -15,13 +15,13 @@ TEST_F(AdjacencyStorageShardTest, RemoveExistingVertex) {
 
   auto neighbors3 = intGraph.impl_getNeighbors(3);
   EXPECT_TRUE(neighbors3.second.isOK());
-  for (auto &edge : neighbors3.first) {
+  for (auto& edge : neighbors3.first) {
     EXPECT_NE(edge.first, 1);
   }
 
   auto neighbors2 = intGraph.impl_getNeighbors(2);
   EXPECT_TRUE(neighbors2.second.isOK());
-  for (auto &edge : neighbors2.first) {
+  for (auto& edge : neighbors2.first) {
     EXPECT_NE(edge.first, 1);
   }
 }
@@ -44,7 +44,7 @@ TEST_F(AdjacencyStorageShardTest, RemoveVertexFromStringGraph) {
 
   auto neighborsB = stringGraph.impl_getNeighbors("B");
   EXPECT_TRUE(neighborsB.second.isOK());
-  for (auto &edge : neighborsB.first) {
+  for (auto& edge : neighborsB.first) {
     EXPECT_NE(edge.first, "A");
   }
 }

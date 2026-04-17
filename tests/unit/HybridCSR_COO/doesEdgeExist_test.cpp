@@ -61,7 +61,7 @@ TEST_F(HybridStorageShardTest, DoesEdgeExist_Concurrent) {
   for (int i = 0; i < NUM_THREADS; ++i) {
     threads.emplace_back([this]() { EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2)) << "Concurrent edge check failed"; });
   }
-  for (auto &t : threads) {
+  for (auto& t : threads) {
     t.join();
   }
 }

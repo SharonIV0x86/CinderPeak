@@ -37,7 +37,7 @@ int main() {
     CinderGraph<string, double> g2;
 
     vector<string> cities = {"New York", "Los Angeles", "Chicago", "Houston", "Phoenix"};
-    for (const auto &city : cities) {
+    for (const auto& city : cities) {
       g2.addVertex(city);
     }
 
@@ -53,7 +53,7 @@ int main() {
     }
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }

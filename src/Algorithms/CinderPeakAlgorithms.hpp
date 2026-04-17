@@ -14,9 +14,9 @@ template <typename VertexType, typename EdgeType>
 class CinderPeakAlgorithms {
  public:
   std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> hcsr = nullptr;
-  CinderPeakAlgorithms(const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> &hybridcsr)
+  CinderPeakAlgorithms(const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>>& hybridcsr)
       : hcsr(hybridcsr) {}
-  BFSResult<VertexType> bfs([[maybe_unused]] const VertexType &src) {
+  BFSResult<VertexType> bfs([[maybe_unused]] const VertexType& src) {
     std::cout << "Algorithms::bfs called\n";
 
     BFSResult<VertexType> result;

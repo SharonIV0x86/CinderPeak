@@ -50,7 +50,7 @@ int main() {
     cout << "After removal: " << g2.numVertices() << " vertices, " << g2.numEdges() << " edges" << endl;
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }

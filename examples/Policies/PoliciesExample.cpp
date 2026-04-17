@@ -8,7 +8,7 @@
 
 using namespace CinderPeak;
 
-static void printHeader(const std::string &title) { std::cout << "---- " << title << " ----\n"; }
+static void printHeader(const std::string& title) { std::cout << "---- " << title << " ----\n"; }
 
 int main() {
   // Prepare two sample statuses (we will only use them in a few scenarios)
@@ -25,7 +25,7 @@ int main() {
     try {
       handler.handleException(alreadyExists);  // expected: throw
       std::cout << "handleException returned (unexpected for Throw)\n";
-    } catch (const std::exception &ex) {
+    } catch (const std::exception& ex) {
       std::cout << "Caught (expected) exception: " << ex.what() << '\n';
     }
     Logger::shutdown();
@@ -54,7 +54,7 @@ int main() {
     try {
       handler.handleException(vertexMissing);  // expected: throw
       std::cout << "handleException returned (unexpected for Throw)\n";
-    } catch (const std::exception &ex) {
+    } catch (const std::exception& ex) {
       std::cout << "Caught (expected) exception: " << ex.what() << '\n';
     }
     Logger::shutdown();
@@ -85,7 +85,7 @@ int main() {
     try {
       handler.handleException(alreadyExists);  // expected: no throw
       std::cout << "handleException returned normally (expected for Ignore)\n";
-    } catch (const std::exception &ex) {
+    } catch (const std::exception& ex) {
       std::cout << "Caught unexpected exception: " << ex.what() << '\n';
     }
     Logger::shutdown();

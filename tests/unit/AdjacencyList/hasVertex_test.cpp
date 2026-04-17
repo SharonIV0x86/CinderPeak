@@ -134,7 +134,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentReads) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -167,7 +167,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentAddAndRead) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -201,7 +201,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -245,7 +245,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentMix) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -287,7 +287,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -327,7 +327,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_RaceConditionDetection) {
     });
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 

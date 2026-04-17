@@ -111,7 +111,7 @@ TEST_F(HybridStorageShardTestMT, StressTestMultipleThreads) {
 
   std::vector<std::thread> threads;
   for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(worker, i);
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   auto [w, status] = graph->impl_getEdge(1, 2);
   if (status.isOK()) SUCCEED() << "Edge found after stress test.";
@@ -157,7 +157,7 @@ TEST_F(HybridStorageShardTestMT, PerformanceRegression) {
   for (int i = 0; i < 2000; ++i) graph->impl_addVertex(i);
 
   auto edges = generateTestEdges(2000, 5000);
-  for (auto &[src, dst, w] : edges) graph->impl_addEdge(src, dst, w);
+  for (auto& [src, dst, w] : edges) graph->impl_addEdge(src, dst, w);
 
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < 10000; ++i) {
@@ -222,7 +222,7 @@ TEST_F(HybridStorageShardTestMT, ConcurrentVertexAdditionAndRemoval) {
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   stop_flag.store(true);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   SUCCEED() << "Concurrent vertex addition and removal completed without crashing";
 }
@@ -261,7 +261,7 @@ TEST_F(HybridStorageShardTestMT, EdgeUpdateRaceConditions) {
 
   for (int i = 0; i < 2; ++i) threads.emplace_back(reader);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   auto [final_weight, final_status] = graph->impl_getEdge(0, 1);
   EXPECT_TRUE(final_status.isOK());
@@ -319,7 +319,7 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
   std::vector<std::thread> threads;
   for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(mixed_worker, i);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   EXPECT_GE(operations_count.load(), NUM_THREADS * NUM_OPERATIONS);
   SUCCEED() << "Mixed operations stress test completed without crashes";
@@ -373,7 +373,7 @@ TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   stop_flag.store(true);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   SUCCEED() << "Concurrent access during structure building completed without "
                "crashes";
@@ -416,7 +416,7 @@ TEST_F(HybridStorageShardTestMT, ClearEdgesUnderLoad) {
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   stop_flag.store(true);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   SUCCEED() << "Clear edges under load test completed without crashes";
 }
@@ -476,7 +476,7 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
   std::vector<std::thread> threads;
   for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(worker, i);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   EXPECT_GE(operations_count.load(), NUM_THREADS * NUM_OPERATIONS);
   SUCCEED() << "String type concurrency test completed without crashes";
@@ -518,7 +518,7 @@ TEST_F(HybridStorageShardTestMT, MemoryConsistencyAfterConcurrentOperations) {
   std::vector<std::thread> threads;
   for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(worker, i);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   for (int i = 0; i < NUM_VERTICES; ++i) {
     bool exists = graph->impl_hasVertex(i);
@@ -569,7 +569,7 @@ TEST_F(HybridStorageShardTestMT, HighContentionOnSingleVertex) {
   std::vector<std::thread> threads;
   for (int i = 0; i < NUM_THREADS; ++i) threads.emplace_back(high_contention_worker, i);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   auto [final_weight, final_status] = graph->impl_getEdge(0, 1);
   EXPECT_TRUE(final_status.isOK());
@@ -637,7 +637,7 @@ TEST_F(HybridStorageShardTestMT, LongRunningStressTest) {
   std::this_thread::sleep_for(std::chrono::milliseconds(DURATION_MS));
   stop_flag.store(true);
 
-  for (auto &t : threads) t.join();
+  for (auto& t : threads) t.join();
 
   EXPECT_GT(operations_count.load(), 0);
   SUCCEED() << "Long running stress test completed. Operations: " << operations_count.load();

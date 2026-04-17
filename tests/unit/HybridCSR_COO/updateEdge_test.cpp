@@ -72,7 +72,7 @@ TEST_F(HybridStorageShardTest, UpdateEdge_Concurrent) {
       EXPECT_TRUE(status.isOK()) << "Thread " << i << " failed to update edge";
     });
   }
-  for (auto &t : threads) {
+  for (auto& t : threads) {
     t.join();
   }
   auto [weight, status] = graph->impl_getEdge(1, 2);

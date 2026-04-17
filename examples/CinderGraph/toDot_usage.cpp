@@ -88,7 +88,7 @@ int main() {
 
     auto bfsResult = g1.bfs(1);
     if (bfsResult.isOK()) {
-      for (const auto &v : bfsResult.order_) {
+      for (const auto& v : bfsResult.order_) {
         cout << v << "->";
       }
 
@@ -123,7 +123,7 @@ int main() {
     cout << "Exported g1 to file: " << filename << endl;
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }

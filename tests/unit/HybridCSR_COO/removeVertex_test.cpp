@@ -80,7 +80,7 @@ TEST_F(HybridStorageShardTest, RemoveVertex_Concurrent) {
     auto status = graph->impl_removeVertex(2);
     EXPECT_TRUE(status.isOK()) << "Thread failed to remove vertex 2";
   });
-  for (auto &t : threads) {
+  for (auto& t : threads) {
     t.join();
   }
   EXPECT_FALSE(graph->impl_hasVertex(1)) << "Concurrent vertex 1 still exists";

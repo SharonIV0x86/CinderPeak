@@ -6,7 +6,7 @@ TEST_F(AdjacencyStorageShardTest, AddEdgesPairs) {
   auto status = intGraph.impl_addEdges(edges);
   EXPECT_TRUE(status.isOK());
 
-  for (const auto &edge : edges) {
+  for (const auto& edge : edges) {
     auto result = intGraph.impl_getEdge(edge.first, edge.second);
     EXPECT_TRUE(result.second.isOK());
     EXPECT_EQ(result.first, 0);

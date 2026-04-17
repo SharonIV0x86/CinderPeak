@@ -41,7 +41,7 @@ int main() {
   // ====== HANDLING MISSING EDGES ======
   try {
     std::cout << "Edge D->E weight: " << g["D"]["E"] << "\n";  // Will throw
-  } catch (const std::runtime_error &e) {
+  } catch (const std::runtime_error& e) {
     std::cout << "Caught: " << e.what() << "\n";
   }
 

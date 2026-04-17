@@ -87,24 +87,28 @@ jobs:
       run: ctest --test-dir build --output-on-failure
 
   lint:
-    name: Lint & Static Analysis
+    name: Lint & Formatting
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install tools
-      run: sudo apt-get update && sudo apt-get install -y clang-format
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format-17
+        sudo ln -sf /usr/bin/clang-format-17 /usr/bin/clang-format
 
-    - name: Run clang-format (check)
+    - name: Check formatting
       run: |
         FILES=$(git ls-files '*.cpp' '*.hpp')
         if [ -z "$FILES" ]; then
           echo "No C++ source files found!"
-          exit 1
+          exit 0
         fi
-        echo "$FILES" | xargs clang-format --dry-run --Werror
 
+        echo "Running clang-format check..."
+        git ls-files '*.cpp' '*.hpp' -z | xargs -0 clang-format --dry-run --Werror
   clang-tidy-full-analysis:
     name: Clang-Tidy Full Project Analysis
     runs-on: ubuntu-latest

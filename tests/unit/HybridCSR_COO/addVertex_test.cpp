@@ -89,7 +89,7 @@ TEST_F(HybridStorageShardTest, AddVertex_Concurrent) {
       EXPECT_TRUE(status.isOK()) << "Thread " << i << " failed to add vertex";
     });
   }
-  for (auto &t : threads) {
+  for (auto& t : threads) {
     t.join();
   }
   for (int i = 0; i < NUM_THREADS; ++i) {

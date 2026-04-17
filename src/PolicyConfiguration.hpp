@@ -28,17 +28,17 @@ struct PolicyConfiguration {
   enum ErrorPolicy { Throw = 1, Ignore = 2 };
   enum LoggingPolicy { LogConsole = 1, Silent = 3, LogFile = 4, ConsoleAndFile = 5 };
 
-  PolicyConfiguration(const ErrorPolicy &errorPolicy_ = ErrorPolicy::Ignore,
-                      const LoggingPolicy &loggingPolicy_ = LoggingPolicy::Silent, const std::string &logfilePath_ = "")
+  PolicyConfiguration(const ErrorPolicy& errorPolicy_ = ErrorPolicy::Ignore,
+                      const LoggingPolicy& loggingPolicy_ = LoggingPolicy::Silent, const std::string& logfilePath_ = "")
       : errorPolicy(errorPolicy_), loggingPolicy(loggingPolicy_), logfilePath(logfilePath_) {
     if (loggingPolicy == LoggingPolicy::LogFile) {
       std::ofstream(this->logfilePath, std::ios::trunc).close();
     }
   }
 
-  const ErrorPolicy &getErrorPolicy() const { return errorPolicy; }
-  const LoggingPolicy &getLoggingPolicy() const { return loggingPolicy; }
-  const std::string &getLogFilePath() const { return logfilePath; }
+  const ErrorPolicy& getErrorPolicy() const { return errorPolicy; }
+  const LoggingPolicy& getLoggingPolicy() const { return loggingPolicy; }
+  const std::string& getLogFilePath() const { return logfilePath; }
 
  private:
   ErrorPolicy errorPolicy = ErrorPolicy::Ignore;
@@ -48,7 +48,7 @@ struct PolicyConfiguration {
 
 class PolicyHandler {
   std::shared_ptr<PolicyConfiguration> cfg;
-  const PeakExceptions::GraphException handleExceptionMap(const PeakStatus &status) {
+  const PeakExceptions::GraphException handleExceptionMap(const PeakStatus& status) {
     switch (status.code()) {
       case CinderPeak::StatusCode::NOT_FOUND:
         throw PeakExceptions::NotFoundException(status.message());
@@ -74,9 +74,9 @@ class PolicyHandler {
   }
 
  public:
-  PolicyHandler(const PolicyConfiguration &config) { this->cfg = std::make_shared<PolicyConfiguration>(config); }
+  PolicyHandler(const PolicyConfiguration& config) { this->cfg = std::make_shared<PolicyConfiguration>(config); }
   PolicyHandler() { this->cfg = std::make_shared<PolicyConfiguration>(); }
-  inline void handleException(const PeakStatus &status) {
+  inline void handleException(const PeakStatus& status) {
     if (status.isOK()) return;
     if (cfg->getErrorPolicy() == PolicyConfiguration::ErrorPolicy::Ignore) {
       return;
@@ -84,7 +84,7 @@ class PolicyHandler {
     throw handleExceptionMap(status);
   }
 
-  inline void log(const LogLevel &level, const std::string &message) const {
+  inline void log(const LogLevel& level, const std::string& message) const {
     int l = static_cast<int>(cfg->getLoggingPolicy());
     Logger::log(level, message, l, cfg->getLogFilePath());
   }

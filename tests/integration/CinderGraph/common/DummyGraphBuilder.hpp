@@ -9,14 +9,14 @@ class ListVertex : public CinderVertex {
  public:
   int data;
   ListVertex(int d = 0) : data(d) {}
-  bool operator==(const ListVertex &other) const { return data == other.data; }
+  bool operator==(const ListVertex& other) const { return data == other.data; }
 };
 
 class ListEdge : public CinderEdge {
  public:
   float edge_weight;
   ListEdge(float w = 0.0f) : edge_weight(w) {}
-  bool operator==(const ListEdge &other) const { return edge_weight == other.edge_weight; }
+  bool operator==(const ListEdge& other) const { return edge_weight == other.edge_weight; }
 };
 
 class DummyGraph {

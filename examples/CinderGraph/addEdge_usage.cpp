@@ -67,7 +67,7 @@ int main() {
     cout << "Added city distance edges, total: " << g5.numEdges() << endl;
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }

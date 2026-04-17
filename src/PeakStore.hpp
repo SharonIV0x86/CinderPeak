@@ -24,8 +24,8 @@ template <typename VertexType, typename EdgeType>
 class PeakStore {
  private:
   std::shared_ptr<GraphContext<VertexType, EdgeType>> ctx = nullptr;
-  void initializeContext(const GraphInternalMetadata &metadata, const GraphCreationOptions &options,
-                         const PolicyConfiguration &cfg) {
+  void initializeContext(const GraphInternalMetadata& metadata, const GraphCreationOptions& options,
+                         const PolicyConfiguration& cfg) {
     ctx->metadata = std::make_shared<GraphInternalMetadata>(metadata);
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
     ctx->hybrid_storage = std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
@@ -38,16 +38,16 @@ class PeakStore {
   }
 
  public:
-  PeakStore(const GraphInternalMetadata &metadata,
-            const GraphCreationOptions &options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
-            const PolicyConfiguration &cfg = PolicyConfiguration())
+  PeakStore(const GraphInternalMetadata& metadata,
+            const GraphCreationOptions& options = CinderPeak::GraphCreationOptions::getDefaultCreateOptions(),
+            const PolicyConfiguration& cfg = PolicyConfiguration())
       : ctx(std::make_shared<GraphContext<VertexType, EdgeType>>()) {
     initializeContext(metadata, options, cfg);
     ctx->log(LogLevel::INFO, "Successfully initialized context object.");
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 1\n");
   }
 
-  Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+  Algorithms::BFSResult<VertexType> bfs(const VertexType& src) {
     Algorithms::BFSResult<VertexType> result;
     if (!hasVertex(src)) {
       result._status = PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
@@ -57,7 +57,7 @@ class PeakStore {
     return result;
   }
 
-  PeakStatus addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight = EdgeType()) {
+  PeakStatus addEdge(const VertexType& src, const VertexType& dest, const EdgeType& weight = EdgeType()) {
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 2\n");
 
     bool isWeighted = ctx->metadata->isGraphWeighted();
@@ -98,14 +98,14 @@ class PeakStore {
     return status;
   }
 
-  std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src, const VertexType &dest) {
+  std::pair<EdgeType, PeakStatus> removeEdge(const VertexType& src, const VertexType& dest) {
     ctx->log(LogLevel::INFO, "Called adjacency:removeEdge()");
     auto result = ctx->active_storage->impl_removeEdge(src, dest);
     if (result.second.isOK()) ctx->metadata->updateEdgeCount(UpdateOp::Remove);
     return result;
   }
 
-  std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src, const VertexType &dest, const EdgeType &newWeight) {
+  std::pair<PeakStatus, EdgeType> updateEdge(const VertexType& src, const VertexType& dest, const EdgeType& newWeight) {
     ctx->log(LogLevel::INFO, "Called adjacency:updateEdge()");
 
     PeakStatus resp = ctx->active_storage->impl_updateEdge(src, dest, newWeight);
@@ -123,7 +123,7 @@ class PeakStore {
     return {PeakStatus::OK(), newWeight};
   }
 
-  std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src, const VertexType &dest) {
+  std::pair<EdgeType, PeakStatus> getEdge(const VertexType& src, const VertexType& dest) {
     ctx->log(LogLevel::INFO, "Called adjacency:getEdge()");
     auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
@@ -132,7 +132,7 @@ class PeakStore {
     return {status.first, status.second};
   }
 
-  PeakStatus addVertex(const VertexType &src) {
+  PeakStatus addVertex(const VertexType& src) {
     ctx->log(LogLevel::INFO, "Called peakStore:addVertex");
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src); !resp.isOK()) return resp;
     ctx->metadata->updateVertexCount(UpdateOp::Add);
@@ -140,12 +140,12 @@ class PeakStore {
     return PeakStatus::OK();
   }
 
-  bool hasVertex(const VertexType &v) {
+  bool hasVertex(const VertexType& v) {
     ctx->log(LogLevel::INFO, "Called peakStore:hasVertex");
     return ctx->active_storage->impl_hasVertex(v);
   }
 
-  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> getNeighbors(const VertexType &src) const {
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus> getNeighbors(const VertexType& src) const {
     ctx->log(LogLevel::INFO, "Called adjacency:getNeighbors()");
     auto status = ctx->adjacency_storage->impl_getNeighbors(src);
     if (!status.second.isOK()) {
@@ -154,9 +154,9 @@ class PeakStore {
     return status;
   }
 
-  const std::shared_ptr<GraphContext<VertexType, EdgeType>> &getContext() const { return ctx; }
+  const std::shared_ptr<GraphContext<VertexType, EdgeType>>& getContext() const { return ctx; }
 
-  PeakStatus removeVertex(const VertexType &v) {
+  PeakStatus removeVertex(const VertexType& v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
       ctx->metadata->updateVertexCount(UpdateOp::Remove);
@@ -188,7 +188,7 @@ class PeakStore {
   }
   void setConsoleLogging(bool toggle) { ctx->runtime->setConsoleLogging(toggle); }
   void setThrowExceptions(bool toggle) { ctx->runtime->setThrowExceptions(toggle); }
-  void setFileLogging(const std::string &path) { ctx->runtime->setFileLogging(path); }
+  void setFileLogging(const std::string& path) { ctx->runtime->setFileLogging(path); }
   void unsetFileLogging() { ctx->runtime->disableFileLogging(); }
 
   size_t numEdges() const { return ctx->metadata->numEdges(); }
@@ -198,7 +198,7 @@ class PeakStore {
     return ctx->metadata->numVertices();
   }
 
-  void toDot(const std::string &filename) {
+  void toDot(const std::string& filename) {
     if (filename.empty()) {
       ctx->log(LogLevel::ERROR, "Empty filename provided for toDot output");
       return;

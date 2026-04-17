@@ -23,7 +23,7 @@ class GraphRuntime {
 
   void setThrowExceptions(bool toggle) { throwExceptions.store(toggle, std::memory_order_relaxed); }
 
-  void setFileLogging(const std::string &path) {
+  void setFileLogging(const std::string& path) {
     {
       std::lock_guard<std::mutex> lock(fileMutex);
       logFilePath = path;
@@ -33,7 +33,7 @@ class GraphRuntime {
 
   void disableFileLogging() { fileLoggingEnabled.store(false, std::memory_order_relaxed); }
 
-  void log(const LogLevel &level, const std::string &msg) {
+  void log(const LogLevel& level, const std::string& msg) {
     bool console = logToConsole.load(std::memory_order_relaxed);
     bool file = fileLoggingEnabled.load(std::memory_order_relaxed);
 

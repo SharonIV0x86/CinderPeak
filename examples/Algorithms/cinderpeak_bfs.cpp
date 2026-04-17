@@ -10,7 +10,7 @@ int main() {
   g.addVertex(4);
   auto result = g.bfs(1);
   if (result.isOK()) {
-    for (const auto &x : result.order_) {
+    for (const auto& x : result.order_) {
       std::cout << "Got: " << x << " ";
     }
   } else {

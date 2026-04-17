@@ -60,7 +60,7 @@ int main() {
     cout << "After removing edge (B,C): " << g3.numEdges() << " edges" << endl;
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }

@@ -30,8 +30,8 @@ class Logger {
  public:
   inline static bool enableConsoleLogging = false;
   inline static bool enableFileLogging = false;
-  [[deprecated]] static void log(const LogLevel &level, const std::string &msg, const int &loggingPolicy,
-                                 const std::string &logFileP) {
+  [[deprecated]] static void log(const LogLevel& level, const std::string& msg, const int& loggingPolicy,
+                                 const std::string& logFileP) {
     if (loggingPolicy == LoggingPolicy::Silent) {
       return;
     }
@@ -60,8 +60,8 @@ class Logger {
       logFile.close();
     }
   }
-  static void log(const LogLevel &level, const std::string &msg, bool consoleEnabled, bool fileEnabled,
-                  const std::string &logFileP) {
+  static void log(const LogLevel& level, const std::string& msg, bool consoleEnabled, bool fileEnabled,
+                  const std::string& logFileP) {
     if (!consoleEnabled && !fileEnabled) {
       return;
     }
@@ -80,7 +80,7 @@ class Logger {
   inline static std::mutex logMutex;
   inline static std::ofstream logFile;
 
-  static const char *levelToString(LogLevel level) {
+  static const char* levelToString(LogLevel level) {
     switch (level) {
       case LogLevel::TRACE:
         return "TRACE";
@@ -99,7 +99,7 @@ class Logger {
     }
   }
 
-  static const char *levelToColor(LogLevel level) {
+  static const char* levelToColor(LogLevel level) {
     switch (level) {
       case LogLevel::TRACE:
         return COLOR_TRACE;
@@ -129,30 +129,30 @@ class Logger {
     return oss.str();
   }
 
-  static void ensureFileOpen(const std::string &path) {
+  static void ensureFileOpen(const std::string& path) {
     if (!logFile.is_open()) {
       logFile.open(path, std::ios::app);
     }
   }
 
-  static void logToConsole(LogLevel level, const std::string &msg) {
+  static void logToConsole(LogLevel level, const std::string& msg) {
     std::lock_guard<std::mutex> lock(logMutex);
 
     std::string timestamp = getTimestamp();
-    const char *levelStr = levelToString(level);
-    const char *levelColor = levelToColor(level);
+    const char* levelStr = levelToString(level);
+    const char* levelColor = levelToColor(level);
     std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp << COLOR_BOLD_WHITE << "] [" << COLOR_RESET
               << levelColor << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]" << COLOR_RESET << " " << msg
               << std::endl;
   }
 
-  static void logToFile(LogLevel level, const std::string &msg) {
+  static void logToFile(LogLevel level, const std::string& msg) {
     if (!logFile.is_open()) return;
 
     std::lock_guard<std::mutex> lock(logMutex);
 
     std::string timestamp = getTimestamp();
-    const char *levelStr = levelToString(level);
+    const char* levelStr = levelToString(level);
 
     logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
     // if (!file.empty() && line != -1 &&

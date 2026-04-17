@@ -68,8 +68,8 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
 
     for (size_t row = 0; row < num_vertices; ++row) {
       std::sort(temp_rows[row].begin(), temp_rows[row].end(),
-                [](const auto &a, const auto &b) { return a.first < b.first; });
-      for (const auto &[dest_idx, weight] : temp_rows[row]) {
+                [](const auto& a, const auto& b) { return a.first < b.first; });
+      for (const auto& [dest_idx, weight] : temp_rows[row]) {
         size_t pos = insert_offsets[row]++;
         csr_col_vals[pos] = dest_idx;
         csr_weights[pos] = weight;
@@ -118,9 +118,9 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
       }
 
       std::sort(merged_neighbors.begin(), merged_neighbors.end(),
-                [](const auto &a, const auto &b) { return a.first < b.first; });
+                [](const auto& a, const auto& b) { return a.first < b.first; });
 
-      for (const auto &[dest_idx, weight] : merged_neighbors) {
+      for (const auto& [dest_idx, weight] : merged_neighbors) {
         size_t pos = insert_offsets[row]++;
         new_col_vals[pos] = dest_idx;
         new_weights[pos] = weight;
@@ -156,7 +156,7 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
   }
 
   void populateFromAdjList(const std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
-                                                    VertexHasher<VertexType>> &adj_list) {
+                                                    VertexHasher<VertexType>>& adj_list) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     is_built_.store(false, std::memory_order_relaxed);
@@ -164,13 +164,13 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     vertex_order.clear();
     vertex_to_index.clear();
 
-    for (const auto &[src, neighbors] : adj_list) {
+    for (const auto& [src, neighbors] : adj_list) {
       auto src_it = vertex_to_index.find(src);
       if (src_it == vertex_to_index.end()) {
         vertex_to_index[src] = vertex_order.size();
         vertex_order.push_back(src);
       }
-      for (const auto &[dest, weight] : neighbors) {
+      for (const auto& [dest, weight] : neighbors) {
         auto dest_it = vertex_to_index.find(dest);
         if (dest_it == vertex_to_index.end()) {
           vertex_to_index[dest] = vertex_order.size();
@@ -179,9 +179,9 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
       }
     }
 
-    for (const auto &[src, neighbors] : adj_list) {
+    for (const auto& [src, neighbors] : adj_list) {
       size_t src_idx = vertex_to_index[src];
-      for (const auto &[dest, weight] : neighbors) {
+      for (const auto& [dest, weight] : neighbors) {
         size_t dest_idx = vertex_to_index[dest];
         coo_src.push_back(src_idx);
         coo_dest.push_back(dest_idx);
@@ -196,8 +196,8 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
   void setCOOThreshold(size_t threshold) { COO_BUFFER_THRESHOLD_.store(threshold, std::memory_order_relaxed); }
 
   void orchestrator_rebuildFromAdjList(
-      const std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>, VertexHasher<VertexType>>
-          &adj_list) {
+      const std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>, VertexHasher<VertexType>>&
+          adj_list) {
     populateFromAdjList(adj_list);
   }
 
@@ -224,7 +224,7 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     }
   }
 
-  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus impl_addVertex(const VertexType& vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);
@@ -240,8 +240,8 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType &src, const VertexType &dest,
-                                              const EdgeType &weight = EdgeType()) override {
+  [[nodiscard]] const PeakStatus impl_addEdge(const VertexType& src, const VertexType& dest,
+                                              const EdgeType& weight = EdgeType()) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto src_it = vertex_to_index.find(src);
@@ -261,8 +261,8 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_removeEdge(const VertexType &src,
-                                                                      const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_removeEdge(const VertexType& src,
+                                                                      const VertexType& dest) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto weight = EdgeType();
@@ -313,8 +313,8 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     return std::make_pair(weight, PeakStatus::EdgeNotFound());
   }
 
-  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType &src, const VertexType &dest,
-                                                 const EdgeType &newWeight) override {
+  [[nodiscard]] const PeakStatus impl_updateEdge(const VertexType& src, const VertexType& dest,
+                                                 const EdgeType& newWeight) override {
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
@@ -389,7 +389,7 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     return PeakStatus::OK();
   }
 
-  [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
+  [[nodiscard]] bool impl_hasVertex(const VertexType& v) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     if (!vertex_to_index.count(v)) {
       return false;
@@ -397,18 +397,18 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     return true;
   }
 
-  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
-                                        const EdgeType &weight) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest,
+                                        const EdgeType& weight) noexcept override {
     auto edge = impl_getEdge(src, dest);
     return edge.second.isOK() && edge.first == weight;
   }
 
-  [[nodiscard]] bool impl_doesEdgeExist(const VertexType &src, const VertexType &dest) noexcept override {
+  [[nodiscard]] bool impl_doesEdgeExist(const VertexType& src, const VertexType& dest) noexcept override {
     return impl_getEdge(src, dest).second.isOK();
   }
 
-  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType &src,
-                                                                   const VertexType &dest) override {
+  [[nodiscard]] const std::pair<EdgeType, PeakStatus> impl_getEdge(const VertexType& src,
+                                                                   const VertexType& dest) override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto src_it = vertex_to_index.find(src);
@@ -444,7 +444,7 @@ class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
 
-  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType &vtx) override {
+  [[nodiscard]] const PeakStatus impl_removeVertex(const VertexType& vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto vtx_it = vertex_to_index.find(vtx);

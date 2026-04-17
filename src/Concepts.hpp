@@ -128,8 +128,9 @@ constexpr bool isGraphWeighted() {
 #define STATIC_ASSERT_NUMERIC_EDGE(E) \
   static_assert(CinderPeak::Traits::is_numeric_edge_v<E>, "EdgeType must be numeric for this algorithm.")
 
-#define STATIC_ASSERT_COMPARABLE_VERTEX(V)                                                                   \
-  static_assert(CinderPeak::Traits::is_comparable_vertex_v<V>, "VertexType must support operator< for this " \
-                                                               "algorithm.")
+#define STATIC_ASSERT_COMPARABLE_VERTEX(V)                     \
+  static_assert(CinderPeak::Traits::is_comparable_vertex_v<V>, \
+                "VertexType must support operator< for this "  \
+                "algorithm.")
 
 }  // namespace CinderPeak::Traits

@@ -54,7 +54,7 @@ TEST_F(AdjacencyStorageShardTest, AddVerticesString) {
   auto status = stringGraph.impl_addVertices(newVertices);
   EXPECT_TRUE(status.isOK());
 
-  for (const auto &vertex : newVertices) {
+  for (const auto& vertex : newVertices) {
     auto neighbors = stringGraph.impl_getNeighbors(vertex);
     EXPECT_TRUE(neighbors.second.isOK());
   }

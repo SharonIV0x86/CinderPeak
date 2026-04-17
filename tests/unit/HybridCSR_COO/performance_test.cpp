@@ -34,7 +34,7 @@ class HybridCSRCOOPerformanceTest : public ::testing::Test {
   }
 
   template <typename Func>
-  void measureTime(Func &&func, const std::string &operation_name) {
+  void measureTime(Func&& func, const std::string& operation_name) {
     auto start = high_resolution_clock::now();
     func();
     auto end = high_resolution_clock::now();
@@ -72,7 +72,7 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeInsertionPerformance) {
   }
   auto edges = generateTestEdges(NUM_VERTICES, NUM_EDGES);
   auto insertion_func = [&]() {
-    for (const auto &[src, dest, weight] : edges) {
+    for (const auto& [src, dest, weight] : edges) {
       graph->impl_addEdge(src, dest, weight);
     }
   };
@@ -94,7 +94,7 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeRetrievalPerformance) {
     graph->impl_addVertex(i);
   }
   auto edges = generateTestEdges(NUM_VERTICES, NUM_EDGES);
-  for (const auto &[src, dest, weight] : edges) {
+  for (const auto& [src, dest, weight] : edges) {
     graph->impl_addEdge(src, dest, weight);
   }
   std::vector<std::pair<int, int>> queries;
@@ -110,7 +110,7 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeRetrievalPerformance) {
   std::shuffle(queries.begin(), queries.end(), gen);
   auto query_func = [&]() {
     int found = 0;
-    for (const auto &[src, dest] : queries) {
+    for (const auto& [src, dest] : queries) {
       if (graph->impl_doesEdgeExist(src, dest)) {
         found++;
       }
@@ -129,7 +129,7 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
     graph->impl_addVertex(i);
   }
   auto initial_edges = generateTestEdges(NUM_VERTICES, INITIAL_EDGES);
-  for (const auto &[src, dest, weight] : initial_edges) {
+  for (const auto& [src, dest, weight] : initial_edges) {
     graph->impl_addEdge(src, dest, weight);
   }
   auto mixed_func = [&]() {
@@ -171,7 +171,7 @@ TEST_F(HybridCSRCOOPerformanceTest, LargeGraphCorrectness) {
       expected_edges.insert({i, j, weight});
     }
   }
-  for (const auto &[src, dest, expected_weight] : expected_edges) {
+  for (const auto& [src, dest, expected_weight] : expected_edges) {
     auto [actual_weight, status] = graph->impl_getEdge(src, dest);
     EXPECT_TRUE(status.isOK()) << "Edge (" << src << "," << dest << ") should exist";
     EXPECT_EQ(actual_weight, expected_weight)

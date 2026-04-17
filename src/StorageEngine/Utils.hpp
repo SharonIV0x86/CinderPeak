@@ -49,7 +49,7 @@ struct EdgeHasher;
 template <typename T>
 struct VertexHasher<
     T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, std::string>>> {
-  std::size_t operator()(const T &v) const noexcept { return std::hash<T>{}(v); }
+  std::size_t operator()(const T& v) const noexcept { return std::hash<T>{}(v); }
 };
 
 // Helper to detect __id_ member for user-defined types
@@ -66,23 +66,23 @@ struct has___id<T, std::void_t<decltype(std::declval<T>().__id_)>> : std::true_t
 template <typename T>
 struct VertexHasher<T, std::enable_if_t<std::is_class_v<T> && !std::is_same_v<T, std::string>>> {
   static_assert(has___id<T>::value, "VertexType must provide a stable member '__id_' for hashing");
-  std::size_t operator()(const T &v) const noexcept { return std::hash<size_t>{}(v.__id_); }
+  std::size_t operator()(const T& v) const noexcept { return std::hash<size_t>{}(v.__id_); }
   VertexHasher() = default;
-  VertexHasher(const VertexHasher &) = default;
-  VertexHasher &operator=(const VertexHasher &) = default;
+  VertexHasher(const VertexHasher&) = default;
+  VertexHasher& operator=(const VertexHasher&) = default;
 };
 
 // Edge hasher for primitive types and string
 template <typename T>
 struct EdgeHasher<
     T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<T, std::string>>> {
-  std::size_t operator()(const T &v) const noexcept { return std::hash<T>{}(v); }
+  std::size_t operator()(const T& v) const noexcept { return std::hash<T>{}(v); }
 };
 
 // Pair hasher for (VertexType, EdgeType) pairs (used rarely)
 template <typename VertexType, typename EdgeType>
 struct PairHasher {
-  std::size_t operator()(const std::pair<VertexType, EdgeType> &p) const noexcept {
+  std::size_t operator()(const std::pair<VertexType, EdgeType>& p) const noexcept {
     return VertexHasher<VertexType>{}(p.first) ^ (EdgeHasher<EdgeType>{}(p.second) << 1);
   }
 };
@@ -125,9 +125,9 @@ class CinderVertex {
   }
   CinderVertex(std::string vertexName) : __v___name{vertexName} { __id_ = nextId++; };
 
-  bool operator<(const CinderVertex &other) const { return __id_ < other.__id_; }
-  bool operator==(const CinderVertex &other) const { return __id_ == other.__id_; }
-  bool operator!=(const CinderVertex &other) const { return this->__id_ != other.__id_; }
+  bool operator<(const CinderVertex& other) const { return __id_ < other.__id_; }
+  bool operator==(const CinderVertex& other) const { return __id_ == other.__id_; }
+  bool operator!=(const CinderVertex& other) const { return this->__id_ != other.__id_; }
   virtual ~CinderVertex() = default;
   const std::string __to_vertex_string() const { return __v___name; }
 };
@@ -143,10 +143,10 @@ class CinderEdge {
   }
   CinderEdge(std::string edge_name) : __e___name{edge_name} { __id_ = nextId++; };
 
-  bool operator<(const CinderEdge &other) const { return __id_ < other.__id_; }
-  bool operator>(const CinderEdge &other) const { return __id_ > other.__id_; }
-  bool operator==(const CinderEdge &other) const { return __id_ == other.__id_; }
-  bool operator!=(const CinderEdge &other) const { return this->__id_ != other.__id_; }
+  bool operator<(const CinderEdge& other) const { return __id_ < other.__id_; }
+  bool operator>(const CinderEdge& other) const { return __id_ > other.__id_; }
+  bool operator==(const CinderEdge& other) const { return __id_ == other.__id_; }
+  bool operator!=(const CinderEdge& other) const { return this->__id_ != other.__id_; }
   virtual ~CinderEdge() = default;
 
   const std::string __to_edge_string() const { return __e___name; }
@@ -156,7 +156,7 @@ inline size_t CinderVertex::nextId = 1;
 inline size_t CinderEdge::nextId = 1;
 
 namespace Exceptions {
-inline void handle_exception_map(const PeakStatus &status) {
+inline void handle_exception_map(const PeakStatus& status) {
   switch (static_cast<int>(status.code())) {
     case static_cast<int>(StatusCode::NOT_FOUND):
       LOG_INFO("Resource Not Found");
@@ -184,6 +184,6 @@ inline void handle_exception_map(const PeakStatus &status) {
 }  // namespace Exceptions
 
 struct Unweighted {};
-inline bool operator==(const Unweighted &, const Unweighted &) noexcept { return true; }
+inline bool operator==(const Unweighted&, const Unweighted&) noexcept { return true; }
 
 }  // namespace CinderPeak

@@ -80,7 +80,7 @@ int main() {
     cout << "After parallel edge: " << g4.numEdges() << endl;
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }

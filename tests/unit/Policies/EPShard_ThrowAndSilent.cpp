@@ -60,7 +60,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_NotFound) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_notFound);
-  } catch (const PeakExceptions::NotFoundException &nfex) {
+  } catch (const PeakExceptions::NotFoundException& nfex) {
     EXPECT_STREQ(nfex.what(), "Resource Not Found: Not Found");
   }
   policy.log(LogLevel::INFO, "NotFound log message");
@@ -73,7 +73,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_InvalidArgument) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_invalidArgument);
-  } catch (const PeakExceptions::InvalidArgumentException &iaex) {
+  } catch (const PeakExceptions::InvalidArgumentException& iaex) {
     EXPECT_STREQ(iaex.what(), "Invalid argument: Invalid Argument");
   }
   policy.log(LogLevel::ERROR, "InvalidArgument log message");
@@ -86,7 +86,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_VertexAlreadyExists) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_vertexAlreadyExists);
-  } catch (const PeakExceptions::VertexAlreadyExistsException &vaex) {
+  } catch (const PeakExceptions::VertexAlreadyExistsException& vaex) {
     EXPECT_STREQ(vaex.what(), "Vertex already exists: Vertex Already Exists");
   }
   policy.log(LogLevel::WARNING, "VertexAlreadyExists log message");
@@ -99,7 +99,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_InternalError) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_internalError);
-  } catch (const PeakExceptions::InternalErrorException &ieex) {
+  } catch (const PeakExceptions::InternalErrorException& ieex) {
     EXPECT_STREQ(ieex.what(), "Internal error: Internal Error");
   }
   policy.log(LogLevel::ERROR, "InternalError log message");
@@ -112,7 +112,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFound) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_edgeNotFound);
-  } catch (const PeakExceptions::EdgeNotFoundException &enfex) {
+  } catch (const PeakExceptions::EdgeNotFoundException& enfex) {
     EXPECT_STREQ(enfex.what(), "Edge not found: Edge Not Found");
   }
   policy.log(LogLevel::INFO, "EdgeNotFound log message");
@@ -125,7 +125,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_VertexNotFound) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_vertexNotFound);
-  } catch (const PeakExceptions::VertexNotFoundException &vnfex) {
+  } catch (const PeakExceptions::VertexNotFoundException& vnfex) {
     EXPECT_STREQ(vnfex.what(), "Vertex not found: Vertex Not Found");
   }
   policy.log(LogLevel::INFO, "VertexNotFound log message");
@@ -138,7 +138,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_Unimplemented) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_unimplemented);
-  } catch (const PeakExceptions::UnimplementedException &unex) {
+  } catch (const PeakExceptions::UnimplementedException& unex) {
     EXPECT_STREQ(unex.what(),
                  "Unimplemented feature: Method is not "
                  "implemented, there has been an error.");
@@ -153,7 +153,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_AlreadyExists) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_alreadyExists);
-  } catch (const PeakExceptions::AlreadyExistsException &aeex) {
+  } catch (const PeakExceptions::AlreadyExistsException& aeex) {
     EXPECT_STREQ(aeex.what(), "Already Exists: Resource Already Exists");
   }
   policy.log(LogLevel::WARNING, "AlreadyExists log message");
@@ -166,7 +166,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeAlreadyExists) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_edgeAlreadyExists);
-  } catch (const PeakExceptions::EdgeAlreadyExistsException &eaex) {
+  } catch (const PeakExceptions::EdgeAlreadyExistsException& eaex) {
     EXPECT_STREQ(eaex.what(), "Edge already exists: Edge Already Exists");
   }
   policy.log(LogLevel::WARNING, "EdgeAlreadyExists log message");
@@ -179,17 +179,17 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_MultipleExceptions) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_vertexNotFound);
-  } catch (const PeakExceptions::VertexNotFoundException &) {
+  } catch (const PeakExceptions::VertexNotFoundException&) {
   }
   policy.log(LogLevel::INFO, "First log message");
   try {
     policy.handleException(sc_edgeNotFound);
-  } catch (const PeakExceptions::EdgeNotFoundException &) {
+  } catch (const PeakExceptions::EdgeNotFoundException&) {
   }
   policy.log(LogLevel::INFO, "Second log message");
   try {
     policy.handleException(sc_invalidArgument);
-  } catch (const PeakExceptions::InvalidArgumentException &) {
+  } catch (const PeakExceptions::InvalidArgumentException&) {
   }
   policy.log(LogLevel::INFO, "Third log message");
   verifyCompletelySilent();
@@ -202,7 +202,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_RepeatedException) {
   for (int i = 0; i < 3; ++i) {
     try {
       policy.handleException(sc_invalidArgument);
-    } catch (const PeakExceptions::InvalidArgumentException &iaex) {
+    } catch (const PeakExceptions::InvalidArgumentException& iaex) {
       EXPECT_STREQ(iaex.what(), "Invalid argument: Invalid Argument");
     }
     policy.log(LogLevel::INFO, "Repeated log message " + std::to_string(i));
@@ -217,7 +217,7 @@ TEST_F(ThrowAndSilentPolicyTest, ThrowAndSilent_EdgeNotFoundWithCustomMessage) {
   testing::internal::CaptureStderr();
   try {
     policy.handleException(sc_custom_edgeNotFound);
-  } catch (const PeakExceptions::EdgeNotFoundException &enfex) {
+  } catch (const PeakExceptions::EdgeNotFoundException& enfex) {
     EXPECT_STREQ(enfex.what(), "Edge not found: Custom edge not found message");
   }
   policy.log(LogLevel::ERROR, "Custom message log");

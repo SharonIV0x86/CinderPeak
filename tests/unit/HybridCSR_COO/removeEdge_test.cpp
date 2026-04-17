@@ -97,7 +97,7 @@ TEST_F(HybridStorageShardTest, RemoveEdge_Concurrent) {
       }
     });
   }
-  for (auto &t : threads) {
+  for (auto& t : threads) {
     t.join();
   }
   EXPECT_EQ(success_count, 1) << "Exactly one thread should successfully remove edge (1,2)";

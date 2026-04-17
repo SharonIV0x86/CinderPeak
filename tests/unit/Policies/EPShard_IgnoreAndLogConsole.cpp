@@ -33,7 +33,7 @@ class IgnoreAndLogConsolePolicyTest : public ::testing::Test {
 
   IgnoreAndLogConsolePolicyTest() : policy(ignoreAndLogC_cfg) {}
 
-  void writeAllLogLevels(const std::string &msg) {
+  void writeAllLogLevels(const std::string& msg) {
     policy.log(LogLevel::TRACE, msg);
     policy.log(LogLevel::DEBUG, msg);
     policy.log(LogLevel::INFO, msg);
@@ -44,7 +44,7 @@ class IgnoreAndLogConsolePolicyTest : public ::testing::Test {
     std::this_thread::sleep_for(std::chrono::milliseconds(120));
   }
 
-  void verifyConsoleOutput(const std::string &expectedMessage, const std::string &capturedOutput) {
+  void verifyConsoleOutput(const std::string& expectedMessage, const std::string& capturedOutput) {
     EXPECT_FALSE(capturedOutput.empty()) << "LogConsole policy should print to console";
 
     EXPECT_TRUE(capturedOutput.find(expectedMessage) != std::string::npos)

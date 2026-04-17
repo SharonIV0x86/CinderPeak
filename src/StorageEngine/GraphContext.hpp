@@ -30,7 +30,7 @@ class GraphContext {
   std::shared_ptr<PolicyHandler> pHandler = nullptr;
   std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>> algorithms = nullptr;
   std::shared_ptr<GraphRuntime> runtime = nullptr;
-  inline void log(LogLevel level, const std::string &msg) {
+  inline void log(LogLevel level, const std::string& msg) {
     if (pHandler) {
       pHandler->log(level, msg);
     }

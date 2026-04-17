@@ -88,7 +88,7 @@ int main() {
     g4.addEdge(2, 3, 10);
 
     vector<pair<int, int>> edgesToCheck = {{1, 2}, {2, 3}, {1, 3}};
-    for (const auto &[src, dest] : edgesToCheck) {
+    for (const auto& [src, dest] : edgesToCheck) {
       auto [w, f] = g4.getEdge(src, dest);
       if (f && w.has_value()) {
         cout << "Edge (" << src << "," << dest << ") has weight: " << w.value() << endl;
@@ -98,7 +98,7 @@ int main() {
     }
 
     return 0;
-  } catch (const exception &e) {
+  } catch (const exception& e) {
     cerr << "Error: " << e.what() << endl;
     return 1;
   }
