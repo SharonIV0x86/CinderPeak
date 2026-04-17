@@ -207,7 +207,9 @@ public:
     }
     return status;
   }
-
+  void setConsoleLogging(bool toggle) {
+    ctx->runtime->setConsoleLogging(toggle);
+  }
   void setThrowExceptions(bool toggle) {
     ctx->runtime->setThrowExceptions(toggle);
   }
