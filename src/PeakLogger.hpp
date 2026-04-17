@@ -35,9 +35,9 @@ class Logger {
 public:
   inline static bool enableConsoleLogging = false;
   inline static bool enableFileLogging = false;
-
-  static void log(const LogLevel &level, const std::string &msg,
-                  const int &loggingPolicy, const std::string &logFileP) {
+  [[deprecated]] static void log(const LogLevel &level, const std::string &msg,
+                                 const int &loggingPolicy,
+                                 const std::string &logFileP) {
 
     if (loggingPolicy == LoggingPolicy::Silent) {
       return;
@@ -144,6 +144,7 @@ private:
 
   static void ensureFileOpen(const std::string &path) {
     if (!logFile.is_open()) {
+      std::cout << "\nopening and creating file: " << path << "\n";
       logFile.open(path, std::ios::app);
     }
   }
