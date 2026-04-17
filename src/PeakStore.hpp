@@ -31,7 +31,7 @@ private:
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
     ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
     ctx->adjacency_storage =
-        std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->pHandler);
+        std::make_shared<AdjacencyList<VertexType, EdgeType>>();
     ctx->active_storage = ctx->adjacency_storage;
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
