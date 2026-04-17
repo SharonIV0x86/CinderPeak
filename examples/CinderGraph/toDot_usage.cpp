@@ -8,14 +8,12 @@ using namespace std;
 
 int main() {
   try {
-    PolicyConfiguration policy(PolicyConfiguration::ErrorPolicy::Throw,
-                               PolicyConfiguration::LoggingPolicy::LogConsole);
 
     // ===== 1. Directed + Weighted Graph with Cycles =====
     cout << "\n--- Directed Weighted Graph (Cycles) ---" << endl;
 
     GraphCreationOptions directedOpts({GraphCreationOptions::Directed});
-    CinderGraph<int, int> g1(directedOpts, policy);
+    CinderGraph<int, int> g1(directedOpts);
 
     for (int v : {1, 2, 3, 4}) {
       g1.addVertex(v);
@@ -33,7 +31,7 @@ int main() {
     // ===== 2. Isolated Nodes =====
     cout << "\n--- Graph with Isolated Nodes ---" << endl;
 
-    CinderGraph<int, int> g2(directedOpts, policy);
+    CinderGraph<int, int> g2(directedOpts);
     g2.addVertex(10);
     g2.addVertex(20);
     g2.addVertex(30); // isolated
@@ -48,7 +46,7 @@ int main() {
     GraphCreationOptions parallelOpts(
         {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
 
-    CinderGraph<int, int> g3(parallelOpts, policy);
+    CinderGraph<int, int> g3(parallelOpts);
     g3.addVertex(1);
     g3.addVertex(2);
 
