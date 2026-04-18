@@ -189,25 +189,18 @@ namespace Exceptions {
 inline void handle_exception_map(const PeakStatus &status) {
   switch (static_cast<int>(status.code())) {
   case static_cast<int>(StatusCode::NOT_FOUND):
-    
     break;
   case static_cast<int>(StatusCode::UNIMPLEMENTED):
-    
     break;
   case static_cast<int>(StatusCode::ALREADY_EXISTS):
-    
     break;
   case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
-    
     break;
   case static_cast<int>(StatusCode::VERTEX_NOT_FOUND):
-    
     break;
   case static_cast<int>(StatusCode::EDGE_ALREADY_EXISTS):
-    
     break;
   default:
-    
     break;
   }
 }
