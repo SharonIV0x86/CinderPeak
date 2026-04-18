@@ -140,16 +140,3 @@ private:
     logFile << std::endl;
   }
 };
-
-// for now, not removed but disabled the behavior, so that builds dont fail.
-#define LOG_TRACE(msg)
-//  Logger::log(LogLevel::TRACE, msg)
-#define LOG_DEBUG(msg)
-//  Logger::log(LogLevel::DEBUG, msg)
-#define LOG_INFO(msg)
-// Logger::log(LogLevel::INFO, msg)
-#define LOG_WARNING(msg)
-//  Logger::log(LogLevel::WARNING, msg, __FILE__, __LINE__)
-#define LOG_ERROR(msg)
-//  Logger::log(LogLevel::ERROR, msg, __FILE__, __LINE__)
-#define LOG_CRITICAL(msg)
