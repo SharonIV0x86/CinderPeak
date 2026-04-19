@@ -27,9 +27,7 @@ public:
       algorithms = nullptr;
   std::shared_ptr<GraphRuntime> runtime = nullptr;
   inline void log(LogLevel level, const std::string &msg) {
-    // if (pHandler) {
-    //   pHandler->log(level, msg);
-    // }
+    runtime->log(level, msg);
   }
 };
 

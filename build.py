@@ -202,7 +202,7 @@ def test(build_dir: str = None, cpp: bool = False, all: bool = False,
     
     ctest = find_command("ctest", msg="CTest is required")
     
-    options = ["--test-dir", build_dir, "--output-on-failure"]
+    options = ["--test-dir", build_dir, "--verbose"]
     
     if config is None:
         config = detect_build_config(build_dir)

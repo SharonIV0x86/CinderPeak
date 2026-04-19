@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GraphRuntime.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
 #include <gtest/gtest.h>
 #include <thread>
@@ -9,8 +10,9 @@ using namespace PeakStore;
 
 class AdjacencyStorageShardTest : public ::testing::Test, public CinderVertex {
 protected:
-  AdjacencyList<int, int> intGraph;
-  AdjacencyList<std::string, float> stringGraph;
+  GraphRuntime runtime;
+  AdjacencyList<int, int> intGraph{runtime};
+  AdjacencyList<std::string, float> stringGraph{runtime};
 
   void SetUp() override {
     intGraph.impl_addVertex(1);
@@ -49,7 +51,8 @@ class ComplexGraph : public ::testing::Test {
 public:
   ComplexAdjVertex v1, v2, v3;
   ComplexAdjEdge e1, e2;
-  AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph;
+  GraphRuntime runtime;
+  AdjacencyList<ComplexAdjVertex, ComplexAdjEdge> complexGraph{runtime};
   ComplexGraph() {
     v1 = ComplexAdjVertex(1, "Vertex1");
     v2 = ComplexAdjVertex(2, "Vertex2");

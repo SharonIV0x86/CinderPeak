@@ -27,14 +27,14 @@ private:
     ctx->create_options = std::make_shared<GraphCreationOptions>(options);
     ctx->hybrid_storage =
         std::make_shared<HybridCSR_COO<VertexType, EdgeType>>();
-    // ctx->pHandler = std::make_shared<PolicyHandler>(cfg);
+    ctx->runtime = std::make_shared<CinderPeak::GraphRuntime>();
     ctx->adjacency_storage =
-        std::make_shared<AdjacencyList<VertexType, EdgeType>>();
+        std::make_shared<AdjacencyList<VertexType, EdgeType>>(*ctx->runtime);
     ctx->active_storage = ctx->adjacency_storage;
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
         ctx->hybrid_storage);
-    ctx->runtime = std::make_shared<CinderPeak::GraphRuntime>();
+
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
   }
 
@@ -254,6 +254,9 @@ public:
     if (ctx->create_options->hasOption(GraphCreationOptions::Undirected))
       directed = false;
     return ctx->metadata->getGraphStatistics(directed);
+  }
+  void log(const LogLevel &level, const std::string &message) const {
+    ctx->runtime->log(level, message);
   }
 };
 
