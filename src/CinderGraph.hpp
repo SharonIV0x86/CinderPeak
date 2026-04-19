@@ -146,7 +146,8 @@ public:
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
                           UnweightedEdgeAddResult> {
-    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::addEdge(unweighted)\n");
+    peak_store->log(LogLevel::CRITICAL,
+                    "Log from CinderGraph::addEdge(unweighted)\n");
     auto resp = peak_store->addEdge(src, dest);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);

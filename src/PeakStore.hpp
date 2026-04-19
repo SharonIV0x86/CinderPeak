@@ -256,7 +256,7 @@ public:
     return ctx->metadata->getGraphStatistics(directed);
   }
   void log(const LogLevel &level, const std::string &message) const {
-      ctx->runtime->log(level, message);
+    ctx->runtime->log(level, message);
   }
 };
 
