@@ -189,25 +189,18 @@ namespace Exceptions {
 inline void handle_exception_map(const PeakStatus &status) {
   switch (static_cast<int>(status.code())) {
   case static_cast<int>(StatusCode::NOT_FOUND):
-    LOG_INFO("Resource Not Found");
     break;
   case static_cast<int>(StatusCode::UNIMPLEMENTED):
-    LOG_WARNING("Called an Unimplemented method");
     break;
   case static_cast<int>(StatusCode::ALREADY_EXISTS):
-    LOG_INFO("Resource Already Exists");
     break;
   case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
-    LOG_INFO("Vertex Already Exists");
     break;
   case static_cast<int>(StatusCode::VERTEX_NOT_FOUND):
-    LOG_ERROR("Vertex does not exist");
     break;
   case static_cast<int>(StatusCode::EDGE_ALREADY_EXISTS):
-    LOG_INFO("Edge Already Exists");
     break;
   default:
-    LOG_CRITICAL("Unhandled Exception Occurred");
     break;
   }
 }
