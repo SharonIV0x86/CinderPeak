@@ -98,6 +98,7 @@ public:
         metadata, options);
   }
   VertexAddResult addVertex(const VertexType &v) {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::addVertex\n");
     auto resp = peak_store->addVertex(v);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -107,6 +108,7 @@ public:
     return {v, true};
   }
   bool removeVertex(const VertexType &v) {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::removeVertex\n");
     auto resp = peak_store->removeVertex(v);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -115,6 +117,7 @@ public:
     return true;
   }
   RemoveEdgeResult removeEdge(const VertexType &src, const VertexType &dest) {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::removeEdge\n");
     auto [data, status] = peak_store->removeEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
@@ -125,6 +128,7 @@ public:
 
   // Helper method to call clearVertices from PeakStore
   void clearVertices() {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::clearVertices\n");
     auto resp = peak_store->clearVertices();
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -134,6 +138,7 @@ public:
 
   // Helper method to call clearEdges from PeakStore
   void clearEdges() {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::clearEdges\n");
     auto resp = peak_store->clearEdges();
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -161,6 +166,7 @@ public:
                const EdgeType &weight)
       -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>,
                           WeightedEdgeAddResult> {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::addEdge\n");
     auto resp = peak_store->addEdge(src, dest, weight);
     if (!resp.isOK()) {
       Exceptions::handle_exception_map(resp);
@@ -174,7 +180,7 @@ public:
                   const EdgeType &newWeight)
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
                           UpdateEdgeResult> {
-
+peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::updateEdge\n");
     auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
 
     if (!status.isOK()) {
@@ -185,6 +191,7 @@ public:
     return {newWeight, true};
   }
   GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::getEdge\n");
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
@@ -193,6 +200,7 @@ public:
     return {std::make_optional(data), true};
   }
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::bfs\n");
     return peak_store->bfs(src);
   }
 
