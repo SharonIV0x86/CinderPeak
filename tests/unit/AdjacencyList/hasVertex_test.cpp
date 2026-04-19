@@ -13,7 +13,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices) {
 }
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_EmptyGraph) {
-  AdjacencyList<int, int> emptyGraph;
+  AdjacencyList<int, int> emptyGraph(runtime);
 
   EXPECT_FALSE(emptyGraph.impl_hasVertex(0));
   EXPECT_FALSE(emptyGraph.impl_hasVertex(1));
@@ -23,7 +23,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_EmptyGraph) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_MultipleAdditions) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   std::vector<int> vertices = {1, 5, 10, 15, 20, 25, 30};
 
   for (int v : vertices) {
@@ -41,7 +41,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_MultipleAdditions) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_Deleted) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   graph.impl_addVertex(100);
   graph.impl_addVertex(200);
   graph.impl_addVertex(300);
@@ -56,7 +56,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_Deleted) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_Mix) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
 
   graph.impl_addVertex(75);
   EXPECT_TRUE(graph.impl_hasVertex(75));
@@ -97,7 +97,7 @@ TEST_F(ComplexGraph, HasComplexVertices) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_LargeGraph) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int numVertices = 100000;
 
   for (int i = 0; i < numVertices; i++) {
@@ -116,7 +116,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_LargeGraph) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentReads) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int numVertices = 1000;
 
   for (int i = 0; i < numVertices; i++) {
@@ -146,7 +146,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentReads) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentAddAndRead) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int numOperations = 500;
   const int numThreads = 4;
   std::vector<std::thread> threads;
@@ -180,7 +180,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentAddAndRead) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int numVertices = 1000;
 
   for (int i = 0; i < numVertices; i++) {
@@ -219,7 +219,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentMix) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int numOperations = 200;
   const int numThreads = 6;
   std::vector<std::thread> threads;
@@ -260,7 +260,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_ConcurrentMix) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int numThreads = 8;
   const int numOperationsPerThread = 1000;
   std::vector<std::thread> threads;
@@ -311,7 +311,7 @@ TEST_F(AdjacencyStorageShardTest, HasVertices_StressTestConcurrent) {
 
 TEST_F(AdjacencyStorageShardTest, HasVertices_RaceConditionDetection) {
 
-  AdjacencyList<int, int> graph;
+  AdjacencyList<int, int> graph(runtime);
   const int targetVertex = 999;
   const int numThreads = 20;
   std::vector<std::thread> threads;

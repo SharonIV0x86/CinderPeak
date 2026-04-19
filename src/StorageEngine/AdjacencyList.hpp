@@ -1,5 +1,6 @@
 #pragma once
 #include "Concepts.hpp"
+#include "GraphRuntime.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "Utils.hpp"
@@ -26,7 +27,7 @@ private:
       _vertex_lookup;
 
   std::atomic<CinderPeak::VertexId> _next_vertex_id{1};
-
+  const GraphRuntime &runtime;
   mutable std::shared_mutex _mtx;
 
   std::optional<CinderPeak::VertexId>
@@ -49,14 +50,14 @@ private:
   }
 
 public:
-  AdjacencyList() {
+  AdjacencyList(const GraphRuntime &rtime) : runtime{rtime} {
     _adj.reserve(1024);
     _vertex_data.reserve(1024);
     _vertex_lookup.reserve(1024);
   }
 
   [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &v) override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_addVertex");
+    runtime.log(LogLevel::DEBUG, "Executing impl_addVertex");
     VertexId assignedId = 0;
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
@@ -64,14 +65,14 @@ public:
       if (auto it = _vertex_lookup.find(v); it != _vertex_lookup.end()) {
         if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
                           VertexType>) {
-          // pHandler.log(LogLevel::WARNING,
-          //  "Failed to add Vertex: Vertex Already Exist.");
+          runtime.log(LogLevel::WARNING,
+                      "Failed to add Vertex: Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
-          // pHandler.log(LogLevel::WARNING,
-          //  "Failed to add Non Premitive Vertex: Non Premitive "
-          //  "Vertex Already Exist.");
+          runtime.log(LogLevel::WARNING,
+                      "Failed to add Non Premitive Vertex: Non Premitive "
+                      "Vertex Already Exist.");
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
         }
@@ -87,20 +88,20 @@ public:
     // perform string construction and logging outside of the lock to avoid
     // blocking critical sections
     // TODO: this is a test log for output check so remove it in future.
-    // pHandler.log(LogLevel::INFO, "Vertex added.");
+    runtime.log(LogLevel::INFO, "Vertex added.");
     return PeakStatus::OK();
   }
 
   [[nodiscard]] const PeakStatus
   impl_addVertices(const std::vector<VertexType> &vertices) {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_addVertices");
+    runtime.log(LogLevel::DEBUG, "Executing impl_addVertices");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     PeakStatus final_status = PeakStatus::OK();
 
     for (const auto &v : vertices) {
       if (_vertex_lookup.find(v) != _vertex_lookup.end()) {
         final_status = PeakStatus::VertexAlreadyExists();
-        // pHandler.log(LogLevel::WARNING, "Vertex already Exist.");
+        runtime.log(LogLevel::WARNING, "Vertex already Exist.");
         continue;
       }
       VertexId id = _next_vertex_id.fetch_add(1, std::memory_order_relaxed);
@@ -108,7 +109,7 @@ public:
       _vertex_data.try_emplace(id, v);
       _adj.try_emplace(id);
     }
-    // pHandler.log(LogLevel::INFO, "Vertex Added successfully.");
+    runtime.log(LogLevel::INFO, "Vertex Added successfully.");
 
     return final_status;
   }
@@ -116,7 +117,7 @@ public:
   [[nodiscard]] const PeakStatus
   impl_addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight = EdgeType()) override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_addEdge");
+    runtime.log(LogLevel::DEBUG, "Executing impl_addEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -126,7 +127,7 @@ public:
 
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end()) {
-      // pHandler.log(LogLevel::WARNING, "Vertex not found.");
+      runtime.log(LogLevel::WARNING, "Vertex not found.");
       return PeakStatus::VertexNotFound();
     }
 
@@ -137,15 +138,14 @@ public:
     auto &neighbors = _adj[srcId];
     neighbors.emplace_back(destId, weight);
 
-    // pHandler.log(LogLevel::INFO, "Edge successfully added between
-    // vertices.");
+    runtime.log(LogLevel::INFO, "Edge successfully added between vertices.");
 
     return PeakStatus::OK();
   }
 
   template <typename EdgeContainer>
   [[nodiscard]] const PeakStatus impl_addEdges(const EdgeContainer &edges) {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_addEdges");
+    runtime.log(LogLevel::DEBUG, "Executing impl_addEdges");
     std::vector<std::string> warnings;
     PeakStatus overall = PeakStatus::OK();
 
@@ -191,14 +191,14 @@ public:
         _adj[srcId].emplace_back(destId, weight);
       }
     }
-    // pHandler.log(LogLevel::INFO, "Multiple edges processed successfully.");
+    runtime.log(LogLevel::INFO, "Multiple edges processed successfully.");
 
     return overall;
   }
 
   [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_removeEdge");
+    runtime.log(LogLevel::DEBUG, "Executing impl_removeEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     EdgeType retWeight = EdgeType();
 
@@ -217,14 +217,13 @@ public:
                            [&](const auto &p) { return p.first == destId; });
 
     if (it == neighbors.end()) {
-      // pHandler.log(LogLevel::WARNING, "Edge not found.");
+      runtime.log(LogLevel::WARNING, "Edge not found.");
       return std::make_pair(retWeight, PeakStatus::EdgeNotFound());
     }
 
     retWeight = it->second;
     neighbors.erase(it);
-    // pHandler.log(LogLevel::INFO, "Edge successfully removed between
-    // vertices.");
+    runtime.log(LogLevel::INFO, "Edge successfully removed between vertices.");
 
     return std::make_pair(retWeight, PeakStatus::OK());
   }
@@ -232,17 +231,17 @@ public:
   [[nodiscard]] const PeakStatus
   impl_updateEdge(const VertexType &src, const VertexType &dest,
                   const EdgeType &newWeight) override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_updateEdge");
+    runtime.log(LogLevel::DEBUG, "Executing impl_updateEdge");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
     if (srcIt == _vertex_lookup.end()) {
-      // pHandler.log(LogLevel::WARNING, "Vertex not found.");
+      runtime.log(LogLevel::WARNING, "Vertex not found.");
       return PeakStatus::VertexNotFound();
     }
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end()) {
-      // pHandler.log(LogLevel::WARNING, "Vertex not found.");
+      runtime.log(LogLevel::WARNING, "Vertex not found.");
       return PeakStatus::VertexNotFound();
     }
 
@@ -256,14 +255,14 @@ public:
         return PeakStatus::OK();
       }
     }
-    // pHandler.log(LogLevel::INFO, "Edge Not Found.");
+    runtime.log(LogLevel::INFO, "Edge Not Found.");
     return PeakStatus::EdgeNotFound();
   }
 
   [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_hasVertex");
+    runtime.log(LogLevel::DEBUG, "Executing impl_hasVertex");
     std::shared_lock<std::shared_mutex> lock(_mtx);
-    // pHandler.log(LogLevel::INFO, "Vertex lookup.");
+    runtime.log(LogLevel::INFO, "Vertex lookup.");
 
     return _vertex_lookup.find(v) != _vertex_lookup.end();
   }
@@ -271,7 +270,7 @@ public:
   [[nodiscard]] bool
   impl_doesEdgeExist(const VertexType &src,
                      const VertexType &dest) noexcept override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
+    runtime.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -289,14 +288,14 @@ public:
       if (p.first == destId)
         return true;
     }
-    // pHandler.log(LogLevel::INFO, "Edge found.");
+    runtime.log(LogLevel::INFO, "Edge found.");
     return false;
   }
 
   [[nodiscard]] bool
   impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight) noexcept override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
+    runtime.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -312,18 +311,18 @@ public:
     const auto &neighbors = _adj.at(srcId);
     for (const auto &p : neighbors) {
       if (p.first == destId && p.second == weight) {
-        // pHandler.log(LogLevel::INFO, "Edge not exist.");
+        runtime.log(LogLevel::INFO, "Edge not exist.");
         return true;
       }
     }
-    // pHandler.log(LogLevel::INFO, "Edge not exist.");
+    runtime.log(LogLevel::INFO, "Edge not exist.");
 
     return false;
   }
 
   [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_getEdge");
+    runtime.log(LogLevel::DEBUG, "Executing impl_getEdge");
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -341,13 +340,13 @@ public:
       if (p.first == destId)
         return std::make_pair(p.second, PeakStatus::OK());
     }
-    // pHandler.log(LogLevel::INFO, "Edge not found");
+    runtime.log(LogLevel::INFO, "Edge not found");
     return std::make_pair(EdgeType(), PeakStatus::EdgeNotFound());
   }
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_getNeighbors");
+    runtime.log(LogLevel::DEBUG, "Executing impl_getNeighbors");
     // data copied under lock
     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
     std::unordered_map<VertexId, VertexType> vertex_data_snapshot;
@@ -385,14 +384,13 @@ public:
         result.emplace_back(vdataIt->second, p.second);
       }
     }
-    // pHandler.log(LogLevel::INFO, "Edge successfully added between
-    // vertices.");
+    runtime.log(LogLevel::INFO, "Edge successfully added between vertices.");
     return std::make_pair(result, PeakStatus::OK());
   }
 
   [[nodiscard]] const PeakStatus
   impl_removeVertex(const VertexType &v) override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_removeVertex");
+    runtime.log(LogLevel::DEBUG, "Executing impl_removeVertex");
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _vertex_lookup.find(v);
@@ -415,30 +413,30 @@ public:
 
     _vertex_lookup.erase(it);
     _vertex_data.erase(id);
-    // pHandler.log(LogLevel::INFO, "Vertex successfully removed.");
+    runtime.log(LogLevel::INFO, "Vertex successfully removed.");
 
     return PeakStatus::OK();
   }
 
   [[nodiscard]] const PeakStatus impl_clearVertices() override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_clearVertices");
+    runtime.log(LogLevel::DEBUG, "Executing impl_clearVertices");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     _adj.clear();
     _vertex_lookup.clear();
     _vertex_data.clear();
     _next_vertex_id.store(1, std::memory_order_relaxed);
-    // pHandler.log(LogLevel::INFO, "Vertex successfully Cleared.");
+    runtime.log(LogLevel::INFO, "Vertex successfully Cleared.");
 
     return PeakStatus::OK();
   }
 
   [[nodiscard]] const PeakStatus impl_clearEdges() override {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_clearEdges");
+    runtime.log(LogLevel::DEBUG, "Executing impl_clearEdges");
     std::unique_lock<std::shared_mutex> lock(_mtx);
     for (auto &pair : _adj) {
       pair.second.clear();
     }
-    // pHandler.log(LogLevel::INFO, "cleared all Edges from Graph.");
+    runtime.log(LogLevel::INFO, "cleared all Edges from Graph.");
 
     return PeakStatus::OK();
   }
@@ -483,12 +481,12 @@ public:
       CinderPeak::VertexId,
       std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
   getInternalAdjacency() const {
-    // pHandler.log(LogLevel::DEBUG, "Executing getInternalAdjacency");
+    runtime.log(LogLevel::DEBUG, "Executing getInternalAdjacency");
     return _adj;
   }
 
   std::string impl_toDot(bool isDirected, bool allowParallel) const {
-    // pHandler.log(LogLevel::DEBUG, "Executing impl_toDot");
+    runtime.log(LogLevel::DEBUG, "Executing impl_toDot");
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::stringstream ss;
 
@@ -535,7 +533,7 @@ public:
 
   const std::unordered_map<CinderPeak::VertexId, VertexType> &
   getVertexDataMap() const {
-    // pHandler.log(LogLevel::DEBUG, "Executing getVertexDataMap");
+    runtime.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
   }
 };

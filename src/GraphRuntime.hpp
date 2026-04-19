@@ -40,7 +40,7 @@ public:
     fileLoggingEnabled.store(false, std::memory_order_relaxed);
   }
 
-  void log(const LogLevel &level, const std::string &msg) {
+  void log(const LogLevel &level, const std::string &msg) const{
     bool console = logToConsole.load(std::memory_order_relaxed);
     bool file = fileLoggingEnabled.load(std::memory_order_relaxed);
 
