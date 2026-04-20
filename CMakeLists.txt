@@ -159,6 +159,7 @@ endfunction()
 
 add_library(CinderPeak INTERFACE)
 target_include_directories(CinderPeak INTERFACE 
+    ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/tests/integration/CinderGraph/common
 )
