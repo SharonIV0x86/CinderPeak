@@ -1,5 +1,5 @@
 #pragma once
-#include "Result/bfs_result.hpp"
+#include "algorithms/result/bfs_result.hpp"
 #include <iostream>
 #include <memory>
 namespace CinderPeak {

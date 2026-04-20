@@ -1,7 +1,7 @@
 #pragma once
-#include "../StorageInterface.hpp"
-#include "StorageEngine/GraphContext.hpp"
-#include "Utils.hpp"
+#include "engine/GraphContext.hpp"
+#include "storage/interface/StorageInterface.hpp"
+#include "storage/utils/Utils.hpp"
 #include <algorithm>
 #include <atomic>
 #include <iostream>

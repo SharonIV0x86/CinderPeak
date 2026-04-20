@@ -1,4 +1,4 @@
-#include "CinderGraph.hpp"
+#include "core/CinderGraph.hpp"
 #include <iostream>
 
 int main() {

@@ -1,8 +1,8 @@
 #pragma once
-#include "Concepts.hpp"
-#include "StorageEngine/GraphContext.hpp"
-#include "StorageEngine/GraphStatistics.hpp"
-#include "Utils.hpp"
+#include "core/Concepts.hpp"
+#include "engine/GraphContext.hpp"
+#include "storage/stats/GraphStatistics.hpp"
+#include "storage/utils/Utils.hpp"
 #include <algorithm>
 #include <atomic>
 #include <memory>

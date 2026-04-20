@@ -1,5 +1,5 @@
 #pragma once
-#include "PeakLogger.hpp"
+#include "logging/PeakLogger.hpp"
 #include <atomic>
 #include <mutex>
 #include <string>

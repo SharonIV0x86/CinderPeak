@@ -1,6 +1,6 @@
 #pragma once
-#include "StorageEngine/GraphStatistics.hpp"
-#include "StorageEngine/Utils.hpp" // for Unweighted
+#include "storage/stats/GraphStatistics.hpp"
+#include "storage/utils/Utils.hpp" // for Unweighted
 #include <functional>
 #include <optional>
 #include <string>

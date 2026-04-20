@@ -1,4 +1,4 @@
-#include "StorageEngine/HybridCSR_COO.hpp"
+#include "storage/implementations/HybridCSR_COO.hpp"
 #include <gtest/gtest.h>
 
 using namespace CinderPeak::PeakStore;

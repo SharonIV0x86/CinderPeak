@@ -1,10 +1,10 @@
 #pragma once
-#include "Algorithms/CinderPeakAlgorithms.hpp"
-#include "GraphRuntime.hpp"
-#include "PeakLogger.hpp"
-#include "StorageEngine/GraphStatistics.hpp"
-#include "StorageEngine/Utils.hpp"
-#include "StorageInterface.hpp"
+#include "algorithms/CinderPeakAlgorithms.hpp"
+#include "logging/PeakLogger.hpp"
+#include "storage/interface/StorageInterface.hpp"
+#include "storage/stats/GraphRuntime.hpp"
+#include "storage/stats/GraphStatistics.hpp"
+#include "storage/utils/Utils.hpp"
 #include <memory>
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;

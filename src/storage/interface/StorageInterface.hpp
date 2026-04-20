@@ -1,8 +1,8 @@
 #pragma once
-#include "StorageEngine/AdjacencyList.hpp"
-#include "StorageEngine/ErrorCodes.hpp"
-#include "StorageEngine/HybridCSR_COO.hpp"
-#include "StorageEngine/Utils.hpp"
+#include "storage/implementations/AdjacencyList.hpp"
+#include "storage/implementations/HybridCSR_COO.hpp"
+#include "storage/utils/ErrorCodes.hpp"
+#include "storage/utils/Utils.hpp"
 
 namespace CinderPeak {
 template <typename VertexType, typename EdgeType> class PeakStorageInterface {

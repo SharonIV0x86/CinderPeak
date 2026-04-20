@@ -1,4 +1,4 @@
-#include "CinderPeak.hpp"
+#include "cinderpeak/CinderPeak.hpp"
 #include <gtest/gtest.h>
 #include <sstream>
 #include <thread>

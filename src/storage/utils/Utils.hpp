@@ -1,7 +1,7 @@
 #pragma once
-#include "CinderExceptions.hpp"
 #include "ErrorCodes.hpp"
-#include "PeakLogger.hpp"
+#include "exceptions/CinderExceptions.hpp"
+#include "logging/PeakLogger.hpp"
 #include <bitset>
 #include <chrono>
 #include <functional>

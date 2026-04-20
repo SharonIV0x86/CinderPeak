@@ -1,5 +1,5 @@
 #pragma once
-#include "CinderPeak.hpp"
+#include "cinderpeak/CinderPeak.hpp"
 
 namespace CinderPeak {
 

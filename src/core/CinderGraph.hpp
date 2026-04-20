@@ -1,9 +1,9 @@
 #pragma once
-#include "Algorithms/CinderPeakAlgorithms.hpp"
-#include "Concepts.hpp"
-#include "PeakStore.hpp"
-#include "StorageEngine/GraphStatistics.hpp"
-#include "StorageEngine/Utils.hpp"
+#include "algorithms/CinderPeakAlgorithms.hpp"
+#include "core/Concepts.hpp"
+#include "engine/PeakStore.hpp"
+#include "storage/stats/GraphStatistics.hpp"
+#include "storage/utils/Utils.hpp"
 #include <iostream>
 #include <optional>
 #include <tuple>

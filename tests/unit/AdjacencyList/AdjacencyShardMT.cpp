@@ -1,4 +1,4 @@
-#include "StorageEngine/AdjacencyList.hpp"
+#include "storage/implementations/AdjacencyList.hpp"
 #include <gtest/gtest.h>
 #include <thread>
 

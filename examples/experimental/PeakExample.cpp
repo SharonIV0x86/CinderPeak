@@ -1,5 +1,5 @@
-#include "Concepts.hpp"
-#include "PeakStore.hpp"
+#include "core/Concepts.hpp"
+#include "engine/PeakStore.hpp"
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 int main() {
