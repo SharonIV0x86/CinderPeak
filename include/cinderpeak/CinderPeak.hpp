@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/CinderGraph.hpp"
 #include "algorithms/CinderPeakAlgorithms.hpp"
+#include "core/CinderGraph.hpp"
 
 namespace cinderpeak {
 
