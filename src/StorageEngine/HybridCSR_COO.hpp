@@ -1,21 +1,32 @@
 #pragma once
-#include "../StorageInterface.hpp"
-#include "StorageEngine/GraphContext.hpp"
-#include "Utils.hpp"
+
+#include "engine/GraphContext.hpp"
+#include "storage/interface/StorageInterface.hpp"
+#include "storage/utils/Utils.hpp"
+
 #include <algorithm>
 #include <atomic>
+#include <cstddef>
 #include <iostream>
+#include <map>
+#include <mutex>
 #include <shared_mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace CinderPeak {
 template <typename, typename> class PeakStorageInterface;
+
 namespace PeakStore {
 
 template <typename VertexType, typename EdgeType>
 class HybridCSR_COO : public PeakStorageInterface<VertexType, EdgeType> {
 private:
+  using diff_t = std::ptrdiff_t;
+
+  static inline diff_t to_diff(size_t x) { return static_cast<diff_t>(x); }
+
   alignas(64) std::vector<size_t> csr_row_offsets;
   alignas(64) std::vector<size_t> csr_col_vals;
   alignas(64) std::vector<EdgeType> csr_weights;
@@ -28,124 +39,78 @@ private:
   std::unordered_map<VertexType, size_t, VertexHasher<VertexType>>
       vertex_to_index;
 
+  // Built-state row storage. Each row is ordered by destination vertex id.
+  std::vector<std::map<size_t, EdgeType>> csr_rows_;
+
   mutable std::shared_mutex _mtx;
   mutable std::atomic<bool> is_built_{false};
   std::atomic<size_t> COO_BUFFER_THRESHOLD_{1024};
 
-  void buildStructures() {
-    if (is_built_.load(std::memory_order_acquire))
-      return;
+  bool csr_dirty_{true};
 
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-
-    if (is_built_.load(std::memory_order_relaxed))
-      return;
-
-    const size_t num_vertices = vertex_order.size();
-    csr_row_offsets.assign(num_vertices + 1, 0);
-    csr_col_vals.clear();
-    csr_weights.clear();
-
-    for (size_t i = 0; i < coo_src.size(); ++i) {
-      if (coo_src[i] < num_vertices) {
-        csr_row_offsets[coo_src[i] + 1]++;
-      }
+  void ensureRowStorageLocked() {
+    if (csr_rows_.size() != vertex_order.size()) {
+      csr_rows_.resize(vertex_order.size());
     }
-
-    for (size_t i = 1; i <= num_vertices; ++i) {
-      csr_row_offsets[i] += csr_row_offsets[i - 1];
-    }
-
-    csr_col_vals.resize(csr_row_offsets[num_vertices]);
-    csr_weights.resize(csr_row_offsets[num_vertices]);
-
-    std::vector<size_t> insert_offsets = csr_row_offsets;
-    std::vector<std::vector<std::pair<size_t, EdgeType>>> temp_rows(
-        num_vertices);
-    for (size_t i = 0; i < coo_src.size(); ++i) {
-      if (coo_src[i] < num_vertices && coo_dest[i] < num_vertices) {
-        temp_rows[coo_src[i]].emplace_back(coo_dest[i], coo_weights[i]);
-      }
-    }
-
-    for (size_t row = 0; row < num_vertices; ++row) {
-      std::sort(temp_rows[row].begin(), temp_rows[row].end(),
-                [](const auto &a, const auto &b) { return a.first < b.first; });
-      for (const auto &[dest_idx, weight] : temp_rows[row]) {
-        size_t pos = insert_offsets[row]++;
-        csr_col_vals[pos] = dest_idx;
-        csr_weights[pos] = weight;
-      }
-    }
-
-    clearCOOArrays();
-    is_built_.store(true, std::memory_order_release);
-  }
-
-  void incrementalUpdate() {
-    if (!is_built_.load(std::memory_order_relaxed) || coo_src.empty())
-      return;
-
-    const size_t num_vertices = vertex_order.size();
-    std::vector<size_t> new_edge_counts(num_vertices, 0);
-
-    for (size_t i = 0; i < coo_src.size(); ++i) {
-      if (coo_src[i] < num_vertices) {
-        new_edge_counts[coo_src[i]]++;
-      }
-    }
-
-    std::vector<size_t> new_row_offsets(num_vertices + 1, 0);
-    new_row_offsets[0] = csr_row_offsets[0];
-    for (size_t i = 0; i < num_vertices; ++i) {
-      new_row_offsets[i + 1] = new_row_offsets[i] +
-                               (csr_row_offsets[i + 1] - csr_row_offsets[i]) +
-                               new_edge_counts[i];
-    }
-
-    std::vector<size_t> new_col_vals(new_row_offsets.back());
-    std::vector<EdgeType> new_weights(new_row_offsets.back());
-
-    std::vector<size_t> insert_offsets = new_row_offsets;
-    for (size_t row = 0; row < num_vertices; ++row) {
-      size_t old_start = csr_row_offsets[row];
-      size_t old_end = csr_row_offsets[row + 1];
-      std::vector<std::pair<size_t, EdgeType>> merged_neighbors;
-
-      for (size_t i = old_start; i < old_end; ++i) {
-        merged_neighbors.emplace_back(csr_col_vals[i], csr_weights[i]);
-      }
-
-      for (size_t i = 0; i < coo_src.size(); ++i) {
-        if (coo_src[i] == row && coo_dest[i] < num_vertices) {
-          merged_neighbors.emplace_back(coo_dest[i], coo_weights[i]);
-        }
-      }
-
-      std::sort(merged_neighbors.begin(), merged_neighbors.end(),
-                [](const auto &a, const auto &b) { return a.first < b.first; });
-
-      for (const auto &[dest_idx, weight] : merged_neighbors) {
-        size_t pos = insert_offsets[row]++;
-        new_col_vals[pos] = dest_idx;
-        new_weights[pos] = weight;
-      }
-    }
-
-    csr_row_offsets = std::move(new_row_offsets);
-    csr_col_vals = std::move(new_col_vals);
-    csr_weights = std::move(new_weights);
-
-    clearCOOArrays();
   }
 
   void clearCOOArrays() noexcept {
     coo_src.clear();
     coo_dest.clear();
     coo_weights.clear();
-    coo_src.shrink_to_fit();
-    coo_dest.shrink_to_fit();
-    coo_weights.shrink_to_fit();
+  }
+
+  void mergeBufferedEdgesIntoRowsLocked() {
+    if (coo_src.empty()) {
+      return;
+    }
+
+    ensureRowStorageLocked();
+
+    const size_t n = vertex_order.size();
+    for (size_t i = 0; i < coo_src.size(); ++i) {
+      if (coo_src[i] < n && coo_dest[i] < n) {
+        csr_rows_[coo_src[i]][coo_dest[i]] = coo_weights[i];
+      }
+    }
+
+    clearCOOArrays();
+    csr_dirty_ = true;
+  }
+
+  void rebuildCSRSnapshotLocked() {
+    ensureRowStorageLocked();
+
+    const size_t n = vertex_order.size();
+    csr_row_offsets.assign(n + 1, 0);
+    csr_col_vals.clear();
+    csr_weights.clear();
+
+    size_t total_edges = 0;
+    for (size_t row = 0; row < n; ++row) {
+      total_edges += csr_rows_[row].size();
+      csr_row_offsets[row + 1] = total_edges;
+    }
+
+    csr_col_vals.resize(total_edges);
+    csr_weights.resize(total_edges);
+
+    size_t pos = 0;
+    for (size_t row = 0; row < n; ++row) {
+      for (const auto &[dest_idx, weight] : csr_rows_[row]) {
+        csr_col_vals[pos] = dest_idx;
+        csr_weights[pos] = weight;
+        ++pos;
+      }
+    }
+
+    csr_dirty_ = false;
+  }
+
+  void buildStructuresLocked() {
+    mergeBufferedEdgesIntoRowsLocked();
+    rebuildCSRSnapshotLocked();
+    is_built_.store(true, std::memory_order_release);
   }
 
 public:
@@ -158,6 +123,29 @@ public:
     coo_weights.reserve(4096);
     vertex_order.reserve(1024);
     vertex_to_index.reserve(1024);
+    csr_rows_.reserve(1024);
+  }
+
+  void buildStructures() {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (is_built_.load(std::memory_order_acquire) && !csr_dirty_ &&
+        coo_src.empty()) {
+      return;
+    }
+
+    buildStructuresLocked();
+  }
+
+  void incrementalUpdate() {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    if (!is_built_.load(std::memory_order_relaxed) || coo_src.empty()) {
+      return;
+    }
+
+    mergeBufferedEdgesIntoRowsLocked();
+    // Snapshot rebuild is deferred; lookups/updates use csr_rows_ directly.
   }
 
   void populateFromAdjList(
@@ -167,37 +155,43 @@ public:
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     is_built_.store(false, std::memory_order_relaxed);
+    csr_dirty_ = true;
+
     clearCOOArrays();
     vertex_order.clear();
     vertex_to_index.clear();
+    csr_rows_.clear();
+    csr_row_offsets.clear();
+    csr_col_vals.clear();
+    csr_weights.clear();
 
     for (const auto &[src, neighbors] : adj_list) {
-      auto src_it = vertex_to_index.find(src);
-      if (src_it == vertex_to_index.end()) {
+      if (vertex_to_index.find(src) == vertex_to_index.end()) {
         vertex_to_index[src] = vertex_order.size();
         vertex_order.push_back(src);
       }
+
       for (const auto &[dest, weight] : neighbors) {
-        auto dest_it = vertex_to_index.find(dest);
-        if (dest_it == vertex_to_index.end()) {
+        (void)weight;
+        if (vertex_to_index.find(dest) == vertex_to_index.end()) {
           vertex_to_index[dest] = vertex_order.size();
           vertex_order.push_back(dest);
         }
       }
     }
 
+    csr_rows_.assign(vertex_order.size(), {});
+
     for (const auto &[src, neighbors] : adj_list) {
-      size_t src_idx = vertex_to_index[src];
+      const size_t src_idx = vertex_to_index[src];
       for (const auto &[dest, weight] : neighbors) {
-        size_t dest_idx = vertex_to_index[dest];
-        coo_src.push_back(src_idx);
-        coo_dest.push_back(dest_idx);
-        coo_weights.push_back(weight);
+        const size_t dest_idx = vertex_to_index[dest];
+        csr_rows_[src_idx][dest_idx] = weight;
       }
     }
 
-    lock.unlock();
-    buildStructures();
+    rebuildCSRSnapshotLocked();
+    is_built_.store(true, std::memory_order_release);
   }
 
   void setCOOThreshold(size_t threshold) {
@@ -211,10 +205,7 @@ public:
     populateFromAdjList(adj_list);
   }
 
-  void orchestrator_mergeBuffer() {
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-    incrementalUpdate();
-  }
+  void orchestrator_mergeBuffer() { incrementalUpdate(); }
 
   void orchestrator_clearAll() { impl_clearVertices(); }
 
@@ -224,10 +215,18 @@ public:
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     std::cout << "HybridCSR_COO CSR (Indices):\n";
+
+    if (csr_dirty_ || csr_row_offsets.size() != vertex_order.size() + 1) {
+      // Debug output only; rebuild lazily for a correct snapshot.
+      lock.unlock();
+      const_cast<HybridCSR_COO *>(this)->buildStructures();
+      lock.lock();
+    }
+
     for (size_t i = 0; i < vertex_order.size(); ++i) {
       std::cout << vertex_order[i] << " [" << i << "] -> ";
       for (size_t j = csr_row_offsets[i]; j < csr_row_offsets[i + 1]; ++j) {
-        size_t neighbor_idx = csr_col_vals[j];
+        const size_t neighbor_idx = csr_col_vals[j];
         std::cout << "(" << vertex_order[neighbor_idx] << " [" << neighbor_idx
                   << "], " << csr_weights[j] << ") ";
       }
@@ -243,19 +242,22 @@ public:
     if (vtx_it != vertex_to_index.end()) {
       return PeakStatus::AlreadyExists();
     }
-    size_t new_idx = vertex_order.size();
+
+    const size_t new_idx = vertex_order.size();
     vertex_to_index[vtx] = new_idx;
     vertex_order.push_back(vtx);
+    csr_rows_.emplace_back();
+
     if (is_built_.load(std::memory_order_relaxed)) {
-      csr_row_offsets.push_back(csr_row_offsets.back());
+      csr_dirty_ = true;
     }
+
     return PeakStatus::OK();
   }
 
   [[nodiscard]] const PeakStatus
   impl_addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight = EdgeType()) override {
-
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto src_it = vertex_to_index.find(src);
@@ -264,15 +266,26 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    coo_src.push_back(src_it->second);
-    coo_dest.push_back(dest_it->second);
+    const size_t src_idx = src_it->second;
+    const size_t dest_idx = dest_it->second;
+
+    if (is_built_.load(std::memory_order_relaxed)) {
+      ensureRowStorageLocked();
+      csr_rows_[src_idx][dest_idx] = weight;
+      csr_dirty_ = true;
+      return PeakStatus::OK();
+    }
+
+    coo_src.push_back(src_idx);
+    coo_dest.push_back(dest_idx);
     coo_weights.push_back(weight);
 
-    if (is_built_.load(std::memory_order_relaxed) &&
-        coo_src.size() >=
-            COO_BUFFER_THRESHOLD_.load(std::memory_order_relaxed)) {
-      incrementalUpdate();
+    if (coo_src.size() >=
+        COO_BUFFER_THRESHOLD_.load(std::memory_order_relaxed)) {
+      lock.unlock();
+      buildStructures();
     }
+
     return PeakStatus::OK();
   }
 
@@ -280,113 +293,94 @@ public:
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
-    auto weight = EdgeType();
+    EdgeType weight{};
 
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return std::make_pair(weight, PeakStatus::VertexNotFound());
+      return {weight, PeakStatus::VertexNotFound()};
     }
 
-    size_t src_idx = src_it->second;
-    size_t dest_idx = dest_it->second;
-
-    for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
-        coo_src.erase(coo_src.begin() + (i - 1));
-        coo_dest.erase(coo_dest.begin() + (i - 1));
-        weight = coo_weights[i - 1];
-        coo_weights.erase(coo_weights.begin() + (i - 1));
-        return std::make_pair(weight, PeakStatus::OK());
-      }
-    }
+    const size_t src_idx = src_it->second;
+    const size_t dest_idx = dest_it->second;
 
     if (!is_built_.load(std::memory_order_acquire)) {
-      return std::make_pair(weight, PeakStatus::EdgeNotFound());
-    }
-
-    size_t row = src_idx;
-    size_t start = csr_row_offsets[row];
-    size_t end = csr_row_offsets[row + 1];
-
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
-
-    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
-      size_t edge_idx = std::distance(csr_col_vals.begin(), it);
-
-      weight = csr_weights[edge_idx];
-
-      csr_col_vals.erase(csr_col_vals.begin() + edge_idx);
-      csr_weights.erase(csr_weights.begin() + edge_idx);
-
-      for (size_t i = row + 1; i < csr_row_offsets.size(); ++i) {
-        csr_row_offsets[i]--;
+      for (size_t i = coo_src.size(); i > 0; --i) {
+        const size_t idx = i - 1;
+        if (coo_src[idx] == src_idx && coo_dest[idx] == dest_idx) {
+          weight = coo_weights[idx];
+          coo_src.erase(coo_src.begin() + to_diff(idx));
+          coo_dest.erase(coo_dest.begin() + to_diff(idx));
+          coo_weights.erase(coo_weights.begin() + to_diff(idx));
+          return {weight, PeakStatus::OK()};
+        }
       }
-
-      return std::make_pair(weight, PeakStatus::OK());
+      return {weight, PeakStatus::EdgeNotFound()};
     }
-    return std::make_pair(weight, PeakStatus::EdgeNotFound());
+
+    ensureRowStorageLocked();
+    auto &row = csr_rows_[src_idx];
+    auto it = row.find(dest_idx);
+    if (it == row.end()) {
+      return {weight, PeakStatus::EdgeNotFound()};
+    }
+
+    weight = it->second;
+    row.erase(it);
+    csr_dirty_ = true;
+    return {weight, PeakStatus::OK()};
   }
 
   [[nodiscard]] const PeakStatus
   impl_updateEdge(const VertexType &src, const VertexType &dest,
                   const EdgeType &newWeight) override {
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
       return PeakStatus::VertexNotFound();
     }
 
-    std::unique_lock<std::shared_mutex> lock(_mtx);
+    const size_t src_idx = src_it->second;
+    const size_t dest_idx = dest_it->second;
 
-    size_t src_idx = src_it->second;
-    size_t dest_idx = dest_it->second;
-
-    for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
-        coo_weights[i - 1] = newWeight;
-        return PeakStatus::OK();
+    if (!is_built_.load(std::memory_order_acquire)) {
+      for (size_t i = coo_src.size(); i > 0; --i) {
+        const size_t idx = i - 1;
+        if (coo_src[idx] == src_idx && coo_dest[idx] == dest_idx) {
+          coo_weights[idx] = newWeight;
+          return PeakStatus::OK();
+        }
       }
+      return PeakStatus::EdgeNotFound();
     }
 
-    if (!is_built_.load(std::memory_order_relaxed)) {
-      lock.unlock();
-      buildStructures();
-      lock.lock();
+    ensureRowStorageLocked();
+    auto &row = csr_rows_[src_idx];
+    auto it = row.find(dest_idx);
+    if (it == row.end()) {
+      return PeakStatus::EdgeNotFound();
     }
 
-    size_t row = src_idx;
-    size_t start = csr_row_offsets[row];
-    size_t end = csr_row_offsets[row + 1];
-
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
-
-    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
-      size_t idx = std::distance(csr_col_vals.begin(), it);
-      csr_weights[idx] = newWeight;
-      return PeakStatus::OK();
-    }
-
-    return PeakStatus::EdgeNotFound();
+    it->second = newWeight;
+    csr_dirty_ = true;
+    return PeakStatus::OK();
   }
 
   [[nodiscard]] const PeakStatus impl_clearVertices() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
+
     clearCOOArrays();
-
-    if (is_built_.load(std::memory_order_relaxed)) {
-      csr_row_offsets.clear();
-      csr_col_vals.clear();
-      csr_weights.clear();
-      csr_col_vals.shrink_to_fit();
-      csr_weights.shrink_to_fit();
-    }
-
     vertex_order.clear();
     vertex_to_index.clear();
+    csr_rows_.clear();
 
+    csr_row_offsets.clear();
+    csr_col_vals.clear();
+    csr_weights.clear();
+
+    csr_dirty_ = true;
     is_built_.store(false, std::memory_order_relaxed);
 
     return PeakStatus::OK();
@@ -394,14 +388,19 @@ public:
 
   [[nodiscard]] const PeakStatus impl_clearEdges() override {
     std::unique_lock<std::shared_mutex> lock(_mtx);
+
     clearCOOArrays();
+    for (auto &row : csr_rows_) {
+      row.clear();
+    }
 
     if (is_built_.load(std::memory_order_relaxed)) {
-      std::fill(csr_row_offsets.begin(), csr_row_offsets.end(), 0);
+      rebuildCSRSnapshotLocked();
+    } else {
+      csr_row_offsets.assign(vertex_order.size() + 1, 0);
       csr_col_vals.clear();
       csr_weights.clear();
-      csr_col_vals.shrink_to_fit();
-      csr_weights.shrink_to_fit();
+      csr_dirty_ = false;
     }
 
     return PeakStatus::OK();
@@ -409,10 +408,7 @@ public:
 
   [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
-    if (!vertex_to_index.count(v)) {
-      return false;
-    }
-    return true;
+    return vertex_to_index.find(v) != vertex_to_index.end();
   }
 
   [[nodiscard]] bool
@@ -430,40 +426,37 @@ public:
 
   [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
-    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+
+    EdgeType weight{};
 
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
     if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return {EdgeType{}, PeakStatus::VertexNotFound()};
+      return {weight, PeakStatus::VertexNotFound()};
     }
 
-    size_t src_idx = src_it->second;
-    size_t dest_idx = dest_it->second;
-
-    for (size_t i = coo_src.size(); i > 0; --i) {
-      if (coo_src[i - 1] == src_idx && coo_dest[i - 1] == dest_idx) {
-        return {coo_weights[i - 1], PeakStatus::OK()};
-      }
-    }
+    const size_t src_idx = src_it->second;
+    const size_t dest_idx = dest_it->second;
 
     if (!is_built_.load(std::memory_order_acquire)) {
-      lock.unlock();
-      buildStructures();
-      lock.lock();
+      for (size_t i = coo_src.size(); i > 0; --i) {
+        const size_t idx = i - 1;
+        if (coo_src[idx] == src_idx && coo_dest[idx] == dest_idx) {
+          return {coo_weights[idx], PeakStatus::OK()};
+        }
+      }
+      return {weight, PeakStatus::EdgeNotFound()};
     }
 
-    size_t row = src_idx;
-    size_t start = csr_row_offsets[row];
-    size_t end = csr_row_offsets[row + 1];
-
-    auto it = std::lower_bound(csr_col_vals.begin() + start,
-                               csr_col_vals.begin() + end, dest_idx);
-    if (it != csr_col_vals.begin() + end && *it == dest_idx) {
-      size_t idx = std::distance(csr_col_vals.begin(), it);
-      return {csr_weights[idx], PeakStatus::OK()};
+    ensureRowStorageLocked();
+    auto &row = csr_rows_[src_idx];
+    auto it = row.find(dest_idx);
+    if (it != row.end()) {
+      return {it->second, PeakStatus::OK()};
     }
-    return {EdgeType{}, PeakStatus::EdgeNotFound()};
+
+    return {weight, PeakStatus::EdgeNotFound()};
   }
 
   [[nodiscard]] const PeakStatus
@@ -475,58 +468,49 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    size_t idx_to_remove = vtx_it->second;
+    const size_t idx_to_remove = vtx_it->second;
 
+    // Remove any buffered COO edges and renumber remaining indices.
     for (size_t i = 0; i < coo_src.size();) {
       if (coo_src[i] == idx_to_remove || coo_dest[i] == idx_to_remove) {
-        coo_src.erase(coo_src.begin() + i);
-        coo_dest.erase(coo_dest.begin() + i);
-        coo_weights.erase(coo_weights.begin() + i);
+        coo_src.erase(coo_src.begin() + to_diff(i));
+        coo_dest.erase(coo_dest.begin() + to_diff(i));
+        coo_weights.erase(coo_weights.begin() + to_diff(i));
       } else {
-        if (coo_src[i] > idx_to_remove)
-          coo_src[i]--;
-        if (coo_dest[i] > idx_to_remove)
-          coo_dest[i]--;
+        if (coo_src[i] > idx_to_remove) {
+          --coo_src[i];
+        }
+        if (coo_dest[i] > idx_to_remove) {
+          --coo_dest[i];
+        }
         ++i;
       }
     }
 
     if (is_built_.load(std::memory_order_relaxed)) {
-      std::vector<size_t> new_csr_cols;
-      std::vector<EdgeType> new_csr_weights;
-      std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
+      ensureRowStorageLocked();
 
-      size_t current_offset = 0;
-      size_t new_row_idx = 0;
-
-      for (size_t old_row = 0; old_row < vertex_order.size(); ++old_row) {
-        if (old_row == idx_to_remove)
-          continue;
-
-        size_t start = csr_row_offsets[old_row];
-        size_t end = csr_row_offsets[old_row + 1];
-
-        for (size_t j = start; j < end; ++j) {
-          size_t neighbor_idx = csr_col_vals[j];
-          if (neighbor_idx != idx_to_remove) {
-            size_t new_neighbor_idx = (neighbor_idx > idx_to_remove)
-                                          ? neighbor_idx - 1
-                                          : neighbor_idx;
-            new_csr_cols.push_back(new_neighbor_idx);
-            new_csr_weights.push_back(csr_weights[j]);
-            current_offset++;
-          }
-        }
-        new_row_idx++;
-        new_row_offsets[new_row_idx] = current_offset;
+      if (idx_to_remove < csr_rows_.size()) {
+        csr_rows_.erase(csr_rows_.begin() + to_diff(idx_to_remove));
       }
 
-      csr_row_offsets = std::move(new_row_offsets);
-      csr_col_vals = std::move(new_csr_cols);
-      csr_weights = std::move(new_csr_weights);
+      for (auto &row : csr_rows_) {
+        std::map<size_t, EdgeType> remapped;
+        for (const auto &[dest_idx, weight] : row) {
+          if (dest_idx == idx_to_remove) {
+            continue;
+          }
+          const size_t new_dest_idx =
+              (dest_idx > idx_to_remove) ? (dest_idx - 1) : dest_idx;
+          remapped.emplace(new_dest_idx, weight);
+        }
+        row.swap(remapped);
+      }
+
+      csr_dirty_ = true;
     }
 
-    vertex_order.erase(vertex_order.begin() + idx_to_remove);
+    vertex_order.erase(vertex_order.begin() + to_diff(idx_to_remove));
 
     vertex_to_index.clear();
     for (size_t i = 0; i < vertex_order.size(); ++i) {
