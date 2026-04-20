@@ -1,5 +1,4 @@
-#include "GraphRuntime.hpp"
-#include "StorageEngine/AdjacencyList.hpp"
+#include "storage/implementations/AdjacencyList.hpp"
 #include <gtest/gtest.h>
 #include <thread>
 
@@ -8,9 +7,8 @@ using namespace PeakStore;
 
 class AdjacencyStorageTestMT : public ::testing::Test, public CinderVertex {
 protected:
-  GraphRuntime runtime;
-  AdjacencyList<int, int> intGraph{runtime};
-  AdjacencyList<std::string, float> stringGraph{runtime};
+  AdjacencyList<int, int> intGraph;
+  AdjacencyList<std::string, float> stringGraph;
 
   void SetUp() override {
     intGraph.impl_addVertex(1);
@@ -30,8 +28,7 @@ protected:
 };
 class AdjacencyListThreadTest : public ::testing::Test {
 protected:
-  GraphRuntime runtime;
-  AdjacencyList<int, int> threadGraph{runtime};
+  AdjacencyList<int, int> threadGraph;
 
   void SetUp() override {
     for (int i = 1; i <= 100; ++i) {

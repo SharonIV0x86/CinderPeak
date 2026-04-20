@@ -1,5 +1,5 @@
 #include "AdjacencyListTestBase.hpp"
-#include "CinderGraph.hpp"
+#include "core/CinderGraph.hpp"
 #include "gtest/gtest.h"
 
 TEST_F(AdjacencyStorageShardTest, ToDotDirectedGraph) {

@@ -36,7 +36,7 @@ TEST_F(AdjacencyStorageShardTest, ClearVerticesWithEdges) {
 }
 
 TEST_F(AdjacencyStorageShardTest, ClearVerticesEmptyGraph) {
-  AdjacencyList<int, int> emptyGraph(runtime);
+  AdjacencyList<int, int> emptyGraph;
 
   EXPECT_TRUE(emptyGraph.impl_clearVertices().isOK());
 
@@ -88,7 +88,7 @@ TEST_F(AdjacencyStorageShardTest, ClearVerticesStringGraph) {
 }
 
 TEST_F(AdjacencyStorageShardTest, ClearVerticesLargeGraph) {
-  AdjacencyList<int, int> largeGraph(runtime);
+  AdjacencyList<int, int> largeGraph;
 
   for (int i = 0; i < 100000; ++i) {
     EXPECT_TRUE(largeGraph.impl_addVertex(i).isOK());

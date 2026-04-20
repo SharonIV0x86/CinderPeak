@@ -1,4 +1,4 @@
-#include "CinderPeak.hpp"
+#include "cinderpeak/CinderPeak.hpp"
 #include <iostream>
 using namespace CinderPeak;
 

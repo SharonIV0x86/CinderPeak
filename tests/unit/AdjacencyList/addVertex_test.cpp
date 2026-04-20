@@ -61,8 +61,7 @@ TEST_F(AdjacencyStorageShardTest, AddVerticesString) {
 }
 
 TEST(AdjacencyListCustomTest, CustomVertexType) {
-  GraphRuntime runtime;
-  AdjacencyList<CustomVertex, float> customGraph(runtime);
+  AdjacencyList<CustomVertex, float> customGraph;
 
   CustomVertex v1{1, "Node1"};
   CustomVertex v2{2, "Node2"};

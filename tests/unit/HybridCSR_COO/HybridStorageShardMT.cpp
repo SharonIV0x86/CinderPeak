@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-#include "StorageEngine/HybridCSR_COO.hpp"
+#include "storage/implementations/HybridCSR_COO.hpp"
 
 using namespace CinderPeak::PeakStore;
 using namespace std::chrono;
