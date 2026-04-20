@@ -180,7 +180,7 @@ public:
                   const EdgeType &newWeight)
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
                           UpdateEdgeResult> {
-peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::updateEdge\n");
+    peak_store->log(LogLevel::CRITICAL, "Log from CinderGraph::updateEdge\n");
     auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
 
     if (!status.isOK()) {
