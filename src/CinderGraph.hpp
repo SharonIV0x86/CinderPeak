@@ -98,28 +98,37 @@ public:
         metadata, options);
   }
   VertexAddResult addVertex(const VertexType &v) {
+    peak_store->log(LogLevel::INFO, "Entering addVertex");
     auto resp = peak_store->addVertex(v);
     if (!resp.isOK()) {
+      peak_store->log(LogLevel::WARNING, "Error in addVertex");
       Exceptions::handle_exception_map(resp);
       // If exceptions are disabled, handle_exception_map returns -> fallthrough
       return {v, false};
     }
+    peak_store->log(LogLevel::INFO, "addVertex completed successfully");
     return {v, true};
   }
   bool removeVertex(const VertexType &v) {
+    peak_store->log(LogLevel::INFO, "Entering removeVertex");
     auto resp = peak_store->removeVertex(v);
     if (!resp.isOK()) {
+      peak_store->log(LogLevel::WARNING, "Error in removeVertex");
       Exceptions::handle_exception_map(resp);
       return false;
     }
+    peak_store->log(LogLevel::INFO, "removeVertex completed successfully");
     return true;
   }
   RemoveEdgeResult removeEdge(const VertexType &src, const VertexType &dest) {
+    peak_store->log(LogLevel::INFO, "Entering removeEdge");
     auto [data, status] = peak_store->removeEdge(src, dest);
     if (!status.isOK()) {
+      peak_store->log(LogLevel::WARNING, "Error in removeEdge");
       Exceptions::handle_exception_map(status);
       return {std::nullopt, false};
     }
+    peak_store->log(LogLevel::INFO, "removeEdge completed successfully");
     return {std::make_optional(data), true};
   }
 
@@ -146,13 +155,14 @@ public:
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
                           UnweightedEdgeAddResult> {
-    peak_store->log(LogLevel::CRITICAL,
-                    "Log from CinderGraph::addEdge(unweighted)\n");
+    peak_store->log(LogLevel::INFO, "Entering addEdge (unweighted)");
     auto resp = peak_store->addEdge(src, dest);
     if (!resp.isOK()) {
+      peak_store->log(LogLevel::WARNING, "Error in addEdge (unweighted)");
       Exceptions::handle_exception_map(resp);
       return {{src, dest}, false};
     }
+    peak_store->log(LogLevel::INFO, "addEdge (unweighted) completed successfully");
     return {{src, dest}, true};
   }
 
@@ -161,11 +171,14 @@ public:
                const EdgeType &weight)
       -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>,
                           WeightedEdgeAddResult> {
+    peak_store->log(LogLevel::INFO, "Entering addEdge (weighted)");
     auto resp = peak_store->addEdge(src, dest, weight);
     if (!resp.isOK()) {
+      peak_store->log(LogLevel::WARNING, "Error in addEdge (weighted)");
       Exceptions::handle_exception_map(resp);
       return {{src, dest, weight}, false};
     }
+    peak_store->log(LogLevel::INFO, "addEdge (weighted) completed successfully");
     return {{src, dest, weight}, true};
   }
 
@@ -174,14 +187,14 @@ public:
                   const EdgeType &newWeight)
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
                           UpdateEdgeResult> {
-
+    peak_store->log(LogLevel::INFO, "Entering updateEdge");
     auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
-
     if (!status.isOK()) {
+      peak_store->log(LogLevel::WARNING, "Error in updateEdge");
       Exceptions::handle_exception_map(status);
       return {newWeight, false};
     }
-
+    peak_store->log(LogLevel::INFO, "updateEdge completed successfully");
     return {newWeight, true};
   }
   GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) {
