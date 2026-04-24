@@ -141,7 +141,8 @@ public:
       Exceptions::handle_exception_map(resp);
       return;
     }
-    peak_store->log(LogLevel::INFO, "API: clearVertices completed successfully");
+    peak_store->log(LogLevel::INFO,
+      "API: clearVertices completed successfully");
   }
 
   // Helper method to call clearEdges from PeakStore
@@ -168,7 +169,8 @@ public:
       Exceptions::handle_exception_map(resp);
       return {{src, dest}, false};
     }
-    peak_store->log(LogLevel::INFO, "API: addEdge (unweighted) completed successfully");
+    peak_store->log(LogLevel::INFO, 
+      "API: addEdge (unweighted) completed successfully");
     return {{src, dest}, true};
   }
 
@@ -184,7 +186,8 @@ public:
       Exceptions::handle_exception_map(resp);
       return {{src, dest, weight}, false};
     }
-    peak_store->log(LogLevel::INFO, "API: addEdge (weighted) completed successfully");
+    peak_store->log(LogLevel::INFO, 
+      "API: addEdge (weighted) completed successfully");
     return {{src, dest, weight}, true};
   }
 
