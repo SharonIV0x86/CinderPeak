@@ -201,7 +201,8 @@ public:
     peak_store->log(LogLevel::INFO, "API: updateEdge completed successfully");
     return {newWeight, true};
   }
-  std::optional<EdgeType> getEdge(const VertexType &src, const VertexType &dest) {
+  std::optional<EdgeType> getEdge(const VertexType &src,
+                                  const VertexType &dest) {
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
