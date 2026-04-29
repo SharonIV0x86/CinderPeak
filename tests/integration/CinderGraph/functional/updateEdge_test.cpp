@@ -16,9 +16,9 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgePrimitive) {
 
   EXPECT_TRUE(intGraph.addEdge(1, 2, 25).second);
 
-  auto [weight, status] = intGraph.getEdge(1, 2);
-  EXPECT_TRUE(status);
-  EXPECT_EQ(weight, 25);
+  auto weight = intGraph.getEdge(1, 2);
+  EXPECT_TRUE(weight.has_value());
+  EXPECT_EQ(*weight, 25);
 
   auto [new_weight, status1] = intGraph.updateEdge(1, 2, 50);
   EXPECT_TRUE(status1);
@@ -35,9 +35,9 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgeString) {
 
   EXPECT_TRUE(stringGraph.addEdge("A", "B", 42).second);
 
-  auto [weight, status] = stringGraph.getEdge("A", "B");
-  EXPECT_TRUE(status);
-  EXPECT_EQ(weight, 42);
+  auto weight = stringGraph.getEdge("A", "B");
+  EXPECT_TRUE(weight.has_value());
+  EXPECT_EQ(*weight, 42);
 
   auto [new_weight, status1] = stringGraph.updateEdge("A", "B", 84);
   EXPECT_TRUE(status1);
@@ -58,8 +58,8 @@ TEST_F(CinderGraphFunctionalTest, UpdateCustomEdge) {
 
   EXPECT_TRUE(customGraph.addEdge(v1, v2, e1).second);
 
-  auto [weight, status] = customGraph.getEdge(v1, v2);
-  ASSERT_TRUE(status);
+  auto weight = customGraph.getEdge(v1, v2);
+  ASSERT_TRUE(weight.has_value());
   EXPECT_EQ(weight->edge_weight, 3.5f);
 
   auto [new_weight, status1] = customGraph.updateEdge(v1, v2, e2);

@@ -21,8 +21,8 @@ int main() {
     cout << "Initial edge (1,2) with weight 10.0" << endl;
 
     // Get initial weight
-    auto [initialWeight, found1] = g.getEdge(1, 2);
-    if (found1 && initialWeight.has_value()) {
+    auto initialWeight = g.getEdge(1, 2);
+    if (initialWeight.has_value()) {
       cout << "Current weight of edge (1,2): " << initialWeight.value() << endl;
     }
 
@@ -32,8 +32,8 @@ int main() {
          << (updated ? "success" : "failed") << endl;
 
     // Verify update
-    auto [verifyWeight, found2] = g.getEdge(1, 2);
-    if (found2 && verifyWeight.has_value()) {
+    auto verifyWeight = g.getEdge(1, 2);
+    if (verifyWeight.has_value()) {
       cout << "Verified weight of edge (1,2): " << verifyWeight.value() << endl;
     }
 
@@ -75,8 +75,8 @@ int main() {
     g3.updateEdge(10, 20, 20);
     cout << "Updated to: 20" << endl;
 
-    auto [finalWeight, finalFound] = g3.getEdge(10, 20);
-    if (finalFound && finalWeight.has_value()) {
+    auto finalWeight = g3.getEdge(10, 20);
+    if (finalWeight.has_value()) {
       cout << "Final weight: " << finalWeight.value() << endl;
     }
 
