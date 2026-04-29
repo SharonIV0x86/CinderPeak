@@ -41,8 +41,8 @@ int main() {
 
   // Retrieve an edge safely
   auto getRes = graph.getEdge(2, 5);
-  if (getRes.second && getRes.first.has_value()) {
-    std::cout << "Edge (2->5) value: " << *(getRes.first) << "\n";
+  if (getRes.has_value()) {
+    std::cout << "Edge (2->5) value: " << *getRes << "\n";
   } else {
     std::cout << "Edge (2->5) not found.\n";
   }

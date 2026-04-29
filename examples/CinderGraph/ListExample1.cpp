@@ -38,10 +38,10 @@ int main() {
   if (graph.hasVertex(6))
     std::cout << "Vertex 6 exists.\n";
 
-  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).has_value()
             << "\n"; // Check edge existence
   graph.removeEdge(5, 3);
-  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).second
+  std::cout << "Does edge (5,3) exists: " << graph.getEdge(5, 3).has_value()
             << "\n"; // Check edge existence after removal
 
   std::cout << "Number of vertices: " << graph.numVertices()
@@ -115,9 +115,8 @@ int main() {
   else
     std::cout << "Failed to add ListEdge lv1->lv2\n";
 
-  // getEdge returns pair<optional<Edge_t>, bool>
-  auto [maybeBeforeEdge, foundBefore] = listGraph.getEdge(lv1, lv2);
-  if (foundBefore && maybeBeforeEdge)
+  auto maybeBeforeEdge = listGraph.getEdge(lv1, lv2);
+  if (maybeBeforeEdge)
     std::cout << "Edge value before update: " << maybeBeforeEdge->edge_weight
               << "\n";
   else
@@ -132,8 +131,8 @@ int main() {
   else
     std::cout << "updateEdge failed for lv1->lv2\n";
 
-  auto [maybeAfterEdge, foundAfter] = listGraph.getEdge(lv1, lv2);
-  if (foundAfter && maybeAfterEdge)
+  auto maybeAfterEdge = listGraph.getEdge(lv1, lv2);
+  if (maybeAfterEdge)
     std::cout << "Edge value after the update: " << maybeAfterEdge->edge_weight
               << "\n";
   else

@@ -46,11 +46,11 @@ TEST_F(BulkInsertionStressTest, BulkWeightedEdgesInsertion) {
 
   EXPECT_EQ(intGraph.numEdges(), numVertices - 1);
 
-  auto [weight1, status1] = intGraph.getEdge(0, 1);
-  EXPECT_TRUE(status1 && weight1 == 0);
+  auto weight1 = intGraph.getEdge(0, 1);
+  EXPECT_TRUE(weight1.has_value() && *weight1 == 0);
 
-  auto [weight2, status2] = intGraph.getEdge(250, 251);
-  EXPECT_TRUE(status2 && weight2 == 1250);
+  auto weight2 = intGraph.getEdge(250, 251);
+  EXPECT_TRUE(weight2.has_value() && *weight2 == 1250);
 }
 
 TEST_F(BulkInsertionStressTest, BulkUnweightedEdgesInsertion) {
@@ -68,13 +68,13 @@ TEST_F(BulkInsertionStressTest, BulkUnweightedEdgesInsertion) {
 
   EXPECT_EQ(intGraph.numEdges(), numVertices - 1);
 
-  auto [weight1, status1] = intGraph.getEdge(0, 1);
-  auto [weight2, status2] = intGraph.getEdge(0, 150);
-  auto [weight3, status3] = intGraph.getEdge(0, 299);
+  auto weight1 = intGraph.getEdge(0, 1);
+  auto weight2 = intGraph.getEdge(0, 150);
+  auto weight3 = intGraph.getEdge(0, 299);
 
-  EXPECT_TRUE(status1);
-  EXPECT_TRUE(status2);
-  EXPECT_TRUE(status3);
+  EXPECT_TRUE(weight1.has_value());
+  EXPECT_TRUE(weight2.has_value());
+  EXPECT_TRUE(weight3.has_value());
 }
 
 TEST_F(BulkInsertionStressTest, DenseGraph) {
@@ -100,13 +100,13 @@ TEST_F(BulkInsertionStressTest, DenseGraph) {
 
   EXPECT_EQ(intGraph.numEdges(), edgeCount);
 
-  auto [weight1, status1] = intGraph.getEdge(0, 5);
-  EXPECT_TRUE(status1);
-  EXPECT_EQ(weight1, 5);
+  auto weight1 = intGraph.getEdge(0, 5);
+  EXPECT_TRUE(weight1.has_value());
+  EXPECT_EQ(*weight1, 5);
 
-  auto [weight2, status2] = intGraph.getEdge(20, 25);
-  EXPECT_TRUE(status2);
-  EXPECT_EQ(weight2, 205);
+  auto weight2 = intGraph.getEdge(20, 25);
+  EXPECT_TRUE(weight2.has_value());
+  EXPECT_EQ(*weight2, 205);
 }
 
 TEST_F(BulkInsertionStressTest, MixedBulkOperations) {
@@ -163,15 +163,15 @@ TEST_F(BulkInsertionStressTest, BulkInsertionWithEdgeUpdates) {
     EXPECT_TRUE(intGraph.updateEdge(src, dest, i * 10).second);
   }
 
-  auto [weight1, status1] = intGraph.getEdge(0, 1);
-  EXPECT_TRUE(status1);
-  EXPECT_EQ(weight1, 0);
+  auto weight1 = intGraph.getEdge(0, 1);
+  EXPECT_TRUE(weight1.has_value());
+  EXPECT_EQ(*weight1, 0);
 
-  auto [weight2, status2] = intGraph.getEdge(10, 11);
-  EXPECT_TRUE(status2);
-  EXPECT_EQ(weight2, 100);
+  auto weight2 = intGraph.getEdge(10, 11);
+  EXPECT_TRUE(weight2.has_value());
+  EXPECT_EQ(*weight2, 100);
 
-  auto [weight3, status3] = intGraph.getEdge(20, 21);
-  EXPECT_TRUE(status3);
-  EXPECT_EQ(weight3, 200);
+  auto weight3 = intGraph.getEdge(20, 21);
+  EXPECT_TRUE(weight3.has_value());
+  EXPECT_EQ(*weight3, 200);
 }
