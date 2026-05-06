@@ -33,7 +33,8 @@ int main() {
 
     // Try to get non-existent edge
     auto weight3 = g.getEdge(1, 4);
-    cout << "Edge (1,4) found: " << (weight3.has_value() ? "yes" : "no") << endl;
+    cout << "Edge (1,4) found: "
+         << (weight3.has_value() ? "yes" : "no") << endl;
 
     // String vertices
     cout << "\n--- String Vertices ---" << endl;
