@@ -212,3 +212,30 @@ inline bool operator==(const Unweighted &, const Unweighted &) noexcept {
 }
 
 } // namespace CinderPeak
+
+// Graph Name Utility Functions
+namespace GraphNameUtils {
+    // Validates graph name: alphanumeric only, length 1-32
+    inline bool isValidGraphName(const std::string& name) {
+        if (name.length() < 1 || name.length() > 32) {
+            return false;
+        }
+        for (char c : name) {
+            if (!std::isalnum(static_cast<unsigned char>(c))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Generates default graph name: "cpgraph_123"
+    // Uses atomic counter to ensure uniqueness
+    inline std::string generateDefaultGraphName() {
+        static std::atomic<uint32_t> graph_counter{0};
+        uint32_t id = graph_counter.fetch_add(1, std::memory_order_relaxed);
+        
+        std::stringstream ss;
+        ss << "cpgraph_" << id;
+        return ss.str();
+    }
+}
