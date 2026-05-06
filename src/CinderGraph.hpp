@@ -23,8 +23,8 @@ public:
       : graph(g), src(s) {}
 
   EdgeType operator[](const VertexType &dest) const {
-    auto [optWeight, found] = graph.getEdge(src, dest);
-    if (!found || !optWeight.has_value()) {
+    auto optWeight = graph.getEdge(src, dest);
+    if (!optWeight.has_value()) {
       throw std::runtime_error("Edge not found: " + src + " -> " + dest);
     }
     return *optWeight;
@@ -52,8 +52,8 @@ public:
     }
 
     operator EdgeType() const {
-      auto [optWeight, found] = graph.getEdge(src, dest);
-      return (found && optWeight) ? *optWeight : EdgeType{};
+      auto optWeight = graph.getEdge(src, dest);
+      return optWeight ? *optWeight : EdgeType{};
     }
   };
 
@@ -77,11 +77,6 @@ template <typename VertexType, typename EdgeType> class CinderGraph {
   // UpdateEdgeResult: {previousWeight, updatedFlag}
   // (previousWeight is EdgeType{} when edge missing or unknown)
   using UpdateEdgeResult = std::pair<EdgeType, bool>;
-
-  // GetEdgeResult: {optional(weight), foundFlag}
-  // Note: optional already conveys presence; bool duplicates that info but kept
-  // per typedef.
-  using GetEdgeResult = std::pair<std::optional<EdgeType>, bool>;
 
   using RemoveEdgeResult = std::pair<std::optional<EdgeType>, bool>;
 
@@ -206,13 +201,14 @@ public:
     peak_store->log(LogLevel::INFO, "API: updateEdge completed successfully");
     return {newWeight, true};
   }
-  GetEdgeResult getEdge(const VertexType &src, const VertexType &dest) {
+  std::optional<EdgeType> getEdge(const VertexType &src,
+                                  const VertexType &dest) {
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
       Exceptions::handle_exception_map(status);
-      return {std::nullopt, false};
+      return std::nullopt;
     }
-    return {std::make_optional(data), true};
+    return data;
   }
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     return peak_store->bfs(src);
