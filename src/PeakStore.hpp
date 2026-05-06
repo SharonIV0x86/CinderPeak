@@ -9,6 +9,7 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -50,18 +51,14 @@ public:
 
   // Set graph name
   bool setGraphName(const std::string& name) {
-    if (!ctx->metadata) {
-      return false;
-    }
+    assert(ctx && ctx->metadata && "PeakStore not properly initialized");
     ctx->log(LogLevel::INFO, "PeakStore: Setting graph name to: " + name);
     return ctx->metadata->setGraphName(name);
   }
 
   // Get graph name
   std::string getGraphName() {
-    if (!ctx->metadata) {
-      return "";
-    }
+    assert(ctx && ctx->metadata && "PeakStore not properly initialized");
     return ctx->metadata->getGraphName();
   }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils.hpp"
 #include <atomic>
 #include <bitset>
 #include <chrono>
@@ -48,7 +49,7 @@ public:
     num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
-    graph_name = GraphNameUtils::generateDefaultGraphName();
+    graph_name = CinderPeak::GraphNameUtils::generateDefaultGraphName();
   }
 
   // Custom copy constructor that doesn't copy the mutex
@@ -198,7 +199,7 @@ public:
 
   // Setter for graph name with validation
   bool setGraphName(const std::string& name) {
-    if (!GraphNameUtils::isValidGraphName(name)) {
+    if (!CinderPeak::GraphNameUtils::isValidGraphName(name)) {
       return false;  // Invalid name
     }
     std::unique_lock<std::shared_mutex> lock(_mtx);

@@ -2,8 +2,11 @@
 #include "CinderExceptions.hpp"
 #include "ErrorCodes.hpp"
 #include "PeakLogger.hpp"
+#include <atomic>
 #include <bitset>
+#include <cctype>
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -211,8 +214,6 @@ inline bool operator==(const Unweighted &, const Unweighted &) noexcept {
   return true;
 }
 
-} // namespace CinderPeak
-
 // Graph Name Utility Functions
 namespace GraphNameUtils {
     // Validates graph name: alphanumeric only, length 1-32
@@ -228,7 +229,7 @@ namespace GraphNameUtils {
         return true;
     }
 
-    // Generates default graph name: "cpgraph_123"
+    // Generates default graph name: "cpgraph_0", "cpgraph_1", etc.
     // Uses atomic counter to ensure uniqueness
     inline std::string generateDefaultGraphName() {
         static std::atomic<uint32_t> graph_counter{0};
@@ -239,3 +240,4 @@ namespace GraphNameUtils {
         return ss.str();
     }
 }
+} // namespace CinderPeak
