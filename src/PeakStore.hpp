@@ -48,6 +48,23 @@ public:
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 1\n");
   }
 
+  // Set graph name
+  bool setGraphName(const std::string& name) {
+    if (!ctx->metadata) {
+      return false;
+    }
+    ctx->log(LogLevel::INFO, "PeakStore: Setting graph name to: " + name);
+    return ctx->metadata->setGraphName(name);
+  }
+
+  // Get graph name
+  std::string getGraphName() {
+    if (!ctx->metadata) {
+      return "";
+    }
+    return ctx->metadata->getGraphName();
+  }
+
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
     if (!hasVertex(src)) {
