@@ -27,6 +27,7 @@ private:
   size_t num_parallel_edges;
   float density;
   const std::string graph_type;
+  std::string graph_name;
   bool is_vertex_type_primitive;
   bool is_edge_type_primitive;
   bool is_graph_weighted;
@@ -36,10 +37,10 @@ private:
 
 public:
   GraphInternalMetadata(const std::string &graphType, bool vertex_tp_p,
-                        bool edge_tp_p, bool weighted, bool unweighted)
+                      bool edge_tp_p, bool weighted, bool unweighted)
       : graph_type(graphType), is_vertex_type_primitive(vertex_tp_p),
         is_edge_type_primitive(edge_tp_p) {
-
+    
     num_vertices = 0;
     num_edges = 0;
     density = 0.0;
@@ -47,6 +48,7 @@ public:
     num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
+    graph_name = GraphNameUtils::generateDefaultGraphName();
   }
 
   // Custom copy constructor that doesn't copy the mutex
@@ -62,6 +64,7 @@ public:
     is_edge_type_primitive = metadata.is_edge_type_primitive;
     is_graph_weighted = metadata.is_graph_weighted;
     is_graph_unweighted = metadata.is_graph_unweighted;
+    graph_name = metadata.graph_name;
   }
 
   // Custom copy assignment operator
@@ -78,6 +81,7 @@ public:
       is_edge_type_primitive = metadata.is_edge_type_primitive;
       is_graph_weighted = metadata.is_graph_weighted;
       is_graph_unweighted = metadata.is_graph_unweighted;
+      graph_name = metadata.graph_name;
     }
     return *this;
   }
@@ -105,6 +109,10 @@ public:
   std::string graphType() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return graph_type;
+  }
+  std::string graphName() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return graph_name;
   }
 
   void updateEdgeCount(const UpdateOp &opt) {
@@ -180,6 +188,22 @@ public:
     ss << "Parallel edges: " << num_parallel_edges << std::endl;
 
     return ss.str();
+  }
+
+  // Getter for graph name
+  std::string getGraphName() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return graph_name;
+  }
+
+  // Setter for graph name with validation
+  bool setGraphName(const std::string& name) {
+    if (!GraphNameUtils::isValidGraphName(name)) {
+      return false;  // Invalid name
+    }
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    graph_name = name;
+    return true;
   }
 };
 } // namespace PeakStore
