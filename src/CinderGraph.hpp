@@ -1,13 +1,13 @@
 #pragma once
+#include <iostream>
+#include <optional>
+#include <tuple>
+#include <utility>
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
-#include <iostream>
-#include <optional>
-#include <tuple>
-#include <utility>
 
 namespace CinderPeak {
 namespace PeakStore {
@@ -245,6 +245,25 @@ public:
   operator[](const VertexType &v) const {
     return CinderGraphRowProxy<VertexType, EdgeType>(
         const_cast<CinderGraph<VertexType, EdgeType> &>(*this), v);
+  }
+
+  // Set graph name - user-facing API
+  bool setGraphName(const std::string& name) {
+    peak_store->log(LogLevel::INFO, "API: Setting graph name");
+    bool result = peak_store->setGraphName(name);
+    if (!result) {
+      peak_store->log(LogLevel::WARNING, 
+                      "API: Invalid graph name provided");
+    } else {
+      peak_store->log(LogLevel::INFO, 
+                      "API: Graph name set successfully");
+    }
+    return result;
+  }
+
+  // Get graph name - user-facing API
+  std::string getGraphName() {
+    return peak_store->getGraphName();
   }
 };
 
