@@ -49,7 +49,7 @@ public:
     num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
-    graph_name = CinderPeak::GraphNameUtils::generateDefaultGraphName();
+    graph_name = CinderPeak::generateDefaultGraphName();
   }
 
   // Custom copy constructor that doesn't copy the mutex
@@ -110,10 +110,6 @@ public:
   std::string graphType() {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     return graph_type;
-  }
-  std::string graphName() {
-    std::shared_lock<std::shared_mutex> lock(_mtx);
-    return graph_name;
   }
 
   void updateEdgeCount(const UpdateOp &opt) {
@@ -199,7 +195,7 @@ public:
 
   // Setter for graph name with validation
   bool setGraphName(const std::string& name) {
-    if (!CinderPeak::GraphNameUtils::isValidGraphName(name)) {
+    if (!CinderPeak::isValidGraphName(name)) {
       return false;  // Invalid name
     }
     std::unique_lock<std::shared_mutex> lock(_mtx);

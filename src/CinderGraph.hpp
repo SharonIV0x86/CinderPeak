@@ -263,7 +263,10 @@ public:
 
   // Get graph name - user-facing API
   std::string getGraphName() {
-    return peak_store->getGraphName();
+    peak_store->log(LogLevel::INFO, "API: Entering getGraphName");
+    std::string name = peak_store->getGraphName();
+    peak_store->log(LogLevel::INFO, "API: getGraphName completed successfully");
+    return name;
   }
 };
 

@@ -51,14 +51,12 @@ public:
 
   // Set graph name
   bool setGraphName(const std::string& name) {
-    assert(ctx && ctx->metadata && "PeakStore not properly initialized");
     ctx->log(LogLevel::INFO, "PeakStore: Setting graph name to: " + name);
     return ctx->metadata->setGraphName(name);
   }
 
   // Get graph name
   std::string getGraphName() {
-    assert(ctx && ctx->metadata && "PeakStore not properly initialized");
     return ctx->metadata->getGraphName();
   }
 
