@@ -1,6 +1,6 @@
-// Unit tests for CinderPeak::dbg() — StorageEngine/DbgUtils.hpp
+// Unit tests for CinderPeak::dbg() — StorageEngine/DebugUtils.hpp
 
-#include "StorageEngine/DbgUtils.hpp"
+#include "StorageEngine/DebugUtils.hpp"
 #include <gtest/gtest.h>
 #include <optional>
 #include <string>

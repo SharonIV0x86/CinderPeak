@@ -13,3 +13,5 @@ cmake_install.cmake
 .DS_Store
 *.dot
 .vscode/
+build_error.log
+error.txt
