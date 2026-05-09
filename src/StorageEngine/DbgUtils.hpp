@@ -25,8 +25,7 @@ namespace CinderPeak {
  * @param  v Value to convert.
  * @return   A non-empty std::string suitable for log messages.
  */
-template <typename T>
-inline std::string dbg(const T &v) {
+template <typename T> inline std::string dbg(const T &v) {
 
   // Primitive / string / enum
   if constexpr (Traits::is_primitive_enum_or_string_v<T>) {
