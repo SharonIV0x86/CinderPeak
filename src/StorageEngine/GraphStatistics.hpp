@@ -38,10 +38,10 @@ private:
 
 public:
   GraphInternalMetadata(const std::string &graphType, bool vertex_tp_p,
-                      bool edge_tp_p, bool weighted, bool unweighted)
+                        bool edge_tp_p, bool weighted, bool unweighted)
       : graph_type(graphType), is_vertex_type_primitive(vertex_tp_p),
         is_edge_type_primitive(edge_tp_p) {
-    
+
     num_vertices = 0;
     num_edges = 0;
     density = 0.0;
@@ -194,9 +194,9 @@ public:
   }
 
   // Setter for graph name with validation
-  bool setGraphName(const std::string& name) {
+  bool setGraphName(const std::string &name) {
     if (!CinderPeak::isValidGraphName(name)) {
-      return false;  // Invalid name
+      return false; // Invalid name
     }
     std::unique_lock<std::shared_mutex> lock(_mtx);
     graph_name = name;

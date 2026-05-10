@@ -50,15 +50,13 @@ public:
   }
 
   // Set graph name
-  bool setGraphName(const std::string& name) {
+  bool setGraphName(const std::string &name) {
     ctx->log(LogLevel::INFO, "PeakStore: Setting graph name to: " + name);
     return ctx->metadata->setGraphName(name);
   }
 
   // Get graph name
-  std::string getGraphName() {
-    return ctx->metadata->getGraphName();
-  }
+  std::string getGraphName() { return ctx->metadata->getGraphName(); }
 
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
