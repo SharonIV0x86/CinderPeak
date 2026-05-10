@@ -3,6 +3,7 @@
 
 #include "CinderGraph.hpp"
 #include "PeakStore.hpp"
+#include "StorageEngine/DebugUtils.hpp"
 #include "StorageEngine/Utils.hpp"
 namespace CinderPeak {
 namespace PeakStore {

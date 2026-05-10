@@ -4,12 +4,15 @@
 #include "PeakLogger.hpp"
 #include <bitset>
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <optional>
 #include <random>
 #include <sstream>
+#include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
