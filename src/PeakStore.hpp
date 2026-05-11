@@ -9,6 +9,7 @@
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/HybridCSR_COO.hpp"
 #include "StorageEngine/Utils.hpp"
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -47,6 +48,15 @@ public:
     ctx->log(LogLevel::INFO, "Successfully initialized context object.");
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 1\n");
   }
+
+  // Set graph name
+  bool setGraphName(const std::string &name) {
+    ctx->log(LogLevel::INFO, "PeakStore: Setting graph name to: " + name);
+    return ctx->metadata->setGraphName(name);
+  }
+
+  // Get graph name
+  std::string getGraphName() { return ctx->metadata->getGraphName(); }
 
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;

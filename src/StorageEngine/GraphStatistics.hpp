@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils.hpp"
 #include <atomic>
 #include <bitset>
 #include <chrono>
@@ -27,6 +28,7 @@ private:
   size_t num_parallel_edges;
   float density;
   const std::string graph_type;
+  std::string graph_name;
   bool is_vertex_type_primitive;
   bool is_edge_type_primitive;
   bool is_graph_weighted;
@@ -47,6 +49,7 @@ public:
     num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
+    graph_name = CinderPeak::generateDefaultGraphName();
   }
 
   // Custom copy constructor that doesn't copy the mutex
@@ -62,6 +65,7 @@ public:
     is_edge_type_primitive = metadata.is_edge_type_primitive;
     is_graph_weighted = metadata.is_graph_weighted;
     is_graph_unweighted = metadata.is_graph_unweighted;
+    graph_name = metadata.graph_name;
   }
 
   // Custom copy assignment operator
@@ -78,6 +82,7 @@ public:
       is_edge_type_primitive = metadata.is_edge_type_primitive;
       is_graph_weighted = metadata.is_graph_weighted;
       is_graph_unweighted = metadata.is_graph_unweighted;
+      graph_name = metadata.graph_name;
     }
     return *this;
   }
@@ -180,6 +185,22 @@ public:
     ss << "Parallel edges: " << num_parallel_edges << std::endl;
 
     return ss.str();
+  }
+
+  // Getter for graph name
+  std::string getGraphName() {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    return graph_name;
+  }
+
+  // Setter for graph name with validation
+  bool setGraphName(const std::string &name) {
+    if (!CinderPeak::isValidGraphName(name)) {
+      return false; // Invalid name
+    }
+    std::unique_lock<std::shared_mutex> lock(_mtx);
+    graph_name = name;
+    return true;
   }
 };
 } // namespace PeakStore

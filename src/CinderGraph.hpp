@@ -242,6 +242,26 @@ public:
     return CinderGraphRowProxy<VertexType, EdgeType>(
         const_cast<CinderGraph<VertexType, EdgeType> &>(*this), v);
   }
+
+  // Set graph name - user-facing API
+  bool setGraphName(const std::string &name) {
+    peak_store->log(LogLevel::INFO, "API: Setting graph name");
+    bool result = peak_store->setGraphName(name);
+    if (!result) {
+      peak_store->log(LogLevel::WARNING, "API: Invalid graph name provided");
+    } else {
+      peak_store->log(LogLevel::INFO, "API: Graph name set successfully");
+    }
+    return result;
+  }
+
+  // Get graph name - user-facing API
+  std::string getGraphName() {
+    peak_store->log(LogLevel::INFO, "API: Entering getGraphName");
+    std::string name = peak_store->getGraphName();
+    peak_store->log(LogLevel::INFO, "API: getGraphName completed successfully");
+    return name;
+  }
 };
 
 } // namespace CinderPeak
