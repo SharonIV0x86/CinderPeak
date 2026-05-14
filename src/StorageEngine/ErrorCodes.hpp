@@ -24,7 +24,7 @@ private:
 public:
   PeakStatus(StatusCode code, std::string message = "")
       : code_(code), message_(std::move(message)) {}
-
+  PeakStatus() = default;
   inline static PeakStatus OK() { return PeakStatus(StatusCode::OK); }
   inline static PeakStatus NotFound(std::string msg = "Not Found") {
     return PeakStatus(StatusCode::NOT_FOUND, std::move(msg));

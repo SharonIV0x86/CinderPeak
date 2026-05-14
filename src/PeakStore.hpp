@@ -1,9 +1,12 @@
 #pragma once
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "CinderPeak.hpp"
+#include "GraphConstraints.hpp"
+#include "GraphEvents.hpp"
 #include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
 #include "StorageEngine/AdjacencyList.hpp"
+#include "StorageEngine/DebugUtils.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
@@ -13,7 +16,6 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <type_traits>
 #include <vector>
 
 namespace CinderPeak {
@@ -71,24 +73,11 @@ public:
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight = EdgeType()) {
-    ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx 2\n");
-
     bool isWeighted = ctx->metadata->isGraphWeighted();
-    bool edgeExists;
-    PeakStatus status = PeakStatus::OK();
-    if (isWeighted) {
-      edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest, weight);
-    } else {
-      edgeExists = ctx->active_storage->impl_doesEdgeExist(src, dest);
-    }
-    if (edgeExists) {
-      if ((isWeighted && !ctx->create_options->hasOption(
-                             GraphCreationOptions::ParallelEdges)) ||
-          !isWeighted) {
-        ctx->log(LogLevel::DEBUG, "Edge already exists");
-        return PeakStatus::EdgeAlreadyExists();
-      }
-    }
+    bool isDirected =
+        ctx->create_options->hasOption(GraphCreationOptions::Directed);
+
+    PeakStatus status;
 
     if (isWeighted) {
       ctx->log(LogLevel::INFO, "Called weighted PeakStore::addEdge");
@@ -98,18 +87,26 @@ public:
       status = ctx->active_storage->impl_addEdge(src, dest);
     }
 
-    if (!status.isOK()) {
+    if (!status.isOK())
       return status;
-    }
 
-    if (ctx->active_storage->impl_doesEdgeExist(dest, src)) {
-      ctx->metadata->updateParallelEdgeCount(UpdateOp::Add);
-    }
-    if (src == dest) {
-      ctx->metadata->updateSelfLoopCount(UpdateOp::Add);
-    }
-    ctx->metadata->updateEdgeCount(UpdateOp::Add);
+    GraphEvents<VertexType, EdgeType>::onEdgeAdded(*ctx, src, dest);
 
+    if (!isDirected && src != dest) {
+      PeakStatus rev_status;
+      if (isWeighted) {
+        rev_status = ctx->active_storage->impl_addEdge(dest, src, weight);
+      } else {
+        rev_status = ctx->active_storage->impl_addEdge(dest, src);
+      }
+      if (rev_status.isOK()) {
+        GraphEvents<VertexType, EdgeType>::onEdgeAdded(*ctx, dest, src);
+      } else {
+        std::string logstr =
+            "Reverse edge add failed from " + dbg(dest) + " to " + dbg(src);
+        ctx->log(LogLevel::DEBUG, logstr);
+      }
+    }
     return status;
   }
 
