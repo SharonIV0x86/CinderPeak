@@ -240,3 +240,19 @@ if(BUILD_EXAMPLES)
         )
     endforeach()
 endif()
+
+# === Documentation ===
+find_package(Doxygen QUIET)
+
+if(DOXYGEN_FOUND)
+    set(DOXYFILE_IN ${CMAKE_SOURCE_DIR}/docs/Doxyfile)
+
+    add_custom_target(docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+else()
+    message(STATUS "Doxygen not found. Documentation target will be unavailable.")
+endif()
