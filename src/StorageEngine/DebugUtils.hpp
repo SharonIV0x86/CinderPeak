@@ -92,8 +92,7 @@ template <typename V> inline std::string edgeStr(const V &src, const V &dest) {
  * @brief Helper to format a weighted edge for logging.
  */
 template <typename V, typename E>
-inline std::string weightedEdgeStr(const V &src, const V &dest,
-                                   const E &weight) {
+inline std::string weightedEdgeStr(const V &src, const V &dest, const E &weight) {
   return "Edge(" + dbg(src) + " -[" + dbg(weight) + "]-> " + dbg(dest) + ")";
 }
 
