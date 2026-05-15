@@ -114,8 +114,17 @@ public:
                                              const VertexType &dest) {
     ctx->log(LogLevel::INFO, "Called adjacency:removeEdge()");
     auto result = ctx->active_storage->impl_removeEdge(src, dest);
-    if (result.second.isOK())
-      ctx->metadata->updateEdgeCount(UpdateOp::Remove);
+    if (result.second.isOK()) {
+      GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, src, dest);
+      
+      bool isDirected = ctx->create_options->hasOption(GraphCreationOptions::Directed);
+      if (!isDirected && src != dest) {
+        auto rev_result = ctx->active_storage->impl_removeEdge(dest, src);
+        if (rev_result.second.isOK()) {
+          GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, dest, src);
+        }
+      }
+    }
     return result;
   }
 
