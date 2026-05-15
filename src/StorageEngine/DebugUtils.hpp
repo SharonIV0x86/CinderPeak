@@ -74,4 +74,26 @@ template <typename T> inline std::string dbg(const T &v) {
   }
 }
 
+/**
+ * @brief Helper to format a vertex for logging.
+ */
+template <typename V> inline std::string vertexStr(const V &vertex) {
+  return "Vertex(" + dbg(vertex) + ")";
+}
+
+/**
+ * @brief Helper to format an unweighted edge for logging.
+ */
+template <typename V> inline std::string edgeStr(const V &src, const V &dest) {
+  return "Edge(" + dbg(src) + " -> " + dbg(dest) + ")";
+}
+
+/**
+ * @brief Helper to format a weighted edge for logging.
+ */
+template <typename V, typename E>
+inline std::string weightedEdgeStr(const V &src, const V &dest, const E &weight) {
+  return "Edge(" + dbg(src) + " -[" + dbg(weight) + "]-> " + dbg(dest) + ")";
+}
+
 } // namespace CinderPeak
