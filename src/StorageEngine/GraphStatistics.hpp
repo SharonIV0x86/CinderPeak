@@ -161,6 +161,7 @@ public:
 
     if (num_vertices <= 1) {
       density = 0.0f;
+      return;
     }
     auto max_edges = static_cast<float>(num_vertices * (num_vertices - 1));
     auto directed_density = static_cast<float>(num_edges) / max_edges;
