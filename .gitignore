@@ -15,3 +15,7 @@ cmake_install.cmake
 .vscode/
 build_error.log
 error.txt
+
+# Doxygen generated files
+docs/api/html/
+docs/api/xml/
