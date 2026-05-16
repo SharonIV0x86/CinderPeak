@@ -40,9 +40,7 @@ template <typename VertexType, typename EdgeType> struct GraphConstraints {
     }
 
     if (exists) {
-      if (!ctx.create_options->hasOption(GraphCreationOptions::ParallelEdges)) {
-        return PeakStatus::EdgeAlreadyExists("Edge Already Exists");
-      }
+      return PeakStatus::EdgeAlreadyExists("Edge Already Exists");
     }
 
     return PeakStatus::OK();

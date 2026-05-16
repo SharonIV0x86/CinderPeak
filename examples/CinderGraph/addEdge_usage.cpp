@@ -38,22 +38,7 @@ int main() {
          << (added4 ? "success" : "failed") << endl;
     cout << "Total edges: " << g2.numEdges() << endl;
 
-    // 3. Graph with parallel edges
-    cout << "\n--- Parallel Edges ---" << endl;
-    GraphCreationOptions parallelOpts(
-        {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
-    CinderGraph<int, int> g3(parallelOpts /*,p*/);
-    g3.addVertex(1);
-    g3.addVertex(2);
-
-    g3.addEdge(1, 2, 100);
-    cout << "Added edge (1,2) with weight 100" << endl;
-
-    g3.addEdge(1, 2, 200);
-    cout << "Added parallel edge (1,2) with weight 200" << endl;
-    cout << "Total edges: " << g3.numEdges() << endl;
-
-    // 4. Error handling - vertices don't exist
+    // 3. Error handling - vertices don't exist
     cout << "\n--- Error Cases ---" << endl;
     CinderGraph<int, Unweighted> g4;
     auto [edge5, added5] = g4.addEdge(100, 200);

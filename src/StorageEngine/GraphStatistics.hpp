@@ -25,7 +25,6 @@ private:
   size_t num_vertices;
   size_t num_edges;
   size_t num_self_loops;
-  size_t num_parallel_edges;
   float density;
   const std::string graph_type;
   std::string graph_name;
@@ -46,7 +45,6 @@ public:
     num_edges = 0;
     density = 0.0;
     num_self_loops = 0;
-    num_parallel_edges = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
     graph_name = CinderPeak::generateDefaultGraphName();
@@ -59,7 +57,6 @@ public:
     num_vertices = metadata.num_vertices;
     num_edges = metadata.num_edges;
     num_self_loops = metadata.num_self_loops;
-    num_parallel_edges = metadata.num_parallel_edges;
     density = metadata.density;
     is_vertex_type_primitive = metadata.is_vertex_type_primitive;
     is_edge_type_primitive = metadata.is_edge_type_primitive;
@@ -76,7 +73,6 @@ public:
       num_vertices = metadata.num_vertices;
       num_edges = metadata.num_edges;
       num_self_loops = metadata.num_self_loops;
-      num_parallel_edges = metadata.num_parallel_edges;
       density = metadata.density;
       is_vertex_type_primitive = metadata.is_vertex_type_primitive;
       is_edge_type_primitive = metadata.is_edge_type_primitive;
@@ -134,17 +130,6 @@ public:
       num_vertices = 0;
   }
 
-  void updateParallelEdgeCount(const UpdateOp &opt) {
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-
-    if (opt == UpdateOp::Add)
-      num_parallel_edges++;
-    else if (opt == UpdateOp::Remove)
-      num_parallel_edges--;
-    else if (opt == UpdateOp::Clear)
-      num_parallel_edges = 0;
-  }
-
   void updateSelfLoopCount(const UpdateOp &opt) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -182,7 +167,6 @@ public:
     ss << "Density: " << std::fixed << std::setprecision(2) << density
        << std::endl;
     ss << "Self-loops: " << num_self_loops << std::endl;
-    ss << "Parallel edges: " << num_parallel_edges << std::endl;
 
     return ss.str();
   }

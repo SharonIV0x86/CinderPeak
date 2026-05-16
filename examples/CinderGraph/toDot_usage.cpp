@@ -40,22 +40,7 @@ int main() {
     cout << "Vertices " << g2.numVertices() << endl;
     cout << "Edges " << g2.numEdges() << endl;
 
-    // ===== 3. Parallel Edges (Directed) =====
-    cout << "\n--- Parallel Edges ---" << endl;
-
-    GraphCreationOptions parallelOpts(
-        {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
-
-    CinderGraph<int, int> g3(parallelOpts);
-    g3.addVertex(1);
-    g3.addVertex(2);
-
-    g3.addEdge(1, 2, 100);
-    g3.addEdge(1, 2, 200);
-
-    cout << "Parallel edges count: " << g3.numEdges() << endl;
-
-    // ===== 4. Undirected Graph =====
+    // ===== 3. Undirected Graph =====
     cout << "\n--- Undirected Graph ---" << endl;
 
     CinderGraph<int, int> g4;
@@ -102,10 +87,6 @@ int main() {
     cout << "\n--- DOT Export (Isolated Nodes) ---" << endl;
     g2.toDot("g2_isolated.dot");
     cout << "Exported to g2_isolated.dot" << endl;
-
-    cout << "\n --- DOT Export (Parallel Edges) ---" << endl;
-    g3.toDot("g3_parallel.dot");
-    cout << "Exported to g3_parallel.dot" << endl;
 
     cout << "\n --- DOT Export (Undirected Graph) ---" << endl;
     g4.toDot("g4_undirected.dot");
