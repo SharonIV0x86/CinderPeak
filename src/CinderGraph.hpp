@@ -47,7 +47,7 @@ public:
   EdgeType operator[](const VertexType &dest) const {
     auto optWeight = graph.getEdge(src, dest);
     if (!optWeight.has_value()) {
-      throw std::runtime_error("Edge not found: " + src + " -> " + dest);
+      throw std::runtime_error("Edge not found: " + edgeStr(src, dest));
     }
     return *optWeight;
   }
