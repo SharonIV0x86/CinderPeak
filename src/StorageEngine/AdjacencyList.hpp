@@ -441,42 +441,42 @@ public:
     return PeakStatus::OK();
   }
 
-  void print_adj_list() {
-    // data copied under lock
-    struct VertexInfo {
-      VertexId id;
-      VertexType vertex_data;
-      std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
-    };
-    std::vector<VertexInfo> vertices_to_print;
+  // void print_adj_list() {
+  //   // data copied under lock
+  //   struct VertexInfo {
+  //     VertexId id;
+  //     VertexType vertex_data;
+  //     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
+  //   };
+  //   std::vector<VertexInfo> vertices_to_print;
 
-    {
-      std::shared_lock<std::shared_mutex> lock(_mtx);
-      for (const auto &kv : _adj) {
-        VertexId id = kv.first;
-        auto vdIt = _vertex_data.find(id);
-        if (vdIt == _vertex_data.end())
-          continue;
+  //   {
+  //     std::shared_lock<std::shared_mutex> lock(_mtx);
+  //     for (const auto &kv : _adj) {
+  //       VertexId id = kv.first;
+  //       auto vdIt = _vertex_data.find(id);
+  //       if (vdIt == _vertex_data.end())
+  //         continue;
 
-        VertexInfo info;
-        info.id = id;
-        info.vertex_data = vdIt->second;
-        info.neighbor_ids = kv.second;
+  //       VertexInfo info;
+  //       info.id = id;
+  //       info.vertex_data = vdIt->second;
+  //       info.neighbor_ids = kv.second;
 
-        vertices_to_print.push_back(info);
-      }
-    }
+  //       vertices_to_print.push_back(info);
+  //     }
+  //   }
 
-    // perform all I/O outside of lock
-    for (const auto &vertex_info : vertices_to_print) {
-      std::cout << "Vertex (id=" << vertex_info.id << "): "
-                << "\n";
-      for (const auto &neighbor_pair : vertex_info.neighbor_ids) {
-        VertexId nbId = neighbor_pair.first;
-        std::cout << "  Neighbor id=" << nbId << "\n";
-      }
-    }
-  }
+  //   // perform all I/O outside of lock
+  //   for (const auto &vertex_info : vertices_to_print) {
+  //     std::cout << "Vertex (id=" << vertex_info.id << "): "
+  //               << "\n";
+  //     for (const auto &neighbor_pair : vertex_info.neighbor_ids) {
+  //       VertexId nbId = neighbor_pair.first;
+  //       std::cout << "  Neighbor id=" << nbId << "\n";
+  //     }
+  //   }
+  // }
 
   const std::unordered_map<
       CinderPeak::VertexId,
