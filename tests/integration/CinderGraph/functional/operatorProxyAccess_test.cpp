@@ -23,8 +23,7 @@ template <> struct hash<CustomVertex> {
 };
 } // namespace std
 
-TEST(CinderGraphOperatorProxyTest,
-     EdgeFormattingSupportsCustomVertexTypes) {
+TEST(CinderGraphOperatorProxyTest, EdgeFormattingSupportsCustomVertexTypes) {
 
   CustomVertex v1{1};
   CustomVertex v2{2};

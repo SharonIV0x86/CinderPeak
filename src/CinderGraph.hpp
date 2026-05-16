@@ -2,6 +2,7 @@
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
+#include "StorageEngine/DebugUtils.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
