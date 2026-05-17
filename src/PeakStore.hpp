@@ -114,8 +114,18 @@ public:
                                              const VertexType &dest) {
     ctx->log(LogLevel::INFO, "Called adjacency:removeEdge()");
     auto result = ctx->active_storage->impl_removeEdge(src, dest);
-    if (result.second.isOK())
-      ctx->metadata->updateEdgeCount(UpdateOp::Remove);
+    if (result.second.isOK()) {
+      GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, src, dest);
+
+      bool isDirected =
+          ctx->create_options->hasOption(GraphCreationOptions::Directed);
+      if (!isDirected && src != dest) {
+        auto rev_result = ctx->active_storage->impl_removeEdge(dest, src);
+        if (rev_result.second.isOK()) {
+          GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, dest, src);
+        }
+      }
+    }
     return result;
   }
 
@@ -195,7 +205,6 @@ public:
     if (status.isOK()) {
       ctx->metadata->updateVertexCount(UpdateOp::Clear);
       ctx->metadata->updateEdgeCount(UpdateOp::Clear);
-      ctx->metadata->updateParallelEdgeCount(UpdateOp::Clear);
       ctx->metadata->updateSelfLoopCount(UpdateOp::Clear);
     }
     return status;
@@ -206,7 +215,6 @@ public:
     auto status = ctx->active_storage->impl_clearEdges();
     if (status.isOK()) {
       ctx->metadata->updateEdgeCount(UpdateOp::Clear);
-      ctx->metadata->updateParallelEdgeCount(UpdateOp::Clear);
       ctx->metadata->updateSelfLoopCount(UpdateOp::Clear);
     }
     return status;
@@ -243,11 +251,8 @@ public:
 
     bool isDirected =
         ctx->create_options->hasOption(GraphCreationOptions::Directed);
-    bool allowParallel =
-        ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
 
-    std::string content =
-        ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
+    std::string content = ctx->adjacency_storage->impl_toDot(isDirected);
     outFile << content;
     outFile.close();
 

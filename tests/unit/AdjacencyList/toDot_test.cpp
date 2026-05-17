@@ -11,7 +11,7 @@ TEST_F(AdjacencyStorageShardTest, ToDotDirectedGraph) {
   EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 100).isOK());
   EXPECT_TRUE(intGraph.impl_addEdge(2, 3, 200).isOK());
 
-  std::string dot = intGraph.impl_toDot(true, false);
+  std::string dot = intGraph.impl_toDot(true);
 
   EXPECT_NE(dot.find("digraph"), std::string::npos);
   // With cleared graph, IDs start at 1
@@ -27,7 +27,7 @@ TEST_F(AdjacencyStorageShardTest, ToDotUndirectedGraph) {
 
   EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 50).isOK());
 
-  std::string dot = intGraph.impl_toDot(false, false);
+  std::string dot = intGraph.impl_toDot(false);
 
   EXPECT_NE(dot.find("graph"), std::string::npos);
   EXPECT_NE(dot.find("--"), std::string::npos);
@@ -39,7 +39,7 @@ TEST_F(AdjacencyStorageShardTest, ToDotIsolatedNodes) {
   EXPECT_TRUE(intGraph.impl_addVertex(10).isOK());
   EXPECT_TRUE(intGraph.impl_addVertex(20).isOK());
 
-  std::string dot = intGraph.impl_toDot(true, false);
+  std::string dot = intGraph.impl_toDot(true);
 
   // 1st vertex added => ID 1, 2nd => ID 2
   EXPECT_NE(dot.find("node_1 [label=\"10\"]"), std::string::npos);
@@ -75,29 +75,4 @@ TEST_F(AdjacencyStorageShardTest, ToDotFileExport) {
   EXPECT_NE(content.find("node_1 -> node_2 [label=\"50\"]"), std::string::npos);
 
   std::remove(filename.c_str());
-}
-
-TEST_F(AdjacencyStorageShardTest, ToDotParallelEdges) {
-  intGraph.impl_clearVertices();
-  EXPECT_TRUE(intGraph.impl_addVertex(1).isOK());
-  EXPECT_TRUE(intGraph.impl_addVertex(2).isOK());
-
-  // Directly forcing parallel edges into storage for testing visualization
-  // Note: Standard addEdge might reject duplicates depending on policy,
-  // but we are testing the visualization of 'WHAT IS THERE'.
-  // impl_addEdge in AdjacencyList simply appends, so duplicates are possible if
-  // checks are skipped
-  EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 100).isOK());
-  EXPECT_TRUE(intGraph.impl_addEdge(1, 2, 200).isOK());
-
-  // allowParallel = true
-  std::string dot = intGraph.impl_toDot(true, true);
-
-  // Should NOT be strict
-  EXPECT_EQ(dot.find("strict"), std::string::npos);
-  EXPECT_NE(dot.find("digraph"), std::string::npos);
-
-  // Both edges should appear
-  EXPECT_NE(dot.find("label=\"100\""), std::string::npos);
-  EXPECT_NE(dot.find("label=\"200\""), std::string::npos);
 }
