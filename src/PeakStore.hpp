@@ -80,14 +80,12 @@ public:
     PeakStatus status;
 
     if (isWeighted) {
-      ctx->log(LogLevel::INFO,
-               "Called weighted PeakStore::addEdge for " +
-                   weightedEdgeStr(src, dest, weight));
+      ctx->log(LogLevel::INFO, "Called weighted PeakStore::addEdge for " +
+                                   weightedEdgeStr(src, dest, weight));
       status = ctx->active_storage->impl_addEdge(src, dest, weight);
     } else {
-      ctx->log(LogLevel::INFO,
-               "Called unweighted PeakStore::addEdge for " +
-                   edgeStr(src, dest));
+      ctx->log(LogLevel::INFO, "Called unweighted PeakStore::addEdge for " +
+                                   edgeStr(src, dest));
       status = ctx->active_storage->impl_addEdge(src, dest);
     }
 
@@ -137,9 +135,8 @@ public:
   std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
                                              const VertexType &dest,
                                              const EdgeType &newWeight) {
-    ctx->log(LogLevel::INFO,
-             "Called adjacency:updateEdge() for " +
-                 weightedEdgeStr(src, dest, newWeight));
+    ctx->log(LogLevel::INFO, "Called adjacency:updateEdge() for " +
+                                 weightedEdgeStr(src, dest, newWeight));
 
     PeakStatus resp =
         ctx->active_storage->impl_updateEdge(src, dest, newWeight);
@@ -181,8 +178,7 @@ public:
   }
 
   bool hasVertex(const VertexType &v) {
-    ctx->log(LogLevel::INFO,
-             "Called peakStore:hasVertex for " + vertexStr(v));
+    ctx->log(LogLevel::INFO, "Called peakStore:hasVertex for " + vertexStr(v));
     return ctx->active_storage->impl_hasVertex(v);
   }
 
