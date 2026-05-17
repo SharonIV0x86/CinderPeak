@@ -65,21 +65,6 @@ int main() {
            << g3.numEdges() << endl;
     }
 
-    // Parallel edges (if allowed)
-    cout << "\n--- Parallel Edges ---" << endl;
-    GraphCreationOptions opts(
-        {GraphCreationOptions::Directed, GraphCreationOptions::ParallelEdges});
-    CinderGraph<int, int> g4(opts);
-
-    g4.addVertex(10);
-    g4.addVertex(20);
-
-    g4.addEdge(10, 20, 1);
-    cout << "After first edge: " << g4.numEdges() << endl;
-
-    g4.addEdge(10, 20, 2);
-    cout << "After parallel edge: " << g4.numEdges() << endl;
-
     return 0;
   } catch (const exception &e) {
     cerr << "Error: " << e.what() << endl;

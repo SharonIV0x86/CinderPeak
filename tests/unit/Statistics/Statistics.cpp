@@ -113,12 +113,10 @@ TEST_F(GraphStatisticsTest, LargeDenseGraph) {
   int vertices = extractValue(stats, "Vertices: ");
   int edges = extractValue(stats, "Edges: ");
   int self_loops = extractValue(stats, "Self-loops: ");
-  int parallel_edges = extractValue(stats, "Parallel edges: ");
 
   EXPECT_EQ(vertices, num_vertices);
   EXPECT_GT(edges, 1000);
   EXPECT_GE(self_loops, 0);
-  EXPECT_GE(parallel_edges, 0);
 }
 
 TEST_F(GraphStatisticsTest, MediumGraphs) {

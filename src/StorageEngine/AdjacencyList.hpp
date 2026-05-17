@@ -134,7 +134,7 @@ public:
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
 
-    // Append neighbor; duplicate edges allowed only if policy allows.
+    // Append neighbor.
     auto &neighbors = _adj[srcId];
     neighbors.emplace_back(destId, weight);
 
@@ -486,14 +486,12 @@ public:
     return _adj;
   }
 
-  std::string impl_toDot(bool isDirected, bool allowParallel) const {
+  std::string impl_toDot(bool isDirected) const {
     runtime.log(LogLevel::DEBUG, "Executing impl_toDot");
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::stringstream ss;
 
-    if (!allowParallel) {
-      ss << "strict ";
-    }
+    ss << "strict ";
     ss << (isDirected ? "digraph" : "graph") << " G {\n";
     ss << "  rankdir=LR;\n";
     ss << "  node[shape=circle style=filled fillcolor=\"#E3F2FD\" "
