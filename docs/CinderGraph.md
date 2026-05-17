@@ -184,7 +184,7 @@ This example demonstrates how to retrieve all neighbors of a vertex along with t
 using namespace CinderPeak;
 
 int main() {
-    GraphCreationOptions opts({GraphCreationOptions::Directed, GraphCreationOptions::Weighted});
+    GraphCreationOptions opts({GraphCreationOptions::Directed});
     CinderGraph<int, int> graph(opts);
 
     graph.addVertex(1);

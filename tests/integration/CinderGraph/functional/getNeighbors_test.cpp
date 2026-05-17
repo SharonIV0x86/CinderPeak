@@ -21,7 +21,6 @@ TEST_F(CinderGraphFunctionalTest, GetNeighborsPrimitiveWeighted) {
 
   auto neighbors = intGraph.getNeighbors(1);
   EXPECT_EQ(neighbors.size(), 2u);
-
   auto has = [&](int v, int w) {
     return std::find(neighbors.begin(), neighbors.end(),
                      std::make_pair(v, w)) != neighbors.end();

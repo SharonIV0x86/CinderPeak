@@ -354,10 +354,7 @@ using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 
 int main() {
-    GraphCreationOptions opts({
-        GraphCreationOptions::Directed,
-        GraphCreationOptions::Weighted
-    });
+    GraphCreationOptions opts({GraphCreationOptions::Directed});
 
     CinderGraph<int, int> graph(opts);
 

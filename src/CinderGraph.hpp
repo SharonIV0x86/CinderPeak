@@ -411,11 +411,13 @@ public:
    * @throws Exception propagated through the configured exception handler.
    */
   std::vector<std::pair<VertexType, EdgeType>>
-  getNeighbors(const VertexType &v) {
-    peak_store->log(LogLevel::INFO, "API: Entering getNeighbors");
+  getNeighbors(const VertexType &v) const {
+    peak_store->log(LogLevel::INFO,
+                    "API: Entering getNeighbors for " + vertexStr(v));
     auto [neighbors, status] = peak_store->getNeighbors(v);
     if (!status.isOK()) {
-      peak_store->log(LogLevel::WARNING, "API: Error in getNeighbors");
+      peak_store->log(LogLevel::WARNING, "API: Error in getNeighbors for " +
+                                             vertexStr(v));
       Exceptions::handle_exception_map(status);
       return {};
     }
