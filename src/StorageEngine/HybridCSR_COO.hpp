@@ -7,6 +7,7 @@
 #include <iostream>
 #include <shared_mutex>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace CinderPeak {
@@ -31,6 +32,7 @@ private:
   mutable std::shared_mutex _mtx;
   mutable std::atomic<bool> is_built_{false};
   std::atomic<size_t> COO_BUFFER_THRESHOLD_{1024};
+  std::unordered_set<size_t> _tombstoned;
 
   void buildStructures() {
     if (is_built_.load(std::memory_order_acquire))
@@ -40,6 +42,8 @@ private:
 
     if (is_built_.load(std::memory_order_relaxed))
       return;
+
+    compactTombstones();
 
     const size_t num_vertices = vertex_order.size();
     csr_row_offsets.assign(num_vertices + 1, 0);
@@ -83,7 +87,12 @@ private:
   }
 
   void incrementalUpdate() {
-    if (!is_built_.load(std::memory_order_relaxed) || coo_src.empty())
+    if (!is_built_.load(std::memory_order_relaxed))
+      return;
+
+    compactTombstones();
+
+    if (coo_src.empty())
       return;
 
     const size_t num_vertices = vertex_order.size();
@@ -148,6 +157,81 @@ private:
     coo_weights.shrink_to_fit();
   }
 
+  void compactTombstones() {
+    if (_tombstoned.empty())
+      return;
+
+    // Build old-index to new-index mapping, skipping tombstoned slots
+    std::vector<size_t> index_remap(vertex_order.size(), SIZE_MAX);
+    size_t new_idx = 0;
+    for (size_t old_idx = 0; old_idx < vertex_order.size(); ++old_idx) {
+      if (_tombstoned.count(old_idx))
+        continue;
+      index_remap[old_idx] = new_idx++;
+    }
+
+    // Compact COO arrays: filter tombstoned edges and remap indices
+    size_t write = 0;
+    for (size_t read = 0; read < coo_src.size(); ++read) {
+      if (_tombstoned.count(coo_src[read]) ||
+          _tombstoned.count(coo_dest[read])) {
+        continue;
+      }
+      coo_src[write] = index_remap[coo_src[read]];
+      coo_dest[write] = index_remap[coo_dest[read]];
+      coo_weights[write] = std::move(coo_weights[read]);
+      write++;
+    }
+    coo_src.resize(write);
+    coo_dest.resize(write);
+    coo_weights.resize(write);
+
+    // Compact CSR arrays if built
+    if (is_built_.load(std::memory_order_relaxed)) {
+      std::vector<size_t> new_csr_cols;
+      std::vector<EdgeType> new_csr_weights;
+      std::vector<size_t> new_row_offsets;
+      new_row_offsets.push_back(0);
+
+      for (size_t old_row = 0; old_row < vertex_order.size(); ++old_row) {
+        if (_tombstoned.count(old_row))
+          continue;
+        size_t start = csr_row_offsets[old_row];
+        size_t end = csr_row_offsets[old_row + 1];
+        for (size_t j = start; j < end; ++j) {
+          size_t neighbor = csr_col_vals[j];
+          if (!_tombstoned.count(neighbor)) {
+            new_csr_cols.push_back(index_remap[neighbor]);
+            new_csr_weights.push_back(csr_weights[j]);
+          }
+        }
+        new_row_offsets.push_back(new_csr_cols.size());
+      }
+
+      csr_row_offsets = std::move(new_row_offsets);
+      csr_col_vals = std::move(new_csr_cols);
+      csr_weights = std::move(new_csr_weights);
+    }
+
+    // Compact vertex_order
+    std::vector<VertexType> new_vertex_order;
+    new_vertex_order.reserve(vertex_order.size() - _tombstoned.size());
+    for (size_t i = 0; i < vertex_order.size(); ++i) {
+      if (!_tombstoned.count(i)) {
+        new_vertex_order.push_back(std::move(vertex_order[i]));
+      }
+    }
+    vertex_order = std::move(new_vertex_order);
+
+    // Rebuild vertex_to_index from compacted vertex_order
+    vertex_to_index.clear();
+    for (size_t i = 0; i < vertex_order.size(); ++i) {
+      vertex_to_index[vertex_order[i]] = i;
+    }
+
+    _tombstoned.clear();
+  }
+
 public:
   HybridCSR_COO() {
     csr_row_offsets.reserve(1024);
@@ -170,6 +254,7 @@ public:
     clearCOOArrays();
     vertex_order.clear();
     vertex_to_index.clear();
+    _tombstoned.clear();
 
     for (const auto &[src, neighbors] : adj_list) {
       auto src_it = vertex_to_index.find(src);
@@ -225,9 +310,13 @@ public:
 
     std::cout << "HybridCSR_COO CSR (Indices):\n";
     for (size_t i = 0; i < vertex_order.size(); ++i) {
+      if (_tombstoned.count(i))
+        continue;
       std::cout << vertex_order[i] << " [" << i << "] -> ";
       for (size_t j = csr_row_offsets[i]; j < csr_row_offsets[i + 1]; ++j) {
         size_t neighbor_idx = csr_col_vals[j];
+        if (_tombstoned.count(neighbor_idx))
+          continue;
         std::cout << "(" << vertex_order[neighbor_idx] << " [" << neighbor_idx
                   << "], " << csr_weights[j] << ") ";
       }
@@ -386,6 +475,7 @@ public:
 
     vertex_order.clear();
     vertex_to_index.clear();
+    _tombstoned.clear();
 
     is_built_.store(false, std::memory_order_relaxed);
 
@@ -475,63 +565,8 @@ public:
       return PeakStatus::VertexNotFound();
     }
 
-    size_t idx_to_remove = vtx_it->second;
-
-    for (size_t i = 0; i < coo_src.size();) {
-      if (coo_src[i] == idx_to_remove || coo_dest[i] == idx_to_remove) {
-        coo_src.erase(coo_src.begin() + i);
-        coo_dest.erase(coo_dest.begin() + i);
-        coo_weights.erase(coo_weights.begin() + i);
-      } else {
-        if (coo_src[i] > idx_to_remove)
-          coo_src[i]--;
-        if (coo_dest[i] > idx_to_remove)
-          coo_dest[i]--;
-        ++i;
-      }
-    }
-
-    if (is_built_.load(std::memory_order_relaxed)) {
-      std::vector<size_t> new_csr_cols;
-      std::vector<EdgeType> new_csr_weights;
-      std::vector<size_t> new_row_offsets(vertex_order.size(), 0);
-
-      size_t current_offset = 0;
-      size_t new_row_idx = 0;
-
-      for (size_t old_row = 0; old_row < vertex_order.size(); ++old_row) {
-        if (old_row == idx_to_remove)
-          continue;
-
-        size_t start = csr_row_offsets[old_row];
-        size_t end = csr_row_offsets[old_row + 1];
-
-        for (size_t j = start; j < end; ++j) {
-          size_t neighbor_idx = csr_col_vals[j];
-          if (neighbor_idx != idx_to_remove) {
-            size_t new_neighbor_idx = (neighbor_idx > idx_to_remove)
-                                          ? neighbor_idx - 1
-                                          : neighbor_idx;
-            new_csr_cols.push_back(new_neighbor_idx);
-            new_csr_weights.push_back(csr_weights[j]);
-            current_offset++;
-          }
-        }
-        new_row_idx++;
-        new_row_offsets[new_row_idx] = current_offset;
-      }
-
-      csr_row_offsets = std::move(new_row_offsets);
-      csr_col_vals = std::move(new_csr_cols);
-      csr_weights = std::move(new_csr_weights);
-    }
-
-    vertex_order.erase(vertex_order.begin() + idx_to_remove);
-
-    vertex_to_index.clear();
-    for (size_t i = 0; i < vertex_order.size(); ++i) {
-      vertex_to_index[vertex_order[i]] = i;
-    }
+    _tombstoned.insert(vtx_it->second);
+    vertex_to_index.erase(vtx_it);
 
     return PeakStatus::OK();
   }
