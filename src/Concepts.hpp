@@ -6,14 +6,28 @@
 #include <string>
 #include <type_traits>
 
+/**
+ * @brief Type traits and compile-time utilities used throughout CinderPeak.
+ *
+ * Provides helper traits for validating graph vertex/edge types,
+ * weighted/unweighted configurations, and compile-time constraints.
+ */
 namespace CinderPeak::Traits {
 
-// True if EdgeType is Unweighted
+/**
+ * @brief Checks whether an edge type represents an unweighted graph edge.
+ *
+ * @tparam T Edge type to evaluate.
+ */
 template <typename T> struct is_unweighted : std::is_same<T, Unweighted> {};
 
 template <typename T> constexpr bool is_unweighted_v = is_unweighted<T>::value;
 
-// True if EdgeType is not Unweighted (i.e., weighted)
+/**
+ * @brief Checks whether an edge type represents a weighted graph edge.
+ *
+ * @tparam T Edge type to evaluate.
+ */
 template <typename T>
 struct is_weighted : std::integral_constant<bool, !is_unweighted_v<T>> {};
 
@@ -66,7 +80,13 @@ struct is_comparable_vertex<
 template <typename T>
 constexpr bool is_comparable_vertex_v = is_comparable_vertex<T>::value;
 
-// True if VertexType is hashable (usable in unordered_map/set)
+/**
+ * @brief Checks whether a type supports std::hash.
+ *
+ * Used to validate compatibility with unordered containers.
+ *
+ * @tparam T Type to evaluate.
+ */
 template <typename T, typename = void> struct is_hashable : std::false_type {};
 
 template <typename T>
@@ -102,13 +122,27 @@ template <typename V, typename E>
 constexpr bool is_unweighted_integral_vertex_v =
     is_unweighted_integral_vertex<V, E>::value;
 
-// Runtime helper
+/**
+ * @brief Runtime helper for checking primitive-compatible graph types.
+ *
+ * @tparam T Type to evaluate.
+ *
+ * @return true if the type is primitive or std::string.
+ */
 template <typename T> constexpr bool isTypePrimitive() {
   if constexpr (is_primitive_or_string_v<T>) {
     return true;
   }
   return false;
 }
+
+/**
+ * @brief Runtime helper for checking weighted graph configurations.
+ *
+ * @tparam T Edge type to evaluate.
+ *
+ * @return true if the graph uses weighted edges.
+ */
 template <typename T> constexpr bool isGraphWeighted() {
   if constexpr (is_weighted_v<T>) {
     return true;

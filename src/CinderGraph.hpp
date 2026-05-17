@@ -13,6 +13,28 @@ namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class PeakStore;
 }
+
+/**
+ * @brief Primary graph container for the CinderPeak graph library.
+ *
+ * CinderGraph provides a flexible graph abstraction supporting both
+ * weighted and unweighted graphs with customizable vertex and edge types.
+ *
+ * The graph delegates storage and orchestration responsibilities to the
+ * underlying PeakStore backend while exposing a simplified user-facing API.
+ *
+ * Supported features include:
+ * - Directed and undirected graphs
+ * - Weighted and unweighted edges
+ * - Graph traversal algorithms
+ * - Graph statistics and visualization
+ * - Configurable logging and exception handling
+ *
+ * @tparam VertexType Type used to represent graph vertices.
+ * @tparam EdgeType Type used to represent graph edges or edge weights.
+ *
+ * @note Primitive and custom user-defined types are supported.
+ */
 template <typename VertexType, typename EdgeType> class CinderGraph;
 template <typename VertexType, typename EdgeType> class CinderGraphRowProxy {
   CinderGraph<VertexType, EdgeType> &graph;
@@ -62,6 +84,18 @@ public:
   }
 };
 
+/**
+ * @brief User-facing graph implementation built on top of PeakStore.
+ *
+ * This class exposes APIs for graph creation, mutation, traversal,
+ * querying, visualization, and runtime configuration.
+ *
+ * Internally, storage operations are delegated to the configured
+ * storage backend through PeakStore.
+ *
+ * @tparam VertexType Vertex representation type.
+ * @tparam EdgeType Edge or edge-weight representation type.
+ */
 template <typename VertexType, typename EdgeType> class CinderGraph {
   std::unique_ptr<CinderPeak::PeakStore::PeakStore<VertexType, EdgeType>>
       peak_store;
@@ -81,6 +115,17 @@ template <typename VertexType, typename EdgeType> class CinderGraph {
   using RemoveEdgeResult = std::pair<std::optional<EdgeType>, bool>;
 
 public:
+  /**
+   * @brief Constructs a graph instance with the provided configuration.
+   *
+   * Initializes graph metadata and configures the underlying storage backend
+   * using the supplied graph creation options.
+   *
+   * @param options Graph configuration options controlling graph behavior.
+   *
+   * @note Uses default graph creation options when no configuration is
+   * provided.
+   */
   CinderGraph(const GraphCreationOptions &options =
                   GraphCreationOptions::getDefaultCreateOptions()) {
     PeakStore::GraphInternalMetadata metadata(
@@ -92,6 +137,23 @@ public:
     peak_store = std::make_unique<PeakStore::PeakStore<VertexType, EdgeType>>(
         metadata, options);
   }
+
+  /**
+   * @brief Adds a vertex to the graph.
+   *
+   * Inserts the provided vertex into the active graph storage backend.
+   *
+   * @param v Vertex instance to insert.
+   *
+   * @return Pair containing:
+   * - inserted vertex
+   * - insertion success status
+   *
+   * @complexity
+   * Average: O(1)
+   *
+   * @throws Exception propagated through the configured exception handler.
+   */
   VertexAddResult addVertex(const VertexType &v) {
     peak_store->log(LogLevel::INFO, "API: Entering addVertex");
     auto resp = peak_store->addVertex(v);
@@ -104,6 +166,18 @@ public:
     peak_store->log(LogLevel::INFO, "API: addVertex completed successfully");
     return {v, true};
   }
+
+  /**
+   * @brief Removes a vertex and its associated edges from the graph.
+   *
+   * @param v Vertex to remove.
+   *
+   * @return true if removal succeeds.
+   * @return false otherwise.
+   *
+   * @complexity
+   * Depends on graph storage backend and edge connectivity.
+   */
   bool removeVertex(const VertexType &v) {
     peak_store->log(LogLevel::INFO, "API: Entering removeVertex");
     auto resp = peak_store->removeVertex(v);
@@ -115,6 +189,23 @@ public:
     peak_store->log(LogLevel::INFO, "API: removeVertex completed successfully");
     return true;
   }
+
+  /**
+   * @brief Removes an edge between two vertices.
+   *
+   * Removes the connection between the specified source and destination
+   * vertices from the graph.
+   *
+   * @param src Source vertex.
+   * @param dest Destination vertex.
+   *
+   * @return Pair containing:
+   * - removed edge value (if available)
+   * - operation success status
+   *
+   * @complexity
+   * Depends on storage backend implementation.
+   */
   RemoveEdgeResult removeEdge(const VertexType &src, const VertexType &dest) {
     peak_store->log(LogLevel::INFO, "API: Entering removeEdge");
     auto [data, status] = peak_store->removeEdge(src, dest);
@@ -127,7 +218,14 @@ public:
     return {std::make_optional(data), true};
   }
 
-  // Helper method to call clearVertices from PeakStore
+  /**
+   * @brief Removes all vertices from the graph.
+   *
+   * Clears the entire vertex set along with all associated edges
+   * and graph connectivity information.
+   *
+   * @note This operation resets graph topology state.
+   */
   void clearVertices() {
     peak_store->log(LogLevel::INFO, "API: Entering clearVertices");
     auto resp = peak_store->clearVertices();
@@ -140,7 +238,13 @@ public:
                     "API: clearVertices completed successfully");
   }
 
-  // Helper method to call clearEdges from PeakStore
+  /**
+   * @brief Removes all edges from the graph.
+   *
+   * Clears all graph connections while preserving existing vertices.
+   *
+   * @note Vertex storage remains intact after this operation.
+   */
   void clearEdges() {
     peak_store->log(LogLevel::INFO, "API: Entering clearEdges");
     auto resp = peak_store->clearEdges();
@@ -152,8 +256,38 @@ public:
     peak_store->log(LogLevel::INFO, "API: clearEdges completed successfully");
   }
 
+  /**
+   * @brief Checks whether a vertex exists in the graph.
+   *
+   * @param v Vertex to query.
+   *
+   * @return true if the vertex exists.
+   * @return false otherwise.
+   *
+   * @complexity
+   * Average: O(1)
+   */
   bool hasVertex(const VertexType &v) { return peak_store->hasVertex(v); }
   template <typename E = EdgeType>
+
+  /**
+   * @brief Adds an unweighted edge between two vertices.
+   *
+   * Creates a connection between the source and destination vertices
+   * in an unweighted graph configuration.
+   *
+   * @param src Source vertex.
+   * @param dest Destination vertex.
+   *
+   * @return Pair containing:
+   * - inserted edge key
+   * - insertion success status
+   *
+   * @complexity
+   * Average: O(1)
+   *
+   * @note Available only for unweighted graph configurations.
+   */
   auto addEdge(const VertexType &src, const VertexType &dest)
       -> std::enable_if_t<CinderPeak::Traits::is_unweighted_v<E>,
                           UnweightedEdgeAddResult> {
@@ -170,6 +304,26 @@ public:
   }
 
   template <typename E = EdgeType>
+
+  /**
+   * @brief Adds a weighted edge between two vertices.
+   *
+   * Creates a weighted connection between the source and destination
+   * vertices using the provided edge weight.
+   *
+   * @param src Source vertex.
+   * @param dest Destination vertex.
+   * @param weight Edge weight or edge payload.
+   *
+   * @return Pair containing:
+   * - inserted weighted edge key
+   * - insertion success status
+   *
+   * @complexity
+   * Average: O(1)
+   *
+   * @note Available only for weighted graph configurations.
+   */
   auto addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight)
       -> std::enable_if_t<!CinderPeak::Traits::is_unweighted_v<E>,
@@ -187,6 +341,22 @@ public:
   }
 
   template <typename E = EdgeType>
+
+  /**
+   * @brief Updates the weight or payload of an existing edge.
+   *
+   * Replaces the current edge weight with the provided value.
+   *
+   * @param src Source vertex.
+   * @param dest Destination vertex.
+   * @param newWeight Updated edge weight or payload.
+   *
+   * @return Pair containing:
+   * - previous edge weight
+   * - update success status
+   *
+   * @note Available only for weighted graph configurations.
+   */
   auto updateEdge(const VertexType &src, const VertexType &dest,
                   const EdgeType &newWeight)
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
@@ -201,6 +371,18 @@ public:
     peak_store->log(LogLevel::INFO, "API: updateEdge completed successfully");
     return {newWeight, true};
   }
+
+  /**
+   * @brief Retrieves the edge value between two vertices.
+   *
+   * @param src Source vertex.
+   * @param dest Destination vertex.
+   *
+   * @return Optional edge value if the edge exists.
+   *
+   * @complexity
+   * Depends on storage backend implementation.
+   */
   std::optional<EdgeType> getEdge(const VertexType &src,
                                   const VertexType &dest) {
     auto [data, status] = peak_store->getEdge(src, dest);
@@ -210,11 +392,35 @@ public:
     }
     return data;
   }
+
+  /**
+   * @brief Performs Breadth-First Search traversal.
+   *
+   * Executes BFS traversal starting from the specified source vertex.
+   *
+   * @param src Starting vertex for traversal.
+   *
+   * @return BFS traversal result containing visited vertices
+   *         and traversal metadata.
+   *
+   * @throws Exception propagated through the configured exception handler.
+   */
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     return peak_store->bfs(src);
   }
 
   template <typename V = VertexType, typename E = EdgeType>
+
+  /**
+   * @brief Exports the graph in Graphviz DOT format.
+   *
+   * Generates a DOT representation of the graph that can be
+   * visualized using Graphviz-compatible tools.
+   *
+   * @param filename Output DOT file path.
+   *
+   * @note Available for primitive vertex and edge types.
+   */
   auto toDot(const std::string &filename)
       -> std::enable_if_t<Traits::isTypePrimitive<V>() &&
                           (Traits::isTypePrimitive<E>() ||
@@ -222,6 +428,14 @@ public:
     peak_store->toDot(filename);
   }
 
+  /**
+   * @brief Retrieves graph statistics and metadata.
+   *
+   * Provides runtime information about graph structure,
+   * storage characteristics, and graph state.
+   *
+   * @return String representation of graph statistics and metrics.
+   */
   std::string getGraphStatistics() { return peak_store->getGraphStatistics(); }
   size_t numEdges() const { return peak_store->numEdges(); }
   size_t numVertices() const { return peak_store->numVertices(); }

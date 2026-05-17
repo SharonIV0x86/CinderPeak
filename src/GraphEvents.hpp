@@ -8,11 +8,6 @@ template <typename VertexType, typename EdgeType> struct GraphEvents {
   onEdgeAdded(const PeakStore::GraphContext<VertexType, EdgeType> &ctx,
               const VertexType &src, const VertexType &dest) {
 
-    if (ctx.create_options->hasOption(GraphCreationOptions::Directed) &&
-        ctx.active_storage->impl_doesEdgeExist(dest, src)) {
-      ctx.metadata->updateParallelEdgeCount(PeakStore::UpdateOp::Add);
-    }
-
     if (src == dest) {
       ctx.metadata->updateSelfLoopCount(PeakStore::UpdateOp::Add);
     }

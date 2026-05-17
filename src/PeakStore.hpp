@@ -80,10 +80,12 @@ public:
     PeakStatus status;
 
     if (isWeighted) {
-      ctx->log(LogLevel::INFO, "Called weighted PeakStore::addEdge");
+      ctx->log(LogLevel::INFO, "Called weighted PeakStore::addEdge for " +
+                                   weightedEdgeStr(src, dest, weight));
       status = ctx->active_storage->impl_addEdge(src, dest, weight);
     } else {
-      ctx->log(LogLevel::INFO, "Called unweighted PeakStore::addEdge");
+      ctx->log(LogLevel::INFO, "Called unweighted PeakStore::addEdge for " +
+                                   edgeStr(src, dest));
       status = ctx->active_storage->impl_addEdge(src, dest);
     }
 
@@ -112,17 +114,29 @@ public:
 
   std::pair<EdgeType, PeakStatus> removeEdge(const VertexType &src,
                                              const VertexType &dest) {
-    ctx->log(LogLevel::INFO, "Called adjacency:removeEdge()");
+    ctx->log(LogLevel::INFO,
+             "Called adjacency:removeEdge() for " + edgeStr(src, dest));
     auto result = ctx->active_storage->impl_removeEdge(src, dest);
-    if (result.second.isOK())
-      ctx->metadata->updateEdgeCount(UpdateOp::Remove);
+    if (result.second.isOK()) {
+      GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, src, dest);
+
+      bool isDirected =
+          ctx->create_options->hasOption(GraphCreationOptions::Directed);
+      if (!isDirected && src != dest) {
+        auto rev_result = ctx->active_storage->impl_removeEdge(dest, src);
+        if (rev_result.second.isOK()) {
+          GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, dest, src);
+        }
+      }
+    }
     return result;
   }
 
   std::pair<PeakStatus, EdgeType> updateEdge(const VertexType &src,
                                              const VertexType &dest,
                                              const EdgeType &newWeight) {
-    ctx->log(LogLevel::INFO, "Called adjacency:updateEdge()");
+    ctx->log(LogLevel::INFO, "Called adjacency:updateEdge() for " +
+                                 weightedEdgeStr(src, dest, newWeight));
 
     PeakStatus resp =
         ctx->active_storage->impl_updateEdge(src, dest, newWeight);
@@ -143,7 +157,8 @@ public:
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,
                                           const VertexType &dest) {
-    ctx->log(LogLevel::INFO, "Called adjacency:getEdge()");
+    ctx->log(LogLevel::INFO,
+             "Called adjacency:getEdge() for " + edgeStr(src, dest));
     auto status = ctx->active_storage->impl_getEdge(src, dest);
     if (!status.second.isOK()) {
       return {EdgeType(), status.second};
@@ -152,7 +167,8 @@ public:
   }
 
   PeakStatus addVertex(const VertexType &src) {
-    ctx->log(LogLevel::INFO, "Called peakStore:addVertex");
+    ctx->log(LogLevel::INFO,
+             "Called peakStore:addVertex for " + vertexStr(src));
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
         !resp.isOK())
       return resp;
@@ -162,13 +178,14 @@ public:
   }
 
   bool hasVertex(const VertexType &v) {
-    ctx->log(LogLevel::INFO, "Called peakStore:hasVertex");
+    ctx->log(LogLevel::INFO, "Called peakStore:hasVertex for " + vertexStr(v));
     return ctx->active_storage->impl_hasVertex(v);
   }
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   getNeighbors(const VertexType &src) const {
-    ctx->log(LogLevel::INFO, "Called adjacency:getNeighbors()");
+    ctx->log(LogLevel::INFO,
+             "Called adjacency:getNeighbors() for " + vertexStr(src));
     auto status = ctx->adjacency_storage->impl_getNeighbors(src);
     if (!status.second.isOK()) {
       std::cout << status.second.message() << "\n";
@@ -195,7 +212,6 @@ public:
     if (status.isOK()) {
       ctx->metadata->updateVertexCount(UpdateOp::Clear);
       ctx->metadata->updateEdgeCount(UpdateOp::Clear);
-      ctx->metadata->updateParallelEdgeCount(UpdateOp::Clear);
       ctx->metadata->updateSelfLoopCount(UpdateOp::Clear);
     }
     return status;
@@ -206,7 +222,6 @@ public:
     auto status = ctx->active_storage->impl_clearEdges();
     if (status.isOK()) {
       ctx->metadata->updateEdgeCount(UpdateOp::Clear);
-      ctx->metadata->updateParallelEdgeCount(UpdateOp::Clear);
       ctx->metadata->updateSelfLoopCount(UpdateOp::Clear);
     }
     return status;
@@ -243,15 +258,12 @@ public:
 
     bool isDirected =
         ctx->create_options->hasOption(GraphCreationOptions::Directed);
-    bool allowParallel =
-        ctx->create_options->hasOption(GraphCreationOptions::ParallelEdges);
 
-    std::string content =
-        ctx->adjacency_storage->impl_toDot(isDirected, allowParallel);
+    std::string content = ctx->adjacency_storage->impl_toDot(isDirected);
     outFile << content;
     outFile.close();
 
-    ctx->log(LogLevel::ERROR, "Successfully wrote DOT output to: " + filename);
+    ctx->log(LogLevel::INFO, "Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {
