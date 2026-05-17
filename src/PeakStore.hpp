@@ -256,7 +256,7 @@ public:
     outFile << content;
     outFile.close();
 
-    ctx->log(LogLevel::ERROR, "Successfully wrote DOT output to: " + filename);
+    ctx->log(LogLevel::INFO, "Successfully wrote DOT output to: " + filename);
   }
 
   const std::string getGraphStatistics() {
