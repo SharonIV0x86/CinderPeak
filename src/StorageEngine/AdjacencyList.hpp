@@ -441,7 +441,6 @@ public:
     return PeakStatus::OK();
   }
 
-
   const std::unordered_map<
       CinderPeak::VertexId,
       std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
