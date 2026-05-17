@@ -3,8 +3,10 @@
 
 using namespace CinderPeak;
 
-struct CustomVertex {
-  int __id_;
+struct CustomVertex : public CinderPeak::CinderVertex {
+  explicit CustomVertex(int id) {
+    __id_ = id;
+  }
 
   bool operator==(const CustomVertex &other) const {
     return __id_ == other.__id_;
@@ -14,14 +16,6 @@ struct CustomVertex {
     return __id_ < other.__id_;
   }
 };
-
-namespace std {
-template <> struct hash<CustomVertex> {
-  size_t operator()(const CustomVertex &v) const {
-    return hash<int>()(v.__id_);
-  }
-};
-} // namespace std
 
 TEST(CinderGraphOperatorProxyTest, EdgeFormattingSupportsCustomVertexTypes) {
 
