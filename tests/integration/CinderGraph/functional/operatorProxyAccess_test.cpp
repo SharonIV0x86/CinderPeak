@@ -4,9 +4,7 @@
 using namespace CinderPeak;
 
 struct CustomVertex : public CinderPeak::CinderVertex {
-  explicit CustomVertex(int id) {
-    __id_ = id;
-  }
+  explicit CustomVertex(int id) { __id_ = id; }
 
   bool operator==(const CustomVertex &other) const {
     return __id_ == other.__id_;
