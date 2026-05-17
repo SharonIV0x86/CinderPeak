@@ -335,6 +335,51 @@ graph.addEdge(source, destination, weight);
 EdgeType weight = graph.getEdge(source, destination);
 ```
 
+### **Retrieving Neighbors**
+
+```cpp
+// Returns a vector of {neighbor, edge} pairs for all outgoing edges of a vertex
+auto neighbors = graph.getNeighbors(source);
+for (const auto& [neighbor, edge] : neighbors) {
+    // process each neighbor and its edge value
+}
+```
+
+**Example: Listing neighbors with edge weights**
+
+```cpp
+#include <iostream>
+#include "CinderPeak.hpp"
+using namespace CinderPeak::PeakStore;
+using namespace CinderPeak;
+
+int main() {
+    GraphCreationOptions opts({
+        GraphCreationOptions::Directed,
+        GraphCreationOptions::Weighted
+    });
+
+    CinderGraph<int, int> graph(opts);
+
+    graph.addVertex(1);
+    graph.addVertex(2);
+    graph.addVertex(3);
+
+    graph.addEdge(1, 2, 10);
+    graph.addEdge(1, 3, 20);
+
+    auto neighbors = graph.getNeighbors(1);
+    for (const auto& [neighbor, weight] : neighbors) {
+        std::cout << "1 -> " << neighbor << " (weight: " << weight << ")\n";
+    }
+    // Output:
+    // 1 -> 2 (weight: 10)
+    // 1 -> 3 (weight: 20)
+
+    return 0;
+}
+```
+
 ---
 
 **Guidelines:**
