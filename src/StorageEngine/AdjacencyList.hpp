@@ -468,7 +468,7 @@ struct DotConfig {
   std::string fontName = "Arial";
 };
  std::string impl_toDot(bool isDirected, bool allowParallel,
-    const DotConfig &config = DotConfig()) const{
+    const DotConfig &config = DotConfig()) const {
     runtime.log(LogLevel::DEBUG, "Executing impl_toDot");
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::stringstream ss;
