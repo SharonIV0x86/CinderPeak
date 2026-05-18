@@ -113,7 +113,7 @@ template <typename VertexType, typename EdgeType> class CinderGraph {
   using UpdateEdgeResult = std::pair<EdgeType, bool>;
 
   using RemoveEdgeResult = std::pair<std::optional<EdgeType>, bool>;
-  using NeighborList = std::vector<std::pair<VertexType, EdgeType>>;
+  using NeighborListResult = std::vector<std::pair<VertexType, EdgeType>>;
 
 public:
   /**
@@ -411,7 +411,7 @@ public:
    *
    * @throws Exception propagated through the configured exception handler.
    */
-  NeighborList getNeighbors(const VertexType &v) const {
+  NeighborListResult getNeighbors(const VertexType &v) const {
     peak_store->log(LogLevel::INFO,
                     "API: Entering getNeighbors for " + vertexStr(v));
     auto [neighbors, status] = peak_store->getNeighbors(v);
