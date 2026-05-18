@@ -1,5 +1,6 @@
 #pragma once
 #include "Concepts.hpp"
+#include "DebugUtils.hpp"
 #include "GraphRuntime.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
@@ -57,7 +58,8 @@ public:
   }
 
   [[nodiscard]] const PeakStatus impl_addVertex(const VertexType &v) override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_addVertex");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_addVertex for " + vertexStr(v));
     VertexId assignedId = 0;
     {
       std::unique_lock<std::shared_mutex> lock(_mtx);
@@ -66,13 +68,15 @@ public:
         if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
                           VertexType>) {
           runtime.log(LogLevel::WARNING,
-                      "Failed to add Vertex: Vertex Already Exist.");
+                      "Failed to add Vertex: Vertex Already Exist. " +
+                          vertexStr(v));
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
           runtime.log(LogLevel::WARNING,
                       "Failed to add Non Premitive Vertex: Non Premitive "
-                      "Vertex Already Exist.");
+                      "Vertex Already Exist. " +
+                          vertexStr(v));
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
         }
@@ -117,7 +121,8 @@ public:
   [[nodiscard]] const PeakStatus
   impl_addEdge(const VertexType &src, const VertexType &dest,
                const EdgeType &weight = EdgeType()) override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_addEdge");
+    runtime.log(LogLevel::DEBUG, "Executing impl_addEdge for " +
+                                     weightedEdgeStr(src, dest, weight));
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -198,7 +203,8 @@ public:
 
   [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_removeEdge(const VertexType &src, const VertexType &dest) override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_removeEdge");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_removeEdge for " + edgeStr(src, dest));
     std::unique_lock<std::shared_mutex> lock(_mtx);
     EdgeType retWeight = EdgeType();
 
@@ -231,7 +237,8 @@ public:
   [[nodiscard]] const PeakStatus
   impl_updateEdge(const VertexType &src, const VertexType &dest,
                   const EdgeType &newWeight) override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_updateEdge");
+    runtime.log(LogLevel::DEBUG, "Executing impl_updateEdge for " +
+                                     weightedEdgeStr(src, dest, newWeight));
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -260,7 +267,8 @@ public:
   }
 
   [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_hasVertex");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_hasVertex for " + vertexStr(v));
     std::shared_lock<std::shared_mutex> lock(_mtx);
     runtime.log(LogLevel::INFO, "Vertex lookup.");
 
@@ -270,7 +278,8 @@ public:
   [[nodiscard]] bool
   impl_doesEdgeExist(const VertexType &src,
                      const VertexType &dest) noexcept override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_doesEdgeExist for " + edgeStr(src, dest));
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -295,7 +304,8 @@ public:
   [[nodiscard]] bool
   impl_doesEdgeExist(const VertexType &src, const VertexType &dest,
                      const EdgeType &weight) noexcept override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist");
+    runtime.log(LogLevel::DEBUG, "Executing impl_doesEdgeExist for " +
+                                     weightedEdgeStr(src, dest, weight));
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -322,7 +332,8 @@ public:
 
   [[nodiscard]] const std::pair<EdgeType, PeakStatus>
   impl_getEdge(const VertexType &src, const VertexType &dest) override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_getEdge");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_getEdge for " + edgeStr(src, dest));
     std::shared_lock<std::shared_mutex> lock(_mtx);
 
     auto srcIt = _vertex_lookup.find(src);
@@ -346,7 +357,8 @@ public:
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
-    runtime.log(LogLevel::DEBUG, "Executing impl_getNeighbors");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_getNeighbors for " + vertexStr(vertex));
     // data copied under lock
     std::vector<std::pair<VertexId, EdgeType>> neighbor_ids;
     std::unordered_map<VertexId, VertexType> vertex_data_snapshot;
@@ -390,7 +402,8 @@ public:
 
   [[nodiscard]] const PeakStatus
   impl_removeVertex(const VertexType &v) override {
-    runtime.log(LogLevel::DEBUG, "Executing impl_removeVertex");
+    runtime.log(LogLevel::DEBUG,
+                "Executing impl_removeVertex for " + vertexStr(v));
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
     auto it = _vertex_lookup.find(v);
