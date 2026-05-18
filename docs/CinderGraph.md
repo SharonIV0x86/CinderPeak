@@ -21,7 +21,6 @@ public:
     void addEdge(const VertexType &src, const VertexType &dest);
     void addEdge(const VertexType &src, const VertexType &dest, const EdgeType &weight);
     EdgeType getEdge(const VertexType &src, const VertexType &dest);
-    std::vector<std::pair<VertexType, EdgeType>> getNeighbors(const VertexType &v);
 };
 }
 ```
@@ -175,44 +174,7 @@ int main() {
 - Adds weighted edges (`1 -> 2` with weight `5.5`, `2 -> 3` with weight `3.2`).
 - Retrieves and prints the weight of the edge `1 -> 2`.
 
-### Example 4: Retrieving Neighbors of a Vertex
-This example demonstrates how to retrieve all neighbors of a vertex along with their edge weights.
-
-```cpp
-#include <iostream>
-#include "CinderPeak.hpp"
-using namespace CinderPeak;
-
-int main() {
-    GraphCreationOptions opts({GraphCreationOptions::Directed});
-    CinderGraph<int, int> graph(opts);
-
-    graph.addVertex(1);
-    graph.addVertex(2);
-    graph.addVertex(3);
-
-    graph.addEdge(1, 2, 10);
-    graph.addEdge(1, 3, 20);
-
-    auto neighbors = graph.getNeighbors(1);
-    for (const auto& [neighbor, weight] : neighbors) {
-        std::cout << "1 -> " << neighbor << " (weight: " << weight << ")\n";
-    }
-    // Output:
-    // 1 -> 2 (weight: 10)
-    // 1 -> 3 (weight: 20)
-
-    return 0;
-}
-```
-
-**Explanation**:
-- Creates a directed, weighted graph with integer vertices and edges.
-- Adds vertices `1`, `2`, and `3`, then edges from `1` to both `2` and `3`.
-- Calls `getNeighbors(1)` which returns all `{neighbor, weight}` pairs for vertex `1`.
-- Iterates over the result and prints each neighbor with its edge weight.
-
-### Example 5: Error Handling for Invalid Edge Addition
+### Example 4: Error Handling for Invalid Edge Addition
 This example demonstrates error handling when attempting to add an unweighted edge to a weighted graph.
 
 ```cpp
@@ -240,14 +202,6 @@ int main() {
 - Adds vertices `1` and `2`.
 - Attempts to add an unweighted edge, which logs a critical error (as the graph is weighted).
 - Correctly adds a weighted edge (`1 -> 2` with weight `10`).
-
-### `std::vector<std::pair<VertexType, EdgeType>> getNeighbors(const VertexType &v)`
-- **Description**: Retrieves all neighbors of a given vertex.
-- **Parameters**:
-  - `v`: The vertex whose neighbors are to be retrieved.
-- **Returns**: A vector of `{neighbor, edge}` pairs representing all outgoing edges from `v`. Returns an empty vector if the vertex does not exist or has no outgoing edges.
-- **Behavior**: Delegates to the `PeakStore` backend. Logs a warning and handles errors via `Exceptions::handle_exception_map` on failure.
-- **Complexity**: O(deg(v)) — proportional to the out-degree of the vertex.
 
 ### `void toDot(const std::string& filename)`
 - **Description**: Export the current graph to the [Graphviz DOT format](https://graphviz.org/doc/info/lang.html).
