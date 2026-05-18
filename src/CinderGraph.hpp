@@ -416,8 +416,7 @@ public:
                     "API: Entering getNeighbors for " + vertexStr(v));
     auto [neighbors, status] = peak_store->getNeighbors(v);
     if (!status.isOK()) {
-      peak_store->log(LogLevel::WARNING, "API: Error in getNeighbors for " +
-                                             vertexStr(v));
+      peak_store->log(LogLevel::WARNING, "API: Error in getNeighbors");
       Exceptions::handle_exception_map(status);
       return {};
     }

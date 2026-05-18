@@ -26,13 +26,15 @@ int main() {
 
     // Vertex with no outgoing edges
     auto neighbors2 = g.getNeighbors(4);
-    cout << "Neighbors of vertex 4: "
-         << (neighbors2.empty() ? "none" : "found") << endl;
+    if (neighbors2.empty()) {
+      cout << "Neighbors of vertex 4: none" << endl;
+    }
 
     // Non-existent vertex returns empty
     auto neighbors3 = g.getNeighbors(99);
-    cout << "Neighbors of vertex 99 (not in graph): "
-         << (neighbors3.empty() ? "empty" : "found") << endl;
+    if (neighbors3.empty()) {
+      cout << "Neighbors of vertex 99 (not in graph): empty" << endl;
+    }
 
     // Weighted undirected graph
     cout << "\n--- Weighted Undirected Graph ---" << endl;
