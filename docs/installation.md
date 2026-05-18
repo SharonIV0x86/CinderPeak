@@ -92,13 +92,9 @@ This configuration is ideal for using CinderPeak as a library dependency in othe
 
 - **Using Visual Studio** :
 
-   ```js
+   ```bash
    cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
    cmake --build .
-   ```
-   To build the files, run:
-   ```js
-   make -j
    ```
    
 ### Possible errors:
