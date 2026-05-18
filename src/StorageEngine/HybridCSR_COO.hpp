@@ -161,7 +161,7 @@ private:
     if (_tombstoned.empty())
       return;
 
-    // Build old-index to new-index mapping, skipping tombstoned slots
+
     std::vector<size_t> index_remap(vertex_order.size(), SIZE_MAX);
     size_t new_idx = 0;
     for (size_t old_idx = 0; old_idx < vertex_order.size(); ++old_idx) {
@@ -170,7 +170,7 @@ private:
       index_remap[old_idx] = new_idx++;
     }
 
-    // Compact COO arrays: filter tombstoned edges and remap indices
+
     size_t write = 0;
     for (size_t read = 0; read < coo_src.size(); ++read) {
       if (_tombstoned.count(coo_src[read]) ||
@@ -186,7 +186,7 @@ private:
     coo_dest.resize(write);
     coo_weights.resize(write);
 
-    // Compact CSR arrays if built
+
     if (is_built_.load(std::memory_order_relaxed)) {
       std::vector<size_t> new_csr_cols;
       std::vector<EdgeType> new_csr_weights;
@@ -213,7 +213,7 @@ private:
       csr_weights = std::move(new_csr_weights);
     }
 
-    // Compact vertex_order
+
     std::vector<VertexType> new_vertex_order;
     new_vertex_order.reserve(vertex_order.size() - _tombstoned.size());
     for (size_t i = 0; i < vertex_order.size(); ++i) {
@@ -223,7 +223,7 @@ private:
     }
     vertex_order = std::move(new_vertex_order);
 
-    // Rebuild vertex_to_index from compacted vertex_order
+
     vertex_to_index.clear();
     for (size_t i = 0; i < vertex_order.size(); ++i) {
       vertex_to_index[vertex_order[i]] = i;
