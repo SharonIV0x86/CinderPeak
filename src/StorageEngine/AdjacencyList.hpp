@@ -467,7 +467,9 @@ struct DotConfig {
   std::string nodeShape = "circle";
   std::string fontName = "Arial";
 };
- std::string impl_toDot(bool isDirected, bool allowParallel,
+std::string impl_toDot(
+    bool isDirected,
+    bool allowParallel = false,
     const DotConfig &config = DotConfig()) const {
     runtime.log(LogLevel::DEBUG, "Executing impl_toDot");
     std::shared_lock<std::shared_mutex> lock(_mtx);
