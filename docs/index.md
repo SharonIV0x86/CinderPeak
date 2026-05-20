@@ -82,10 +82,19 @@ CinderPeak/
 │   ├── CinderGraph.hpp           # User-facing graph class
 │   ├── PeakStore.hpp             # Internal storage orchestrator
 │   ├── Concepts.hpp              # Compile-time type traits
-│   ├── GraphConstraints.hpp      # Edge/vertex constraint enforcement
-│   ├── GraphEvents.hpp           # Event hooks (edge/vertex add/remove)
+│   ├── CinderExceptions.hpp      # Exception classes
+│   ├── StorageInterface.hpp      # Storage abstraction interface
 │   ├── GraphRuntime.hpp          # Runtime config (logging, exceptions)
 │   ├── PeakLogger.hpp            # Logging subsystem
+│   ├── Constraints/              # Constraint enforcement subsystem
+│   │   └── Constraints.hpp       # Core constraints logic
+│   ├── Events/                   # Event-driven architecture hooks
+│   │   ├── DefaultListeners.hpp  # Default event callbacks
+│   │   ├── EventDispatcher.hpp   # Dispatches events to listeners
+│   │   ├── EventHub.hpp          # Central event registration
+│   │   └── GraphEvents.hpp       # Event definitions
+│   ├── Operations/               # Graph manipulation operations
+│   │   └── GraphOperations.hpp   # Core operations logic
 │   ├── StorageEngine/
 │   │   ├── AdjacencyList.hpp     # Adjacency list storage backend
 │   │   ├── HybridCSR_COO.hpp     # Hybrid CSR+COO storage backend
