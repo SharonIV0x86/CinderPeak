@@ -23,7 +23,7 @@
 CinderGraph(const GraphCreationOptions& options = GraphCreationOptions::getDefaultCreateOptions());
 ```
 
-Default options: `{Directed, SelfLoops}`
+Default options: `{Directed}`
 
 ### Core Methods
 

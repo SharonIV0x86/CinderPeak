@@ -221,16 +221,15 @@ struct GraphContext {
 Configures graph behavior at construction time using a bitmask.
 
 ```cpp
-enum GraphType { Directed = 0, SelfLoops, Undirected };
+enum GraphType { Directed = 0, Undirected };
 ```
 
 | Option | Bit | Effect |
 |:-------|:----|:-------|
 | `Directed` | 0 | Edges have direction (A→B ≠ B→A) |
-| `SelfLoops` | 1 | Vertices can connect to themselves |
 | `Undirected` | 2 | Edges are bidirectional (A—B = B—A) |
 
-**Default options** (when no options given): `{Directed, SelfLoops}`
+**Default options** (when no options given): `{Directed}`
 
 ---
 
@@ -244,7 +243,6 @@ Tracks runtime graph statistics in a thread-safe manner:
 |:------|:-----|:------------|
 | `num_vertices` | `size_t` | Total vertex count |
 | `num_edges` | `size_t` | Total edge count |
-| `num_self_loops` | `size_t` | Self-loop count |
 | `density` | `float` | Edge density (computed on request) |
 | `graph_name` | `string` | User-assigned or auto-generated name |
 | `is_graph_weighted` | `bool` | True if EdgeType ≠ `Unweighted` |
@@ -332,7 +330,7 @@ These update edge counts in `GraphInternalMetadata`.
 
 Validates pre-conditions before mutations:
 
-- `checkAddEdgeConstraints()` — ensures both vertices exist, self-loops are allowed if configured, and the edge doesn't already exist
+- `checkAddEdgeConstraints()` — ensures both vertices exist and the edge doesn't already exist
 - `checkRemoveEdge()` — ensures both vertices exist before attempting removal
 
 ---

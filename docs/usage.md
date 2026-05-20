@@ -35,17 +35,14 @@ GraphCreationOptions opts({GraphCreationOptions::Directed});
 // Undirected graph
 GraphCreationOptions opts({GraphCreationOptions::Undirected});
 
-// Directed graph with self-loops allowed
-GraphCreationOptions opts({GraphCreationOptions::Directed, GraphCreationOptions::SelfLoops});
 ```
 
 | Option | Description |
 |:-------|:------------|
 | `Directed` | Edges have direction: A→B ≠ B→A |
 | `Undirected` | Edges are bidirectional: A—B adds both A→B and B→A |
-| `SelfLoops` | Allow a vertex to connect to itself |
 
-> **Default** (no options): `{Directed, SelfLoops}`
+> **Default** (no options): `{Directed}`
 
 ---
 
@@ -106,6 +103,8 @@ Only available for `CinderGraph<V, Unweighted>`.
 pair<pair<V,V>, bool> addEdge(const V& src, const V& dest);
 ```
 
+**Returns:** `{{src, dest}, true}` on success, `{{src, dest}, false}` if already exists.
+
 ```cpp
 CinderGraph<int, Unweighted> g;
 g.addVertex(1);
@@ -128,6 +127,8 @@ Only available for weighted graphs (EdgeType ≠ `Unweighted`).
 ```cpp
 pair<tuple<V,V,E>, bool> addEdge(const V& src, const V& dest, const E& weight);
 ```
+
+**Returns:** `{{src, dest, weight}, true}` on success, `{{src, dest, weight}, false}` if already exists.
 
 ```cpp
 CinderGraph<int, double> g;
@@ -155,6 +156,8 @@ Removes a vertex **and all its associated edges** from the graph.
 bool removeVertex(const VertexType& v);
 ```
 
+**Returns:** `true` on success, `false` if not found.
+
 ```cpp
 CinderGraph<int, int> g;
 g.addVertex(1); g.addVertex(2); g.addVertex(3);
@@ -166,7 +169,6 @@ cout << removed << "\n";          // 1 (true)
 cout << g.numVertices() << "\n";  // 2
 ```
 
-> **Caveat:** `removeVertex` physically removes the vertex and all its edges from the underlying storage, but does **not** update the edge count metadata. `numEdges()` may return a stale value after `removeVertex`. Use `clearEdges()` + re-add or `removeEdge()` to keep edge counts consistent.
 
 ---
 
@@ -178,6 +180,8 @@ Removes the edge between two vertices, preserving both vertices.
 ```cpp
 pair<optional<EdgeType>, bool> removeEdge(const V& src, const V& dest);
 ```
+
+**Returns:** `{weight, true}` on success, `{nullopt, false}` if not found.
 
 ```cpp
 CinderGraph<int, int> g;
@@ -366,7 +370,6 @@ cout << g.getGraphStatistics();
 // Vertices: 3
 // Edges: 2
 // Density: 0.33
-// Self-loops: 0
 ```
 
 ---
@@ -471,20 +474,7 @@ int main() {
 
 ---
 
-## 7. Error Handling Behavior
-
-| Situation | Default Behavior | With `setThrowExceptions(true)` |
-|:----------|:----------------|:-------------------------------|
-| Add duplicate vertex | Returns `{v, false}` | Returns `{v, false}` |
-| Add edge to missing vertex | Returns `{{src,dst}, false}` | Returns `{{src,dst}, false}` |
-| Get non-existent edge | Returns `nullopt` | Returns `nullopt` |
-| Remove missing edge | Returns `{nullopt, false}` | Returns `{nullopt, false}` |
-
-Most errors are logged via the runtime logger. Enabling exceptions adds throw-on-critical-errors behavior.
-
----
-
-## 8. Complete Example: Road Network
+## 7. Complete Example: Road Network
 
 ```cpp
 #include "CinderPeak.hpp"
