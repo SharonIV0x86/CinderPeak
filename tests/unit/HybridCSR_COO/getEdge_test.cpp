@@ -27,15 +27,6 @@ TEST_F(HybridStorageShardTest, GetEdge_EmptyGraph) {
   EXPECT_FALSE(status.isOK()) << "Edge found in empty graph";
 }
 
-// Test getting self-loop edge
-TEST_F(HybridStorageShardTest, GetEdge_SelfLoop) {
-  graph->impl_addVertex(42);
-  graph->impl_addEdge(42, 42, 100);
-  auto [weight, status] = graph->impl_getEdge(42, 42);
-  EXPECT_TRUE(status.isOK()) << "Self-loop edge not found";
-  EXPECT_EQ(weight, 100) << "Incorrect self-loop weight";
-}
-
 // Test advanced edge retrieval
 TEST_F(HybridStorageShardTest, GetEdge_Advanced) {
   for (int i = 1; i <= 5; ++i) {

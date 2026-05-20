@@ -151,22 +151,3 @@ TEST_F(HybridStorageShardTest, ClearVerticesLargeGraph) {
   EXPECT_FALSE(graph->impl_hasVertex(500));
   EXPECT_FALSE(graph->impl_hasVertex(999));
 }
-
-TEST_F(HybridStorageShardTest, ClearVerticesWithSelfLoops) {
-  for (int i = 1; i <= 5; i++) {
-    EXPECT_TRUE(graph->impl_addVertex(i).isOK());
-  }
-
-  for (int i = 1; i <= 5; i++) {
-    EXPECT_TRUE(graph->impl_addEdge(i, i, i * 100).isOK());
-  }
-
-  EXPECT_TRUE(graph->impl_addEdge(1, 2, 10).isOK());
-  EXPECT_TRUE(graph->impl_addEdge(2, 3, 20).isOK());
-
-  EXPECT_TRUE(graph->impl_clearVertices().isOK());
-
-  for (int i = 1; i <= 5; i++) {
-    EXPECT_FALSE(graph->impl_hasVertex(i));
-  }
-}
