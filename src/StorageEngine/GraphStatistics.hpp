@@ -24,7 +24,6 @@ class GraphInternalMetadata {
 private:
   size_t num_vertices;
   size_t num_edges;
-  size_t num_self_loops;
   float density;
   const std::string graph_type;
   std::string graph_name;
@@ -44,7 +43,6 @@ public:
     num_vertices = 0;
     num_edges = 0;
     density = 0.0;
-    num_self_loops = 0;
     is_graph_weighted = weighted;
     is_graph_unweighted = unweighted;
     graph_name = CinderPeak::generateDefaultGraphName();
@@ -56,7 +54,6 @@ public:
     std::shared_lock<std::shared_mutex> lock(metadata._mtx);
     num_vertices = metadata.num_vertices;
     num_edges = metadata.num_edges;
-    num_self_loops = metadata.num_self_loops;
     density = metadata.density;
     is_vertex_type_primitive = metadata.is_vertex_type_primitive;
     is_edge_type_primitive = metadata.is_edge_type_primitive;
@@ -72,7 +69,6 @@ public:
       std::unique_lock<std::shared_mutex> this_lock(_mtx);
       num_vertices = metadata.num_vertices;
       num_edges = metadata.num_edges;
-      num_self_loops = metadata.num_self_loops;
       density = metadata.density;
       is_vertex_type_primitive = metadata.is_vertex_type_primitive;
       is_edge_type_primitive = metadata.is_edge_type_primitive;
@@ -130,17 +126,6 @@ public:
       num_vertices = 0;
   }
 
-  void updateSelfLoopCount(const UpdateOp &opt) {
-    std::unique_lock<std::shared_mutex> lock(_mtx);
-
-    if (opt == UpdateOp::Add)
-      num_self_loops++;
-    else if (opt == UpdateOp::Remove)
-      num_self_loops--;
-    else if (opt == UpdateOp::Clear)
-      num_self_loops = 0;
-  }
-
   void updateDensity(bool directed) {
     std::unique_lock<std::shared_mutex> lock(_mtx);
 
@@ -167,7 +152,6 @@ public:
     ss << "Edges: " << num_edges << std::endl;
     ss << "Density: " << std::fixed << std::setprecision(2) << density
        << std::endl;
-    ss << "Self-loops: " << num_self_loops << std::endl;
 
     return ss.str();
   }

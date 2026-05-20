@@ -26,7 +26,7 @@ using VertexId = uint64_t;
 
 class GraphCreationOptions {
 public:
-  enum GraphType { Directed = 0, SelfLoops, Undirected };
+  enum GraphType { Directed = 0, Undirected };
   GraphCreationOptions(std::initializer_list<GraphType> graph_types) {
     for (auto type : graph_types) {
       options.set(type);
@@ -34,7 +34,7 @@ public:
   }
   static GraphCreationOptions getDefaultCreateOptions() {
     const GraphCreationOptions DEFAULT_GRAPH_OPTIONS(
-        {GraphCreationOptions::Directed, GraphCreationOptions::SelfLoops});
+        {GraphCreationOptions::Directed});
     return DEFAULT_GRAPH_OPTIONS;
   }
 

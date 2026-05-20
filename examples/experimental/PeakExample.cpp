@@ -3,8 +3,7 @@
 using namespace CinderPeak::PeakStore;
 using namespace CinderPeak;
 int main() {
-  GraphCreationOptions options(
-      {GraphCreationOptions::Directed, GraphCreationOptions::SelfLoops});
+  GraphCreationOptions options({GraphCreationOptions::Directed});
   GraphInternalMetadata metadata("cinder_graph", Traits::isTypePrimitive<int>(),
                                  Traits::isTypePrimitive<int>(),
                                  Traits::isGraphWeighted<int>(),
