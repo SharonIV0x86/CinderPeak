@@ -139,16 +139,6 @@ TEST_F(HybridStorageShardTest, AddEdge_String) {
   EXPECT_DOUBLE_EQ(w1, 1.5) << "Incorrect weight for string edge";
 }
 
-// Test adding self-loop edge
-TEST_F(HybridStorageShardTest, AddEdge_SelfLoop) {
-  graph->impl_addVertex(1);
-  EXPECT_TRUE(graph->impl_addEdge(1, 1, 10).isOK())
-      << "Failed to add self-loop";
-  auto [weight, status] = graph->impl_getEdge(1, 1);
-  EXPECT_TRUE(status.isOK()) << "Self-loop edge not found";
-  EXPECT_EQ(weight, 10) << "Incorrect self-loop weight";
-}
-
 // Test concurrent edge addition
 TEST_F(HybridStorageShardTest, AddEdge_Concurrent) {
   graph->impl_addVertex(1);

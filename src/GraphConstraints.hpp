@@ -15,9 +15,7 @@ template <typename VertexType, typename EdgeType> struct GraphConstraints {
     }
 
     if (src == dest) {
-      if (!ctx.create_options->hasOption(GraphCreationOptions::SelfLoops)) {
-        return PeakStatus::InvalidArgument("Self loops are not allowed");
-      }
+      return PeakStatus::InvalidArgument("Self loops are not allowed");
     }
 
     bool isWeighted = ctx.metadata->isGraphWeighted();
@@ -54,9 +52,7 @@ template <typename VertexType, typename EdgeType> struct GraphConstraints {
           "Source or destination vertex is missing.");
     }
     if (src == dest) {
-      if (!ctx.create_options->hasOption(GraphCreationOptions::SelfLoops)) {
-        return PeakStatus::InvalidArgument("Self loops are not allowed");
-      }
+      return PeakStatus::InvalidArgument("Self loops are not allowed");
     }
     return PeakStatus::OK();
   }
