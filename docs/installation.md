@@ -1,153 +1,182 @@
 # Building CinderPeak
 
-CinderPeak uses uses Google Test (GTest) for robust unit testing.
-
-The project uses CMake as the primary build system, but alternative build tools like Ninja can also be used seamlessly.
-
-## System and Compiler requirements
-- C++17-compatible compiler, GCC 12+, MSVC (with C++17 enabled), or Clang with C++17 support.
-- Build system, CMake (latest stable version recommended) or any compatible C++ toolchain.
-
-## Setting Up the Build Directory
-
-Before building, create a separate ``build`` directory in the root of the project:
-```sh
-mkdir build
-cd build
-```
-
-This keeps all build artifacts cleanly separated from the source code.
+CinderPeak uses **CMake** as its primary build system and **Google Test (GTest)** for unit testing. The library is header-only — no separate compilation step is needed to use it.
 
 ---
 
-# Build Configurations
+## System Requirements
 
-You can customize your build to include examples and/or tests by passing the appropriate flags to CMake.
-
-### Build with Tests and Examples
-
-```js
-cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-cmake --build .
-```
-
-This will build everything: core library, tests, and example applications.
-
-
-### Build with Tests Only
-
-```js
-cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF
-cmake --build .
-```
-
-This builds just the example programs—great for trying out features without running tests.
+| Component | Requirement |
+|:----------|:------------|
+| C++ Standard | C++17 or later |
+| Compiler | GCC 12+, Clang 14+, MSVC 2019+ (with `/std:c++17`) |
+| Build System | CMake 3.14+ |
+| Test Framework | Google Test (GTest) — only required for tests |
 
 ---
 
-### Build with Examples Only
+## Project Layout After Build
 
-```js
-cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=ON
-cmake --build .
+```
+build/
+├── bin/
+│   ├── examples/     ← compiled example programs
+│   └── tests/        ← compiled test binaries
 ```
 
-This configuration is ideal for using CinderPeak as a library dependency in other projects.
-
 ---
-## Build Configurations for macOS
 
+## Linux / macOS
 
 ### Prerequisites
-Before building CinderPeak on macOS, ensure you have **Homebrew** installed. You will need to install CMake and Google Test (`googletest`) globally by running the following command in your terminal:
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install cmake g++ libgtest-dev
+```
+
+**macOS (Homebrew):**
 ```bash
 brew install cmake googletest
 ```
 
-### Setup and Build Options
-1. Create a separate `build` directory in the root of the project and enter it:
-   ```bash
-   mkdir build
-   cd build
-   ```
-2. Run CMake to configure the project and compile using native Apple Clang:
-   ```bash
-   cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-   cmake --build .
-   ```
+### Build Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/SharonIV0x86/CinderPeak.git
+cd CinderPeak
+
+# 2. Create the build directory
+mkdir build && cd build
+
+# 3. Configure (choose your options)
+cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+
+# 4. Build
+cmake --build .
+```
+
+### Build Options
+
+| CMake Flag | Effect |
+|:-----------|:-------|
+| `-DBUILD_TESTS=ON` | Build unit tests |
+| `-DBUILD_TESTS=OFF` | Skip unit tests |
+| `-DBUILD_EXAMPLES=ON` | Build example programs |
+| `-DBUILD_EXAMPLES=OFF` | Skip examples |
+
+**Examples only (no tests needed):**
+```bash
+cmake .. -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=ON
+cmake --build .
+```
+
+**Tests only (CI use):**
+```bash
+cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=OFF
+cmake --build .
+```
+
 ---
 
-## Build Configurations for Windows
+## Windows
 
+### Option A — Visual Studio
 
-#### First set up the build directory
-   ```js
-   mkdir build
-   ```
-#### Enter the build directory.
-   ```js
-   cd build
-   ```
+```cmd
+mkdir build
+cd build
+cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+cmake --build .
+```
 
-### Build options :
-- **Using NMake** :
+### Option B — NMake (MSVC command prompt)
 
-   ```js
-   cmake .. -G "NMake Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-   ```
-   To build the files , run:
-   ```js
-   nmake
-   ```
+```cmd
+mkdir build && cd build
+cmake .. -G "NMake Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+nmake
+```
 
-- **Using MinGW** : 
+### Option C — MinGW
 
-   ```js
-   cmake .. -G "MinGW Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-   ```
+```cmd
+mkdir build && cd build
+cmake .. -G "MinGW Makefiles" -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+mingw32-make
+```
 
-   To build the files, run:
-   ```js
-   mingw32-make
-   ```
+### Common Windows Error
 
-- **Using Visual Studio** :
+If you see:
+```
+'nmake' '-?' failed with: no such file or directory
+```
 
-   ```bash
-   cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
-   cmake --build .
-   ```
-   
-### Possible errors:
+This means NMake isn't on your PATH. Fix:
+1. Open "Developer Command Prompt for Visual Studio"
+2. Or remove the build dir and try a different generator (`MinGW Makefiles` or let CMake auto-detect)
 
-   If you encounter :
-   ```js
-   'nmake'  '-?'
-   failed with :
-   no such file or directory
-   ```
-   Remove the current build directory
-   ```js
-   cd ..
-   rmdir /s build
-   ```
-   Recreate the build directory and enter in it.
-   ```js
-   mkdir build
-   cd build
-   ```
-   Now you can build using another build option. 
+```cmd
+cd ..
+rmdir /s build
+mkdir build && cd build
+cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+cmake --build .
+```
 
+---
 
+## Using CinderPeak as a Header-Only Library
 
+Since CinderPeak is header-only, you can also use it without CMake:
 
+```cpp
+// Just point your compiler at the src/ directory
+// g++ -std=c++17 -I/path/to/CinderPeak/src my_program.cpp -o my_program
+```
 
+```cpp
+#include "CinderPeak.hpp"
+using namespace CinderPeak;
 
+int main() {
+    CinderGraph<int, int> g;
+    g.addVertex(1);
+    g.addVertex(2);
+    g.addEdge(1, 2, 10);
+    return 0;
+}
+```
 
-## Output Structure
+---
 
-After building, the compiled binaries can be found in the following directories:
-- **Examples**: build/bin/examples/
-- **Tests**: build/bin/tests/
+## Running Tests
 
-Make sure GTest is correctly installed or discoverable by CMake.
+After building with `-DBUILD_TESTS=ON`:
+
+```bash
+cd build
+ctest --output-on-failure
+# or run individual test binaries directly:
+./bin/tests/<test_binary_name>
+```
+
+---
+
+## Running Examples
+
+After building with `-DBUILD_EXAMPLES=ON`:
+
+```bash
+./build/bin/examples/PrimitiveGraph
+./build/bin/examples/addEdge_usage
+./build/bin/examples/toDot_usage
+```
+
+For DOT file visualization (requires [Graphviz](https://graphviz.org/)):
+```bash
+dot -Tpng g1_directed.dot -o g1_directed.png
+```
