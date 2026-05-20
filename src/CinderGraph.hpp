@@ -2,6 +2,7 @@
 #include "Algorithms/CinderPeakAlgorithms.hpp"
 #include "Concepts.hpp"
 #include "PeakStore.hpp"
+#include "StorageEngine/DebugUtils.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
 #include "StorageEngine/Utils.hpp"
 #include <iostream>
@@ -47,7 +48,7 @@ public:
   EdgeType operator[](const VertexType &dest) const {
     auto optWeight = graph.getEdge(src, dest);
     if (!optWeight.has_value()) {
-      throw std::runtime_error("Edge not found: " + src + " -> " + dest);
+      throw std::runtime_error("Edge not found: " + edgeStr(src, dest));
     }
     return *optWeight;
   }
@@ -113,6 +114,7 @@ template <typename VertexType, typename EdgeType> class CinderGraph {
   using UpdateEdgeResult = std::pair<EdgeType, bool>;
 
   using RemoveEdgeResult = std::pair<std::optional<EdgeType>, bool>;
+  using NeighborListResult = std::vector<std::pair<VertexType, EdgeType>>;
 
 public:
   /**
@@ -391,6 +393,36 @@ public:
       return std::nullopt;
     }
     return data;
+  }
+
+  /**
+   * @brief Retrieves all neighbors of a vertex.
+   *
+   * Returns all adjacent vertices and their corresponding edge values
+   * for the specified vertex.
+   *
+   * @param v Vertex whose neighbors are to be retrieved.
+   *
+   * @return Vector of {neighbor, edge} pairs for all neighbors of v.
+   *         Returns an empty vector if the vertex does not exist or has no
+   *         outgoing edges.
+   *
+   * @complexity
+   * O(deg(v)) — proportional to the out-degree of the vertex.
+   *
+   * @throws Exception propagated through the configured exception handler.
+   */
+  NeighborListResult getNeighbors(const VertexType &v) const {
+    peak_store->log(LogLevel::INFO,
+                    "API: Entering getNeighbors for " + vertexStr(v));
+    auto [neighbors, status] = peak_store->getNeighbors(v);
+    if (!status.isOK()) {
+      peak_store->log(LogLevel::WARNING, "API: Error in getNeighbors");
+      Exceptions::handle_exception_map(status);
+      return {};
+    }
+    peak_store->log(LogLevel::INFO, "API: getNeighbors completed successfully");
+    return neighbors;
   }
 
   /**

@@ -55,6 +55,27 @@ cmake --build .
 This configuration is ideal for using CinderPeak as a library dependency in other projects.
 
 ---
+## Build Configurations for macOS
+
+
+### Prerequisites
+Before building CinderPeak on macOS, ensure you have **Homebrew** installed. You will need to install CMake and Google Test (`googletest`) globally by running the following command in your terminal:
+```bash
+brew install cmake googletest
+```
+
+### Setup and Build Options
+1. Create a separate `build` directory in the root of the project and enter it:
+   ```bash
+   mkdir build
+   cd build
+   ```
+2. Run CMake to configure the project and compile using native Apple Clang:
+   ```bash
+   cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+   cmake --build .
+   ```
+---
 
 ## Build Configurations for Windows
 
@@ -92,13 +113,9 @@ This configuration is ideal for using CinderPeak as a library dependency in othe
 
 - **Using Visual Studio** :
 
-   ```js
+   ```bash
    cmake .. -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
    cmake --build .
-   ```
-   To build the files, run:
-   ```js
-   make -j
    ```
    
 ### Possible errors:
