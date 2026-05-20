@@ -1,5 +1,6 @@
 #pragma once
 #include "Algorithms/CinderPeakAlgorithms.hpp"
+#include "Events/EventHub.hpp"
 #include "GraphRuntime.hpp"
 #include "PeakLogger.hpp"
 #include "StorageEngine/GraphStatistics.hpp"
@@ -26,6 +27,7 @@ public:
   std::shared_ptr<Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>
       algorithms = nullptr;
   std::shared_ptr<GraphRuntime> runtime = nullptr;
+  EventHub<VertexType, EdgeType> events;
   inline void log(LogLevel level, const std::string &msg) {
     runtime->log(level, msg);
   }
