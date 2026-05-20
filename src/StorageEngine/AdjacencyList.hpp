@@ -482,10 +482,11 @@ std::string impl_toDot(
           << " " << config.graphName << " {\n";
    ss << "  rankdir=LR;\n";
    ss << "  node[shape=" << config.nodeShape
-   << " style=filled fillcolor=\"" << config.nodeColor
-   << "\" fontname=\"" << config.fontName << "\"];\n";
+       << " style=filled fillcolor=\"" << config.nodeColor
+       << "\" fontname=\"" << config.fontName << "\"];\n";
+    
    ss << "  edge[fontname=\"" << config.fontName
-   << "\" fontsize=10];\n\n";
+       << "\" fontsize=10];\n\n";
     // declare all nodes first (ensures isolated nodes appear)
     for (const auto &kv : _vertex_data) {
       VertexId id = kv.first;
