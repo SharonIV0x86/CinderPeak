@@ -2,6 +2,8 @@
 #include "Result/bfs_result.hpp"
 #include <iostream>
 #include <memory>
+#include <queue>
+#include <unordered_set>
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class HybridCSR_COO;
@@ -219,12 +221,37 @@ public:
   BFSResult<VertexType> bfs([[maybe_unused]] const VertexType &src) {
     std::cout << "Algorithms::bfs called\n";
 
-    BFSResult<VertexType> result;
-    result.order_.push_back(1);
-    result.order_.push_back(2);
-    result.order_.push_back(3);
-    result.order_.push_back(4);
+   BFSResult<VertexType> result;
+
+if (!hcsr) {
+    result._status = PeakStatus::InternalError(
+        "HybridCSR_COO storage is null");
     return result;
+}
+std::unordered_set<VertexType> visited;
+std::queue<VertexType> q;
+
+visited.insert(src);
+q.push(src);
+
+while (!q.empty()) {
+    VertexType current = q.front();
+    q.pop();
+
+    result.order_.push_back(current);
+
+    auto current_neighbors =
+        hcsr->getNeighborsForTraversal(current);
+
+    for (const auto &neighbor : current_neighbors) {
+        if (!visited.count(neighbor)) {
+            visited.insert(neighbor);
+            q.push(neighbor);
+        }
+    }
+}
+
+return result; 
   }
 };
 } // namespace Algorithms

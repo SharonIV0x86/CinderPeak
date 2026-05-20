@@ -565,6 +565,62 @@ public:
 
     return PeakStatus::OK();
   }
+  public:
+  std::vector<VertexType>
+  getNeighborsForTraversal(const VertexType &src) {
+
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
+    std::vector<VertexType> neighbors;
+
+    auto src_it = vertex_to_index.find(src);
+
+    if (src_it == vertex_to_index.end()) {
+      return neighbors;
+    }
+
+    if (!is_built_.load(std::memory_order_acquire)) {
+      lock.unlock();
+      buildStructures();
+      lock.lock();
+    }
+
+    size_t src_idx = src_it->second;
+
+    size_t start = csr_row_offsets[src_idx];
+    size_t end = csr_row_offsets[src_idx + 1];
+
+    for (size_t i = start; i < end; ++i) {
+
+      size_t neighbor_idx = csr_col_vals[i];
+
+      if (_tombstoned.count(neighbor_idx)) {
+        continue;
+      }
+
+      neighbors.push_back(vertex_order[neighbor_idx]);
+    }
+
+    return neighbors;
+  }
+
+  std::vector<VertexType> getAllVertices() {
+
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
+    std::vector<VertexType> vertices;
+
+    for (size_t i = 0; i < vertex_order.size(); ++i) {
+
+      if (_tombstoned.count(i)) {
+        continue;
+      }
+
+      vertices.push_back(vertex_order[i]);
+    }
+
+    return vertices;
+  }
 };
 
 } // namespace PeakStore
