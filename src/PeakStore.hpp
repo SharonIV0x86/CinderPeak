@@ -39,7 +39,13 @@ private:
     ctx->active_storage = ctx->adjacency_storage;
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
-        ctx->hybrid_storage);
+        ctx->hybrid_storage,
+        [adj = ctx->adjacency_storage](const VertexType &vertex) {
+          return adj->impl_hasVertex(vertex);
+        },
+        [adj = ctx->adjacency_storage](const VertexType &vertex) {
+          return adj->impl_getNeighbors(vertex);
+        });
 
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
     registerMetadataListeners(*ctx);

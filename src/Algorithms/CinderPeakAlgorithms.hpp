@@ -2,6 +2,10 @@
 #include "Result/bfs_result.hpp"
 #include <iostream>
 #include <memory>
+#include <queue>
+#include <unordered_set>
+#include <functional>
+#include "../StorageEngine/Utils.hpp"
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class HybridCSR_COO;
@@ -212,18 +216,52 @@ template <typename VertexType, typename EdgeType> class CinderPeakAlgorithms {
 public:
   std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> hcsr =
       nullptr;
+  std::function<bool(const VertexType &)> hasVertexFn;
+  std::function<std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>(
+      const VertexType &)> getNeighborsFn;
+
   CinderPeakAlgorithms(
       const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>>
-          &hybridcsr)
-      : hcsr(hybridcsr) {}
-  BFSResult<VertexType> bfs([[maybe_unused]] const VertexType &src) {
-    std::cout << "Algorithms::bfs called\n";
+          &hybridcsr,
+      std::function<bool(const VertexType &)> hasVertex,
+      std::function<std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>(
+          const VertexType &)> getNeighbors)
+      : hcsr(hybridcsr), hasVertexFn(std::move(hasVertex)),
+        getNeighborsFn(std::move(getNeighbors)) {}
 
+  BFSResult<VertexType> bfs(const VertexType &src) const {
     BFSResult<VertexType> result;
-    result.order_.push_back(1);
-    result.order_.push_back(2);
-    result.order_.push_back(3);
-    result.order_.push_back(4);
+    if (!hasVertexFn || !hasVertexFn(src)) {
+      result._status =
+          PeakStatus::VertexNotFound("Vertex Not Found During BFS");
+      return result;
+    }
+
+    std::unordered_set<VertexType, VertexHasher<VertexType>> visited;
+    std::queue<VertexType> queue;
+
+    visited.insert(src);
+    queue.push(src);
+
+    while (!queue.empty()) {
+      VertexType current = queue.front();
+      queue.pop();
+      result.order_.push_back(current);
+
+      auto [neighbors, status] = getNeighborsFn(current);
+      if (!status.isOK()) {
+        continue;
+      }
+
+      for (const auto &neighbor_pair : neighbors) {
+        const VertexType &neighbor = neighbor_pair.first;
+        if (visited.find(neighbor) == visited.end()) {
+          visited.insert(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+
     return result;
   }
 };
