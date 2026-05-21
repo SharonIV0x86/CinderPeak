@@ -522,6 +522,35 @@ public:
     runtime.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
   }
+
+  /// Copies vertex-keyed adjacency for immutable traversal snapshots.
+  std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
+                     VertexHasher<VertexType>>
+  impl_captureTraversalAdjacency() const {
+    std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
+                       VertexHasher<VertexType>>
+        snapshot;
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    snapshot.reserve(_vertex_data.size());
+    for (const auto &[id, vertex] : _vertex_data) {
+      const auto adj_it = _adj.find(id);
+      if (adj_it == _adj.end()) {
+        snapshot.emplace(vertex,
+                         std::vector<std::pair<VertexType, EdgeType>>{});
+        continue;
+      }
+      std::vector<std::pair<VertexType, EdgeType>> neighbors;
+      neighbors.reserve(adj_it->second.size());
+      for (const auto &edge : adj_it->second) {
+        auto dest_it = _vertex_data.find(edge.first);
+        if (dest_it != _vertex_data.end()) {
+          neighbors.emplace_back(dest_it->second, edge.second);
+        }
+      }
+      snapshot.emplace(vertex, std::move(neighbors));
+    }
+    return snapshot;
+  }
 };
 
 } // namespace PeakStore

@@ -1,16 +1,17 @@
 #pragma once
 #include "../StorageEngine/Utils.hpp"
 #include "Result/bfs_result.hpp"
+#include "TraversalSnapshot.hpp"
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <queue>
 #include <unordered_set>
+
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class HybridCSR_COO;
 
-}
+} // namespace PeakStore
 /*
 ================================================================================
                                 CINDERPEAK NOTE
@@ -131,6 +132,11 @@ template <typename VertexType, typename EdgeType> class HybridCSR_COO;
         - Synchronization overhead
         - Cache invalidation logic
 
+    TraversalSnapshot provides a lightweight immutable adjacency view for
+    algorithms that need point-in-time connectivity without exposing storage
+    internals. PeakStore owns snapshot creation; algorithms consume snapshots
+    through hasVertex/getNeighbors-style access only.
+
     ------------------------------------------------------------------------
     Current Development Priority
     ------------------------------------------------------------------------
@@ -212,6 +218,51 @@ template <typename VertexType, typename EdgeType> class HybridCSR_COO;
 ================================================================================
 */
 namespace Algorithms {
+namespace detail {
+
+template <typename VertexType, typename EdgeType>
+BFSResult<VertexType>
+runBfs(const std::function<bool(const VertexType &)> &hasVertex,
+       const std::function<
+           std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>(
+               const VertexType &)> &getNeighbors,
+       const VertexType &src) {
+  BFSResult<VertexType> result;
+  if (!hasVertex || !hasVertex(src)) {
+    result._status = PeakStatus::VertexNotFound("Vertex Not Found During BFS");
+    return result;
+  }
+
+  std::unordered_set<VertexType, VertexHasher<VertexType>> visited;
+  std::queue<VertexType> queue;
+
+  visited.insert(src);
+  queue.push(src);
+
+  while (!queue.empty()) {
+    VertexType current = queue.front();
+    queue.pop();
+    result.order_.push_back(current);
+
+    auto [neighbors, status] = getNeighbors(current);
+    if (!status.isOK()) {
+      continue;
+    }
+
+    for (const auto &neighbor_pair : neighbors) {
+      const VertexType &neighbor = neighbor_pair.first;
+      if (visited.find(neighbor) == visited.end()) {
+        visited.insert(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+
+  return result;
+}
+
+} // namespace detail
+
 template <typename VertexType, typename EdgeType> class CinderPeakAlgorithms {
 public:
   std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> hcsr =
@@ -232,39 +283,17 @@ public:
         getNeighborsFn(std::move(getNeighbors)) {}
 
   BFSResult<VertexType> bfs(const VertexType &src) const {
-    BFSResult<VertexType> result;
-    if (!hasVertexFn || !hasVertexFn(src)) {
-      result._status =
-          PeakStatus::VertexNotFound("Vertex Not Found During BFS");
-      return result;
-    }
+    return detail::runBfs<VertexType, EdgeType>(hasVertexFn, getNeighborsFn,
+                                                src);
+  }
 
-    std::unordered_set<VertexType, VertexHasher<VertexType>> visited;
-    std::queue<VertexType> queue;
-
-    visited.insert(src);
-    queue.push(src);
-
-    while (!queue.empty()) {
-      VertexType current = queue.front();
-      queue.pop();
-      result.order_.push_back(current);
-
-      auto [neighbors, status] = getNeighborsFn(current);
-      if (!status.isOK()) {
-        continue;
-      }
-
-      for (const auto &neighbor_pair : neighbors) {
-        const VertexType &neighbor = neighbor_pair.first;
-        if (visited.find(neighbor) == visited.end()) {
-          visited.insert(neighbor);
-          queue.push(neighbor);
-        }
-      }
-    }
-
-    return result;
+  BFSResult<VertexType>
+  bfs(const VertexType &src,
+      const TraversalSnapshot<VertexType, EdgeType> &snapshot) const {
+    return detail::runBfs<VertexType, EdgeType>(
+        [&snapshot](const VertexType &v) { return snapshot.hasVertex(v); },
+        [&snapshot](const VertexType &v) { return snapshot.getNeighbors(v); },
+        src);
   }
 };
 } // namespace Algorithms

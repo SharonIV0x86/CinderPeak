@@ -1,5 +1,6 @@
 #pragma once
 #include "Algorithms/CinderPeakAlgorithms.hpp"
+#include "Algorithms/TraversalSnapshot.hpp"
 #include "CinderPeak.hpp"
 #include "Constraints/Constraints.hpp"
 #include "Events/DefaultListeners.hpp"
@@ -82,6 +83,28 @@ public:
   // Get graph name
   std::string getGraphName() { return ctx->metadata->getGraphName(); }
 
+  /// Captures an immutable adjacency snapshot for traversal algorithms.
+  /// Hybrid snapshots fall back to adjacency when the hybrid index is empty.
+  std::shared_ptr<const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
+  createTraversalSnapshot(
+      Algorithms::TraversalSnapshotBackend backend =
+          Algorithms::TraversalSnapshotBackend::Adjacency) const {
+    typename Algorithms::TraversalSnapshot<VertexType, EdgeType>::AdjacencyMap
+        adjacency;
+    if (backend == Algorithms::TraversalSnapshotBackend::Hybrid &&
+        ctx->hybrid_storage) {
+      adjacency = ctx->hybrid_storage->impl_captureTraversalAdjacency();
+      if (adjacency.empty() && ctx->adjacency_storage) {
+        adjacency = ctx->adjacency_storage->impl_captureTraversalAdjacency();
+      }
+    } else if (ctx->adjacency_storage) {
+      adjacency = ctx->adjacency_storage->impl_captureTraversalAdjacency();
+    }
+    return std::make_shared<
+        const Algorithms::TraversalSnapshot<VertexType, EdgeType>>(
+        std::move(adjacency));
+  }
+
   Algorithms::BFSResult<VertexType> bfs(const VertexType &src) {
     Algorithms::BFSResult<VertexType> result;
     if (!hasVertex(src)) {
@@ -91,6 +114,25 @@ public:
     }
     result = std::move(ctx->algorithms->bfs(src));
     return result;
+  }
+
+  /// BFS over an immutable snapshot; ignores live storage mutations during
+  /// traversal. When snapshot is null, delegates to callback-based bfs().
+  Algorithms::BFSResult<VertexType>
+  bfs(const VertexType &src,
+      const std::shared_ptr<
+          const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
+          &snapshot) {
+    if (!snapshot) {
+      return bfs(src);
+    }
+    Algorithms::BFSResult<VertexType> result;
+    if (!snapshot->hasVertex(src)) {
+      result._status =
+          PeakStatus::VertexNotFound("Vertex Not Found During the BFS");
+      return result;
+    }
+    return ctx->algorithms->bfs(src, *snapshot);
   }
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,

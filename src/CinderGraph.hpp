@@ -441,6 +441,21 @@ public:
     return peak_store->bfs(src);
   }
 
+  Algorithms::BFSResult<VertexType>
+  bfs(const VertexType &src,
+      const std::shared_ptr<
+          const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
+          &snapshot) {
+    return peak_store->bfs(src, snapshot);
+  }
+
+  std::shared_ptr<const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
+  createTraversalSnapshot(
+      Algorithms::TraversalSnapshotBackend backend =
+          Algorithms::TraversalSnapshotBackend::Adjacency) const {
+    return peak_store->createTraversalSnapshot(backend);
+  }
+
   template <typename V = VertexType, typename E = EdgeType>
 
   /**

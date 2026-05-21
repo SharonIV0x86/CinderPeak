@@ -638,6 +638,70 @@ public:
 
     return PeakStatus::OK();
   }
+
+  /// Materializes vertex-keyed adjacency from CSR and any buffered COO edges.
+  std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
+                     VertexHasher<VertexType>>
+  impl_captureTraversalAdjacency() {
+    if (!is_built_.load(std::memory_order_acquire)) {
+      buildStructures();
+    }
+
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::unordered_map<VertexType, std::vector<std::pair<VertexType, EdgeType>>,
+                       VertexHasher<VertexType>>
+        snapshot;
+    snapshot.reserve(vertex_order.size());
+
+    for (size_t src_idx = 0; src_idx < vertex_order.size(); ++src_idx) {
+      if (_tombstoned.count(src_idx)) {
+        continue;
+      }
+      const VertexType &src_vertex = vertex_order[src_idx];
+      std::vector<std::pair<size_t, EdgeType>> neighbor_indices;
+
+      if (is_built_.load(std::memory_order_acquire) &&
+          src_idx + 1 < csr_row_offsets.size()) {
+        const size_t start = csr_row_offsets[src_idx];
+        const size_t end = csr_row_offsets[src_idx + 1];
+        for (size_t i = start; i < end; ++i) {
+          const size_t dest_idx = csr_col_vals[i];
+          if (!_tombstoned.count(dest_idx)) {
+            neighbor_indices.emplace_back(dest_idx, csr_weights[i]);
+          }
+        }
+      }
+
+      for (size_t i = 0; i < coo_src.size(); ++i) {
+        if (coo_src[i] == src_idx) {
+          const size_t dest_idx = coo_dest[i];
+          if (dest_idx < vertex_order.size() && !_tombstoned.count(dest_idx)) {
+            neighbor_indices.emplace_back(dest_idx, coo_weights[i]);
+          }
+        }
+      }
+
+      std::vector<std::pair<VertexType, EdgeType>> neighbors;
+      if (!neighbor_indices.empty()) {
+        std::sort(
+            neighbor_indices.begin(), neighbor_indices.end(),
+            [](const auto &a, const auto &b) { return a.first < b.first; });
+        neighbor_indices.erase(std::unique(neighbor_indices.begin(),
+                                           neighbor_indices.end(),
+                                           [](const auto &a, const auto &b) {
+                                             return a.first == b.first;
+                                           }),
+                               neighbor_indices.end());
+        neighbors.reserve(neighbor_indices.size());
+        for (const auto &p : neighbor_indices) {
+          neighbors.emplace_back(vertex_order[p.first], p.second);
+        }
+      }
+
+      snapshot.emplace(src_vertex, std::move(neighbors));
+    }
+    return snapshot;
+  }
 };
 
 } // namespace PeakStore
