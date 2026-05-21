@@ -6,8 +6,7 @@
 namespace CinderPeak {
 namespace Algorithms {
 
-template <typename VertexType>
-class TopoSortResult {
+template <typename VertexType> class TopoSortResult {
 public:
   explicit TopoSortResult(PeakStatus status = PeakStatus::OK())
       : _status(std::move(status)) {}
