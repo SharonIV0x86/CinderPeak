@@ -1,14 +1,5 @@
 # CinderGraph — API Reference
 
-> **This document has been superseded by the updated documentation.**  
-> Please refer to the following for complete and up-to-date information:
-
-- **[Usage Guide](usage.md)** — Complete API reference with all method signatures, return types, and practical examples
-- **[Architecture](architecture.md)** — Internal design, data flow, and component responsibilities
-- **[Example Files](examples/examples.md)** — Step-by-step walkthroughs of all example programs
-
----
-
 ## Quick Reference
 
 `CinderGraph<VertexType, EdgeType>` is the primary user-facing class in CinderPeak. It is a templated graph container supporting:
