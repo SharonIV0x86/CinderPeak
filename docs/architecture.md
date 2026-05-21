@@ -431,7 +431,11 @@ BFSResult<VertexType> bfs(const VertexType& src) {
 
 CinderPeak uses **Google Test (GTest)** for unit and integration testing.
 
-The testing architecture is organized into 3 main categories, with sub-categories for normal and multi-threaded execution.
+The testing architecture is organized into 2 main categories, with sub-categories for normal and multi-threaded execution.
+
+The 2 categories are as follows:
+1. **integration/CinderGraph** : Complete integration tests with 3 types of tests. Common, functional and scenarios.
+2. **unit**: Contains unit tests for each major component such as utils, storages etc.
 
 ---
 
