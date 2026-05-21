@@ -551,6 +551,79 @@ public:
     return {EdgeType{}, PeakStatus::EdgeNotFound()};
   }
 
+  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
+  impl_getNeighbors(const VertexType &vertex) {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+
+    auto it = vertex_to_index.find(vertex);
+    if (it == vertex_to_index.end()) {
+      return std::make_pair(std::vector<std::pair<VertexType, EdgeType>>{},
+                            PeakStatus::VertexNotFound());
+    }
+
+    size_t src_idx = it->second;
+
+    // Ensure CSR is built for fast access. Follow the same pattern used in
+    // impl_getEdge: release shared lock, build, and reacquire.
+    if (!is_built_.load(std::memory_order_acquire)) {
+      lock.unlock();
+      buildStructures();
+      lock.lock();
+    }
+
+    std::vector<std::pair<size_t, EdgeType>> neighbor_indices;
+
+    // Collect neighbors from CSR (if available)
+    if (is_built_.load(std::memory_order_acquire)) {
+      if (src_idx < csr_row_offsets.size() - 1) {
+        size_t start = csr_row_offsets[src_idx];
+        size_t end = csr_row_offsets[src_idx + 1];
+        for (size_t i = start; i < end; ++i) {
+          size_t dest_idx = csr_col_vals[i];
+          if (!_tombstoned.count(dest_idx))
+            neighbor_indices.emplace_back(dest_idx, csr_weights[i]);
+        }
+      }
+    }
+
+    // Include buffered COO entries
+    for (size_t i = 0; i < coo_src.size(); ++i) {
+      if (coo_src[i] == src_idx) {
+        size_t dest_idx = coo_dest[i];
+        if (dest_idx < vertex_order.size() && !_tombstoned.count(dest_idx))
+          neighbor_indices.emplace_back(dest_idx, coo_weights[i]);
+      }
+    }
+
+    if (neighbor_indices.empty()) {
+      return std::make_pair(std::vector<std::pair<VertexType, EdgeType>>{},
+                            PeakStatus::OK());
+    }
+
+    // Sort and deduplicate by destination index to provide deterministic
+    // neighbor ordering.
+    std::sort(neighbor_indices.begin(), neighbor_indices.end(),
+              [](const auto &a, const auto &b) { return a.first < b.first; });
+    neighbor_indices.erase(std::unique(neighbor_indices.begin(),
+                                       neighbor_indices.end(),
+                                       [](const auto &a, const auto &b) {
+                                         return a.first == b.first;
+                                       }),
+                           neighbor_indices.end());
+
+    // Map indices back to vertex objects
+    std::vector<std::pair<VertexType, EdgeType>> result;
+    result.reserve(neighbor_indices.size());
+    for (const auto &p : neighbor_indices) {
+      size_t dest_idx = p.first;
+      if (dest_idx < vertex_order.size() && !_tombstoned.count(dest_idx)) {
+        result.emplace_back(vertex_order[dest_idx], p.second);
+      }
+    }
+
+    return std::make_pair(result, PeakStatus::OK());
+  }
+
   [[nodiscard]] const PeakStatus
   impl_removeVertex(const VertexType &vtx) override {
     std::unique_lock<std::shared_mutex> lock(_mtx);

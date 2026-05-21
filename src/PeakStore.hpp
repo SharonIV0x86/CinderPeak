@@ -40,10 +40,22 @@ private:
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
         ctx->hybrid_storage,
-        [adj = ctx->adjacency_storage](const VertexType &vertex) {
+        // hasVertex: prefer hybrid index but fall back to adjacency
+        [hyb = ctx->hybrid_storage,
+         adj = ctx->adjacency_storage](const VertexType &vertex) {
+          if (hyb && hyb->impl_hasVertex(vertex))
+            return true;
           return adj->impl_hasVertex(vertex);
         },
-        [adj = ctx->adjacency_storage](const VertexType &vertex) {
+        // getNeighbors: try hybrid first (including buffered COO), then
+        // fallback to adjacency storage to preserve source-of-truth semantics.
+        [hyb = ctx->hybrid_storage,
+         adj = ctx->adjacency_storage](const VertexType &vertex) {
+          if (hyb) {
+            auto res = hyb->impl_getNeighbors(vertex);
+            if (res.second.isOK())
+              return res;
+          }
           return adj->impl_getNeighbors(vertex);
         });
 

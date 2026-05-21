@@ -461,16 +461,14 @@ public:
     runtime.log(LogLevel::DEBUG, "Executing getInternalAdjacency");
     return _adj;
   }
-struct DotConfig {
-  std::string graphName = "G";
-  std::string nodeColor = "#E3F2FD";
-  std::string nodeShape = "circle";
-  std::string fontName = "Arial";
-};
-std::string impl_toDot(
-    bool isDirected,
-    bool allowParallel = false,
-    const DotConfig &config = DotConfig()) const {
+  struct DotConfig {
+    std::string graphName = "G";
+    std::string nodeColor = "#E3F2FD";
+    std::string nodeShape = "circle";
+    std::string fontName = "Arial";
+  };
+  std::string impl_toDot(bool isDirected, bool allowParallel = false,
+                         const DotConfig &config = DotConfig()) const {
     runtime.log(LogLevel::DEBUG, "Executing impl_toDot");
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::stringstream ss;
@@ -478,17 +476,15 @@ std::string impl_toDot(
     if (!allowParallel) {
       ss << "strict ";
     }
-    ss << (isDirected ? "digraph" : "graph")
-       << " " << config.graphName << " {\n";
+    ss << (isDirected ? "digraph" : "graph") << " " << config.graphName
+       << " {\n";
 
     ss << "  rankdir=LR;\n";
 
-    ss << "  node[shape=" << config.nodeShape
-       << " style=filled fillcolor=\"" << config.nodeColor
-       << "\" fontname=\"" << config.fontName << "\"];\n";
+    ss << "  node[shape=" << config.nodeShape << " style=filled fillcolor=\""
+       << config.nodeColor << "\" fontname=\"" << config.fontName << "\"];\n";
 
-    ss << "  edge[fontname=\"" << config.fontName
-       << "\" fontsize=10];\n\n";
+    ss << "  edge[fontname=\"" << config.fontName << "\" fontsize=10];\n\n";
     // declare all nodes first (ensures isolated nodes appear)
     for (const auto &kv : _vertex_data) {
       VertexId id = kv.first;

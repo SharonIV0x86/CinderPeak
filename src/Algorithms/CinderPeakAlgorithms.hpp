@@ -1,11 +1,11 @@
 #pragma once
+#include "../StorageEngine/Utils.hpp"
 #include "Result/bfs_result.hpp"
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <queue>
 #include <unordered_set>
-#include <functional>
-#include "../StorageEngine/Utils.hpp"
 namespace CinderPeak {
 namespace PeakStore {
 template <typename VertexType, typename EdgeType> class HybridCSR_COO;
@@ -217,15 +217,17 @@ public:
   std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>> hcsr =
       nullptr;
   std::function<bool(const VertexType &)> hasVertexFn;
-  std::function<std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>(
-      const VertexType &)> getNeighborsFn;
+  std::function<std::pair<std::vector<std::pair<VertexType, EdgeType>>,
+                          PeakStatus>(const VertexType &)>
+      getNeighborsFn;
 
   CinderPeakAlgorithms(
       const std::shared_ptr<PeakStore::HybridCSR_COO<VertexType, EdgeType>>
           &hybridcsr,
       std::function<bool(const VertexType &)> hasVertex,
-      std::function<std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>(
-          const VertexType &)> getNeighbors)
+      std::function<std::pair<std::vector<std::pair<VertexType, EdgeType>>,
+                              PeakStatus>(const VertexType &)>
+          getNeighbors)
       : hcsr(hybridcsr), hasVertexFn(std::move(hasVertex)),
         getNeighborsFn(std::move(getNeighbors)) {}
 
