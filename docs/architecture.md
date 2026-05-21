@@ -106,7 +106,7 @@ graph[1](2, 99);   // sets edge (1->2) weight to 99
 
 1. **Routing operations** — determines whether to call weighted or unweighted variants on backends
 2. **Directionality handling** — for undirected graphs, automatically adds the reverse edge
-3. **Event dispatching** — fires `GraphEvents::onEdgeAdded`, `onEdgeRemove` after mutations
+3. **Event dispatching** — handles events using `ctx->events{event}.emit`
 4. **Metadata tracking** — increments/decrements vertex and edge counts
 5. **Backend switching** — `active_storage` can point to different backends
 
@@ -115,7 +115,7 @@ graph[1](2, 99);   // sets edge (1->2) weight to 99
 PeakStore::addEdge(src, dest, weight)
   ├─ Checks if graph is weighted
   ├─ Calls active_storage->impl_addEdge(src, dest, weight)
-  ├─ If OK: fires GraphEvents::onEdgeAdded(*ctx, src, dest)
+  ├─ If OK: fires events using ctx->events{event}.emit
   ├─ If undirected: also calls impl_addEdge(dest, src, weight)
   └─ Returns PeakStatus
 ```
@@ -128,7 +128,7 @@ PeakStore::addEdge(src, dest, weight)
 
 Layer 3 provides concrete storage implementations. All backends inherit from `PeakStorageInterface<VertexType, EdgeType>` and implement the same `impl_*` methods.
 
-#### 3.1 AdjacencyList Backend
+#### 2.3.1 AdjacencyList Backend
 
 **File:** `src/StorageEngine/AdjacencyList.hpp`
 
@@ -153,7 +153,7 @@ User-visible vertex types (e.g. `int`, `string`, custom class) are stored in `_v
 - Write operations (`addVertex`, `addEdge`, `removeEdge`) use `unique_lock` — exclusive access
 - String construction and logging happens **outside** the lock to avoid blocking critical sections
 
-#### 3.2 HybridCSR_COO Backend
+#### 2.3.2 HybridCSR_COO Backend
 
 **File:** `src/StorageEngine/HybridCSR_COO.hpp`
 
@@ -165,7 +165,7 @@ This backend is designed for **high-performance traversal algorithms** (BFS, DFS
 
 > **Note:** The synchronization strategy between AdjacencyList and HybridCSR_COO is an active architectural discussion. See `src/Algorithms/CinderPeakAlgorithms.hpp` for detailed notes on the design challenges.
 
-#### 3.3 Storage Interface Contract
+#### 2.3.3 Storage Interface Contract
 
 All backends implement (`PeakStorageInterface` virtual methods):
 
@@ -309,33 +309,7 @@ STATIC_ASSERT_COMPARABLE_VERTEX(V) // fails if V doesn't support operator<
 
 ---
 
-### 3.7 GraphEvents
-
-**File:** `src/GraphEvents.hpp`
-
-Provides hooks that fire after successful graph mutations. Currently used for internal bookkeeping:
-
-| Event | Fires when |
-|:------|:-----------|
-| `onEdgeAdded(ctx, src, dest)` | After successful edge insertion |
-| `onEdgeRemove(ctx, src, dest)` | After successful edge removal |
-
-These update edge counts in `GraphInternalMetadata`.
-
----
-
-### 3.8 GraphConstraints
-
-**File:** `src/GraphConstraints.hpp`
-
-Validates pre-conditions before mutations:
-
-- `checkAddEdgeConstraints()` — ensures both vertices exist and the edge doesn't already exist
-- `checkRemoveEdge()` — ensures both vertices exist before attempting removal
-
----
-
-### 3.9 PeakLogger
+### 3.7 PeakLogger
 
 **File:** `src/PeakLogger.hpp`
 
@@ -351,7 +325,37 @@ A configurable logging system with multiple levels:
 
 ---
 
-## 4. Data Flow: Complete Example
+## 4. Event-Driven Architecture
+
+The graph events and graph constraints live under the `src/Events/` and `src/Constraints/` folders, forming a complete event-driven architecture.
+
+### 4.1 GraphEvents
+
+**Folder:** `src/Events/`
+
+Provides hooks that fire after successful graph mutations using `ctx->events{event}.emit`. Currently used for internal bookkeeping:
+
+| Event | Fires when |
+|:------|:-----------|
+| `onEdgeAdded` | After successful edge insertion |
+| `onEdgeRemove` | After successful edge removal |
+
+These update edge counts in `GraphInternalMetadata`.
+
+---
+
+### 4.2 GraphConstraints
+
+**Folder:** `src/Constraints/`
+
+Validates pre-conditions before mutations:
+
+- `checkAddEdgeConstraints()` — ensures both vertices exist and the edge doesn't already exist
+- `checkRemoveEdge()` — ensures both vertices exist before attempting removal
+
+---
+
+## 5. Data Flow: Complete Example
 
 Let's trace `graph.addEdge(1, 2, 10)` from end to end for a directed, weighted `CinderGraph<int, int>`:
 
@@ -374,7 +378,7 @@ User calls: graph.addEdge(1, 2, 10)
 │   │   ├─ Appends (destId=2, weight=10) to _adj[1]
 │   │   └─ Returns PeakStatus::OK()
 │   │
-│   ├─ Status is OK → fires GraphEvents::onEdgeAdded(*ctx, 1, 2)
+│   ├─ Status is OK → fires events using ctx->events{event}.emit
 │   │   └─ ctx->metadata->updateEdgeCount(UpdateOp::Add)
 │   │
 │   ├─ Graph is Directed → skip reverse edge
@@ -387,7 +391,7 @@ User calls: graph.addEdge(1, 2, 10)
 
 ---
 
-## 5. Algorithms Module (Current Status)
+## 6. Algorithms Module (Current Status)
 
 **File:** `src/Algorithms/CinderPeakAlgorithms.hpp`
 
@@ -423,28 +427,15 @@ BFSResult<VertexType> bfs(const VertexType& src) {
 
 ---
 
-## 6. Testing Architecture
+## 7. Testing Architecture
 
 CinderPeak uses **Google Test (GTest)** for unit and integration testing.
 
-Tests are organized into **five independent pipeline shards**:
-
-| Shard | Tests | Dependencies |
-|:------|:------|:-------------|
-| Shard 1 | Adjacency List backend | None |
-| Shard 2 | CSR backend | None |
-| Shard 3 | COO backend | None |
-| Shard 4 | Graph Matrix representation | Shards 1–3 must pass |
-| Shard 5 | Graph List representation | Shards 1–3 must pass |
-
-**Execution strategy:**
-- Shards 1–3 run in parallel
-- Shards 4–5 run only if Shards 1–3 pass
-- All shards are managed by the CinderFlow orchestrator
+The testing architecture is organized into 3 main categories, with sub-categories for normal and multi-threaded execution.
 
 ---
 
-## 7. Custom Type Requirements
+## 8. Custom Type Requirements
 
 When using user-defined types as vertex or edge types, the following rules apply:
 
@@ -463,7 +454,7 @@ When using user-defined types as vertex or edge types, the following rules apply
 
 ---
 
-## 8. Design Pattern Summary
+## 9. Design Pattern Summary
 
 | Component | Pattern |
 |:----------|:--------|
