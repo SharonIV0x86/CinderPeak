@@ -23,7 +23,6 @@ This document provides detailed walkthroughs for every example file in the `exam
 | [clearEdges_usage.cpp](#13-clearedges_usagecpp) | Removing all edges |
 | [operator_access_usage.cpp](#14-operator_access_usagecpp) | Matrix-style `[]` operator |
 | [toDot_usage.cpp](#15-todot_usagecpp) | Graphviz DOT export and BFS |
-| [Algorithms/cinderpeak_bfs.cpp](#16-algorithmscinderpeak_bfscpp) | BFS algorithm (current status) |
 
 ---
 
@@ -630,45 +629,6 @@ if (bfsResult.isOK()) {
 - `EdgeType` is primitive **or** `Unweighted`
 
 For custom types, the method is disabled at compile time via `std::enable_if`.
-
----
-
-## 16. Algorithms/cinderpeak_bfs.cpp
-
-**Location:** `examples/Algorithms/cinderpeak_bfs.cpp`
-
-### What it demonstrates
-A minimal example calling `graph.bfs(startVertex)` to invoke the BFS traversal.
-
-### Current behavior
-```cpp
-#include "CinderPeak.hpp"
-using namespace CinderPeak;
-
-int main() {
-    CinderGraph<int, int> g;
-    g.addVertex(1); g.addVertex(2); g.addVertex(3);
-    g.addEdge(1, 2, 10);
-    g.addEdge(2, 3, 20);
-
-    auto result = g.bfs(1);
-    // Currently returns stub data: [1, 2, 3, 4]
-    // Not a real BFS traversal of the graph above
-}
-```
-
-### Why is BFS a stub?
-CinderPeak uses two storage backends:
-- **AdjacencyList** — source of truth for mutations
-- **HybridCSR_COO** — optimized for traversals
-
-The key challenge is synchronization: mutations happen on the adjacency list, but traversals should use the CSR/COO structure for performance. Before BFS can work correctly, the library needs to decide:
-
-1. When to rebuild the HybridCSR_COO from the AdjacencyList
-2. How to handle concurrent mutations during traversal
-3. Whether traversals should see a consistent snapshot of the graph
-
-Until this architecture is resolved, the BFS method exists only to validate the API contract. Contributors interested in this design challenge are encouraged to read `src/Algorithms/CinderPeakAlgorithms.hpp` for the detailed architectural notes.
 
 ---
 
