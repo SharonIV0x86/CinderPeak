@@ -83,8 +83,11 @@ public:
   // Get graph name
   std::string getGraphName() { return ctx->metadata->getGraphName(); }
 
-  /// Captures an immutable adjacency snapshot for traversal algorithms.
-  /// Hybrid snapshots fall back to adjacency when the hybrid index is empty.
+  // Traversal semantics: Algorithms/TraversalSemantics.hpp
+  //
+  // Captures an immutable adjacency snapshot. Ownership is shared via
+  // shared_ptr<const>; snapshots are never invalidated by later mutations.
+  // Hybrid snapshots fall back to adjacency when the hybrid index is empty.
   std::shared_ptr<const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
   createTraversalSnapshot(
       Algorithms::TraversalSnapshotBackend backend =
@@ -116,8 +119,9 @@ public:
     return result;
   }
 
-  /// BFS over an immutable snapshot; ignores live storage mutations during
-  /// traversal. When snapshot is null, delegates to callback-based bfs().
+  // BFS over a frozen snapshot (deterministic neighbor order). Live mutations
+  // do not affect the snapshot. Null snapshot delegates to callback-based
+  // bfs().
   Algorithms::BFSResult<VertexType>
   bfs(const VertexType &src,
       const std::shared_ptr<
@@ -133,6 +137,45 @@ public:
       return result;
     }
     return ctx->algorithms->bfs(src, *snapshot);
+  }
+
+  Algorithms::DFSResult<VertexType> dfs(const VertexType &src) {
+    Algorithms::DFSResult<VertexType> result;
+    if (!hasVertex(src)) {
+      result._status =
+          PeakStatus::VertexNotFound("Vertex Not Found During the DFS");
+      return result;
+    }
+    return ctx->algorithms->dfs(src);
+  }
+
+  Algorithms::DFSResult<VertexType>
+  dfs(const VertexType &src,
+      const std::shared_ptr<
+          const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
+          &snapshot) {
+    if (!snapshot) {
+      return dfs(src);
+    }
+    Algorithms::DFSResult<VertexType> result;
+    if (!snapshot->hasVertex(src)) {
+      result._status =
+          PeakStatus::VertexNotFound("Vertex Not Found During the DFS");
+      return result;
+    }
+    return ctx->algorithms->dfs(src, *snapshot);
+  }
+
+  Algorithms::TopologicalSortResult<VertexType>
+  topologicalSort(const std::shared_ptr<const Algorithms::TraversalSnapshot<
+                      VertexType, EdgeType>> &snapshot) const {
+    Algorithms::TopologicalSortResult<VertexType> result;
+    if (!snapshot) {
+      result._status = PeakStatus::InvalidArgument(
+          "Traversal snapshot required for topological sort");
+      return result;
+    }
+    return ctx->algorithms->topologicalSort(*snapshot);
   }
 
   PeakStatus addEdge(const VertexType &src, const VertexType &dest,

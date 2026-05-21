@@ -456,6 +456,24 @@ public:
     return peak_store->createTraversalSnapshot(backend);
   }
 
+  Algorithms::DFSResult<VertexType> dfs(const VertexType &src) {
+    return peak_store->dfs(src);
+  }
+
+  Algorithms::DFSResult<VertexType>
+  dfs(const VertexType &src,
+      const std::shared_ptr<
+          const Algorithms::TraversalSnapshot<VertexType, EdgeType>>
+          &snapshot) {
+    return peak_store->dfs(src, snapshot);
+  }
+
+  Algorithms::TopologicalSortResult<VertexType>
+  topologicalSort(const std::shared_ptr<const Algorithms::TraversalSnapshot<
+                      VertexType, EdgeType>> &snapshot) const {
+    return peak_store->topologicalSort(snapshot);
+  }
+
   template <typename V = VertexType, typename E = EdgeType>
 
   /**

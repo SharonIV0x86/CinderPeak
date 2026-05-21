@@ -14,6 +14,7 @@ enum class StatusCode {
   UNIMPLEMENTED,
   ALREADY_EXISTS,
   EDGE_ALREADY_EXISTS,
+  GRAPH_CYCLE_DETECTED,
 };
 
 class PeakStatus {
@@ -58,6 +59,10 @@ public:
   inline static PeakStatus
   EdgeAlreadyExists(std::string msg = "Edge Already Exists") {
     return PeakStatus(StatusCode::EDGE_ALREADY_EXISTS, std::move(msg));
+  }
+  inline static PeakStatus
+  GraphCycleDetected(std::string msg = "Graph cycle detected") {
+    return PeakStatus(StatusCode::GRAPH_CYCLE_DETECTED, std::move(msg));
   }
   bool isOK() const { return code_ == StatusCode::OK; }
   StatusCode code() const { return code_; }

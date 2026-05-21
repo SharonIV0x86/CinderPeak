@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../StorageEngine/Utils.hpp"
-#include <unordered_map>
+#include "TraversalOrdering.hpp"
 #include <utility>
 #include <vector>
 
@@ -13,23 +13,24 @@ enum class TraversalSnapshotBackend { Adjacency, Hybrid };
 
 /// Immutable, backend-independent adjacency view for traversal algorithms.
 ///
-/// Snapshots are owned by the caller (typically via shared_ptr from PeakStore)
-/// and capture graph connectivity at creation time. Live storage mutations do
-/// not affect an existing snapshot.
+/// Ownership: returned as shared_ptr<const> from PeakStore; callers may retain
+/// snapshots independently. No invalidation is performed after creation.
 ///
-/// Future algorithms (DFS, topological sort, concurrent policies) should prefer
-/// this view over direct storage access.
+/// Immutability: adjacency is fixed at construction; neighbor lists are
+/// normalized for deterministic traversal (see TraversalSemantics.hpp).
+///
+/// Future DFS / topological sort should consume snapshots via
+/// TraversalAdjacencyAccess::fromSnapshot().
 template <typename VertexType, typename EdgeType> class TraversalSnapshot {
 public:
-  using AdjacencyMap =
-      std::unordered_map<VertexType,
-                         std::vector<std::pair<VertexType, EdgeType>>,
-                         VertexHasher<VertexType>>;
+  using AdjacencyMap = TraversalAdjacencyMap<VertexType, EdgeType>;
 
   TraversalSnapshot() = default;
 
   explicit TraversalSnapshot(AdjacencyMap adjacency)
-      : adjacency_(std::move(adjacency)) {}
+      : adjacency_(std::move(adjacency)) {
+    detail::finalizeSnapshotAdjacency<VertexType, EdgeType>(adjacency_);
+  }
 
   [[nodiscard]] bool hasVertex(const VertexType &vertex) const {
     return adjacency_.find(vertex) != adjacency_.end();
