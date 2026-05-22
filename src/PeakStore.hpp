@@ -174,8 +174,7 @@ public:
     if (PeakStatus resp = ctx->active_storage->impl_addVertex(src);
         !resp.isOK())
       return resp;
-    ctx->metadata->updateVertexCount(UpdateOp::Add);
-
+    ctx->events.vertexAdded.emit({src}); // ✅ emit instead
     return PeakStatus::OK();
   }
 
@@ -203,7 +202,7 @@ public:
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
-      ctx->metadata->updateVertexCount(UpdateOp::Remove);
+      ctx->events.vertexRemoved.emit({v}); // ✅ emit instead
     }
     return status;
   }
