@@ -38,7 +38,7 @@ def handle_build_errors(func):
             sys.exit(1)
     return wrapper
 
-def run(*args: str, msg: Optional[str] = None, verbose: bool = False, stream: bool = True, **kwargs: Any) -> Popen:
+def run(*args: str, msg: Optional[str] = None, verbose: bool = False, stream: bool = True, **kwargs: Any):
     sys.stdout.flush()
     if verbose:
         print(f"$ {' '.join(args)}")
@@ -47,19 +47,20 @@ def run(*args: str, msg: Optional[str] = None, verbose: bool = False, stream: bo
         kwargs['stdout'] = sys.stdout
         kwargs['stderr'] = sys.stderr
 
-    p = Popen(args, **kwargs)
-    code = p.wait()
-    if code != 0:
-        err = f"\nfailed to run: {' '.join(args)}\nexit with code: {code}\n"
+    import subprocess
+    try:
+        return subprocess.run(args, check=True, **kwargs)
+    except subprocess.CalledProcessError as e:
+        err = f"\nfailed to run: {' '.join(args)}\nexit with code: {e.returncode}\n"
         if msg:
             err += f"error message: {msg}\n"
         raise RuntimeError(err)
-    return p
 
 
-def run_pipe(*args: str, msg: Optional[str] = None, verbose: bool = False, **kwargs: Any):
-    p = run(*args, msg=msg, verbose=verbose, stream=False, stdout=PIPE, universal_newlines=True, **kwargs)
-    return p.stdout
+def run_pipe(*args: str, msg: Optional[str] = None, verbose: bool = False, **kwargs: Any) -> str:
+    import subprocess
+    result = run(*args, msg=msg, verbose=verbose, stream=False, stdout=subprocess.PIPE, text=True, **kwargs)
+    return result.stdout
 
 
 def find_command(command: str, msg: Optional[str] = None) -> str:
