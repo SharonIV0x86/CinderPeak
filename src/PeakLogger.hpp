@@ -6,6 +6,7 @@
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <ctime>
 
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
@@ -76,7 +77,7 @@ private:
   static const char *levelToColor(LogLevel level) {
     switch (level) {
     case LogLevel::TRACE:
-      return COLOR_TRACE;
+      return "COLOR_TRACE";
     case LogLevel::DEBUG:
       return COLOR_BOLD_DEBUG;
     case LogLevel::INFO:
@@ -99,9 +100,18 @@ private:
                   now.time_since_epoch()) %
               1000;
 
+    std::tm timeInfo{};
+#if defined(_MSC_VER)
+    localtime_s(&timeInfo, &t_c);
+#else
+    if (const std::tm* localTime = std::localtime(&t_c)) {
+      timeInfo = *localTime;
+    }
+#endif
+
     std::ostringstream oss;
-    oss << std::put_time(std::localtime(&t_c), "%Y-%m-%d %H:%M:%S") << '.'
-        << std::setw(3) << std::setfill('0') << ms.count();
+    oss << std::put_time(&timeInfo, "%Y-%m-%d %H:%M:%S") << '.'
+        << std::setw(3) << std::setfill('0') << static_cast<int>(ms.count());
     return oss.str();
   }
 
@@ -133,10 +143,6 @@ private:
     const char *levelStr = levelToString(level);
 
     logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-    // if (!file.empty() && line != -1 &&
-    //     (level == LogLevel::CRITICAL || level == LogLevel::ERROR)) {
-    //   logFile << " (" << file << ":" << line << ")";
-    // } TODO: Remove it in future
     logFile << std::endl;
   }
 };
