@@ -152,18 +152,28 @@ template <typename T> constexpr bool isGraphWeighted() {
 
 #define STATIC_ASSERT_WEIGHTED(E)                                              \
   static_assert(CinderPeak::Traits::is_weighted_v<E>,                          \
+            #ifndef STATIC_ASSERT_WEIGHTED
+#define STATIC_ASSERT_WEIGHTED(E)                                              \
+  static_assert(CinderPeak::Traits::is_weighted_v<E>,                          \
                 "EdgeType must be weighted (not Unweighted).")
+#endif
 
+#ifndef STATIC_ASSERT_UNWEIGHTED
 #define STATIC_ASSERT_UNWEIGHTED(E)                                            \
   static_assert(CinderPeak::Traits::is_unweighted_v<E>,                        \
                 "EdgeType must be Unweighted.")
+#endif
 
+#ifndef STATIC_ASSERT_NUMERIC_EDGE
 #define STATIC_ASSERT_NUMERIC_EDGE(E)                                          \
   static_assert(CinderPeak::Traits::is_numeric_edge_v<E>,                      \
                 "EdgeType must be numeric for this algorithm.")
+#endif
 
+#ifndef STATIC_ASSERT_COMPARABLE_VERTEX
 #define STATIC_ASSERT_COMPARABLE_VERTEX(V)                                     \
   static_assert(CinderPeak::Traits::is_comparable_vertex_v<V>,                 \
                 "VertexType must support operator< for this algorithm.")
+#endif
 
-} // namespace CinderPeak::Traits
+} // namespace CinderPeak::Traits 
