@@ -6,6 +6,8 @@
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <ctime>
+#include <cstring>
 
 #define COLOR_RESET "\033[0m"
 #define COLOR_WHITE "\033[37m"
@@ -92,6 +94,26 @@ private:
     }
   }
 
+  // Cross-platform, thread-safe helper to eliminate C4996 'localtime' unsafe warning
+  static std::tm getLocalTime(const std::time_t &time_res) {
+    std::tm timeinfo;
+#if defined(_MSC_VER)
+    // MSVC secure alternative
+    localtime_s(&timeinfo, &time_res);
+#elif defined(__unix__) || defined(__APPLE__) || defined(__linux__)
+    // POSIX thread-safe alternative
+    localtime_r(&time_res, &timeinfo);
+#else
+    // Fallback if compilation environment is ambiguous
+    if (auto* fallback = std::localtime(&time_res)) {
+      timeinfo = *fallback;
+    } else {
+      std::memset(&timeinfo, 0, sizeof(std::tm));
+    }
+#endif
+    return timeinfo;
+  }
+
   static std::string getTimestamp() {
     auto now = std::chrono::system_clock::now();
     auto t_c = std::chrono::system_clock::to_time_t(now);
@@ -99,8 +121,10 @@ private:
                   now.time_since_epoch()) %
               1000;
 
+    std::tm timeinfo = getLocalTime(t_c);
+
     std::ostringstream oss;
-    oss << std::put_time(std::localtime(&t_c), "%Y-%m-%d %H:%M:%S") << '.'
+    oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S") << '.'
         << std::setw(3) << std::setfill('0') << ms.count();
     return oss.str();
   }

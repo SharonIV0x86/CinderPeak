@@ -132,8 +132,9 @@ constexpr bool is_unweighted_integral_vertex_v =
 template <typename T> constexpr bool isTypePrimitive() {
   if constexpr (is_primitive_or_string_v<T>) {
     return true;
+  } else {
+    return false;
   }
-  return false;
 }
 
 /**
@@ -146,8 +147,9 @@ template <typename T> constexpr bool isTypePrimitive() {
 template <typename T> constexpr bool isGraphWeighted() {
   if constexpr (is_weighted_v<T>) {
     return true;
+  } else {
+    return false;
   }
-  return false;
 }
 
 #define STATIC_ASSERT_WEIGHTED(E)                                              \
