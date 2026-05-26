@@ -13,19 +13,19 @@ protected:
   AdjacencyList<std::string, float> stringGraph{runtime};
 
   void SetUp() override {
-    intGraph.impl_addVertex(1);
-    intGraph.impl_addVertex(2);
-    intGraph.impl_addVertex(3);
-    intGraph.impl_addVertex(4);
-    intGraph.impl_addVertex(5);
+    (void)intGraph.impl_addVertex(1);
+    (void)intGraph.impl_addVertex(2);
+    (void)intGraph.impl_addVertex(3);
+    (void)intGraph.impl_addVertex(4);
+    (void)intGraph.impl_addVertex(5);
 
-    intGraph.impl_addVertex(101);
-    intGraph.impl_addVertex(102);
-    intGraph.impl_addVertex(103);
+    (void)intGraph.impl_addVertex(101);
+    (void)intGraph.impl_addVertex(102);
+    (void)intGraph.impl_addVertex(103);
 
-    stringGraph.impl_addVertex("A");
-    stringGraph.impl_addVertex("B");
-    stringGraph.impl_addVertex("C");
+    (void)stringGraph.impl_addVertex("A");
+    (void)stringGraph.impl_addVertex("B");
+    (void)stringGraph.impl_addVertex("C");
   }
 };
 class AdjacencyListThreadTest : public ::testing::Test {
@@ -35,7 +35,7 @@ protected:
 
   void SetUp() override {
     for (int i = 1; i <= 100; ++i) {
-      threadGraph.impl_addVertex(i);
+      (void)threadGraph.impl_addVertex(i);
     }
   }
 };
@@ -79,9 +79,9 @@ TEST_F(AdjacencyListThreadTest, ConcurrentVertexAddition) {
 
 TEST_F(AdjacencyListThreadTest, ConcurrentVertexRemoval) {
   for (int i = 1; i <= 10000; ++i) {
-    threadGraph.impl_addVertex(50000 + i);
+    (void)threadGraph.impl_addVertex(50000 + i);
     if (i > 1) {
-      threadGraph.impl_addEdge(50000 + i - 1, 50000 + i, i * 5);
+      (void)threadGraph.impl_addEdge(50000 + i - 1, 50000 + i, i * 5);
     }
   }
 
@@ -166,7 +166,7 @@ TEST_F(AdjacencyListThreadTest, ConcurrentEdgeAddition) {
 
 TEST_F(AdjacencyListThreadTest, ConcurrentReadWriteOperations) {
   for (int i = 1; i <= 50; ++i) {
-    threadGraph.impl_addEdge(i, (i % 50) + 1, i * 10);
+    (void)threadGraph.impl_addEdge(i, (i % 50) + 1, i * 10);
   }
 
   const int numReaderThreads = 6;
@@ -288,14 +288,14 @@ TEST_F(AdjacencyStorageTestMT, ConcurrentMixedOperationsDeadlock) {
         int vertex_id = i * 1000 + j;
 
         if (j % 4 == 0) {
-          intGraph.impl_addVertex(vertex_id);
+          (void)intGraph.impl_addVertex(vertex_id);
         } else if (j % 4 == 1) {
-          intGraph.impl_doesEdgeExist(1, 2);
+          (void)intGraph.impl_doesEdgeExist(1, 2);
         } else if (j % 4 == 2) {
-          intGraph.impl_getNeighbors(vertex_id % 10);
+          (void)intGraph.impl_getNeighbors(vertex_id % 10);
         } else {
           if (vertex_id > 10) {
-            intGraph.impl_addEdge(vertex_id - 1, vertex_id);
+            (void)intGraph.impl_addEdge(vertex_id - 1, vertex_id);
           }
         }
       }
@@ -316,12 +316,12 @@ TEST_F(AdjacencyStorageTestMT, ConcurrentBulkOperationsRace) {
   std::vector<std::pair<int, int>> edges2 = {
       {105, 106}, {106, 107}, {107, 108}};
   std::thread t1([&]() {
-    intGraph.impl_addVertices(vertices1);
-    intGraph.impl_addEdges(edges1);
+    (void)intGraph.impl_addVertices(vertices1);
+    (void)intGraph.impl_addEdges(edges1);
   });
   std::thread t2([&]() {
-    intGraph.impl_addVertices(vertices2);
-    intGraph.impl_addEdges(edges2);
+    (void)intGraph.impl_addVertices(vertices2);
+    (void)intGraph.impl_addEdges(edges2);
   });
   t1.join();
   t2.join();
@@ -342,9 +342,9 @@ TEST_F(AdjacencyStorageTestMT, HighReadWriteContention) {
       int counter = 0;
       while (!stop) {
         int vertex_id = i * 1000 + counter;
-        intGraph.impl_addVertex(vertex_id);
+        (void)intGraph.impl_addVertex(vertex_id);
         if (counter > 0) {
-          intGraph.impl_addEdge(vertex_id - 1, vertex_id);
+          (void)intGraph.impl_addEdge(vertex_id - 1, vertex_id);
         }
         counter++;
         std::this_thread::yield();
@@ -372,9 +372,9 @@ TEST_F(AdjacencyStorageTestMT, HighReadWriteContention) {
   EXPECT_TRUE(true);
 }
 TEST_F(AdjacencyStorageTestMT, PotentialReentrancyDeadlock) {
-  intGraph.impl_addVertex(100);
-  intGraph.impl_addVertex(101);
-  intGraph.impl_addEdge(100, 101);
+  (void)intGraph.impl_addVertex(100);
+  (void)intGraph.impl_addVertex(101);
+  (void)intGraph.impl_addEdge(100, 101);
 
   auto callback = [&](int from, int to) {
     return intGraph.impl_doesEdgeExist(from, to);
