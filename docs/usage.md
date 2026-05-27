@@ -1,383 +1,530 @@
-# **CinderPeak: A Practical Usage Guide**
+# CinderPeak — Usage Guide
 
-Welcome to the CinderPeak community! This guide is designed to be a practical, beginner-friendly resource to help you familiarize yourself with the basic project functionality. This guide provides the usage instructions of how to include the header files, and which classes and structures are available for users to use and how can you use them to get started with the project with some basic usage examples.
-
-### **Quick Links**
-
-* [**Project Index**](https://github.com/SharonIV0x86/CinderPeak/blob/main/docs/index.md) 
-* [**Installation Guide**](https://github.com/SharonIV0x86/CinderPeak/blob/main/docs/installation.md)
+This guide covers the complete public API of CinderPeak with practical, step-by-step examples. It is written for both beginners and experienced C++ developers.
 
 ---
 
-## **The CinderPeak API**
-
-### **Library Headers**
-
-CinderPeak's public API is modular, with components split into separate headers. The table below highlights the key ones.
-
-| Header File | Key Classes/Structures | Purpose |
-| :---- | :---- | :---- |
-| CinderPeak.hpp | (Convenience Header) | Includes all necessary public headers for basic use. This should be your default choice. |
-| CinderGraph.hpp | CinderGraph | The concrete implementation of a graph using an adjacency list data structure. |
-| PeakStore.hpp | PeakStore | Core storage engine that manages graph data internally. |
-| StorageEngine/Utils.hpp | GraphCreationOptions, CinderVertex, CinderEdge | Contains utility functions, graph creation options, and base classes for custom types. |
-
-## **How to Include Header Files**
-
-### CinderPeak.hpp
-To use CinderPeak, you need only to include this header file along with the required namespace declarations.
-
-```cpp
-#include "CinderPeak.hpp"
-using namespace CinderPeak::PeakStore;
-using namespace CinderPeak;
-```
-
-**Purpose and Importance:**  
-This main public API header serves as a single entry point, bundling all library components. It simplifies setup by removing the need for multiple includes. While the core logic is in /src, you'll mostly interact with this header.
-
-### Individual Headers (Advanced Usage)
-
-If you want to include specific components only:
-
-```cpp
-#include "CinderGraph.hpp"    // For adjacency list graphs
-#include "StorageEngine/Utils.hpp"  // For utility functions and options
-```
-
-**Purpose and Importance:**  
-- `CinderGraph.hpp`: Adjacency list implementation. Efficient for sparse graphs, supports directed/undirected edges, allows dynamic updates, and suits DFS/BFS/shortest paths
-- `StorageEngine/Utils.hpp`: Provides common utilities for the library, including type checks, graph creation options, metadata, and constants
+## Quick Links
+- [Installation](installation.md)
+- [Architecture](architecture.md)
+- [Example Files](examples/)
 
 ---
 
-## **Core Classes and Structures**
+## 1. Including the Library
 
-CinderPeak's architecture is built on a few key components that you'll interact with regularly. It is designed around a small set of key classes that define how graphs are represented, created, and manipulated.
+Always include the single convenience header:
 
-| Class / Structure | Header Location | Purpose |
-| :---- | :---- | :---- |
-| CinderGraph | src/CinderGraph.hpp | An adjacency list implementation of a graph. Efficient for sparse graphs. |
-| PeakStore | src/PeakStore.hpp | Core storage engine that handles the internal graph data management. |
-| GraphCreationOptions | src/StorageEngine/Utils.hpp | Configuration class that defines how a graph should behave (Directed, Weighted, etc.). |
-| CinderVertex | src/StorageEngine/Utils.hpp | Base class for custom vertex types. |
-| CinderEdge | src/StorageEngine/Utils.hpp | Base class for custom edge types. |
+```cpp
+#include "CinderPeak.hpp"
+using namespace CinderPeak;
+```
 
-
-### **CinderGraph**
-- Implements adjacency list representation
-- Best for sparse graphs or when graphs are frequently updated
-- Efficient for traversals like BFS/DFS
-- Direct instantiation: `CinderGraph<VertexType, EdgeType> graph(options)`
-
-### **PeakStore**
-- Manages internal storage of graph data, ensuring efficient data handling across graph types.
-- Typically used internally but essential for understanding the library’s architecture.
-
-### **GraphCreationOptions**
-Defines how a graph should behave (Directed, Undirected, Weighted, Unweighted). Available options include:
-- `GraphCreationOptions::Directed`
-- `GraphCreationOptions::Undirected`
-- `GraphCreationOptions::Weighted`
-- `GraphCreationOptions::Unweighted`
-- `GraphCreationOptions::SelfLoops`
-- `GraphCreationOptions::ParallelEdges`
-
-### **CinderVertex and CinderEdge**
-Base classes that custom vertex and edge types must inherit from. They provide:
-- Unique ID generation
-- Name generation
-- Comparison operators
-- Hash support for use in containers
+This pulls in `CinderGraph`, `GraphCreationOptions`, `Unweighted`, `CinderVertex`, `CinderEdge`, and all supporting types.
 
 ---
 
-## **Using Custom Data Types**
+## 2. GraphCreationOptions
 
-CinderPeak is a fully templated library, which means you can define your own struct or class for vertex and edge data. However, custom types must inherit from the provided base classes.
-
-**Example: Defining Custom Classes for a Social Network**
+Every graph is configured with `GraphCreationOptions` at construction time.
 
 ```cpp
-#include <string>
-#include "CinderPeak.hpp"
-using namespace CinderPeak::PeakStore;
-using namespace CinderPeak;
+// Directed graph (default when no options given)
+GraphCreationOptions opts({GraphCreationOptions::Directed});
 
-// A custom class to hold data for each person (vertex)
-class UserProfile : public CinderVertex {
-public:
-    std::string username;
-    int age;
-    
-    UserProfile() {}
-    UserProfile(const std::string& name, int userAge) : username(name), age(userAge) {}
-};
+// Undirected graph
+GraphCreationOptions opts({GraphCreationOptions::Undirected});
 
-// A custom class to hold data for each friendship (edge)
-class Friendship : public CinderEdge {
-public:
-    int year_met;
-    std::string relationship_type; // e.g., "Family", "Work"
-    
-    Friendship() {}
-    Friendship(int year, const std::string& type) : year_met(year), relationship_type(type) {}
-};
 ```
-
----
-
-## **Basic Usage: Code Examples**
-
-Here are practical, step-by-step examples showing how to use the library's core functionality.
-
-### **Example 1: Creating a Simple Integer Graph**
-
-This example shows how to create a basic directed, weighted graph storing integers.
-
-```cpp
-#include <iostream>
-#include "CinderPeak.hpp"
-using namespace CinderPeak::PeakStore;
-using namespace CinderPeak;
-
-int main() {
-    // Create graph creation options
-    GraphCreationOptions opts({
-        GraphCreationOptions::Directed,
-        GraphCreationOptions::Weighted
-    });
-
-    // Create a graph that stores integers for both vertices and edges
-    CinderGraph<int, int> graph(opts);
-
-    // Add vertices to the graph
-    graph.addVertex(10);
-    graph.addVertex(20);
-    graph.addVertex(30);
-
-    // Add weighted edges to connect the vertices
-    graph.addEdge(10, 20, 5);   // Edge from 10 to 20 with weight 5
-    graph.addEdge(20, 30, 10);  // Edge from 20 to 30 with weight 10
-
-    // Access edge weights using operator[]
-    std::cout << "Edge weight from 10 to 20: " << graph[10][20] << std::endl;
-    
-    // Or using getEdge method
-    int edgeWeight = graph.getEdge(20, 30);
-    std::cout << "Edge weight from 20 to 30: " << edgeWeight << std::endl;
-
-    return 0;
-}
-```
-
-### **Example 2: Using Custom Data Types**
-
-This example uses the UserProfile and Friendship classes defined earlier to create a directed social network graph.
-
-```cpp
-#include <iostream>
-#include <string>
-#include "CinderPeak.hpp"
-using namespace CinderPeak::PeakStore;
-using namespace CinderPeak;
-
-// Custom classes (defined as shown in previous section)
-class UserProfile : public CinderVertex {
-public:
-    std::string username;
-    int age;
-    UserProfile() {}
-    UserProfile(const std::string& name, int userAge) : username(name), age(userAge) {}
-};
-
-class Friendship : public CinderEdge {
-public:
-    int year_met;
-    std::string relationship_type;
-    Friendship() {}
-    Friendship(int year, const std::string& type) : year_met(year), relationship_type(type) {}
-};
-
-int main() {
-    // Create a directed, weighted graph with custom types
-    GraphCreationOptions opts({
-        GraphCreationOptions::Directed,
-        GraphCreationOptions::Weighted
-    });
-    
-    CinderGraph<UserProfile, Friendship> socialGraph(opts);
-
-    // Create user profiles
-    UserProfile alice("Alice", 30);
-    UserProfile bob("Bob", 25);
-    UserProfile charlie("Charlie", 35);
-
-    // Add vertices to the graph
-    socialGraph.addVertex(alice);
-    socialGraph.addVertex(bob);
-    socialGraph.addVertex(charlie);
-
-    // Create friendship connections
-    Friendship workFriend(2022, "Work");
-    Friendship familyMember(2020, "Family");
-
-    // Add edges with friendship data
-    socialGraph.addEdge(alice, bob, workFriend);
-    socialGraph.addEdge(alice, charlie, familyMember);
-
-    // Access edge data
-    Friendship connection = socialGraph.getEdge(alice, bob);
-    std::cout << "Alice and Bob met in: " << connection.year_met << std::endl;
-    std::cout << "Relationship type: " << connection.relationship_type << std::endl;
-
-    return 0;
-}
-```
-
-### **Example 3: Using CinderGraph for Sparse Graphs**
-
-This example demonstrates using the adjacency list representation for a sparse graph.
-
-```cpp
-#include <iostream>
-#include "CinderPeak.hpp"
-using namespace CinderPeak::PeakStore;
-using namespace CinderPeak;
-
-int main() {
-    // Create options for an undirected, weighted graph
-    GraphCreationOptions opts({
-        GraphCreationOptions::Undirected,
-        GraphCreationOptions::Weighted
-    });
-
-    // Use CinderGraph for sparse graphs
-    CinderGraph<int, double> network(opts);
-
-    // Add vertices
-    network.addVertex(1);
-    network.addVertex(2);
-    network.addVertex(3);
-    network.addVertex(4);
-    network.addVertex(5);
-
-    // Add weighted edges (distances)
-    network.addEdge(1, 3, 10.5);
-    network.addEdge(1, 4, 9.2);
-    network.addEdge(4, 5, 7.8);
-    network.addEdge(1, 2, 6.1);
-
-    std::cout << "Successfully created a sparse network graph!" << std::endl;
-
-    return 0;
-}
-```
-
----
-
-## **Graph Creation Options**
-
-When creating graphs, you can specify various options that control the graph's behavior:
-
-```cpp
-// Directed, weighted graph
-GraphCreationOptions opts1({
-    GraphCreationOptions::Directed,
-    GraphCreationOptions::Weighted
-});
-
-// Undirected, unweighted graph with self-loops allowed
-GraphCreationOptions opts2({
-    GraphCreationOptions::Undirected,
-    GraphCreationOptions::Unweighted,
-    GraphCreationOptions::SelfLoops
-});
-
-// Directed graph with parallel edges allowed
-GraphCreationOptions opts3({
-    GraphCreationOptions::Directed,
-    GraphCreationOptions::ParallelEdges
-});
-```
-
-### **Available Options:**
 
 | Option | Description |
-| :---- | :---- |
-| `Directed` | Creates a directed graph where edges have direction |
-| `Undirected` | Creates an undirected graph where edges are bidirectional |
-| `Weighted` | Graph supports edge weights |
-| `Unweighted` | Graph doesn't use edge weights |
-| `SelfLoops` | Vertices can have edges to themselves |
-| `ParallelEdges` | Multiple edges between the same pair of vertices are allowed |
+|:-------|:------------|
+| `Directed` | Edges have direction: A→B ≠ B→A |
+| `Undirected` | Edges are bidirectional: A—B adds both A→B and B→A |
+
+> **Default** (no options): `{Directed}`
 
 ---
 
-## **Core Operations**
+## 3. Creating a Graph
 
-### **Adding Elements**
+`CinderGraph<VertexType, EdgeType>` is the main class.
 
-```cpp
-// Add vertices
-graph.addVertex(data);
-
-// Add unweighted edges (for unweighted graphs)
-graph.addEdge(source, destination);
-
-// Add weighted edges (for weighted graphs)
-graph.addEdge(source, destination, weight);
-```
-
-### **Accessing Edge Data**
+- `VertexType` — the type stored at each vertex (e.g., `int`, `string`, custom class)
+- `EdgeType` — the type stored on each edge (e.g., `int`, `double`), or `Unweighted` for no weight
 
 ```cpp
-EdgeType weight = graph.getEdge(source, destination);
+// Directed weighted graph: integer vertices, integer edge weights
+CinderGraph<int, int> g;
+
+// Undirected weighted graph: string vertices, float weights
+GraphCreationOptions opts({GraphCreationOptions::Undirected});
+CinderGraph<string, float> cityGraph(opts);
+
+// Directed unweighted graph
+CinderGraph<int, Unweighted> unweightedGraph;
 ```
 
 ---
 
-**Guidelines:**
-- Use `CinderGraph` for most common applications, especially when you have many vertices but relatively few edges
+## 4. Core API Reference
+
+### 4.1 `addVertex(v)` — Add a Vertex
+
+Inserts a vertex into the graph.
+
+**Signature:**
+```cpp
+pair<VertexType, bool> addVertex(const VertexType& v);
+```
+
+**Returns:** `{vertex, true}` on success, `{vertex, false}` if already exists.
+
+```cpp
+CinderGraph<int, int> g;
+
+auto [v, ok] = g.addVertex(1);
+if (ok) cout << "Added vertex " << v << "\n";  // Added vertex 1
+
+g.addVertex(2);
+g.addVertex(3);
+
+cout << g.numVertices() << "\n";  // 3
+```
 
 ---
 
-## **Error Handling**
+### 4.2 `addEdge(src, dest)` — Add an Unweighted Edge
 
-CinderPeak uses an internal error handling system. When operations fail, they are logged internally:
+Only available for `CinderGraph<V, Unweighted>`.
 
-- Adding duplicate vertices (when parallel edges aren't allowed) will log a warning but won't crash
-- Accessing non-existent edges returns a default-constructed EdgeType
-- Most errors are handled gracefully with appropriate logging
+**Signature:**
+```cpp
+pair<pair<V,V>, bool> addEdge(const V& src, const V& dest);
+```
+
+**Returns:** `{{src, dest}, true}` on success, `{{src, dest}, false}` if already exists.
+
+```cpp
+CinderGraph<int, Unweighted> g;
+g.addVertex(1);
+g.addVertex(2);
+
+auto [edgeKey, added] = g.addEdge(1, 2);
+if (added) {
+    auto [s, d] = edgeKey;
+    cout << "Added edge " << s << "->" << d << "\n";
+}
+```
 
 ---
 
-## **Best Practices**
+### 4.3 `addEdge(src, dest, weight)` — Add a Weighted Edge
 
-1. **Always include required namespaces:**
-   ```cpp
-   using namespace CinderPeak::PeakStore;
-   using namespace CinderPeak;
-   ```
+Only available for weighted graphs (EdgeType ≠ `Unweighted`).
 
-2. **Choose the right graph representation:**
-   - Use `CinderGraph` for sparse graphs
-   - Use `CinderGraph` for dense graphs or when you need O(1) edge lookups
+**Signature:**
+```cpp
+pair<tuple<V,V,E>, bool> addEdge(const V& src, const V& dest, const E& weight);
+```
 
-3. **Custom types must inherit from base classes:**
-   ```cpp
-   class MyVertex : public CinderVertex { /* ... */ };
-   class MyEdge : public CinderEdge { /* ... */ };
-   ```
+**Returns:** `{{src, dest, weight}, true}` on success, `{{src, dest, weight}, false}` if already exists.
 
-4. **Configure graph options appropriately:**
-   ```cpp
-   GraphCreationOptions opts({
-       GraphCreationOptions::Directed,    // or Undirected
-       GraphCreationOptions::Weighted     // or Unweighted
-   });
-   ```
+```cpp
+CinderGraph<int, double> g;
+g.addVertex(10);
+g.addVertex(20);
 
-5. **Use consistent data types:**
-   - Make sure your vertex and edge types are consistent throughout your application
-   - Consider using primitive types (int, double, string) for simple cases
+auto [edgeKey, added] = g.addEdge(10, 20, 5.5);
+if (added) {
+    auto [src, dst, w] = edgeKey;
+    cout << src << "->" << dst << " weight=" << w << "\n";
+    // 10->20 weight=5.5
+}
+```
+
+> **Note:** Both source and destination vertices must exist before calling `addEdge`. Adding an edge to non-existent vertices will fail gracefully (returns `false`).
+
+---
+
+### 4.4 `removeVertex(v)` — Remove a Vertex
+
+Removes a vertex **and all its associated edges** from the graph.
+
+**Signature:**
+```cpp
+bool removeVertex(const VertexType& v);
+```
+
+**Returns:** `true` on success, `false` if not found.
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2); g.addVertex(3);
+g.addEdge(1, 2, 10);
+g.addEdge(1, 3, 20);
+
+bool removed = g.removeVertex(1);
+cout << removed << "\n";          // 1 (true)
+cout << g.numVertices() << "\n";  // 2
+```
+
+
+---
+
+### 4.5 `removeEdge(src, dest)` — Remove an Edge
+
+Removes the edge between two vertices, preserving both vertices.
+
+**Signature:**
+```cpp
+pair<optional<EdgeType>, bool> removeEdge(const V& src, const V& dest);
+```
+
+**Returns:** `{weight, true}` on success, `{nullopt, false}` if not found.
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2);
+g.addEdge(1, 2, 42);
+
+auto [prevWeight, ok] = g.removeEdge(1, 2);
+if (ok && prevWeight.has_value())
+    cout << "Removed edge, had weight: " << *prevWeight << "\n"; // 42
+
+cout << g.numEdges() << "\n"; // 0
+```
+
+---
+
+### 4.6 `updateEdge(src, dest, newWeight)` — Update Edge Weight
+
+Updates an existing edge's weight. Only available for weighted graphs.
+
+**Signature:**
+```cpp
+pair<EdgeType, bool> updateEdge(const V& src, const V& dest, const E& newWeight);
+```
+
+**Returns:** `{newWeight, true}` on success, `{newWeight, false}` on failure.
+
+> **Note:** The returned EdgeType is always the `newWeight` passed in — the library does not currently return the previous weight.
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2);
+g.addEdge(1, 2, 10);
+
+auto [weight, updated] = g.updateEdge(1, 2, 99);
+if (updated)
+    cout << "Updated to: " << weight << "\n"; // Updated to: 99
+```
+
+---
+
+### 4.7 `getEdge(src, dest)` — Retrieve an Edge
+
+Returns the edge weight as `std::optional<EdgeType>`.
+
+**Signature:**
+```cpp
+optional<EdgeType> getEdge(const V& src, const V& dest);
+```
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2);
+g.addEdge(1, 2, 55);
+
+auto edge = g.getEdge(1, 2);
+if (edge.has_value())
+    cout << "Weight: " << *edge << "\n"; // 55
+
+auto missing = g.getEdge(1, 99);
+cout << missing.has_value() << "\n"; // 0 (false)
+```
+
+---
+
+### 4.8 `hasVertex(v)` — Check Vertex Existence
+
+```cpp
+bool hasVertex(const VertexType& v);
+```
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(5);
+
+cout << g.hasVertex(5)  << "\n"; // 1 (true)
+cout << g.hasVertex(99) << "\n"; // 0 (false)
+```
+
+---
+
+### 4.9 `getNeighbors(v)` — Get All Neighbors
+
+Returns all adjacent vertices and their edge weights.
+
+**Signature:**
+```cpp
+vector<pair<VertexType, EdgeType>> getNeighbors(const VertexType& v);
+```
+
+**Complexity:** O(deg(v))
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2); g.addVertex(3);
+g.addEdge(1, 2, 10);
+g.addEdge(1, 3, 20);
+
+auto neighbors = g.getNeighbors(1);
+for (auto& [neighbor, weight] : neighbors) {
+    cout << "1 -> " << neighbor << " (w=" << weight << ")\n";
+}
+// 1 -> 2 (w=10)
+// 1 -> 3 (w=20)
+
+// Non-existent vertex returns empty
+auto empty = g.getNeighbors(99);
+cout << empty.empty() << "\n"; // 1 (true)
+```
+
+---
+
+### 4.10 `clearEdges()` — Remove All Edges
+
+Removes all edges while keeping all vertices.
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2);
+g.addEdge(1, 2, 10);
+
+g.clearEdges();
+cout << g.numVertices() << "\n"; // 2 (vertices preserved)
+cout << g.numEdges() << "\n";    // 0
+```
+
+---
+
+### 4.11 `clearVertices()` — Remove Everything
+
+Removes all vertices and all edges.
+
+```cpp
+g.clearVertices();
+cout << g.numVertices() << "\n"; // 0
+cout << g.numEdges() << "\n";    // 0
+```
+
+---
+
+### 4.12 `numVertices()` / `numEdges()` — Graph Size
+
+```cpp
+cout << g.numVertices() << "\n";
+cout << g.numEdges() << "\n";
+```
+
+> **Note for undirected graphs:** Each `addEdge(A, B, w)` call on an undirected graph stores two internal directed edges (A→B and B→A). `numEdges()` counts **both directions**, so a single `addEdge` call increments the count by **2**.
+
+---
+
+### 4.13 `toDot(filename)` — Export to Graphviz DOT
+
+Exports the graph to a `.dot` file for visualization.
+
+Only available when VertexType and EdgeType are primitive (or `Unweighted`).
+
+```cpp
+CinderGraph<int, int> g;
+g.addVertex(1); g.addVertex(2); g.addVertex(3);
+g.addEdge(1, 2, 10);
+g.addEdge(2, 3, 20);
+g.addEdge(3, 1, 30); // cycle
+
+g.toDot("graph.dot");
+// Renders with: dot -Tpng graph.dot -o graph.png
+```
+
+Example `.dot` output for a directed graph:
+```dot
+strict digraph G {
+  rankdir=LR;
+  node[shape=circle style=filled fillcolor="#E3F2FD" fontname="Arial"];
+  node_1 [label="1"];
+  node_2 [label="2"];
+  node_1 -> node_2 [label="10"];
+}
+```
+
+---
+
+### 4.14 `getGraphStatistics()` — Runtime Statistics
+
+```cpp
+cout << g.getGraphStatistics();
+// === Graph Statistics ===
+// Vertices: 3
+// Edges: 2
+// Density: 0.33
+```
+
+---
+
+### 4.15 `setGraphName()` / `getGraphName()` — Graph Identity
+
+Graph names must be alphanumeric and 1–32 characters long.
+
+```cpp
+bool ok = g.setGraphName("MyGraph");
+cout << ok << "\n";                // 1
+cout << g.getGraphName() << "\n"; // MyGraph
+```
+
+---
+
+### 4.16 Operator `[]` — Matrix-style Access
+
+```cpp
+// Read edge weight (throws if edge missing)
+int w = g[1][2];
+
+// Write edge weight via proxy
+g[1](2, 99); // sets weight of edge 1->2 to 99
+```
+
+---
+
+## 5. Runtime Configuration
+
+### Logging
+
+```cpp
+g.setConsoleLogging(true);           // enable console output (default: disabled)
+g.setFileLogging("debug.log");       // write logs to file
+g.unsetFileLogging();                // stop file logging
+```
+
+### Exception Handling
+
+By default, errors are handled silently (return `false` / `nullopt`). You can enable exceptions:
+
+```cpp
+g.setThrowExceptions(true);
+// Now errors throw std::runtime_error
+```
+
+---
+
+## 6. Using Custom Types
+
+For complex vertex/edge data, inherit from `CinderVertex` / `CinderEdge`.
+
+```cpp
+#include "CinderPeak.hpp"
+using namespace CinderPeak;
+
+// Custom vertex type representing a city
+class City : public CinderVertex {
+public:
+    std::string name;
+    int population;
+
+    City() = default;
+    City(const std::string& n, int pop) : name(n), population(pop) {}
+};
+
+// Custom edge type representing a road
+class Road : public CinderEdge {
+public:
+    float distance_km;
+    std::string highway;
+
+    Road() = default;
+    Road(float dist, const std::string& hw) : distance_km(dist), highway(hw) {}
+};
+
+int main() {
+    GraphCreationOptions opts({GraphCreationOptions::Undirected});
+    CinderGraph<City, Road> roadMap(opts);
+
+    City delhi("Delhi", 30000000);
+    City mumbai("Mumbai", 20000000);
+
+    roadMap.addVertex(delhi);
+    roadMap.addVertex(mumbai);
+
+    Road nh48(1400.0f, "NH-48");
+    roadMap.addEdge(delhi, mumbai, nh48);
+
+    auto neighbors = roadMap.getNeighbors(delhi);
+    for (auto& [city, road] : neighbors) {
+        cout << "Delhi -> " << city.name
+             << " via " << road.highway
+             << " (" << road.distance_km << " km)\n";
+    }
+    return 0;
+}
+```
+
+> **Important:** Custom vertex types need `CinderVertex` base class for the internal `__id_` hashing mechanism to work. Without it, you'll get a `static_assert` error.
+
+---
+
+## 7. Complete Example: Road Network
+
+```cpp
+#include "CinderPeak.hpp"
+#include <iostream>
+using namespace CinderPeak;
+using namespace std;
+
+int main() {
+    // Undirected weighted graph: cities and distances
+    GraphCreationOptions opts({GraphCreationOptions::Undirected});
+    CinderGraph<string, float> india(opts);
+
+    // Add cities
+    india.addVertex("Delhi");
+    india.addVertex("Mumbai");
+    india.addVertex("Kolkata");
+    india.addVertex("Chennai");
+
+    // Add roads (distances in km)
+    india.addEdge("Delhi", "Mumbai", 1400.0f);
+    india.addEdge("Delhi", "Kolkata", 1500.0f);
+    india.addEdge("Mumbai", "Chennai", 1340.0f);
+    india.addEdge("Kolkata", "Chennai", 1660.0f);
+
+    // Print all neighbors of Delhi
+    cout << "Routes from Delhi:\n";
+    for (auto& [city, dist] : india.getNeighbors("Delhi")) {
+        cout << "  Delhi -> " << city << ": " << dist << " km\n";
+    }
+
+    // Check stats
+    cout << "\nGraph has " << india.numVertices() << " cities and "
+         << india.numEdges() << " routes.\n";
+
+    // Export to DOT
+    india.toDot("india_roads.dot");
+    cout << "Exported to india_roads.dot\n";
+
+    return 0;
+}
+```
+
+Expected output:
+```
+Routes from Delhi:
+  Delhi -> Mumbai: 1400 km
+  Delhi -> Kolkata: 1500 km
+
+Graph has 4 cities and 8 routes.
+Exported to india_roads.dot
+```
+
+> **Note:** The edge count is `8` (not `4`) because this is an undirected graph — each `addEdge` call stores two directed edges internally, and `numEdges()` counts both directions.
