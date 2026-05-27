@@ -40,7 +40,6 @@ private:
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
         ctx->hybrid_storage);
-
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
     registerMetadataListeners(*ctx);
   }

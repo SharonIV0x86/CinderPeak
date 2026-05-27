@@ -1,5 +1,7 @@
 #pragma once
 #include <chrono>
+#include <cstring>
+#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -32,10 +34,10 @@ public:
       logFile.close();
     }
   }
+
   static void log(const LogLevel &level, const std::string &msg,
                   bool consoleEnabled, bool fileEnabled,
                   const std::string &logFileP) {
-
     if (!consoleEnabled && !fileEnabled) {
       return;
     }
@@ -92,6 +94,27 @@ private:
     }
   }
 
+  // Cross-platform, thread-safe helper to eliminate C4996 'localtime' unsafe
+  // warning
+  static std::tm getLocalTime(const std::time_t &time_res) {
+    std::tm timeinfo;
+#if defined(_MSC_VER)
+    // MSVC secure alternative
+    localtime_s(&timeinfo, &time_res);
+#elif defined(__unix__) || defined(__APPLE__) || defined(__linux__)
+    // POSIX thread-safe alternative
+    localtime_r(&time_res, &timeinfo);
+#else
+    // Fallback if compilation environment is ambiguous
+    if (auto *fallback = std::localtime(&time_res)) {
+      timeinfo = *fallback;
+    } else {
+      std::memset(&timeinfo, 0, sizeof(std::tm));
+    }
+#endif
+    return timeinfo;
+  }
+
   static std::string getTimestamp() {
     auto now = std::chrono::system_clock::now();
     auto t_c = std::chrono::system_clock::to_time_t(now);
@@ -99,9 +122,11 @@ private:
                   now.time_since_epoch()) %
               1000;
 
+    std::tm timeinfo = getLocalTime(t_c);
+
     std::ostringstream oss;
-    oss << std::put_time(std::localtime(&t_c), "%Y-%m-%d %H:%M:%S") << '.'
-        << std::setw(3) << std::setfill('0') << ms.count();
+    oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S") << '.' << std::setw(3)
+        << std::setfill('0') << ms.count();
     return oss.str();
   }
 
@@ -133,10 +158,6 @@ private:
     const char *levelStr = levelToString(level);
 
     logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-    // if (!file.empty() && line != -1 &&
-    //     (level == LogLevel::CRITICAL || level == LogLevel::ERROR)) {
-    //   logFile << " (" << file << ":" << line << ")";
-    // } TODO: Remove it in future
     logFile << std::endl;
   }
 };
