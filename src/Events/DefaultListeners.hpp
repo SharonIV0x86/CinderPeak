@@ -18,9 +18,5 @@ void registerMetadataListeners(PeakStore::GraphContext<V, E> &ctx) {
   ctx.events.vertexAdded.subscribe([metadata](const auto &event) {
     metadata->updateVertexCount(PeakStore::UpdateOp::Add);
   });
-
-  ctx.events.vertexRemoved.subscribe([metadata](const auto &event) {
-    metadata->updateVertexCount(PeakStore::UpdateOp::Remove);
-  });
 }
 } // namespace CinderPeak

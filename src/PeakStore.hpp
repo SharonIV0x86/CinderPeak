@@ -202,7 +202,7 @@ public:
   PeakStatus removeVertex(const VertexType &v) {
     auto status = ctx->active_storage->impl_removeVertex(v);
     if (status.isOK()) {
-      ctx->events.vertexRemoved.emit({v}); // ✅ emit instead
+      ctx->metadata->updateVertexCount(UpdateOp::Remove);
     }
     return status;
   }
