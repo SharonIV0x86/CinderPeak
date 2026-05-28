@@ -105,3 +105,4 @@ int main() {
 - Read the [Usage Guide](../docs/usage.md) for full API details
 - Explore the `examples/` directory in the repo
 - Check out the full docs hosted with Docusaurus
+Closes #[299]
