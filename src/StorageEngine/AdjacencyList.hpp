@@ -355,7 +355,19 @@ public:
     return std::make_pair(EdgeType(), PeakStatus::EdgeNotFound());
   }
 
-  const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
+ template <typename Func>
+void forEachNeighbor(const VertexType &vertex, Func&& callback) const {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    auto it = _vertex_lookup.find(vertex);
+    if (it != _vertex_lookup.end()) {
+        // Assuming _adj is the map holding the vector of edges
+        const auto &neighbors = _adj.at(it->second); 
+        for (const auto &p : neighbors) {
+            callback(p); // Executed safely while holding the lock!
+        }
+    }
+}
+ const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
   impl_getNeighbors(const VertexType &vertex) const {
     runtime.log(LogLevel::DEBUG,
                 "Executing impl_getNeighbors for " + vertexStr(vertex));
