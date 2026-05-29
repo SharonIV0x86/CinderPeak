@@ -14,7 +14,6 @@ void registerMetadataListeners(PeakStore::GraphContext<V, E> &ctx) {
     metadata->updateEdgeCount(PeakStore::UpdateOp::Remove);
   });
 
-  // ✅ NEW: vertex event listeners
   ctx.events.vertexAdded.subscribe([metadata](const auto &event) {
     metadata->updateVertexCount(PeakStore::UpdateOp::Add);
   });
