@@ -1,20 +1,28 @@
 #pragma once
 
 #include "Operations/GraphOperations.hpp"
+#include "StorageEngine/DebugUtils.hpp"
 #include "StorageEngine/ErrorCodes.hpp"
 namespace CinderPeak {
 template <typename V, typename E>
 PeakStatus validateAddEdge(AddEdgeOperation<V, E> &op) {
 
   auto *storage = op.ctx.active_storage.get();
-  if (!storage->impl_hasVertex(op.src) || !storage->impl_hasVertex(op.dest)) {
+  if (!storage->impl_hasVertex(op.src)) {
 
-    return PeakStatus::VertexNotFound("Source or destination vertex missing.");
+    return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                      vertexStr(op.src));
+  }
+  if (!storage->impl_hasVertex(op.dest)) {
+
+    return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                      vertexStr(op.dest));
   }
 
   if (op.src == op.dest) {
 
-    return PeakStatus::InvalidArgument("Self loops are not allowed.");
+    return PeakStatus::InvalidArgument("Self loops are not allowed: " +
+                                       edgeStr(op.src, op.dest));
   }
 
   bool exists = false;
@@ -41,7 +49,8 @@ PeakStatus validateAddEdge(AddEdgeOperation<V, E> &op) {
 
   if (exists) {
 
-    return PeakStatus::EdgeAlreadyExists("Edge already exists.");
+    return PeakStatus::EdgeAlreadyExists("Edge already exists: " +
+                                         edgeStr(op.src, op.dest));
   }
 
   return PeakStatus::OK();

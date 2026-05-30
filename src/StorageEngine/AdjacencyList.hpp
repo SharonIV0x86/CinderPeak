@@ -43,7 +43,8 @@ private:
   ensureVertexExists_nolock(const VertexType &v, PeakStatus &out_status) const {
     auto id_opt = lookupVertexId_nolock(v);
     if (!id_opt) {
-      out_status = PeakStatus::VertexNotFound();
+      out_status =
+          PeakStatus::VertexNotFound("Vertex does not exist: " + vertexStr(v));
       return std::nullopt;
     }
     out_status = PeakStatus::OK();
@@ -104,8 +105,10 @@ public:
 
     for (const auto &v : vertices) {
       if (_vertex_lookup.find(v) != _vertex_lookup.end()) {
-        final_status = PeakStatus::VertexAlreadyExists();
-        runtime.log(LogLevel::WARNING, "Vertex already Exist.");
+        final_status = PeakStatus::VertexAlreadyExists(
+            "Vertex already exists: " + vertexStr(v));
+        runtime.log(LogLevel::WARNING,
+                    "Vertex already exists: " + vertexStr(v));
         continue;
       }
       VertexId id = _next_vertex_id.fetch_add(1, std::memory_order_relaxed);
@@ -127,13 +130,16 @@ public:
 
     auto srcIt = _vertex_lookup.find(src);
     if (srcIt == _vertex_lookup.end()) {
-      return PeakStatus::VertexNotFound();
+      return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                        vertexStr(src));
     }
 
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end()) {
-      runtime.log(LogLevel::WARNING, "Vertex not found.");
-      return PeakStatus::VertexNotFound();
+      runtime.log(LogLevel::WARNING,
+                  "Destination vertex not found: " + vertexStr(dest));
+      return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                        vertexStr(dest));
     }
 
     VertexId srcId = srcIt->second;
@@ -173,20 +179,24 @@ public:
           dest = std::get<1>(edge);
           weight = std::get<2>(edge);
         } else {
-          overall = PeakStatus::Unimplemented();
+          overall =
+              PeakStatus::Unimplemented("Unsupported edge container type");
           continue;
         }
 
         auto srcIt = _vertex_lookup.find(src);
         if (srcIt == _vertex_lookup.end()) {
-          warnings.push_back("The vertex does not exist (src)");
-          overall = PeakStatus::VertexNotFound();
+          warnings.push_back("Source vertex does not exist: " + vertexStr(src));
+          overall = PeakStatus::VertexNotFound(
+              "Source vertex does not exist: " + vertexStr(src));
           continue;
         }
         auto destIt = _vertex_lookup.find(dest);
         if (destIt == _vertex_lookup.end()) {
-          warnings.push_back("The vertex does not exist (dest)");
-          overall = PeakStatus::VertexNotFound();
+          warnings.push_back("Destination vertex does not exist: " +
+                             vertexStr(dest));
+          overall = PeakStatus::VertexNotFound(
+              "Destination vertex does not exist: " + vertexStr(dest));
           continue;
         }
 
@@ -210,10 +220,15 @@ public:
 
     auto srcIt = _vertex_lookup.find(src);
     if (srcIt == _vertex_lookup.end())
-      return std::make_pair(retWeight, PeakStatus::VertexNotFound());
+      return std::make_pair(
+          retWeight, PeakStatus::VertexNotFound(
+                         "Source vertex does not exist: " + vertexStr(src)));
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end())
-      return std::make_pair(retWeight, PeakStatus::VertexNotFound());
+      return std::make_pair(
+          retWeight,
+          PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                     vertexStr(dest)));
 
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
@@ -223,8 +238,10 @@ public:
                            [&](const auto &p) { return p.first == destId; });
 
     if (it == neighbors.end()) {
-      runtime.log(LogLevel::WARNING, "Edge not found.");
-      return std::make_pair(retWeight, PeakStatus::EdgeNotFound());
+      runtime.log(LogLevel::WARNING, "Edge not found: " + edgeStr(src, dest));
+      return std::make_pair(retWeight,
+                            PeakStatus::EdgeNotFound("Edge does not exist: " +
+                                                     edgeStr(src, dest)));
     }
 
     retWeight = it->second;
@@ -243,13 +260,17 @@ public:
 
     auto srcIt = _vertex_lookup.find(src);
     if (srcIt == _vertex_lookup.end()) {
-      runtime.log(LogLevel::WARNING, "Vertex not found.");
-      return PeakStatus::VertexNotFound();
+      runtime.log(LogLevel::WARNING,
+                  "Source vertex not found: " + vertexStr(src));
+      return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                        vertexStr(src));
     }
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end()) {
-      runtime.log(LogLevel::WARNING, "Vertex not found.");
-      return PeakStatus::VertexNotFound();
+      runtime.log(LogLevel::WARNING,
+                  "Destination vertex not found: " + vertexStr(dest));
+      return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                        vertexStr(dest));
     }
 
     VertexId srcId = srcIt->second;
@@ -262,8 +283,9 @@ public:
         return PeakStatus::OK();
       }
     }
-    runtime.log(LogLevel::INFO, "Edge Not Found.");
-    return PeakStatus::EdgeNotFound();
+    runtime.log(LogLevel::INFO, "Edge not found: " + edgeStr(src, dest));
+    return PeakStatus::EdgeNotFound("Edge does not exist: " +
+                                    edgeStr(src, dest));
   }
 
   [[nodiscard]] bool impl_hasVertex(const VertexType &v) noexcept override {
@@ -338,10 +360,15 @@ public:
 
     auto srcIt = _vertex_lookup.find(src);
     if (srcIt == _vertex_lookup.end())
-      return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
+      return std::make_pair(
+          EdgeType(), PeakStatus::VertexNotFound(
+                          "Source vertex does not exist: " + vertexStr(src)));
     auto destIt = _vertex_lookup.find(dest);
     if (destIt == _vertex_lookup.end())
-      return std::make_pair(EdgeType(), PeakStatus::VertexNotFound());
+      return std::make_pair(
+          EdgeType(),
+          PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                     vertexStr(dest)));
 
     VertexId srcId = srcIt->second;
     VertexId destId = destIt->second;
@@ -351,8 +378,10 @@ public:
       if (p.first == destId)
         return std::make_pair(p.second, PeakStatus::OK());
     }
-    runtime.log(LogLevel::INFO, "Edge not found");
-    return std::make_pair(EdgeType(), PeakStatus::EdgeNotFound());
+    runtime.log(LogLevel::INFO, "Edge not found: " + edgeStr(src, dest));
+    return std::make_pair(
+        EdgeType(),
+        PeakStatus::EdgeNotFound("Edge does not exist: " + edgeStr(src, dest)));
   }
 
   const std::pair<std::vector<std::pair<VertexType, EdgeType>>, PeakStatus>
@@ -368,8 +397,10 @@ public:
 
       auto it = _vertex_lookup.find(vertex);
       if (it == _vertex_lookup.end()) {
-        return std::make_pair(std::vector<std::pair<VertexType, EdgeType>>{},
-                              PeakStatus::VertexNotFound());
+        return std::make_pair(
+            std::vector<std::pair<VertexType, EdgeType>>{},
+            PeakStatus::VertexNotFound("Vertex does not exist: " +
+                                       vertexStr(vertex)));
       }
 
       VertexId id = it->second;
@@ -408,7 +439,8 @@ public:
 
     auto it = _vertex_lookup.find(v);
     if (it == _vertex_lookup.end())
-      return PeakStatus::VertexNotFound();
+      return PeakStatus::VertexNotFound("Vertex does not exist: " +
+                                        vertexStr(v));
 
     VertexId id = it->second;
 

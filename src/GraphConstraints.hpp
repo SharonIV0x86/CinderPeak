@@ -1,4 +1,5 @@
 #pragma once
+#include "StorageEngine/DebugUtils.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "StorageEngine/Utils.hpp"
 
@@ -8,14 +9,18 @@ template <typename VertexType, typename EdgeType> struct GraphConstraints {
       const PeakStore::GraphContext<VertexType, EdgeType> &ctx,
       const VertexType &src, const VertexType &dest, const EdgeType &weight) {
 
-    if (!ctx.active_storage->impl_hasVertex(src) ||
-        !ctx.active_storage->impl_hasVertex(dest)) {
-      return PeakStatus::VertexNotFound(
-          "Source or destination vertex is missing.");
+    if (!ctx.active_storage->impl_hasVertex(src)) {
+      return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                        vertexStr(src));
+    }
+    if (!ctx.active_storage->impl_hasVertex(dest)) {
+      return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                        vertexStr(dest));
     }
 
     if (src == dest) {
-      return PeakStatus::InvalidArgument("Self loops are not allowed");
+      return PeakStatus::InvalidArgument("Self loops are not allowed: " +
+                                         edgeStr(src, dest));
     }
 
     bool isWeighted = ctx.metadata->isGraphWeighted();
@@ -38,7 +43,8 @@ template <typename VertexType, typename EdgeType> struct GraphConstraints {
     }
 
     if (exists) {
-      return PeakStatus::EdgeAlreadyExists("Edge Already Exists");
+      return PeakStatus::EdgeAlreadyExists("Edge already exists: " +
+                                           edgeStr(src, dest));
     }
 
     return PeakStatus::OK();
@@ -46,13 +52,17 @@ template <typename VertexType, typename EdgeType> struct GraphConstraints {
   static PeakStatus
   checkRemoveEdge(const PeakStore::GraphContext<VertexType, EdgeType> &ctx,
                   const VertexType &src, const VertexType &dest) {
-    if (!ctx.active_storage->impl_hasVertex(src) ||
-        !ctx.active_storage->impl_hasVertex(dest)) {
-      return PeakStatus::VertexNotFound(
-          "Source or destination vertex is missing.");
+    if (!ctx.active_storage->impl_hasVertex(src)) {
+      return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                        vertexStr(src));
+    }
+    if (!ctx.active_storage->impl_hasVertex(dest)) {
+      return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                        vertexStr(dest));
     }
     if (src == dest) {
-      return PeakStatus::InvalidArgument("Self loops are not allowed");
+      return PeakStatus::InvalidArgument("Self loops are not allowed: " +
+                                         edgeStr(src, dest));
     }
     return PeakStatus::OK();
   }

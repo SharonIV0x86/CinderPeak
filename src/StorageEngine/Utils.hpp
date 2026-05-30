@@ -191,22 +191,32 @@ inline size_t CinderVertex::nextId = 1;
 inline size_t CinderEdge::nextId = 1;
 
 namespace Exceptions {
-inline void handle_exception_map(const PeakStatus &status) {
-  switch (static_cast<int>(status.code())) {
-  case static_cast<int>(StatusCode::NOT_FOUND):
-    break;
-  case static_cast<int>(StatusCode::UNIMPLEMENTED):
-    break;
-  case static_cast<int>(StatusCode::ALREADY_EXISTS):
-    break;
-  case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
-    break;
-  case static_cast<int>(StatusCode::VERTEX_NOT_FOUND):
-    break;
-  case static_cast<int>(StatusCode::EDGE_ALREADY_EXISTS):
-    break;
+inline void handle_exception_map(const PeakStatus &status,
+                                 bool shouldThrow = false) {
+  if (!shouldThrow)
+    return;
+
+  switch (status.code()) {
+  case StatusCode::NOT_FOUND:
+    throw PeakExceptions::NotFoundException(status.message());
+  case StatusCode::UNIMPLEMENTED:
+    throw PeakExceptions::UnimplementedException(status.message());
+  case StatusCode::ALREADY_EXISTS:
+    throw PeakExceptions::AlreadyExistsException(status.message());
+  case StatusCode::VERTEX_ALREADY_EXISTS:
+    throw PeakExceptions::VertexAlreadyExistsException(status.message());
+  case StatusCode::VERTEX_NOT_FOUND:
+    throw PeakExceptions::VertexNotFoundException(status.message());
+  case StatusCode::EDGE_ALREADY_EXISTS:
+    throw PeakExceptions::EdgeAlreadyExistsException(status.message());
+  case StatusCode::EDGE_NOT_FOUND:
+    throw PeakExceptions::EdgeNotFoundException(status.message());
+  case StatusCode::INVALID_ARGUMENT:
+    throw PeakExceptions::InvalidArgumentException(status.message());
+  case StatusCode::INTERNAL_ERROR:
+    throw PeakExceptions::InternalErrorException(status.message());
   default:
-    break;
+    throw PeakExceptions::UnknownException(status.message());
   }
 }
 } // namespace Exceptions

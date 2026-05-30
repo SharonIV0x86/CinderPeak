@@ -1,5 +1,6 @@
 #pragma once
 #include "../StorageInterface.hpp"
+#include "DebugUtils.hpp"
 #include "StorageEngine/GraphContext.hpp"
 #include "Utils.hpp"
 #include <algorithm>
@@ -325,7 +326,8 @@ public:
 
     auto vtx_it = vertex_to_index.find(vtx);
     if (vtx_it != vertex_to_index.end()) {
-      return PeakStatus::AlreadyExists();
+      return PeakStatus::AlreadyExists("Vertex already exists: " +
+                                       vertexStr(vtx));
     }
     size_t new_idx = vertex_order.size();
     vertex_to_index[vtx] = new_idx;
@@ -344,8 +346,13 @@ public:
 
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
-    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return PeakStatus::VertexNotFound();
+    if (src_it == vertex_to_index.end()) {
+      return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                        vertexStr(src));
+    }
+    if (dest_it == vertex_to_index.end()) {
+      return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                        vertexStr(dest));
     }
 
     coo_src.push_back(src_it->second);
@@ -368,8 +375,15 @@ public:
 
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
-    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return std::make_pair(weight, PeakStatus::VertexNotFound());
+    if (src_it == vertex_to_index.end()) {
+      return std::make_pair(
+          weight, PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                             vertexStr(src)));
+    }
+    if (dest_it == vertex_to_index.end()) {
+      return std::make_pair(
+          weight, PeakStatus::VertexNotFound(
+                      "Destination vertex does not exist: " + vertexStr(dest)));
     }
 
     size_t src_idx = src_it->second;
@@ -386,7 +400,9 @@ public:
     }
 
     if (!is_built_.load(std::memory_order_acquire)) {
-      return std::make_pair(weight, PeakStatus::EdgeNotFound());
+      return std::make_pair(weight,
+                            PeakStatus::EdgeNotFound("Edge does not exist: " +
+                                                     edgeStr(src, dest)));
     }
 
     size_t row = src_idx;
@@ -410,7 +426,9 @@ public:
 
       return std::make_pair(weight, PeakStatus::OK());
     }
-    return std::make_pair(weight, PeakStatus::EdgeNotFound());
+    return std::make_pair(
+        weight,
+        PeakStatus::EdgeNotFound("Edge does not exist: " + edgeStr(src, dest)));
   }
 
   [[nodiscard]] const PeakStatus
@@ -418,8 +436,13 @@ public:
                   const EdgeType &newWeight) override {
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
-    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return PeakStatus::VertexNotFound();
+    if (src_it == vertex_to_index.end()) {
+      return PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                        vertexStr(src));
+    }
+    if (dest_it == vertex_to_index.end()) {
+      return PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                        vertexStr(dest));
     }
 
     std::unique_lock<std::shared_mutex> lock(_mtx);
@@ -453,7 +476,8 @@ public:
       return PeakStatus::OK();
     }
 
-    return PeakStatus::EdgeNotFound();
+    return PeakStatus::EdgeNotFound("Edge does not exist: " +
+                                    edgeStr(src, dest));
   }
 
   [[nodiscard]] const PeakStatus impl_clearVertices() override {
@@ -519,8 +543,15 @@ public:
 
     auto src_it = vertex_to_index.find(src);
     auto dest_it = vertex_to_index.find(dest);
-    if (src_it == vertex_to_index.end() || dest_it == vertex_to_index.end()) {
-      return {EdgeType{}, PeakStatus::VertexNotFound()};
+    if (src_it == vertex_to_index.end()) {
+      return {EdgeType{},
+              PeakStatus::VertexNotFound("Source vertex does not exist: " +
+                                         vertexStr(src))};
+    }
+    if (dest_it == vertex_to_index.end()) {
+      return {EdgeType{},
+              PeakStatus::VertexNotFound("Destination vertex does not exist: " +
+                                         vertexStr(dest))};
     }
 
     size_t src_idx = src_it->second;
@@ -548,7 +579,8 @@ public:
       size_t idx = std::distance(csr_col_vals.begin(), it);
       return {csr_weights[idx], PeakStatus::OK()};
     }
-    return {EdgeType{}, PeakStatus::EdgeNotFound()};
+    return {EdgeType{}, PeakStatus::EdgeNotFound("Edge does not exist: " +
+                                                 edgeStr(src, dest))};
   }
 
   [[nodiscard]] const PeakStatus
@@ -557,7 +589,8 @@ public:
 
     auto vtx_it = vertex_to_index.find(vtx);
     if (vtx_it == vertex_to_index.end()) {
-      return PeakStatus::VertexNotFound();
+      return PeakStatus::VertexNotFound("Vertex does not exist: " +
+                                        vertexStr(vtx));
     }
 
     _tombstoned.insert(vtx_it->second);
