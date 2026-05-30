@@ -297,7 +297,7 @@ public:
       if (p.first == destId)
         return true;
     }
-    runtime.log(LogLevel::INFO, "Edge found.");
+    runtime.log(LogLevel::INFO, "Edge not found.");
     return false;
   }
 
@@ -321,11 +321,11 @@ public:
     const auto &neighbors = _adj.at(srcId);
     for (const auto &p : neighbors) {
       if (p.first == destId && p.second == weight) {
-        runtime.log(LogLevel::INFO, "Edge not exist.");
+        runtime.log(LogLevel::INFO, "Edge exists.");
         return true;
       }
     }
-    runtime.log(LogLevel::INFO, "Edge not exist.");
+    runtime.log(LogLevel::INFO, "Edge not found.");
 
     return false;
   }
