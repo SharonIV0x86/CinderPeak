@@ -38,7 +38,32 @@ def handle_build_errors(func):
             sys.exit(1)
     return wrapper
 
-def run(*args: str, msg: Optional[str] = None, verbose: bool = False, stream: bool = True, **kwargs: Any):
+def run(*args: str, msg: Optional[str] = None,
+        verbose: bool = False,
+        stream: bool = True,
+        **kwargs: Any):
+    """
+    Execute an external command.
+
+    Parameters
+    ----------
+    *args : str
+        Command and arguments to execute.
+
+    msg : Optional[str]
+        Additional error message shown on failure.
+
+    verbose : bool
+        Print the command before execution.
+
+    stream : bool
+        Stream stdout and stderr directly to the terminal.
+
+    Raises
+    ------
+    RuntimeError
+        If the command exits with a non-zero status.
+    """
     sys.stdout.flush()
     if verbose:
         print(f"$ {' '.join(args)}")
@@ -57,19 +82,61 @@ def run(*args: str, msg: Optional[str] = None, verbose: bool = False, stream: bo
         raise RuntimeError(err)
 
 
-def run_pipe(*args: str, msg: Optional[str] = None, verbose: bool = False, **kwargs: Any) -> str:
+def run_pipe(*args: str, msg: Optional[str] = None,
+             verbose: bool = False,
+             **kwargs: Any) -> str:
+    """
+    Execute a command and return its stdout output.
+
+    Parameters
+    ----------
+    *args : str
+        Command and arguments.
+
+    Returns
+    -------
+    str
+        Standard output from the executed command.
+    """
     import subprocess
     result = run(*args, msg=msg, verbose=verbose, stream=False, stdout=subprocess.PIPE, text=True, **kwargs)
     return result.stdout
 
 
 def find_command(command: str, msg: Optional[str] = None) -> str:
+    """
+    Locate an executable in the system PATH.
+
+    Parameters
+    ----------
+    command : str
+        Name of the executable.
+
+    Returns
+    -------
+    str
+        Absolute path to the executable.
+
+    Raises
+    ------
+    RuntimeError
+        If the command cannot be found.
+    """
     cmd_path = which(command)
     if cmd_path is None:
         raise RuntimeError(msg or f"Command '{command}' not found in PATH")
     return cmd_path
 
 def detect_generator() -> Optional[str]:
+    """
+    Detect a suitable CMake generator.
+
+    Returns
+    -------
+    Optional[str]
+        Generator name or None if no generator
+        could be determined.
+    """
     if which("ninja"):
         return "Ninja"
     
@@ -83,12 +150,19 @@ def detect_generator() -> Optional[str]:
 
 @handle_build_errors
 def configure(build_dir: str = None, build_type: str = None,
+              
               with_tests: bool = False, with_examples: bool = False,
               sanitize: bool = False, coverage: bool = False,
               pedantic_warnings: bool = True, no_warnings: bool = False,
               generator: Optional[str] = None, toolchain: Optional[str] = None,
               cmake_path: str = None, ninja: bool = False,
               D: Optional[List[str]] = None, **kwargs: Any) -> None:
+    """
+Configure the CMake build system and generate build files.
+
+Creates the build directory, applies selected build
+options, and invokes CMake configuration.
+"""
 
     build_dir = build_dir or Config.DEFAULT_BUILD_DIR
     build_type = build_type or Config.DEFAULT_BUILD_TYPE
@@ -136,10 +210,17 @@ def configure(build_dir: str = None, build_type: str = None,
     print(f"\nConfiguration complete. Build directory: {build_dir}")
 
 
+
 @handle_build_errors
 def build(build_dir: str = None, jobs: Optional[int] = None,
           target: Optional[str] = None, cmake_path: str = None,
           skip_build: bool = False, config: Optional[str] = None, **kwargs: Any) -> None:
+    """
+Build the configured project.
+
+Invokes CMake build commands using the selected
+configuration and target.
+"""
 
     if skip_build:
         print("Skipping build as requested.")
@@ -168,6 +249,22 @@ def build(build_dir: str = None, jobs: Optional[int] = None,
 
 
 def detect_build_config(build_dir: str) -> Optional[str]:
+    """
+    Detect the active build configuration.
+
+    Attempts to determine whether the build was configured
+    as Debug, Release, RelWithDebInfo, or MinSizeRel.
+
+    Parameters
+    ----------
+    build_dir : str
+        Build directory to inspect.
+
+    Returns
+    -------
+    Optional[str]
+        Detected build configuration or None.
+    """
     build_path = Path(build_dir)
     
     bin_dir = build_path / 'bin'
@@ -196,6 +293,12 @@ def detect_build_config(build_dir: str) -> Optional[str]:
 def test(build_dir: str = None, cpp: bool = False, all: bool = False,
          config: Optional[str] = None, rest: Optional[List[str]] = None, 
          **kwargs: Any) -> None:
+    """
+Run project tests using CTest.
+
+Automatically detects build configuration when
+possible and executes the test suite.
+"""
     build_dir = build_dir or Config.DEFAULT_BUILD_DIR
     
     if not os.path.exists(build_dir):
@@ -222,6 +325,9 @@ def test(build_dir: str = None, cpp: bool = False, all: bool = False,
 
 @handle_build_errors
 def clean(build_dir: str = None, **kwargs: Any) -> None:
+    """
+Remove the build directory and all generated files.
+"""
     import shutil
     build_dir = build_dir or Config.DEFAULT_BUILD_DIR
     
@@ -235,6 +341,14 @@ def clean(build_dir: str = None, **kwargs: Any) -> None:
 
 @handle_build_errors
 def format_code(clang_format_path: str = None, fix: bool = False, **kwargs: Any) -> None:
+    """
+Format or validate source code using clang-format.
+
+Parameters
+----------
+fix : bool
+    Apply formatting changes when True.
+"""
     from glob import glob
     clang_format_path = clang_format_path or Config.DEFAULT_CLANG_FORMAT
     basedir = Path(__file__).parent.absolute()
@@ -259,6 +373,17 @@ def format_code(clang_format_path: str = None, fix: bool = False, **kwargs: Any)
 
 @handle_build_errors
 def check(subcommand: str = None, **kwargs: Any) -> None:
+    """
+    Execute project validation checks.
+
+    Supports format validation and static analysis
+    through clang-format and clang-tidy.
+
+    Parameters
+    ----------
+    subcommand : str, optional
+        Validation command to execute.
+    """
     if subcommand == "format":
         format_code(fix=False, **kwargs)
     elif subcommand == "tidy":
@@ -272,6 +397,11 @@ def check_tidy(build_dir: str = None, jobs: Optional[int] = None,
                clang_tidy_path: str = None,
                run_clang_tidy_path: str = None,
                fix: bool = False, **kwargs: Any) -> None:
+    """
+Run static analysis using clang-tidy.
+
+Supports automatic fixes when requested.
+"""
     build_dir = build_dir or Config.DEFAULT_BUILD_DIR
     clang_tidy_path = clang_tidy_path or Config.DEFAULT_CLANG_TIDY
     run_clang_tidy_path = run_clang_tidy_path or Config.DEFAULT_RUN_CLANG_TIDY
@@ -308,6 +438,12 @@ def check_tidy(build_dir: str = None, jobs: Optional[int] = None,
 
 @handle_build_errors
 def prepare(**kwargs: Any) -> None:
+    """
+Prepare the development environment.
+
+Installs project Git hooks and required
+development tooling integrations.
+"""
     basedir = Path(__file__).parent.absolute()
     hooks_dir = basedir / "scripts"
     git_hooks_dir = basedir / ".git" / "hooks"
@@ -343,6 +479,11 @@ def prepare(**kwargs: Any) -> None:
 
 @handle_build_errors
 def package(subcommand: str = None, release_version: str = None, **kwargs: Any) -> None:
+    """
+Create release packages for the project.
+
+Currently supports source package generation.
+"""
     if subcommand == "source":
         if not release_version:
             raise RuntimeError("--release-version is required")
@@ -365,6 +506,12 @@ def all_command(build_dir: str = None, build_type: str = None,
                 pedantic_warnings: bool = True, no_warnings: bool = False,
                 jobs: Optional[int] = None, skip_tests: bool = False,
                 config: Optional[str] = None, **kwargs: Any) -> None:
+    """
+Execute the complete workflow.
+
+Runs configure, build and test steps
+in sequence.
+"""
     build_dir = build_dir or Config.DEFAULT_BUILD_DIR
     build_type = build_type or Config.DEFAULT_BUILD_TYPE
     
