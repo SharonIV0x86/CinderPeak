@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <iostream>
 #include <mutex>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -24,29 +25,67 @@
 #define COLOR_BOLD_ERROR "\033[1;31m"
 #define COLOR_BOLD_CRIT "\033[1;91m"
 
-enum LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
+enum LogLevel
+{
+  TRACE,
+  DEBUG,
+  INFO,
+  WARNING,
+  ERROR,
+  CRITICAL
+};
 
-class Logger {
+class Logger
+{
 public:
-  static void shutdown() {
-    std::lock_guard<std::mutex> lock(logMutex);
-    if (logFile.is_open()) {
-      logFile.close();
+  static void shutdown()
+  {
+    disableFileLogging();
+  }
+
+  static void setFileLogging(const std::string &path)
+  {
+    auto newFile = std::make_unique<std::ofstream>(path, std::ios::app);
+    if (!newFile->is_open())
+    {
+      return;
+    }
+
+    std::unique_ptr<std::ofstream> oldFile;
+    {
+      std::lock_guard<std::mutex> lock(logMutex);
+      oldFile = std::move(logFile);
+      logFile = std::move(newFile);
+      activeLogFilePath = path;
+    }
+  }
+
+  static void disableFileLogging()
+  {
+    std::unique_ptr<std::ofstream> oldFile;
+    {
+      std::lock_guard<std::mutex> lock(logMutex);
+      oldFile = std::move(logFile);
+      activeLogFilePath.clear();
     }
   }
 
   static void log(const LogLevel &level, const std::string &msg,
                   bool consoleEnabled, bool fileEnabled,
-                  const std::string &logFileP) {
-    if (!consoleEnabled && !fileEnabled) {
+                  const std::string &logFileP)
+  {
+    if (!consoleEnabled && !fileEnabled)
+    {
       return;
     }
 
-    if (consoleEnabled) {
+    if (consoleEnabled)
+    {
       logToConsole(level, msg);
     }
 
-    if (fileEnabled) {
+    if (fileEnabled)
+    {
       ensureFileOpen(logFileP);
       logToFile(level, msg);
     }
@@ -54,10 +93,13 @@ public:
 
 private:
   inline static std::mutex logMutex;
-  inline static std::ofstream logFile;
+  inline static std::unique_ptr<std::ofstream> logFile;
+  inline static std::string activeLogFilePath;
 
-  static const char *levelToString(LogLevel level) {
-    switch (level) {
+  static const char *levelToString(LogLevel level)
+  {
+    switch (level)
+    {
     case LogLevel::TRACE:
       return "TRACE";
     case LogLevel::DEBUG:
@@ -75,8 +117,10 @@ private:
     }
   }
 
-  static const char *levelToColor(LogLevel level) {
-    switch (level) {
+  static const char *levelToColor(LogLevel level)
+  {
+    switch (level)
+    {
     case LogLevel::TRACE:
       return COLOR_TRACE;
     case LogLevel::DEBUG:
@@ -96,7 +140,8 @@ private:
 
   // Cross-platform, thread-safe helper to eliminate C4996 'localtime' unsafe
   // warning
-  static std::tm getLocalTime(const std::time_t &time_res) {
+  static std::tm getLocalTime(const std::time_t &time_res)
+  {
     std::tm timeinfo;
 #if defined(_MSC_VER)
     // MSVC secure alternative
@@ -106,16 +151,20 @@ private:
     localtime_r(&time_res, &timeinfo);
 #else
     // Fallback if compilation environment is ambiguous
-    if (auto *fallback = std::localtime(&time_res)) {
+    if (auto *fallback = std::localtime(&time_res))
+    {
       timeinfo = *fallback;
-    } else {
+    }
+    else
+    {
       std::memset(&timeinfo, 0, sizeof(std::tm));
     }
 #endif
     return timeinfo;
   }
 
-  static std::string getTimestamp() {
+  static std::string getTimestamp()
+  {
     auto now = std::chrono::system_clock::now();
     auto t_c = std::chrono::system_clock::to_time_t(now);
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -130,13 +179,31 @@ private:
     return oss.str();
   }
 
-  static void ensureFileOpen(const std::string &path) {
-    if (!logFile.is_open()) {
-      logFile.open(path, std::ios::app);
+  static void ensureFileOpen(const std::string &path)
+  {
+    if (path.empty())
+    {
+      return;
     }
+
+    std::lock_guard<std::mutex> lock(logMutex);
+    if (logFile && logFile->is_open() && activeLogFilePath == path)
+    {
+      return;
+    }
+
+    auto newFile = std::make_unique<std::ofstream>(path, std::ios::app);
+    if (!newFile->is_open())
+    {
+      return;
+    }
+
+    logFile = std::move(newFile);
+    activeLogFilePath = path;
   }
 
-  static void logToConsole(LogLevel level, const std::string &msg) {
+  static void logToConsole(LogLevel level, const std::string &msg)
+  {
     std::lock_guard<std::mutex> lock(logMutex);
 
     std::string timestamp = getTimestamp();
@@ -148,16 +215,17 @@ private:
               << COLOR_RESET << " " << msg << std::endl;
   }
 
-  static void logToFile(LogLevel level, const std::string &msg) {
-    if (!logFile.is_open())
-      return;
-
+  static void logToFile(LogLevel level, const std::string &msg)
+  {
     std::lock_guard<std::mutex> lock(logMutex);
+
+    if (!logFile || !logFile->is_open())
+      return;
 
     std::string timestamp = getTimestamp();
     const char *levelStr = levelToString(level);
 
-    logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-    logFile << std::endl;
+    *logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
+    *logFile << std::endl;
   }
 };
