@@ -276,6 +276,14 @@ public:
   void log(const LogLevel &level, const std::string &message) const {
     ctx->runtime->log(level, message);
   }
+
+  std::vector<VertexType> getVertices() const {
+    return ctx->active_storage->impl_getVertices();
+  }
+
+  std::vector<std::tuple<VertexType, VertexType, EdgeType>> getEdgeList() const {
+    return ctx->active_storage->impl_getEdgeList();
+  }
 };
 
 } // namespace PeakStore

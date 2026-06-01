@@ -508,6 +508,26 @@ public:
     peak_store->log(LogLevel::INFO, "API: getGraphName completed successfully");
     return name;
   }
+
+  /**
+   * @brief Returns an iterable range of all vertices in the graph.
+   *
+   * Enables range-based for loops over vertices:
+   *   for (auto& v : graph.vertices()) { ... }
+   */
+  std::vector<VertexType> vertices() const {
+    return peak_store->getVertices();
+  }
+
+  /**
+   * @brief Returns all edges as a vector of (src, dest, weight) tuples.
+   *
+   * Enables range-based for loops over edges:
+   *   for (auto& [src, dest, w] : graph.edges()) { ... }
+   */
+  std::vector<std::tuple<VertexType, VertexType, EdgeType>> edges() const {
+    return peak_store->getEdgeList();
+  }
 };
 
 } // namespace CinderPeak

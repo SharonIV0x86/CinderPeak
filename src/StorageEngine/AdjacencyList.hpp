@@ -517,10 +517,36 @@ public:
     return ss.str();
   }
 
-  const std::unordered_map<CinderPeak::VertexId, VertexType> &
+ const std::unordered_map<CinderPeak::VertexId, VertexType> &
   getVertexDataMap() const {
     runtime.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
+  }
+
+  [[nodiscard]] std::vector<VertexType> impl_getVertices() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<VertexType> result;
+    result.reserve(_vertex_data.size());
+    for (const auto &[id, vtx] : _vertex_data) {
+      result.push_back(vtx);
+    }
+    return result;
+  }
+
+  [[nodiscard]] std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  impl_getEdgeList() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<std::tuple<VertexType, VertexType, EdgeType>> result;
+    for (const auto &[srcId, neighbors] : _adj) {
+      auto srcIt = _vertex_data.find(srcId);
+      if (srcIt == _vertex_data.end()) continue;
+      for (const auto &[destId, weight] : neighbors) {
+        auto destIt = _vertex_data.find(destId);
+        if (destIt == _vertex_data.end()) continue;
+        result.emplace_back(srcIt->second, destIt->second, weight);
+      }
+    }
+    return result;
   }
 };
 
