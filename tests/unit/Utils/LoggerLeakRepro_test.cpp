@@ -49,40 +49,40 @@ namespace
 
 TEST(GraphRuntimeLoggerLeakRepro, DisableFileLoggingShouldCloseActiveHandle)
 {
-    if (!hasProcFdAccess())
+  if (!hasProcFdAccess())
+  {
+    GTEST_SKIP() << "/proc/self/fd is not available on this platform";
+  }
+
+  std::error_code ec;
+  const auto logPath =
+      std::filesystem::temp_directory_path() / "cinderpeak_logger_repro.log";
+
+  std::filesystem::remove(logPath, ec);
+
+  struct CleanupGuard
+  {
+    const std::filesystem::path &path;
+    std::error_code &errorCode;
+
+    ~CleanupGuard()
     {
-        GTEST_SKIP() << "/proc/self/fd is not available on this platform";
+      Logger::shutdown();
+      std::filesystem::remove(path, errorCode);
     }
+  } cleanupGuard{logPath, ec};
 
-    std::error_code ec;
-    const auto logPath =
-        std::filesystem::temp_directory_path() / "cinderpeak_logger_repro.log";
+  CinderPeak::GraphRuntime runtime;
+  runtime.setConsoleLogging(false);
+  runtime.setFileLogging(logPath.string());
 
-    std::filesystem::remove(logPath, ec);
+  runtime.log(LogLevel::INFO, "logger leak repro probe");
 
-    struct CleanupGuard
-    {
-        const std::filesystem::path &path;
-        std::error_code &errorCode;
+  EXPECT_EQ(countOpenDescriptorsForPath(logPath), 1u)
+      << "logger did not open the file as expected";
 
-        ~CleanupGuard()
-        {
-            Logger::shutdown();
-            std::filesystem::remove(path, errorCode);
-        }
-    } cleanupGuard{logPath, ec};
+  runtime.disableFileLogging();
 
-    CinderPeak::GraphRuntime runtime;
-    runtime.setConsoleLogging(false);
-    runtime.setFileLogging(logPath.string());
-
-    runtime.log(LogLevel::INFO, "logger leak repro probe");
-
-    EXPECT_EQ(countOpenDescriptorsForPath(logPath), 1u)
-        << "logger did not open the file as expected";
-
-    runtime.disableFileLogging();
-
-    EXPECT_EQ(countOpenDescriptorsForPath(logPath), 0u)
-        << "file descriptor is still open after disabling file logging";
+  EXPECT_EQ(countOpenDescriptorsForPath(logPath), 0u)
+      << "file descriptor is still open after disabling file logging";
 }
