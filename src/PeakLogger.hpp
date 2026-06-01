@@ -133,10 +133,6 @@ private:
     const char *levelStr = levelToString(level);
 
     logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-    // if (!file.empty() && line != -1 &&
-    //     (level == LogLevel::CRITICAL || level == LogLevel::ERROR)) {
-    //   logFile << " (" << file << ":" << line << ")";
-    // } TODO: Remove it in future
     logFile << std::endl;
   }
 };

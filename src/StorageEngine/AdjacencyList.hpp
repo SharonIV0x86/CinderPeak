@@ -68,14 +68,14 @@ public:
         if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
                           VertexType>) {
           runtime.log(LogLevel::WARNING,
-                      "Failed to add Vertex: Vertex Already Exist. " +
+                      "Failed to add Vertex: Vertex Already Exists. " +
                           vertexStr(v));
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
           runtime.log(LogLevel::WARNING,
-                      "Failed to add Non Premitive Vertex: Non Premitive "
-                      "Vertex Already Exist. " +
+                      "Failed to add Non Primitive Vertex: Non Primitive "
+                      "Vertex Already Exists. " +
                           vertexStr(v));
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
@@ -91,8 +91,6 @@ public:
 
     // perform string construction and logging outside of the lock to avoid
     // blocking critical sections
-    // TODO: this is a test log for output check so remove it in future.
-    runtime.log(LogLevel::INFO, "Vertex added.");
     return PeakStatus::OK();
   }
 
@@ -105,7 +103,7 @@ public:
     for (const auto &v : vertices) {
       if (_vertex_lookup.find(v) != _vertex_lookup.end()) {
         final_status = PeakStatus::VertexAlreadyExists();
-        runtime.log(LogLevel::WARNING, "Vertex already Exist.");
+        runtime.log(LogLevel::WARNING, "Vertex already Exists.");
         continue;
       }
       VertexId id = _next_vertex_id.fetch_add(1, std::memory_order_relaxed);
