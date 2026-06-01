@@ -191,22 +191,48 @@ inline size_t CinderVertex::nextId = 1;
 inline size_t CinderEdge::nextId = 1;
 
 namespace Exceptions {
-inline void handle_exception_map(const PeakStatus &status) {
-  switch (static_cast<int>(status.code())) {
-  case static_cast<int>(StatusCode::NOT_FOUND):
-    break;
-  case static_cast<int>(StatusCode::UNIMPLEMENTED):
-    break;
-  case static_cast<int>(StatusCode::ALREADY_EXISTS):
-    break;
-  case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
-    break;
-  case static_cast<int>(StatusCode::VERTEX_NOT_FOUND):
-    break;
-  case static_cast<int>(StatusCode::EDGE_ALREADY_EXISTS):
-    break;
+
+// Describes the operation context for richer error messages
+inline std::string contextMsg(const PeakStatus &status,
+                              const std::string &operation) {
+  std::string msg = status.message();
+  if (msg.empty() || msg == "Operation failed") {
+    return operation;
+  }
+  return operation + ": " + msg;
+}
+
+inline void handle_exception_map(const PeakStatus &status,
+                                 const std::string &operation = "") {
+  if (status.isOK())
+    return;
+
+  std::string base = status.message();
+  std::string msg =
+      base.empty() ? (operation.empty() ? "Operation failed" : operation)
+                   : (operation.empty() ? base : operation + ": " + base);
+
+  switch (status.code()) {
+  case StatusCode::NOT_FOUND:
+    throw PeakExceptions::NotFoundException(msg);
+  case StatusCode::UNIMPLEMENTED:
+    throw PeakExceptions::UnimplementedException(msg);
+  case StatusCode::ALREADY_EXISTS:
+    throw PeakExceptions::AlreadyExistsException(msg);
+  case StatusCode::VERTEX_ALREADY_EXISTS:
+    throw PeakExceptions::VertexAlreadyExistsException(msg);
+  case StatusCode::VERTEX_NOT_FOUND:
+    throw PeakExceptions::VertexNotFoundException(msg);
+  case StatusCode::EDGE_ALREADY_EXISTS:
+    throw PeakExceptions::EdgeAlreadyExistsException(msg);
+  case StatusCode::EDGE_NOT_FOUND:
+    throw PeakExceptions::EdgeNotFoundException(msg);
+  case StatusCode::INVALID_ARGUMENT:
+    throw PeakExceptions::InvalidArgumentException(msg);
+  case StatusCode::INTERNAL_ERROR:
+    throw PeakExceptions::InternalErrorException(msg);
   default:
-    break;
+    throw PeakExceptions::UnknownException(msg);
   }
 }
 } // namespace Exceptions

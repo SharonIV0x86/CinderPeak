@@ -16,6 +16,71 @@ enum class StatusCode {
   EDGE_ALREADY_EXISTS,
 };
 
+enum class ErrorCode : int {
+  None = 0,
+  NotFound = 1,
+  InvalidArgument = 2,
+  VertexAlreadyExists = 3,
+  InternalError = 4,
+  EdgeNotFound = 5,
+  VertexNotFound = 6,
+  Unimplemented = 7,
+  AlreadyExists = 8,
+  EdgeAlreadyExists = 9,
+};
+
+inline ErrorCode toErrorCode(StatusCode sc) {
+  switch (sc) {
+  case StatusCode::OK:
+    return ErrorCode::None;
+  case StatusCode::NOT_FOUND:
+    return ErrorCode::NotFound;
+  case StatusCode::INVALID_ARGUMENT:
+    return ErrorCode::InvalidArgument;
+  case StatusCode::VERTEX_ALREADY_EXISTS:
+    return ErrorCode::VertexAlreadyExists;
+  case StatusCode::INTERNAL_ERROR:
+    return ErrorCode::InternalError;
+  case StatusCode::EDGE_NOT_FOUND:
+    return ErrorCode::EdgeNotFound;
+  case StatusCode::VERTEX_NOT_FOUND:
+    return ErrorCode::VertexNotFound;
+  case StatusCode::UNIMPLEMENTED:
+    return ErrorCode::Unimplemented;
+  case StatusCode::ALREADY_EXISTS:
+    return ErrorCode::AlreadyExists;
+  case StatusCode::EDGE_ALREADY_EXISTS:
+    return ErrorCode::EdgeAlreadyExists;
+  }
+  return ErrorCode::InternalError;
+}
+
+inline std::string errorCodeToString(ErrorCode ec) {
+  switch (ec) {
+  case ErrorCode::None:
+    return "OK";
+  case ErrorCode::NotFound:
+    return "Resource not found";
+  case ErrorCode::InvalidArgument:
+    return "Invalid argument";
+  case ErrorCode::VertexAlreadyExists:
+    return "Vertex already exists";
+  case ErrorCode::InternalError:
+    return "Internal error";
+  case ErrorCode::EdgeNotFound:
+    return "Edge not found";
+  case ErrorCode::VertexNotFound:
+    return "Vertex not found";
+  case ErrorCode::Unimplemented:
+    return "Unimplemented feature";
+  case ErrorCode::AlreadyExists:
+    return "Resource already exists";
+  case ErrorCode::EdgeAlreadyExists:
+    return "Edge already exists";
+  }
+  return "Unknown error";
+}
+
 class PeakStatus {
 private:
   StatusCode code_;
