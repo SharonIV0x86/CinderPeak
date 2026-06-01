@@ -517,7 +517,7 @@ public:
     return ss.str();
   }
 
- const std::unordered_map<CinderPeak::VertexId, VertexType> &
+  const std::unordered_map<CinderPeak::VertexId, VertexType> &
   getVertexDataMap() const {
     runtime.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
@@ -539,10 +539,12 @@ public:
     std::vector<std::tuple<VertexType, VertexType, EdgeType>> result;
     for (const auto &[srcId, neighbors] : _adj) {
       auto srcIt = _vertex_data.find(srcId);
-      if (srcIt == _vertex_data.end()) continue;
+      if (srcIt == _vertex_data.end())
+        continue;
       for (const auto &[destId, weight] : neighbors) {
         auto destIt = _vertex_data.find(destId);
-        if (destIt == _vertex_data.end()) continue;
+        if (destIt == _vertex_data.end())
+          continue;
         result.emplace_back(srcIt->second, destIt->second, weight);
       }
     }

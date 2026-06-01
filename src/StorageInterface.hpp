@@ -49,6 +49,7 @@ public:
 
   // Iterator support
   virtual std::vector<VertexType> impl_getVertices() const = 0;
-  virtual std::vector<std::tuple<VertexType, VertexType, EdgeType>> impl_getEdgeList() const = 0;
+  virtual std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  impl_getEdgeList() const = 0;
 };
 } // namespace CinderPeak

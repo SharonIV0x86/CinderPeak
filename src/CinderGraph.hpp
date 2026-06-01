@@ -515,9 +515,7 @@ public:
    * Enables range-based for loops over vertices:
    *   for (auto& v : graph.vertices()) { ... }
    */
-  std::vector<VertexType> vertices() const {
-    return peak_store->getVertices();
-  }
+  std::vector<VertexType> vertices() const { return peak_store->getVertices(); }
 
   /**
    * @brief Returns all edges as a vector of (src, dest, weight) tuples.

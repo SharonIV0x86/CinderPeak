@@ -281,7 +281,8 @@ public:
     return ctx->active_storage->impl_getVertices();
   }
 
-  std::vector<std::tuple<VertexType, VertexType, EdgeType>> getEdgeList() const {
+  std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  getEdgeList() const {
     return ctx->active_storage->impl_getEdgeList();
   }
 };
