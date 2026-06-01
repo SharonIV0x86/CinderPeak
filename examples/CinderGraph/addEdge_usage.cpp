@@ -45,6 +45,15 @@ int main() {
     cout << "Adding edge without vertices: " << (added5 ? "success" : "failed")
          << endl;
 
+    // 4. Error handling - Duplicate Edge Addition
+    cout << "\n--- Error Cases (Duplicate Edge) ---" << endl;
+    g1.addVertex(4);
+    g1.addVertex(5);
+    g1.addEdge(4, 5);
+    auto [edge6, added6] = g1.addEdge(4, 5); 
+    cout << "Adding duplicate edge (4,5) again: " << (added6 ? "success" : "failed") 
+         << endl;
+
     // 5. String vertices with weighted edges
     cout << "\n--- String Vertices ---" << endl;
     CinderGraph<string, float> g5;
