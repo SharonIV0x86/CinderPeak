@@ -134,8 +134,8 @@ public:
       return;
     }
     auto max_edges = static_cast<float>(num_vertices * (num_vertices - 1));
-    
-    // num_edges naturally stores 2E for undirected graphs, making the math self-correcting
+    // num_edges naturally stores 2E for undirected graphs,
+    // making the math self-correcting
     density = static_cast<float>(num_edges) / max_edges;
   }
 
