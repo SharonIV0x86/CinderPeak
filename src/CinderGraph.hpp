@@ -187,7 +187,7 @@ public:
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in removeVertex");
       Exceptions::handle_exception_map(
-          resp, peak_store->getThrowExceptionChoice());
+          resp, peak_store->getContext()->runtime->getThrowExceptions());
       return false;
     }
     peak_store->log(LogLevel::INFO, "API: removeVertex completed successfully");
