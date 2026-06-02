@@ -454,12 +454,21 @@ public:
     return PeakStatus::OK();
   }
 
-  const std::unordered_map<
+  std::unordered_map<
       CinderPeak::VertexId,
-      std::vector<std::pair<CinderPeak::VertexId, EdgeType>>> &
+      std::vector<std::pair<CinderPeak::VertexId, EdgeType>>>
   getInternalAdjacency() const {
     runtime.log(LogLevel::DEBUG, "Executing getInternalAdjacency");
+    std::shared_lock<std::shared_mutex> lock(_mtx);
     return _adj;
+  }
+
+  template <typename Func>
+  void forEachAdjacency(Func&& func) const {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    for (const auto& pair : _adj) {
+      func(pair.first, pair.second);
+    }
   }
   struct DotConfig {
     std::string graphName = "G";
@@ -517,10 +526,19 @@ public:
     return ss.str();
   }
 
-  const std::unordered_map<CinderPeak::VertexId, VertexType> &
+  std::unordered_map<CinderPeak::VertexId, VertexType>
   getVertexDataMap() const {
     runtime.log(LogLevel::DEBUG, "Executing getVertexDataMap");
+    std::shared_lock<std::shared_mutex> lock(_mtx);
     return _vertex_data;
+  }
+
+  template <typename Func>
+  void forEachVertexData(Func&& func) const {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    for (const auto& pair : _vertex_data) {
+      func(pair.first, pair.second);
+    }
   }
 };
 
