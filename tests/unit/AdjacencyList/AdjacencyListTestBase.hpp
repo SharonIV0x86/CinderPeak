@@ -15,19 +15,19 @@ protected:
   AdjacencyList<std::string, float> stringGraph{runtime};
 
   void SetUp() override {
-    intGraph.impl_addVertex(1);
-    intGraph.impl_addVertex(2);
-    intGraph.impl_addVertex(3);
-    intGraph.impl_addVertex(4);
-    intGraph.impl_addVertex(5);
+    (void)intGraph.impl_addVertex(1);
+    (void)intGraph.impl_addVertex(2);
+    (void)intGraph.impl_addVertex(3);
+    (void)intGraph.impl_addVertex(4);
+    (void)intGraph.impl_addVertex(5);
 
-    intGraph.impl_addVertex(101);
-    intGraph.impl_addVertex(102);
-    intGraph.impl_addVertex(103);
+    (void)intGraph.impl_addVertex(101);
+    (void)intGraph.impl_addVertex(102);
+    (void)intGraph.impl_addVertex(103);
 
-    stringGraph.impl_addVertex("A");
-    stringGraph.impl_addVertex("B");
-    stringGraph.impl_addVertex("C");
+    (void)stringGraph.impl_addVertex("A");
+    (void)stringGraph.impl_addVertex("B");
+    (void)stringGraph.impl_addVertex("C");
   }
 };
 
@@ -61,9 +61,9 @@ public:
     e1 = ComplexAdjEdge(12.34f);
     e2 = ComplexAdjEdge(76.45f);
 
-    complexGraph.impl_addVertex(v1);
-    complexGraph.impl_addVertex(v2);
-    complexGraph.impl_addVertex(v3);
+    (void)complexGraph.impl_addVertex(v1);
+    (void)complexGraph.impl_addVertex(v2);
+    (void)complexGraph.impl_addVertex(v3);
   }
 };
 
