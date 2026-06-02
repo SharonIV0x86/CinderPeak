@@ -27,212 +27,177 @@
 #define COLOR_BOLD_ERROR "\033[1;31m"
 #define COLOR_BOLD_CRIT "\033[1;91m"
 
-enum LogLevel
-{
-    TRACE,
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROR,
-    CRITICAL
-};
+enum LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
 
-class Logger
-{
+class Logger {
 public:
-    static void setFileLogging(const std::string &path)
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-        fileLoggingActive.store(true, std::memory_order_relaxed);
+  static void setFileLogging(const std::string &path) {
+    std::lock_guard<std::mutex> lock(logMutex);
+    fileLoggingActive.store(true, std::memory_order_relaxed);
 
-        if (!logFile.is_open() || currentLogFilePath != path)
-        {
-            if (logFile.is_open())
-            {
-                logFile.close();
-            }
+    if (!logFile.is_open() || currentLogFilePath != path) {
+      if (logFile.is_open()) {
+        logFile.close();
+      }
 
-            logFile.open(path, std::ios::app);
-            currentLogFilePath = path;
-        }
+      logFile.open(path, std::ios::app);
+      currentLogFilePath = path;
+    }
+  }
+
+  static void disableFileLogging() {
+    std::lock_guard<std::mutex> lock(logMutex);
+    fileLoggingActive.store(false, std::memory_order_relaxed);
+    currentLogFilePath.clear();
+
+    if (logFile.is_open()) {
+      logFile.close();
+    }
+  }
+
+  static void shutdown() {
+    std::lock_guard<std::mutex> lock(logMutex);
+    fileLoggingActive.store(false, std::memory_order_relaxed);
+    currentLogFilePath.clear();
+
+    if (logFile.is_open()) {
+      logFile.close();
+    }
+  }
+
+  static void log(const LogLevel &level, const std::string &msg,
+                  bool consoleEnabled, bool fileEnabled,
+                  const std::string &logFileP) {
+    if (!consoleEnabled && !fileEnabled) {
+      return;
     }
 
-    static void disableFileLogging()
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-        fileLoggingActive.store(false, std::memory_order_relaxed);
-        currentLogFilePath.clear();
-
-        if (logFile.is_open())
-        {
-            logFile.close();
-        }
+    if (consoleEnabled) {
+      logToConsole(level, msg);
     }
 
-    static void shutdown()
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-        fileLoggingActive.store(false, std::memory_order_relaxed);
-        currentLogFilePath.clear();
-
-        if (logFile.is_open())
-        {
-            logFile.close();
-        }
+    if (fileEnabled) {
+      ensureFileOpen(logFileP);
+      logToFile(level, msg);
     }
-
-    static void log(const LogLevel &level, const std::string &msg,
-                    bool consoleEnabled, bool fileEnabled,
-                    const std::string &logFileP)
-    {
-        if (!consoleEnabled && !fileEnabled)
-        {
-            return;
-        }
-
-        if (consoleEnabled)
-        {
-            logToConsole(level, msg);
-        }
-
-        if (fileEnabled)
-        {
-            ensureFileOpen(logFileP);
-            logToFile(level, msg);
-        }
-    }
+  }
 
 private:
-    inline static std::mutex logMutex;
-    inline static std::atomic<bool> fileLoggingActive{false};
-    inline static std::string currentLogFilePath;
-    inline static std::ofstream logFile;
+  inline static std::mutex logMutex;
+  inline static std::atomic<bool> fileLoggingActive{false};
+  inline static std::string currentLogFilePath;
+  inline static std::ofstream logFile;
 
-    static const char *levelToString(LogLevel level)
-    {
-        switch (level)
-        {
-        case LogLevel::TRACE:
-            return "TRACE";
-        case LogLevel::DEBUG:
-            return "DEBUG";
-        case LogLevel::INFO:
-            return "INFO";
-        case LogLevel::WARNING:
-            return "WARN";
-        case LogLevel::ERROR:
-            return "ERROR";
-        case LogLevel::CRITICAL:
-            return "CRITICAL";
-        default:
-            return "UNKNOWN";
-        }
+  static const char *levelToString(LogLevel level) {
+    switch (level) {
+    case LogLevel::TRACE:
+      return "TRACE";
+    case LogLevel::DEBUG:
+      return "DEBUG";
+    case LogLevel::INFO:
+      return "INFO";
+    case LogLevel::WARNING:
+      return "WARN";
+    case LogLevel::ERROR:
+      return "ERROR";
+    case LogLevel::CRITICAL:
+      return "CRITICAL";
+    default:
+      return "UNKNOWN";
     }
+  }
 
-    static const char *levelToColor(LogLevel level)
-    {
-        switch (level)
-        {
-        case LogLevel::TRACE:
-            return COLOR_TRACE;
-        case LogLevel::DEBUG:
-            return COLOR_BOLD_DEBUG;
-        case LogLevel::INFO:
-            return COLOR_BOLD_INFO;
-        case LogLevel::WARNING:
-            return COLOR_BOLD_WARN;
-        case LogLevel::ERROR:
-            return COLOR_BOLD_ERROR;
-        case LogLevel::CRITICAL:
-            return COLOR_BOLD_CRIT;
-        default:
-            return COLOR_WHITE;
-        }
+  static const char *levelToColor(LogLevel level) {
+    switch (level) {
+    case LogLevel::TRACE:
+      return COLOR_TRACE;
+    case LogLevel::DEBUG:
+      return COLOR_BOLD_DEBUG;
+    case LogLevel::INFO:
+      return COLOR_BOLD_INFO;
+    case LogLevel::WARNING:
+      return COLOR_BOLD_WARN;
+    case LogLevel::ERROR:
+      return COLOR_BOLD_ERROR;
+    case LogLevel::CRITICAL:
+      return COLOR_BOLD_CRIT;
+    default:
+      return COLOR_WHITE;
     }
+  }
 
-    static std::tm getLocalTime(const std::time_t &time_res)
-    {
-        std::tm timeinfo;
+  static std::tm getLocalTime(const std::time_t &time_res) {
+    std::tm timeinfo;
 #if defined(_MSC_VER)
-        localtime_s(&timeinfo, &time_res);
+    localtime_s(&timeinfo, &time_res);
 #elif defined(__unix__) || defined(__APPLE__) || defined(__linux__)
-        localtime_r(&time_res, &timeinfo);
+    localtime_r(&time_res, &timeinfo);
 #else
-        if (auto *fallback = std::localtime(&time_res))
-        {
-            timeinfo = *fallback;
-        }
-        else
-        {
-            std::memset(&timeinfo, 0, sizeof(std::tm));
-        }
+    if (auto *fallback = std::localtime(&time_res)) {
+      timeinfo = *fallback;
+    } else {
+      std::memset(&timeinfo, 0, sizeof(std::tm));
+    }
 #endif
-        return timeinfo;
+    return timeinfo;
+  }
+
+  static std::string getTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    auto t_c = std::chrono::system_clock::to_time_t(now);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  now.time_since_epoch()) %
+              1000;
+
+    std::tm timeinfo = getLocalTime(t_c);
+
+    std::ostringstream oss;
+    oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S") << '.' << std::setw(3)
+        << std::setfill('0') << ms.count();
+    return oss.str();
+  }
+
+  static void ensureFileOpen(const std::string &path) {
+    std::lock_guard<std::mutex> lock(logMutex);
+
+    if (!fileLoggingActive.load(std::memory_order_relaxed)) {
+      return;
     }
 
-    static std::string getTimestamp()
-    {
-        auto now = std::chrono::system_clock::now();
-        auto t_c = std::chrono::system_clock::to_time_t(now);
-        auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-                      now.time_since_epoch()) %
-                  1000;
+    if (!logFile.is_open() || currentLogFilePath != path) {
+      if (logFile.is_open()) {
+        logFile.close();
+      }
 
-        std::tm timeinfo = getLocalTime(t_c);
+      logFile.open(path, std::ios::app);
+      currentLogFilePath = path;
+    }
+  }
 
-        std::ostringstream oss;
-        oss << std::put_time(&timeinfo, "%Y-%m-%d %H:%M:%S") << '.'
-            << std::setw(3) << std::setfill('0') << ms.count();
-        return oss.str();
+  static void logToConsole(LogLevel level, const std::string &msg) {
+    std::lock_guard<std::mutex> lock(logMutex);
+
+    std::string timestamp = getTimestamp();
+    const char *levelStr = levelToString(level);
+    const char *levelColor = levelToColor(level);
+    std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp
+              << COLOR_BOLD_WHITE << "] [" << COLOR_RESET << levelColor
+              << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]"
+              << COLOR_RESET << " " << msg << std::endl;
+  }
+
+  static void logToFile(LogLevel level, const std::string &msg) {
+    std::lock_guard<std::mutex> lock(logMutex);
+
+    if (!logFile.is_open() ||
+        !fileLoggingActive.load(std::memory_order_relaxed)) {
+      return;
     }
 
-    static void ensureFileOpen(const std::string &path)
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
+    std::string timestamp = getTimestamp();
+    const char *levelStr = levelToString(level);
 
-        if (!fileLoggingActive.load(std::memory_order_relaxed))
-        {
-            return;
-        }
-
-        if (!logFile.is_open() || currentLogFilePath != path)
-        {
-            if (logFile.is_open())
-            {
-                logFile.close();
-            }
-
-            logFile.open(path, std::ios::app);
-            currentLogFilePath = path;
-        }
-    }
-
-    static void logToConsole(LogLevel level, const std::string &msg)
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-
-        std::string timestamp = getTimestamp();
-        const char *levelStr = levelToString(level);
-        const char *levelColor = levelToColor(level);
-        std::cerr << COLOR_BOLD_WHITE << "[" << COLOR_RESET << timestamp
-                  << COLOR_BOLD_WHITE << "] [" << COLOR_RESET << levelColor
-                  << levelStr << COLOR_RESET << COLOR_BOLD_WHITE << "]"
-                  << COLOR_RESET << " " << msg << std::endl;
-    }
-
-    static void logToFile(LogLevel level, const std::string &msg)
-    {
-        std::lock_guard<std::mutex> lock(logMutex);
-
-        if (!logFile.is_open() || !fileLoggingActive.load(std::memory_order_relaxed))
-        {
-            return;
-        }
-
-        std::string timestamp = getTimestamp();
-        const char *levelStr = levelToString(level);
-
-        logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
-        logFile << std::endl;
-    }
+    logFile << "[" << timestamp << "] [" << levelStr << "] " << msg;
+    logFile << std::endl;
+  }
 };

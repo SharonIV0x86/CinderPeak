@@ -5,52 +5,46 @@
 #include <string>
 #include <system_error>
 
-namespace
-{
-    bool hasProcFdAccess()
-    {
+namespace {
+bool hasProcFdAccess() {
 #if defined(__linux__)
-        std::error_code ec;
-        return std::filesystem::exists("/proc/self/fd", ec) && !ec;
+  std::error_code ec;
+  return std::filesystem::exists("/proc/self/fd", ec) && !ec;
 #else
-        return false;
+  return false;
 #endif
-    }
-
-    std::size_t countOpenDescriptorsForPath(const std::filesystem::path &targetPath)
-    {
-        std::error_code ec;
-        const auto expected = std::filesystem::absolute(targetPath).lexically_normal();
-
-        std::size_t count = 0;
-        for (const auto &entry : std::filesystem::directory_iterator("/proc/self/fd", ec))
-        {
-            if (ec)
-            {
-                break;
-            }
-
-            const auto linkTarget = std::filesystem::read_symlink(entry.path(), ec);
-            if (ec)
-            {
-                ec.clear();
-                continue;
-            }
-
-            if (std::filesystem::absolute(linkTarget).lexically_normal() == expected)
-            {
-                ++count;
-            }
-        }
-
-        return count;
-    }
 }
 
-TEST(GraphRuntimeLoggerLeakRepro, DisableFileLoggingShouldCloseActiveHandle)
-{
-  if (!hasProcFdAccess())
-  {
+std::size_t
+countOpenDescriptorsForPath(const std::filesystem::path &targetPath) {
+  std::error_code ec;
+  const auto expected =
+      std::filesystem::absolute(targetPath).lexically_normal();
+
+  std::size_t count = 0;
+  for (const auto &entry :
+       std::filesystem::directory_iterator("/proc/self/fd", ec)) {
+    if (ec) {
+      break;
+    }
+
+    const auto linkTarget = std::filesystem::read_symlink(entry.path(), ec);
+    if (ec) {
+      ec.clear();
+      continue;
+    }
+
+    if (std::filesystem::absolute(linkTarget).lexically_normal() == expected) {
+      ++count;
+    }
+  }
+
+  return count;
+}
+} // namespace
+
+TEST(GraphRuntimeLoggerLeakRepro, DisableFileLoggingShouldCloseActiveHandle) {
+  if (!hasProcFdAccess()) {
     GTEST_SKIP() << "/proc/self/fd is not available on this platform";
   }
 
@@ -60,13 +54,11 @@ TEST(GraphRuntimeLoggerLeakRepro, DisableFileLoggingShouldCloseActiveHandle)
 
   std::filesystem::remove(logPath, ec);
 
-  struct CleanupGuard
-  {
+  struct CleanupGuard {
     const std::filesystem::path &path;
     std::error_code &errorCode;
 
-    ~CleanupGuard()
-    {
+    ~CleanupGuard() {
       Logger::shutdown();
       std::filesystem::remove(path, errorCode);
     }
