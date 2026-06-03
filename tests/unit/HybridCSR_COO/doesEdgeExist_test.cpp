@@ -32,14 +32,14 @@ TEST_F(HybridStorageShardTest, DoesEdgeExist_EmptyGraph) {
 // Test advanced edge existence checks
 TEST_F(HybridStorageShardTest, DoesEdgeExist_Advanced) {
   for (int i = 1; i <= 5; ++i) {
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
   }
-  graph->impl_addEdge(1, 2, 12);
-  graph->impl_addEdge(1, 3, 13);
-  graph->impl_addEdge(1, 4, 14);
-  graph->impl_addEdge(2, 3, 23);
-  graph->impl_addEdge(3, 4, 34);
-  graph->impl_addEdge(4, 5, 45);
+  (void)graph->impl_addEdge(1, 2, 12);
+  (void)graph->impl_addEdge(1, 3, 13);
+  (void)graph->impl_addEdge(1, 4, 14);
+  (void)graph->impl_addEdge(2, 3, 23);
+  (void)graph->impl_addEdge(3, 4, 34);
+  (void)graph->impl_addEdge(4, 5, 45);
   EXPECT_TRUE(graph->impl_doesEdgeExist(1, 2)) << "Edge (1,2) not found";
   EXPECT_TRUE(graph->impl_doesEdgeExist(1, 3)) << "Edge (1,3) not found";
   EXPECT_TRUE(graph->impl_doesEdgeExist(4, 5)) << "Edge (4,5) not found";
@@ -57,9 +57,9 @@ TEST_F(HybridStorageShardTest, DoesEdgeExist_Advanced) {
 
 // Test concurrent edge existence checks
 TEST_F(HybridStorageShardTest, DoesEdgeExist_Concurrent) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 10);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 10);
   std::vector<std::thread> threads;
   const int NUM_THREADS = 10;
   for (int i = 0; i < NUM_THREADS; ++i) {

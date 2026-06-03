@@ -27,8 +27,8 @@ protected:
 };
 
 TEST_F(HybridStorageShardTest, HasVertices) {
-  graph->impl_addVertex(40);
-  graph->impl_addVertex(49);
+  (void)graph->impl_addVertex(40);
+  (void)graph->impl_addVertex(49);
   EXPECT_TRUE(graph->impl_hasVertex(40));
   EXPECT_TRUE(graph->impl_hasVertex(49));
   EXPECT_FALSE(graph->impl_hasVertex(404));
@@ -48,7 +48,7 @@ TEST_F(HybridStorageShardTest, HasVertices_MultipleAdditions) {
   std::vector<int> vertices = {1, 5, 10, 15, 20, 25, 30};
 
   for (int v : vertices) {
-    testGraph->impl_addVertex(v);
+    (void)testGraph->impl_addVertex(v);
   }
 
   for (int v : vertices) {
@@ -62,13 +62,13 @@ TEST_F(HybridStorageShardTest, HasVertices_MultipleAdditions) {
 
 TEST_F(HybridStorageShardTest, HasVertices_Deleted) {
   auto testGraph = std::make_unique<HybridCSR_COO<int, int>>();
-  testGraph->impl_addVertex(100);
-  testGraph->impl_addVertex(200);
-  testGraph->impl_addVertex(300);
+  (void)testGraph->impl_addVertex(100);
+  (void)testGraph->impl_addVertex(200);
+  (void)testGraph->impl_addVertex(300);
 
   EXPECT_TRUE(testGraph->impl_hasVertex(200));
 
-  testGraph->impl_removeVertex(200);
+  (void)testGraph->impl_removeVertex(200);
   EXPECT_FALSE(testGraph->impl_hasVertex(200));
   EXPECT_TRUE(testGraph->impl_hasVertex(100));
   EXPECT_TRUE(testGraph->impl_hasVertex(300));
@@ -77,13 +77,13 @@ TEST_F(HybridStorageShardTest, HasVertices_Deleted) {
 TEST_F(HybridStorageShardTest, HasVertices_Mix) {
   auto testGraph = std::make_unique<HybridCSR_COO<int, int>>();
 
-  testGraph->impl_addVertex(75);
+  (void)testGraph->impl_addVertex(75);
   EXPECT_TRUE(testGraph->impl_hasVertex(75));
 
-  testGraph->impl_removeVertex(75);
+  (void)testGraph->impl_removeVertex(75);
   EXPECT_FALSE(testGraph->impl_hasVertex(75));
 
-  testGraph->impl_addVertex(75);
+  (void)testGraph->impl_addVertex(75);
   EXPECT_TRUE(testGraph->impl_hasVertex(75));
 }
 
@@ -92,11 +92,11 @@ TEST_F(HybridStorageShardTest, HasVertices_DeleteAll) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
 
   for (int v : vertices) {
-    testGraph->impl_addVertex(v);
+    (void)testGraph->impl_addVertex(v);
   }
 
   for (int v : vertices) {
-    testGraph->impl_removeVertex(v);
+    (void)testGraph->impl_removeVertex(v);
   }
 
   for (int v : vertices) {
@@ -105,17 +105,17 @@ TEST_F(HybridStorageShardTest, HasVertices_DeleteAll) {
 }
 
 TEST_F(HybridStorageShardTest, HasVertices_String) {
-  string_graph->impl_addVertex("A");
-  string_graph->impl_addVertex("B");
-  string_graph->impl_addVertex("C");
+  (void)string_graph->impl_addVertex("A");
+  (void)string_graph->impl_addVertex("B");
+  (void)string_graph->impl_addVertex("C");
   EXPECT_TRUE(string_graph->impl_hasVertex("A"));
   EXPECT_TRUE(string_graph->impl_hasVertex("B"));
   EXPECT_TRUE(string_graph->impl_hasVertex("C"));
   EXPECT_FALSE(string_graph->impl_hasVertex("D"));
   EXPECT_FALSE(string_graph->impl_hasVertex(""));
 
-  string_graph->impl_addVertex("apple");
-  string_graph->impl_addVertex("banana");
+  (void)string_graph->impl_addVertex("apple");
+  (void)string_graph->impl_addVertex("banana");
 
   EXPECT_TRUE(string_graph->impl_hasVertex("apple"));
   EXPECT_TRUE(string_graph->impl_hasVertex("banana"));
@@ -127,7 +127,7 @@ TEST_F(HybridStorageShardTest, HasVertices_LargeGraph) {
   const int numVertices = 100000;
 
   for (int i = 0; i < numVertices; i++) {
-    testGraph->impl_addVertex(i);
+    (void)testGraph->impl_addVertex(i);
   }
 
   for (int i = 0; i < numVertices; i += 100) {
@@ -145,7 +145,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentReads) {
   const int numVertices = 1000;
 
   for (int i = 0; i < numVertices; i++) {
-    testGraph->impl_addVertex(i);
+    (void)testGraph->impl_addVertex(i);
   }
 
   const int numThreads = 8;
@@ -180,7 +180,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentAddAndRead) {
     threads.emplace_back([&testGraph, &addCount, numOperations, t]() {
       for (int i = 0; i < numOperations; i++) {
         int vertex = t * numOperations + i;
-        testGraph->impl_addVertex(vertex);
+        (void)testGraph->impl_addVertex(vertex);
         addCount++;
       }
     });
@@ -190,7 +190,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentAddAndRead) {
     threads.emplace_back([&testGraph, numOperations, t]() {
       for (int i = 0; i < numOperations; i++) {
         int vertex = t * numOperations + i;
-        testGraph->impl_hasVertex(vertex);
+        (void)testGraph->impl_hasVertex(vertex);
       }
     });
   }
@@ -207,7 +207,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
   const int numVertices = 1000;
 
   for (int i = 0; i < numVertices; i++) {
-    testGraph->impl_addVertex(i);
+    (void)testGraph->impl_addVertex(i);
   }
 
   const int numThreads = 4;
@@ -216,7 +216,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
   for (int t = 0; t < numThreads / 2; t++) {
     threads.emplace_back([&testGraph, numVertices, t, numThreads]() {
       for (int i = t; i < numVertices; i += numThreads / 2) {
-        testGraph->impl_removeVertex(i);
+        (void)testGraph->impl_removeVertex(i);
       }
     });
   }
@@ -224,7 +224,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentDeleteAndRead) {
   for (int t = 0; t < numThreads / 2; t++) {
     threads.emplace_back([&testGraph, numVertices]() {
       for (int i = 0; i < numVertices; i++) {
-        testGraph->impl_hasVertex(i);
+        (void)testGraph->impl_hasVertex(i);
       }
     });
   }
@@ -248,7 +248,7 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentMix) {
   std::atomic<int> readCount{0};
 
   for (int i = 0; i < 100; i++) {
-    testGraph->impl_addVertex(i);
+    (void)testGraph->impl_addVertex(i);
   }
 
   for (int t = 0; t < numThreads; t++) {
@@ -261,9 +261,9 @@ TEST_F(HybridStorageShardTest, HasVertices_ConcurrentMix) {
         int op = i % 3;
 
         if (op == 0) {
-          testGraph->impl_addVertex(vertex);
+          (void)testGraph->impl_addVertex(vertex);
         } else if (op == 1) {
-          testGraph->impl_removeVertex(vertex);
+          (void)testGraph->impl_removeVertex(vertex);
         } else {
           if (testGraph->impl_hasVertex(vertex)) {
             readCount++;
@@ -295,19 +295,19 @@ TEST_F(HybridStorageShardTest, HasVertices_StressTestConcurrent) {
           for (int i = 0; i < numOperationsPerThread; i++) {
             int vertex = baseVertex + i;
 
-            testGraph->impl_addVertex(vertex);
+            (void)testGraph->impl_addVertex(vertex);
 
             if (!testGraph->impl_hasVertex(vertex)) {
               allTestsPassed = false;
             }
 
-            testGraph->impl_removeVertex(vertex);
+            (void)testGraph->impl_removeVertex(vertex);
 
             if (testGraph->impl_hasVertex(vertex)) {
               allTestsPassed = false;
             }
 
-            testGraph->impl_addVertex(vertex);
+            (void)testGraph->impl_addVertex(vertex);
 
             if (!testGraph->impl_hasVertex(vertex)) {
               allTestsPassed = false;
@@ -343,9 +343,9 @@ TEST_F(HybridStorageShardTest, HasVertices_RaceConditionDetection) {
         [&testGraph, &trueCount, &falseCount, targetVertex, t]() {
           for (int i = 0; i < 100; i++) {
             if (t % 2 == 0) {
-              testGraph->impl_addVertex(targetVertex);
+              (void)testGraph->impl_addVertex(targetVertex);
             } else {
-              testGraph->impl_removeVertex(targetVertex);
+              (void)testGraph->impl_removeVertex(targetVertex);
             }
 
             if (testGraph->impl_hasVertex(targetVertex)) {

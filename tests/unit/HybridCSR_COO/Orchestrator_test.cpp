@@ -38,9 +38,9 @@ TEST_F(HybridStorageOrchestratorTest, RebuildFromAdjList) {
 }
 
 TEST_F(HybridStorageOrchestratorTest, MergeBuffer) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 100);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 100);
 
   graph->orchestrator_mergeBuffer();
 
@@ -50,9 +50,9 @@ TEST_F(HybridStorageOrchestratorTest, MergeBuffer) {
 }
 
 TEST_F(HybridStorageOrchestratorTest, ClearAll) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 50);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 50);
 
   graph->orchestrator_clearAll();
 
@@ -63,9 +63,9 @@ TEST_F(HybridStorageOrchestratorTest, ClearAll) {
 }
 
 TEST_F(HybridStorageOrchestratorTest, BuildIfNeeded) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 50); // In COO
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 50); // In COO
 
   graph->orchestrator_buildIfNeeded();
 
@@ -76,13 +76,13 @@ TEST_F(HybridStorageOrchestratorTest, BuildIfNeeded) {
 
 TEST_F(HybridStorageOrchestratorTest, SetCOOThreshold) {
   graph->setCOOThreshold(10);
-  graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(1);
   SUCCEED();
 }
 
 TEST_F(HybridStorageOrchestratorTest, ConcurrentMergeAndAdd) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
 
   std::atomic<bool> done{false};
 
@@ -100,7 +100,7 @@ TEST_F(HybridStorageOrchestratorTest, ConcurrentMergeAndAdd) {
   for (int i = 0; i < NUM_THREADS; ++i) {
     writers.emplace_back([&, i]() {
       for (int j = 0; j < NUM_OPS; ++j) {
-        graph->impl_addEdge(1, 2, j + (i * 1000));
+        (void)graph->impl_addEdge(1, 2, j + (i * 1000));
       }
     });
   }

@@ -46,10 +46,10 @@ protected:
 
 TEST_F(HybridStorageShardTestMT, ConcurrentReads) {
   for (int i = 0; i < 100; ++i) {
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
   }
   for (int i = 0; i < 100; ++i) {
-    graph->impl_addEdge(i, (i + 1) % 100, i * 10);
+    (void)graph->impl_addEdge(i, (i + 1) % 100, i * 10);
   }
 
   std::atomic<bool> stop_flag{false};
@@ -71,13 +71,13 @@ TEST_F(HybridStorageShardTestMT, ConcurrentReads) {
 
 TEST_F(HybridStorageShardTestMT, MixedReadWrite) {
   for (int i = 0; i < 50; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   auto writer = [&]() {
     int counter = 0;
     while (!stop_flag.load()) {
-      graph->impl_addEdge(counter % 50, (counter + 1) % 50, counter);
+      (void)graph->impl_addEdge(counter % 50, (counter + 1) % 50, counter);
       counter++;
     }
   };
@@ -101,14 +101,14 @@ TEST_F(HybridStorageShardTestMT, MixedReadWrite) {
 TEST_F(HybridStorageShardTestMT, StressTestMultipleThreads) {
   const int NUM_THREADS = 8;
   for (int i = 0; i < 500; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   auto worker = [&](int id) {
     for (int i = 0; i < 2000; ++i) {
       int src = (i + id) % 500;
       int dst = (i * 13 + id) % 500;
       if (src != dst)
-        graph->impl_addEdge(src, dst, src + dst);
+        (void)graph->impl_addEdge(src, dst, src + dst);
     }
   };
 
@@ -125,7 +125,7 @@ TEST_F(HybridStorageShardTestMT, StressTestMultipleThreads) {
 
 TEST_F(HybridStorageShardTestMT, ProperRaceDetection) {
   for (int i = 0; i < 10; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> write_counter{0};
@@ -133,7 +133,7 @@ TEST_F(HybridStorageShardTestMT, ProperRaceDetection) {
   auto writer = [&]() {
     while (!stop_flag.load()) {
       int val = write_counter.fetch_add(1);
-      graph->impl_addEdge(0, 1, val);
+      (void)graph->impl_addEdge(0, 1, val);
     }
   };
 
@@ -162,17 +162,17 @@ TEST_F(HybridStorageShardTestMT, ProperRaceDetection) {
 
 TEST_F(HybridStorageShardTestMT, PerformanceRegression) {
   for (int i = 0; i < 2000; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   auto edges = generateTestEdges(2000, 5000);
   for (auto &[src, dst, w] : edges)
-    graph->impl_addEdge(src, dst, w);
+    (void)graph->impl_addEdge(src, dst, w);
 
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < 10000; ++i) {
     int src = i % 2000;
     int dst = (i * 17) % 2000;
-    graph->impl_doesEdgeExist(src, dst);
+    (void)graph->impl_doesEdgeExist(src, dst);
   }
   auto end = std::chrono::high_resolution_clock::now();
   auto duration_ms =
@@ -190,12 +190,12 @@ TEST_F(HybridStorageShardTestMT, ConcurrentVertexAdditionAndRemoval) {
   std::atomic<int> vertex_counter{50};
 
   for (int i = 0; i < 50; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   auto adder = [&]() {
     for (int i = 0; i < NUM_OPERATIONS; ++i) {
       int v = vertex_counter.fetch_add(1);
-      graph->impl_addVertex(v);
+      (void)graph->impl_addVertex(v);
     }
   };
 
@@ -206,7 +206,7 @@ TEST_F(HybridStorageShardTestMT, ConcurrentVertexAdditionAndRemoval) {
 
     for (int i = 0; i < NUM_OPERATIONS; ++i) {
       int v = dis(gen);
-      graph->impl_removeVertex(v);
+      (void)graph->impl_removeVertex(v);
     }
   };
 
@@ -249,9 +249,9 @@ TEST_F(HybridStorageShardTestMT, EdgeUpdateRaceConditions) {
   const int NUM_UPDATES = 1000;
 
   for (int i = 0; i < 10; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
-  graph->impl_addEdge(0, 1, 100);
+  (void)graph->impl_addEdge(0, 1, 100);
 
   std::vector<std::thread> threads;
   std::atomic<int> update_count{0};
@@ -296,7 +296,7 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
   const int NUM_VERTICES = 100;
 
   for (int i = 0; i < NUM_VERTICES; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
@@ -319,19 +319,19 @@ TEST_F(HybridStorageShardTestMT, MixedOperationsStressTest) {
 
       switch (op) {
       case 0:
-        graph->impl_addEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_addEdge(src, dst, weight_dis(gen));
         break;
       case 1:
-        graph->impl_doesEdgeExist(src, dst);
+        (void)graph->impl_doesEdgeExist(src, dst);
         break;
       case 2:
-        graph->impl_getEdge(src, dst);
+        (void)graph->impl_getEdge(src, dst);
         break;
       case 3:
-        graph->impl_updateEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_updateEdge(src, dst, weight_dis(gen));
         break;
       case 4:
-        graph->impl_hasVertex(src);
+        (void)graph->impl_hasVertex(src);
         break;
       }
 
@@ -354,10 +354,10 @@ TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
   const int NUM_THREADS = 4;
 
   for (int i = 0; i < 1000; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   for (int i = 0; i < 5000; ++i)
-    graph->impl_addEdge(i % 1000, (i + 1) % 1000, i);
+    (void)graph->impl_addEdge(i % 1000, (i + 1) % 1000, i);
 
   std::atomic<bool> stop_flag{false};
 
@@ -369,7 +369,7 @@ TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
     while (!stop_flag.load()) {
       int src = dis(gen);
       int dst = dis(gen);
-      graph->impl_getEdge(src, dst);
+      (void)graph->impl_getEdge(src, dst);
     }
   };
 
@@ -384,9 +384,9 @@ TEST_F(HybridStorageShardTestMT, BuildDuringConcurrentAccess) {
       int dst = vertex_dis(gen);
 
       if (src != dst) {
-        graph->impl_addVertex(src);
-        graph->impl_addVertex(dst);
-        graph->impl_addEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_addVertex(src);
+        (void)graph->impl_addVertex(dst);
+        (void)graph->impl_addEdge(src, dst, weight_dis(gen));
       }
     }
   };
@@ -412,10 +412,10 @@ TEST_F(HybridStorageShardTestMT, ClearEdgesUnderLoad) {
   const int NUM_THREADS = 4;
 
   for (int i = 0; i < 100; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   for (int i = 0; i < 500; ++i)
-    graph->impl_addEdge(i % 100, (i + 1) % 100, i);
+    (void)graph->impl_addEdge(i % 100, (i + 1) % 100, i);
 
   std::atomic<bool> stop_flag{false};
 
@@ -427,14 +427,14 @@ TEST_F(HybridStorageShardTestMT, ClearEdgesUnderLoad) {
     while (!stop_flag.load()) {
       int src = dis(gen);
       int dst = dis(gen);
-      graph->impl_getEdge(src, dst);
+      (void)graph->impl_getEdge(src, dst);
     }
   };
 
   auto clear_edges = [&]() {
     for (int i = 0; i < 5; ++i) {
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      graph->impl_clearEdges();
+      (void)graph->impl_clearEdges();
     }
   };
 
@@ -458,9 +458,9 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
   const int NUM_THREADS = 4;
   const int NUM_OPERATIONS = 1000;
 
-  string_graph->impl_addVertex("vertex0");
-  string_graph->impl_addVertex("vertex1");
-  string_graph->impl_addVertex("vertex2");
+  (void)string_graph->impl_addVertex("vertex0");
+  (void)string_graph->impl_addVertex("vertex1");
+  (void)string_graph->impl_addVertex("vertex2");
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
@@ -485,7 +485,7 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
         int src_idx = vertex_dis(gen);
         int dst_idx = vertex_dis(gen);
         if (src_idx != dst_idx) {
-          string_graph->impl_addEdge(vertices[src_idx], vertices[dst_idx],
+          (void)string_graph->impl_addEdge(vertices[src_idx], vertices[dst_idx],
                                      weight_dis(gen));
         }
         break;
@@ -493,14 +493,14 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
       case 1: {
         int src_idx = vertex_dis(gen);
         int dst_idx = vertex_dis(gen);
-        string_graph->impl_getEdge(vertices[src_idx], vertices[dst_idx]);
+        (void)string_graph->impl_getEdge(vertices[src_idx], vertices[dst_idx]);
         break;
       }
       case 2:
-        string_graph->impl_addVertex(new_vertices[new_vertex_dis(gen)]);
+        (void)string_graph->impl_addVertex(new_vertices[new_vertex_dis(gen)]);
         break;
       case 3:
-        string_graph->impl_hasVertex(vertices[vertex_dis(gen)]);
+        (void)string_graph->impl_hasVertex(vertices[vertex_dis(gen)]);
         break;
       }
 
@@ -525,7 +525,7 @@ TEST_F(HybridStorageShardTestMT, MemoryConsistencyAfterConcurrentOperations) {
   const int NUM_VERTICES = 20;
 
   for (int i = 0; i < NUM_VERTICES; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   auto worker = [&](int thread_id) {
     std::random_device rd;
@@ -544,10 +544,10 @@ TEST_F(HybridStorageShardTestMT, MemoryConsistencyAfterConcurrentOperations) {
 
       switch (op_dis(gen)) {
       case 0:
-        graph->impl_addEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_addEdge(src, dst, weight_dis(gen));
         break;
       case 1:
-        graph->impl_updateEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_updateEdge(src, dst, weight_dis(gen));
         break;
       }
     }
@@ -572,9 +572,9 @@ TEST_F(HybridStorageShardTestMT, HighContentionOnSingleVertex) {
   const int NUM_THREADS = 8;
   const int NUM_OPERATIONS = 2000;
 
-  graph->impl_addVertex(0);
-  graph->impl_addVertex(1);
-  graph->impl_addEdge(0, 1, 100);
+  (void)graph->impl_addVertex(0);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addEdge(0, 1, 100);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> success_count{0};
@@ -595,13 +595,13 @@ TEST_F(HybridStorageShardTestMT, HighContentionOnSingleVertex) {
         }
         break;
       case 1:
-        graph->impl_getEdge(0, 1);
+        (void)graph->impl_getEdge(0, 1);
         break;
       case 2:
-        graph->impl_doesEdgeExist(0, 1);
+        (void)graph->impl_doesEdgeExist(0, 1);
         break;
       case 3:
-        graph->impl_addEdge(0, 1, weight_dis(gen));
+        (void)graph->impl_addEdge(0, 1, weight_dis(gen));
         break;
       }
     }
@@ -627,7 +627,7 @@ TEST_F(HybridStorageShardTestMT, LongRunningStressTest) {
   const int DURATION_MS = 5000;
 
   for (int i = 0; i < 100; ++i)
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
 
   std::atomic<bool> stop_flag{false};
   std::atomic<int> operations_count{0};
@@ -652,19 +652,19 @@ TEST_F(HybridStorageShardTestMT, LongRunningStressTest) {
 
       switch (op) {
       case 0:
-        graph->impl_addEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_addEdge(src, dst, weight_dis(gen));
         break;
       case 1:
-        graph->impl_getEdge(src, dst);
+        (void)graph->impl_getEdge(src, dst);
         break;
       case 2:
-        graph->impl_updateEdge(src, dst, weight_dis(gen));
+        (void)graph->impl_updateEdge(src, dst, weight_dis(gen));
         break;
       case 3:
-        graph->impl_hasVertex(src);
+        (void)graph->impl_hasVertex(src);
         break;
       case 4:
-        graph->impl_doesEdgeExist(src, dst);
+        (void)graph->impl_doesEdgeExist(src, dst);
         break;
       }
 
