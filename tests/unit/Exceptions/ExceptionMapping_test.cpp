@@ -77,7 +77,8 @@ TEST(ExceptionTest, UnimplementedException_Format) {
 
 TEST(ExceptionTest, AlreadyExistsException_Format) {
   AlreadyExistsException ex("graph already exists");
-  EXPECT_EQ(std::string(ex.what()), "Resource already exists: graph already exists");
+  EXPECT_EQ(std::string(ex.what()),
+            "Resource already exists: graph already exists");
   EXPECT_EQ(ex.errorCode(), ErrorCode::AlreadyExists);
 }
 
@@ -91,73 +92,94 @@ TEST(ExceptionTest, UnknownException_Format) {
 // ---------------------------------------------------------------------------
 
 TEST(ExceptionTest, HandleExceptionMap_OK_DoesNotThrow) {
-  EXPECT_NO_THROW(
-      Exceptions::handle_exception_map(PeakStatus::OK()));
+  EXPECT_NO_THROW(Exceptions::handle_exception_map(PeakStatus::OK()));
 }
 
 TEST(ExceptionTest, HandleExceptionMap_NotFound_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(PeakStatus::NotFound("vertex")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::NotFound("vertex"), "",
+                                         true);
+      },
       NotFoundException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_Unimplemented_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(PeakStatus::Unimplemented("batch")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::Unimplemented("batch"), "",
+                                         true);
+      },
       UnimplementedException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_AlreadyExists_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(PeakStatus::AlreadyExists("graph")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::AlreadyExists("graph"), "",
+                                         true);
+      },
       AlreadyExistsException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_VertexAlreadyExists_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(
-            PeakStatus::VertexAlreadyExists("id=1")); },
+      {
+        Exceptions::handle_exception_map(
+            PeakStatus::VertexAlreadyExists("id=1"), "", true);
+      },
       VertexAlreadyExistsException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_VertexNotFound_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(
-            PeakStatus::VertexNotFound("id=42")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::VertexNotFound("id=42"),
+                                         "", true);
+      },
       VertexNotFoundException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_EdgeAlreadyExists_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(
-            PeakStatus::EdgeAlreadyExists("(1,2)")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::EdgeAlreadyExists("(1,2)"),
+                                         "", true);
+      },
       EdgeAlreadyExistsException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_EdgeNotFound_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(PeakStatus::EdgeNotFound("(3,4)")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::EdgeNotFound("(3,4)"), "",
+                                         true);
+      },
       EdgeNotFoundException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_InvalidArgument_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(
-            PeakStatus::InvalidArgument("bad input")); },
+      {
+        Exceptions::handle_exception_map(
+            PeakStatus::InvalidArgument("bad input"), "", true);
+      },
       InvalidArgumentException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_InternalError_Throws) {
   EXPECT_THROW(
-      { Exceptions::handle_exception_map(
-            PeakStatus::InternalError("oops")); },
+      {
+        Exceptions::handle_exception_map(PeakStatus::InternalError("oops"), "",
+                                         true);
+      },
       InternalErrorException);
 }
 
 TEST(ExceptionTest, HandleExceptionMap_CarriesContext) {
   try {
     Exceptions::handle_exception_map(PeakStatus::VertexNotFound("id=7"),
-                                     "removeVertex");
+                                     "removeVertex", true);
   } catch (const VertexNotFoundException &ex) {
     std::string msg = ex.what();
     EXPECT_TRUE(msg.find("removeVertex") != std::string::npos);
@@ -169,7 +191,7 @@ TEST(ExceptionTest, HandleExceptionMap_CarriesContext) {
 TEST(ExceptionTest, HandleExceptionMap_ContextWithoutMessage) {
   try {
     Exceptions::handle_exception_map(PeakStatus::VertexAlreadyExists(),
-                                     "addVertex");
+                                     "addVertex", true);
   } catch (const VertexAlreadyExistsException &ex) {
     std::string msg = ex.what();
     EXPECT_TRUE(msg.find("addVertex") != std::string::npos);
@@ -179,8 +201,8 @@ TEST(ExceptionTest, HandleExceptionMap_ContextWithoutMessage) {
 
 TEST(ExceptionTest, HandleExceptionMap_EmptyStatusMessage) {
   try {
-    Exceptions::handle_exception_map(
-        PeakStatus(StatusCode::INTERNAL_ERROR, ""), "process");
+    Exceptions::handle_exception_map(PeakStatus(StatusCode::INTERNAL_ERROR, ""),
+                                     "process", true);
   } catch (const InternalErrorException &ex) {
     std::string msg = ex.what();
     EXPECT_TRUE(msg.find("process") != std::string::npos);
@@ -194,12 +216,14 @@ TEST(ExceptionTest, HandleExceptionMap_EmptyStatusMessage) {
 TEST(ErrorCodeTest, ToErrorCode_Conversion) {
   EXPECT_EQ(toErrorCode(StatusCode::OK), ErrorCode::None);
   EXPECT_EQ(toErrorCode(StatusCode::NOT_FOUND), ErrorCode::NotFound);
-  EXPECT_EQ(toErrorCode(StatusCode::INVALID_ARGUMENT), ErrorCode::InvalidArgument);
+  EXPECT_EQ(toErrorCode(StatusCode::INVALID_ARGUMENT),
+            ErrorCode::InvalidArgument);
   EXPECT_EQ(toErrorCode(StatusCode::VERTEX_ALREADY_EXISTS),
             ErrorCode::VertexAlreadyExists);
   EXPECT_EQ(toErrorCode(StatusCode::INTERNAL_ERROR), ErrorCode::InternalError);
   EXPECT_EQ(toErrorCode(StatusCode::EDGE_NOT_FOUND), ErrorCode::EdgeNotFound);
-  EXPECT_EQ(toErrorCode(StatusCode::VERTEX_NOT_FOUND), ErrorCode::VertexNotFound);
+  EXPECT_EQ(toErrorCode(StatusCode::VERTEX_NOT_FOUND),
+            ErrorCode::VertexNotFound);
   EXPECT_EQ(toErrorCode(StatusCode::UNIMPLEMENTED), ErrorCode::Unimplemented);
   EXPECT_EQ(toErrorCode(StatusCode::ALREADY_EXISTS), ErrorCode::AlreadyExists);
   EXPECT_EQ(toErrorCode(StatusCode::EDGE_ALREADY_EXISTS),

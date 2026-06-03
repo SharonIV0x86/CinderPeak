@@ -203,14 +203,15 @@ inline std::string contextMsg(const PeakStatus &status,
 }
 
 inline void handle_exception_map(const PeakStatus &status,
-                                 const std::string &operation = "") {
-  if (status.isOK())
+                                 const std::string &operation = "",
+                                 bool shouldThrow = false) {
+  if (status.isOK() || !shouldThrow)
     return;
 
   std::string base = status.message();
-  std::string msg =
-      base.empty() ? (operation.empty() ? "Operation failed" : operation)
-                   : (operation.empty() ? base : operation + ": " + base);
+  std::string msg = base.empty()
+                        ? (operation.empty() ? "Operation failed" : operation)
+                        : (operation.empty() ? base : operation + ": " + base);
 
   switch (status.code()) {
   case StatusCode::NOT_FOUND:

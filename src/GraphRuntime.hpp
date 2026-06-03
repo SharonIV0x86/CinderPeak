@@ -28,6 +28,10 @@ public:
     throwExceptions.store(toggle, std::memory_order_relaxed);
   }
 
+  bool getThrowExceptions() const {
+    return throwExceptions.load(std::memory_order_relaxed);
+  }
+
   void setFileLogging(const std::string &path) {
     {
       std::lock_guard<std::mutex> lock(fileMutex);

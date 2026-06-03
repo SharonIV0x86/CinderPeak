@@ -161,7 +161,9 @@ public:
     auto resp = peak_store->addVertex(v);
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in addVertex");
-      Exceptions::handle_exception_map(resp, "Cannot add vertex");
+      Exceptions::handle_exception_map(
+          resp, "Cannot add vertex",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return {v, false};
     }
     peak_store->log(LogLevel::INFO, "API: addVertex completed successfully");
@@ -184,7 +186,9 @@ public:
     auto resp = peak_store->removeVertex(v);
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in removeVertex");
-      Exceptions::handle_exception_map(resp, "Cannot remove vertex");
+      Exceptions::handle_exception_map(
+          resp, "Cannot remove vertex",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return false;
     }
     peak_store->log(LogLevel::INFO, "API: removeVertex completed successfully");
@@ -212,7 +216,9 @@ public:
     auto [data, status] = peak_store->removeEdge(src, dest);
     if (!status.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in removeEdge");
-      Exceptions::handle_exception_map(status, "Cannot remove edge");
+      Exceptions::handle_exception_map(
+          status, "Cannot remove edge",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return {std::nullopt, false};
     }
     peak_store->log(LogLevel::INFO, "API: removeEdge completed successfully");
@@ -232,7 +238,9 @@ public:
     auto resp = peak_store->clearVertices();
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in clearVertices");
-      Exceptions::handle_exception_map(resp, "Cannot clear vertices");
+      Exceptions::handle_exception_map(
+          resp, "Cannot clear vertices",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return;
     }
     peak_store->log(LogLevel::INFO,
@@ -251,7 +259,9 @@ public:
     auto resp = peak_store->clearEdges();
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in clearEdges");
-      Exceptions::handle_exception_map(resp, "Cannot clear edges");
+      Exceptions::handle_exception_map(
+          resp, "Cannot clear edges",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return;
     }
     peak_store->log(LogLevel::INFO, "API: clearEdges completed successfully");
@@ -296,7 +306,9 @@ public:
     auto resp = peak_store->addEdge(src, dest);
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in addEdge (unweighted)");
-      Exceptions::handle_exception_map(resp, "Cannot add unweighted edge");
+      Exceptions::handle_exception_map(
+          resp, "Cannot add unweighted edge",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return {{src, dest}, false};
     }
     peak_store->log(LogLevel::INFO,
@@ -333,7 +345,9 @@ public:
     auto resp = peak_store->addEdge(src, dest, weight);
     if (!resp.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in addEdge (weighted)");
-      Exceptions::handle_exception_map(resp, "Cannot add weighted edge");
+      Exceptions::handle_exception_map(
+          resp, "Cannot add weighted edge",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return {{src, dest, weight}, false};
     }
     peak_store->log(LogLevel::INFO,
@@ -366,7 +380,9 @@ public:
     auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
     if (!status.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in updateEdge");
-      Exceptions::handle_exception_map(status, "Cannot update edge");
+      Exceptions::handle_exception_map(
+          status, "Cannot update edge",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return {newWeight, false};
     }
     peak_store->log(LogLevel::INFO, "API: updateEdge completed successfully");
@@ -388,7 +404,9 @@ public:
                                   const VertexType &dest) {
     auto [data, status] = peak_store->getEdge(src, dest);
     if (!status.isOK()) {
-      Exceptions::handle_exception_map(status, "Cannot get edge");
+      Exceptions::handle_exception_map(
+          status, "Cannot get edge",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return std::nullopt;
     }
     return data;
@@ -417,7 +435,9 @@ public:
     auto [neighbors, status] = peak_store->getNeighbors(v);
     if (!status.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in getNeighbors");
-      Exceptions::handle_exception_map(status, "Cannot get neighbors");
+      Exceptions::handle_exception_map(
+          status, "Cannot get neighbors",
+          peak_store->getContext()->runtime->getThrowExceptions());
       return {};
     }
     peak_store->log(LogLevel::INFO, "API: getNeighbors completed successfully");
