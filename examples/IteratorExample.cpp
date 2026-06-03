@@ -2,8 +2,8 @@
 #include <iostream>
 
 int main() {
-  CinderPeak::CinderGraph<int, int> g(
-      CinderPeak::GraphCreationOptions({CinderPeak::GraphCreationOptions::Directed}));
+  CinderPeak::CinderGraph<int, int> g(CinderPeak::GraphCreationOptions(
+      {CinderPeak::GraphCreationOptions::Directed}));
 
   g.addVertex(1);
   g.addVertex(2);
