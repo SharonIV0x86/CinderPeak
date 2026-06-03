@@ -486,7 +486,7 @@ TEST_F(HybridStorageShardTestMT, StringTypeConcurrency) {
         int dst_idx = vertex_dis(gen);
         if (src_idx != dst_idx) {
           (void)string_graph->impl_addEdge(vertices[src_idx], vertices[dst_idx],
-                                     weight_dis(gen));
+                                           weight_dis(gen));
         }
         break;
       }
