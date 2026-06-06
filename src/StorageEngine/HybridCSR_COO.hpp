@@ -568,6 +568,7 @@ public:
   [[nodiscard]] std::vector<VertexType> impl_getVertices() const override {
     std::shared_lock<std::shared_mutex> lock(_mtx);
     std::vector<VertexType> result;
+    result.reserve(vertex_order.size());
     for (size_t i = 0; i < vertex_order.size(); ++i) {
       if (!_tombstoned.count(i)) {
         result.push_back(vertex_order[i]);
