@@ -248,3 +248,21 @@ TEST_F(GraphStatisticsTest, NumEdgesWithEdges) {
   graph.addEdge(3, 4, 30);
   EXPECT_EQ(graph.numEdges(), 3);
 }
+
+TEST_F(GraphStatisticsTest, UndirectedCompleteGraphDensity) {
+  GraphCreationOptions opts({GraphCreationOptions::Undirected});
+  CinderGraph<int, int> graph(opts);
+
+  graph.addVertex(1);
+  graph.addVertex(2);
+  graph.addVertex(3);
+
+  graph.addEdge(1, 2, 10);
+  graph.addEdge(2, 3, 10);
+  graph.addEdge(3, 1, 10);
+
+  std::string stats = graph.getGraphStatistics();
+  displayStats("Undirected Complete Graph Density", stats);
+
+  EXPECT_NE(stats.find("Density: 1.00"), std::string::npos);
+}
