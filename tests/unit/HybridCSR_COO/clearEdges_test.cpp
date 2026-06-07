@@ -23,7 +23,7 @@ protected:
 TEST_F(HybridStorageShardTest, ClearEdges_Basic) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {
-    graph->impl_addVertex(v);
+    (void)graph->impl_addVertex(v);
   }
   EXPECT_TRUE(graph->impl_addEdge(1, 2).isOK()) << "Failed to add edge (1,2)";
   EXPECT_TRUE(graph->impl_addEdge(2, 3).isOK()) << "Failed to add edge (2,3)";
@@ -54,9 +54,9 @@ TEST_F(HybridStorageShardTest, ClearEdges_EmptyGraph) {
 
 // Test clearing edges in string graph
 TEST_F(HybridStorageShardTest, ClearEdges_String) {
-  string_graph->impl_addVertex("prasad");
-  string_graph->impl_addVertex("omkar");
-  string_graph->impl_addEdge("prasad", "omkar", 1.5);
+  (void)string_graph->impl_addVertex("prasad");
+  (void)string_graph->impl_addVertex("omkar");
+  (void)string_graph->impl_addEdge("prasad", "omkar", 1.5);
   EXPECT_TRUE(string_graph->impl_clearEdges().isOK())
       << "Failed to clear string edges";
   EXPECT_FALSE(string_graph->impl_doesEdgeExist("prasad", "omkar"))
