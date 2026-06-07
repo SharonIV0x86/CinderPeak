@@ -22,9 +22,9 @@ protected:
 
 // Test removing a valid vertex with edges
 TEST_F(HybridStorageShardTest, RemoveVertex_Valid) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 10);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 10);
   auto status = graph->impl_removeVertex(1);
   EXPECT_TRUE(status.isOK()) << "Failed to remove vertex 1";
   EXPECT_FALSE(graph->impl_hasVertex(1)) << "Vertex 1 still exists";
@@ -40,12 +40,12 @@ TEST_F(HybridStorageShardTest, RemoveVertex_NonExistent) {
 
 // Test removing a vertex with multiple edges
 TEST_F(HybridStorageShardTest, RemoveVertex_WithMultipleEdges) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addVertex(3);
-  graph->impl_addEdge(1, 2, 10);
-  graph->impl_addEdge(1, 3, 20);
-  graph->impl_addEdge(2, 1, 15);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(3);
+  (void)graph->impl_addEdge(1, 2, 10);
+  (void)graph->impl_addEdge(1, 3, 20);
+  (void)graph->impl_addEdge(2, 1, 15);
   auto status = graph->impl_removeVertex(1);
   EXPECT_TRUE(status.isOK()) << "Failed to remove vertex 1";
   EXPECT_FALSE(graph->impl_hasVertex(1)) << "Vertex 1 still exists";
@@ -56,9 +56,9 @@ TEST_F(HybridStorageShardTest, RemoveVertex_WithMultipleEdges) {
 
 // Test removing a string vertex
 TEST_F(HybridStorageShardTest, RemoveVertex_String) {
-  string_graph->impl_addVertex("prasad");
-  string_graph->impl_addVertex("omkar");
-  string_graph->impl_addEdge("prasad", "omkar", 1.5);
+  (void)string_graph->impl_addVertex("prasad");
+  (void)string_graph->impl_addVertex("omkar");
+  (void)string_graph->impl_addEdge("prasad", "omkar", 1.5);
   auto status = string_graph->impl_removeVertex("prasad");
   EXPECT_TRUE(status.isOK()) << "Failed to remove string vertex";
   EXPECT_FALSE(string_graph->impl_hasVertex("prasad"))
@@ -69,8 +69,8 @@ TEST_F(HybridStorageShardTest, RemoveVertex_String) {
 
 // Test concurrent vertex removal
 TEST_F(HybridStorageShardTest, RemoveVertex_Concurrent) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
   std::vector<std::thread> threads;
   threads.emplace_back([this]() {
     auto status = graph->impl_removeVertex(1);

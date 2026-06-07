@@ -24,7 +24,7 @@ protected:
 TEST_F(HybridStorageShardTest, UpdateEdge_Basic) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {
-    graph->impl_addVertex(v);
+    (void)graph->impl_addVertex(v);
   }
   EXPECT_TRUE(graph->impl_addEdge(1, 2, 10).isOK())
       << "Failed to add edge (1,2)";
@@ -48,16 +48,16 @@ TEST_F(HybridStorageShardTest, UpdateEdge_Basic) {
 
 // Test updating non-existent edge
 TEST_F(HybridStorageShardTest, UpdateEdge_NonExistent) {
-  graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(1);
   EXPECT_FALSE(graph->impl_updateEdge(1, 2, 10).isOK())
       << "Updated non-existent edge";
 }
 
 // Test updating edge in string graph
 TEST_F(HybridStorageShardTest, UpdateEdge_String) {
-  string_graph->impl_addVertex("prasad");
-  string_graph->impl_addVertex("omkar");
-  string_graph->impl_addEdge("prasad", "omkar", 1.5);
+  (void)string_graph->impl_addVertex("prasad");
+  (void)string_graph->impl_addVertex("omkar");
+  (void)string_graph->impl_addEdge("prasad", "omkar", 1.5);
   EXPECT_TRUE(string_graph->impl_updateEdge("prasad", "omkar", 2.0).isOK())
       << "Failed to update string edge";
   auto [weight, status] = string_graph->impl_getEdge("prasad", "omkar");
@@ -67,9 +67,9 @@ TEST_F(HybridStorageShardTest, UpdateEdge_String) {
 
 // Test concurrent edge updates
 TEST_F(HybridStorageShardTest, UpdateEdge_Concurrent) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 10);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 10);
   std::vector<std::thread> threads;
   const int NUM_THREADS = 5;
   for (int i = 0; i < NUM_THREADS; ++i) {
