@@ -134,11 +134,9 @@ public:
       return;
     }
     auto max_edges = static_cast<float>(num_vertices * (num_vertices - 1));
-    auto directed_density = static_cast<float>(num_edges) / max_edges;
-    if (directed)
-      density = directed_density;
-    else
-      density = 2 * directed_density;
+    // num_edges naturally stores 2E for undirected graphs,
+    // making the math self-correcting
+    density = static_cast<float>(num_edges) / max_edges;
   }
 
   std::string getGraphStatistics(bool directed) {
