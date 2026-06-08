@@ -52,7 +52,7 @@ TEST_F(HybridCSRCOOPerformanceTest, VertexInsertionPerformance) {
   const int NUM_VERTICES = 50000;
   auto insertion_func = [&]() {
     for (int i = 0; i < NUM_VERTICES; ++i) {
-      graph->impl_addVertex(i);
+      (void)graph->impl_addVertex(i);
     }
   };
   measureTime(insertion_func, "50K Vertex Insertion");
@@ -71,12 +71,12 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeInsertionPerformance) {
   const int NUM_VERTICES = 5000;
   const int NUM_EDGES = 25000;
   for (int i = 0; i < NUM_VERTICES; ++i) {
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
   }
   auto edges = generateTestEdges(NUM_VERTICES, NUM_EDGES);
   auto insertion_func = [&]() {
     for (const auto &[src, dest, weight] : edges) {
-      graph->impl_addEdge(src, dest, weight);
+      (void)graph->impl_addEdge(src, dest, weight);
     }
   };
   measureTime(insertion_func, "25K Edge Insertion");
@@ -96,11 +96,11 @@ TEST_F(HybridCSRCOOPerformanceTest, EdgeRetrievalPerformance) {
   const int NUM_EDGES = 10000;
   const int NUM_QUERIES = 50000;
   for (int i = 0; i < NUM_VERTICES; ++i) {
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
   }
   auto edges = generateTestEdges(NUM_VERTICES, NUM_EDGES);
   for (const auto &[src, dest, weight] : edges) {
-    graph->impl_addEdge(src, dest, weight);
+    (void)graph->impl_addEdge(src, dest, weight);
   }
   std::vector<std::pair<int, int>> queries;
   std::mt19937 gen(123);
@@ -133,11 +133,11 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
   const int INITIAL_EDGES = 5000;
   const int OPERATIONS = 10000;
   for (int i = 0; i < NUM_VERTICES; ++i) {
-    graph->impl_addVertex(i);
+    (void)graph->impl_addVertex(i);
   }
   auto initial_edges = generateTestEdges(NUM_VERTICES, INITIAL_EDGES);
   for (const auto &[src, dest, weight] : initial_edges) {
-    graph->impl_addEdge(src, dest, weight);
+    (void)graph->impl_addEdge(src, dest, weight);
   }
   auto mixed_func = [&]() {
     std::mt19937 gen(456);
@@ -149,13 +149,13 @@ TEST_F(HybridCSRCOOPerformanceTest, MixedOperationsPerformance) {
       int src = vertex_dis(gen);
       int dest = vertex_dis(gen);
       if (op == 0 && src != dest) {
-        graph->impl_addEdge(src, dest, src * 1000 + dest + i);
+        (void)graph->impl_addEdge(src, dest, src * 1000 + dest + i);
         adds++;
       } else if (op == 1) {
         auto [weight, status] = graph->impl_getEdge(src, dest);
         queries++;
       } else {
-        graph->impl_doesEdgeExist(src, dest);
+        (void)graph->impl_doesEdgeExist(src, dest);
         checks++;
       }
     }

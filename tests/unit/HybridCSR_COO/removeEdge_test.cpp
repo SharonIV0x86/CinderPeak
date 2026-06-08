@@ -23,9 +23,9 @@ protected:
 
 // Test removing edges with weights
 TEST_F(HybridStorageShardTest, RemoveEdge_WithWeight) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addVertex(3);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(3);
   EXPECT_TRUE(graph->impl_addEdge(1, 2, 5).isOK())
       << "Failed to add edge (1,2)";
   EXPECT_TRUE(graph->impl_addEdge(2, 3, 10).isOK())
@@ -50,9 +50,9 @@ TEST_F(HybridStorageShardTest, RemoveEdge_WithWeight) {
 
 // Test removing edges without weights
 TEST_F(HybridStorageShardTest, RemoveEdge_WithoutWeight) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addVertex(3);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(3);
   EXPECT_TRUE(graph->impl_addEdge(1, 2).isOK()) << "Failed to add edge (1,2)";
   EXPECT_TRUE(graph->impl_addEdge(2, 3).isOK()) << "Failed to add edge (2,3)";
   auto edge1 = graph->impl_getEdge(1, 2);
@@ -73,9 +73,9 @@ TEST_F(HybridStorageShardTest, RemoveEdge_WithoutWeight) {
 
 // Test removing edges in string graph
 TEST_F(HybridStorageShardTest, RemoveEdge_String) {
-  string_graph->impl_addVertex("prasad");
-  string_graph->impl_addVertex("omkar");
-  string_graph->impl_addEdge("prasad", "omkar", 1.5);
+  (void)string_graph->impl_addVertex("prasad");
+  (void)string_graph->impl_addVertex("omkar");
+  (void)string_graph->impl_addEdge("prasad", "omkar", 1.5);
   auto result = string_graph->impl_removeEdge("prasad", "omkar");
   EXPECT_TRUE(result.second.isOK()) << "Failed to remove string edge";
   EXPECT_DOUBLE_EQ(result.first, 1.5) << "Incorrect weight returned";
@@ -85,9 +85,9 @@ TEST_F(HybridStorageShardTest, RemoveEdge_String) {
 
 // Test concurrent edge removal
 TEST_F(HybridStorageShardTest, RemoveEdge_Concurrent) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 10);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 10);
   std::vector<std::thread> threads;
   const int NUM_THREADS = 5;
   std::atomic<int> success_count{0};

@@ -43,7 +43,7 @@ protected:
 TEST_F(HybridStorageShardTest, AddEdge_Basic) {
   std::vector<int> vertices = {1, 2, 3, 4, 5};
   for (int v : vertices) {
-    graph->impl_addVertex(v);
+    (void)graph->impl_addVertex(v);
   }
   EXPECT_TRUE(graph->impl_addEdge(1, 2, 10).isOK())
       << "Failed to add edge (1,2)";
@@ -65,7 +65,7 @@ TEST_F(HybridStorageShardTest, AddEdge_Basic) {
 
 // Test adding edges with non-existent vertices
 TEST_F(HybridStorageShardTest, AddEdge_NonExistentVertices) {
-  graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(1);
   EXPECT_FALSE(graph->impl_addEdge(99, 1, 10).isOK())
       << "Added edge with non-existent source";
   EXPECT_FALSE(graph->impl_addEdge(1, 99, 10).isOK())
@@ -76,8 +76,8 @@ TEST_F(HybridStorageShardTest, AddEdge_NonExistentVertices) {
 
 // Test adding edges with negative weights
 TEST_F(HybridStorageShardTest, AddEdge_NegativeWeights) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
   EXPECT_TRUE(graph->impl_addEdge(1, 2, -100).isOK())
       << "Failed to add edge with negative weight";
   auto [weight, status] = graph->impl_getEdge(1, 2);
@@ -87,8 +87,8 @@ TEST_F(HybridStorageShardTest, AddEdge_NegativeWeights) {
 
 // Test adding edges with zero weights
 TEST_F(HybridStorageShardTest, AddEdge_ZeroWeights) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
   EXPECT_TRUE(graph->impl_addEdge(1, 2, 0).isOK())
       << "Failed to add edge with zero weight";
   auto [weight, status] = graph->impl_getEdge(1, 2);
@@ -98,14 +98,14 @@ TEST_F(HybridStorageShardTest, AddEdge_ZeroWeights) {
 
 // Test COO buffer priority (multiple edges)
 TEST_F(HybridStorageShardTest, AddEdge_COOBufferPriority) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 100);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 100);
   for (int i = 3; i < 1027; ++i) {
-    graph->impl_addVertex(i);
-    graph->impl_addEdge(1, i, i);
+    (void)graph->impl_addVertex(i);
+    (void)graph->impl_addEdge(1, i, i);
   }
-  graph->impl_addEdge(1, 2, 999);
+  (void)graph->impl_addEdge(1, 2, 999);
   auto [weight, status] = graph->impl_getEdge(1, 2);
   EXPECT_TRUE(status.isOK()) << "Edge (1,2) not found";
   EXPECT_EQ(weight, 999) << "Incorrect weight after COO buffer priority";
@@ -113,11 +113,11 @@ TEST_F(HybridStorageShardTest, AddEdge_COOBufferPriority) {
 
 // Test COO buffer overwrite
 TEST_F(HybridStorageShardTest, AddEdge_COOBufferOverwrite) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
-  graph->impl_addEdge(1, 2, 10);
-  graph->impl_addEdge(1, 2, 20);
-  graph->impl_addEdge(1, 2, 30);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
+  (void)graph->impl_addEdge(1, 2, 10);
+  (void)graph->impl_addEdge(1, 2, 20);
+  (void)graph->impl_addEdge(1, 2, 30);
   auto [weight, status] = graph->impl_getEdge(1, 2);
   EXPECT_TRUE(status.isOK()) << "Edge (1,2) not found";
   EXPECT_EQ(weight, 30) << "Incorrect weight after overwrite";
@@ -125,9 +125,9 @@ TEST_F(HybridStorageShardTest, AddEdge_COOBufferOverwrite) {
 
 // Test adding edges with string vertices
 TEST_F(HybridStorageShardTest, AddEdge_String) {
-  string_graph->impl_addVertex("prasad");
-  string_graph->impl_addVertex("omkar");
-  string_graph->impl_addVertex("tejas");
+  (void)string_graph->impl_addVertex("prasad");
+  (void)string_graph->impl_addVertex("omkar");
+  (void)string_graph->impl_addVertex("tejas");
   EXPECT_TRUE(string_graph->impl_addEdge("prasad", "omkar", 1.5).isOK())
       << "Failed to add string edge";
   EXPECT_TRUE(string_graph->impl_addEdge("omkar", "tejas", 2.7).isOK())
@@ -141,8 +141,8 @@ TEST_F(HybridStorageShardTest, AddEdge_String) {
 
 // Test concurrent edge addition
 TEST_F(HybridStorageShardTest, AddEdge_Concurrent) {
-  graph->impl_addVertex(1);
-  graph->impl_addVertex(2);
+  (void)graph->impl_addVertex(1);
+  (void)graph->impl_addVertex(2);
   std::vector<std::thread> threads;
   const int NUM_THREADS = 5;
   for (int i = 0; i < NUM_THREADS; ++i) {
