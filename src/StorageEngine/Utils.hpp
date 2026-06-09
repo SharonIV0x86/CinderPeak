@@ -191,21 +191,70 @@ inline size_t CinderVertex::nextId = 1;
 inline size_t CinderEdge::nextId = 1;
 
 namespace Exceptions {
-inline void handle_exception_map(const PeakStatus &status) {
-  switch (static_cast<int>(status.code())) {
-  case static_cast<int>(StatusCode::NOT_FOUND):
+
+// Pass runtime so we can check throwExceptions flag
+inline void handle_exception_map(const PeakStatus &status,
+                                 const GraphRuntime *runtime = nullptr) {
+  bool shouldThrow = runtime && runtime->shouldThrowExceptions();
+
+  using namespace PeakExceptions;
+
+  switch (status.code()) {
+
+  case StatusCode::VERTEX_ALREADY_EXISTS:
+    if (shouldThrow)
+      throw VertexAlreadyExistsException(status.message());
+    Logger::log(LogLevel::ERROR, "Vertex already exists: " + status.message(),
+                true, false, "");
     break;
-  case static_cast<int>(StatusCode::UNIMPLEMENTED):
+
+  case StatusCode::VERTEX_NOT_FOUND:
+    if (shouldThrow)
+      throw VertexNotFoundException(status.message());
+    Logger::log(LogLevel::ERROR, "Vertex not found: " + status.message(), true,
+                false, "");
     break;
-  case static_cast<int>(StatusCode::ALREADY_EXISTS):
+
+  case StatusCode::EDGE_NOT_FOUND:
+    if (shouldThrow)
+      throw EdgeNotFoundException(status.message());
+    Logger::log(LogLevel::ERROR, "Edge not found: " + status.message(), true,
+                false, "");
     break;
-  case static_cast<int>(StatusCode::VERTEX_ALREADY_EXISTS):
+
+  case StatusCode::EDGE_ALREADY_EXISTS:
+    if (shouldThrow)
+      throw EdgeAlreadyExistsException(status.message());
+    Logger::log(LogLevel::ERROR, "Edge already exists: " + status.message(),
+                true, false, "");
     break;
-  case static_cast<int>(StatusCode::VERTEX_NOT_FOUND):
+
+  case StatusCode::INVALID_ARGUMENT:
+    if (shouldThrow)
+      throw InvalidArgumentException(status.message());
+    Logger::log(LogLevel::ERROR, "Invalid argument: " + status.message(), true,
+                false, "");
     break;
-  case static_cast<int>(StatusCode::EDGE_ALREADY_EXISTS):
+
+  case StatusCode::INTERNAL_ERROR:
+    if (shouldThrow)
+      throw InternalErrorException(status.message());
+    Logger::log(LogLevel::ERROR, "Internal error: " + status.message(), true,
+                false, "");
     break;
+
+  case StatusCode::NOT_FOUND:
+    if (shouldThrow)
+      throw NotFoundException(status.message());
+    Logger::log(LogLevel::ERROR, "Not found: " + status.message(), true, false,
+                "");
+    break;
+
   default:
+    if (shouldThrow)
+      throw UnknownException(status.message());
+    Logger::log(LogLevel::ERROR, "Unknown error: " + status.message(), true,
+                false, "");
     break;
   }
 }
