@@ -40,7 +40,6 @@ private:
     ctx->algorithms = std::make_shared<
         Algorithms::CinderPeakAlgorithms<VertexType, EdgeType>>(
         ctx->hybrid_storage);
-
     ctx->runtime->log(LogLevel::CRITICAL, "Log from ctx\n");
     registerMetadataListeners(*ctx);
   }
@@ -275,6 +274,15 @@ public:
   }
   void log(const LogLevel &level, const std::string &message) const {
     ctx->runtime->log(level, message);
+  }
+
+  std::vector<VertexType> getVertices() const {
+    return ctx->active_storage->impl_getVertices();
+  }
+
+  std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  getEdgeList() const {
+    return ctx->active_storage->impl_getEdgeList();
   }
 };
 

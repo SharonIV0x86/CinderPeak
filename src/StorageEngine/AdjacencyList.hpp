@@ -68,14 +68,14 @@ public:
         if constexpr (CinderPeak::Traits::is_primitive_or_string_v<
                           VertexType>) {
           runtime.log(LogLevel::WARNING,
-                      "Failed to add Vertex: Vertex Already Exist. " +
+                      "Failed to add Vertex: Vertex Already Exists. " +
                           vertexStr(v));
           return PeakStatus::VertexAlreadyExists(
               "Primitive Vertex Already Exists");
         } else {
           runtime.log(LogLevel::WARNING,
-                      "Failed to add Non Premitive Vertex: Non Premitive "
-                      "Vertex Already Exist. " +
+                      "Failed to add Non Primitive Vertex: Non Primitive "
+                      "Vertex Already Exists. " +
                           vertexStr(v));
           return PeakStatus::VertexAlreadyExists(
               "Non Primitive Vertex Already Exists");
@@ -91,8 +91,6 @@ public:
 
     // perform string construction and logging outside of the lock to avoid
     // blocking critical sections
-    // TODO: this is a test log for output check so remove it in future.
-    runtime.log(LogLevel::INFO, "Vertex added.");
     return PeakStatus::OK();
   }
 
@@ -105,7 +103,7 @@ public:
     for (const auto &v : vertices) {
       if (_vertex_lookup.find(v) != _vertex_lookup.end()) {
         final_status = PeakStatus::VertexAlreadyExists();
-        runtime.log(LogLevel::WARNING, "Vertex already Exist.");
+        runtime.log(LogLevel::WARNING, "Vertex already Exists.");
         continue;
       }
       VertexId id = _next_vertex_id.fetch_add(1, std::memory_order_relaxed);
@@ -297,7 +295,7 @@ public:
       if (p.first == destId)
         return true;
     }
-    runtime.log(LogLevel::INFO, "Edge found.");
+    runtime.log(LogLevel::INFO, "Edge not found.");
     return false;
   }
 
@@ -321,11 +319,11 @@ public:
     const auto &neighbors = _adj.at(srcId);
     for (const auto &p : neighbors) {
       if (p.first == destId && p.second == weight) {
-        runtime.log(LogLevel::INFO, "Edge not exist.");
+        runtime.log(LogLevel::INFO, "Edge exists.");
         return true;
       }
     }
-    runtime.log(LogLevel::INFO, "Edge not exist.");
+    runtime.log(LogLevel::INFO, "Edge not found.");
 
     return false;
   }
@@ -521,6 +519,34 @@ public:
   getVertexDataMap() const {
     runtime.log(LogLevel::DEBUG, "Executing getVertexDataMap");
     return _vertex_data;
+  }
+
+  [[nodiscard]] std::vector<VertexType> impl_getVertices() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<VertexType> result;
+    result.reserve(_vertex_data.size());
+    for (const auto &[id, vtx] : _vertex_data) {
+      result.push_back(vtx);
+    }
+    return result;
+  }
+
+  [[nodiscard]] std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  impl_getEdgeList() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<std::tuple<VertexType, VertexType, EdgeType>> result;
+    for (const auto &[srcId, neighbors] : _adj) {
+      auto srcIt = _vertex_data.find(srcId);
+      if (srcIt == _vertex_data.end())
+        continue;
+      for (const auto &[destId, weight] : neighbors) {
+        auto destIt = _vertex_data.find(destId);
+        if (destIt == _vertex_data.end())
+          continue;
+        result.emplace_back(srcIt->second, destIt->second, weight);
+      }
+    }
+    return result;
   }
 };
 

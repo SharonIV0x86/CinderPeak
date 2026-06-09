@@ -91,7 +91,7 @@ CinderPeak is currently under active development. We are committed to delivering
 ---
 
 ## Getting Started
-1. **Installation**: Follow the [installation guide](docs/installation.md) to set up CinderPeak with CMake.
+1. **Installation**: Follow the [installation guide](docs/build-and-installation.md) to set up CinderPeak with CMake.
 2. **Usage**: Check the [usage guide](docs/usage.md) for API details and the [examples](examples/) directory for sample code.
 3. **Documentation**: Explore the full documentation hosted with Docusaurus in the [docs](docs/) directory.
 

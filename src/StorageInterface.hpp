@@ -46,5 +46,10 @@ public:
   impl_getEdge(const VertexType &src, const VertexType &dest) = 0;
 
   virtual ~PeakStorageInterface() = default;
+
+  // Iterator support
+  virtual std::vector<VertexType> impl_getVertices() const = 0;
+  virtual std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  impl_getEdgeList() const = 0;
 };
 } // namespace CinderPeak
