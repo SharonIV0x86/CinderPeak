@@ -48,6 +48,8 @@ struct MyEdge : CinderPeak::CinderEdge {
 int main() {
   // --- Complex Graph (custom vertex + weighted edge) ---
 
+  GraphCreationOptions optsU({GraphCreationOptions::Undirected});
+
   CinderGraph<MyVertex, MyEdge> customGraph(optsU);
 
   MyVertex v1(1);
