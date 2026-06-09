@@ -565,6 +565,36 @@ public:
 
     return PeakStatus::OK();
   }
+  [[nodiscard]] std::vector<VertexType> impl_getVertices() const override {
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<VertexType> result;
+    result.reserve(vertex_order.size());
+    for (size_t i = 0; i < vertex_order.size(); ++i) {
+      if (!_tombstoned.count(i)) {
+        result.push_back(vertex_order[i]);
+      }
+    }
+    return result;
+  }
+
+  [[nodiscard]] std::vector<std::tuple<VertexType, VertexType, EdgeType>>
+  impl_getEdgeList() const override {
+    const_cast<HybridCSR_COO *>(this)->buildStructures();
+    std::shared_lock<std::shared_mutex> lock(_mtx);
+    std::vector<std::tuple<VertexType, VertexType, EdgeType>> result;
+    for (size_t i = 0; i < vertex_order.size(); ++i) {
+      if (_tombstoned.count(i))
+        continue;
+      for (size_t j = csr_row_offsets[i]; j < csr_row_offsets[i + 1]; ++j) {
+        size_t neighbor_idx = csr_col_vals[j];
+        if (_tombstoned.count(neighbor_idx))
+          continue;
+        result.emplace_back(vertex_order[i], vertex_order[neighbor_idx],
+                            csr_weights[j]);
+      }
+    }
+    return result;
+  }
 };
 
 } // namespace PeakStore

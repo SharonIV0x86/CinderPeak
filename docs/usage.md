@@ -528,3 +528,29 @@ Exported to india_roads.dot
 ```
 
 > **Note:** The edge count is `8` (not `4`) because this is an undirected graph — each `addEdge` call stores two directed edges internally, and `numEdges()` counts both directions.
+
+## 8. Iterating over Vertices and Edges
+
+CinderGraph provides `vertices()` and `edges()` methods for range-based iteration.
+
+### Vertices
+
+```cpp
+CinderGraph<int, int> g(GraphCreationOptions({GraphCreationOptions::Directed}));
+g.addVertex(1);
+g.addVertex(2);
+
+for (auto& v : g.vertices()) {
+    std::cout << v << "\n";
+}
+```
+
+### Edges
+
+```cpp
+g.addEdge(1, 2, 10);
+
+for (auto& [src, dest, weight] : g.edges()) {
+    std::cout << src << " -> " << dest << " (weight: " << weight << ")\n";
+}
+```
