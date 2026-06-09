@@ -1,10 +1,13 @@
 #pragma once
+
+#include <atomic>
 #include <chrono>
 #include <cstring>
 #include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <sstream>
 #include <string>
@@ -28,8 +31,35 @@ enum LogLevel { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
 
 class Logger {
 public:
+  static void setFileLogging(const std::string &path) {
+    std::lock_guard<std::mutex> lock(logMutex);
+    fileLoggingActive.store(true, std::memory_order_relaxed);
+
+    if (!logFile.is_open() || currentLogFilePath != path) {
+      if (logFile.is_open()) {
+        logFile.close();
+      }
+
+      logFile.open(path, std::ios::app);
+      currentLogFilePath = path;
+    }
+  }
+
+  static void disableFileLogging() {
+    std::lock_guard<std::mutex> lock(logMutex);
+    fileLoggingActive.store(false, std::memory_order_relaxed);
+    currentLogFilePath.clear();
+
+    if (logFile.is_open()) {
+      logFile.close();
+    }
+  }
+
   static void shutdown() {
     std::lock_guard<std::mutex> lock(logMutex);
+    fileLoggingActive.store(false, std::memory_order_relaxed);
+    currentLogFilePath.clear();
+
     if (logFile.is_open()) {
       logFile.close();
     }
@@ -54,6 +84,8 @@ public:
 
 private:
   inline static std::mutex logMutex;
+  inline static std::atomic<bool> fileLoggingActive{false};
+  inline static std::string currentLogFilePath;
   inline static std::ofstream logFile;
 
   static const char *levelToString(LogLevel level) {
@@ -94,18 +126,13 @@ private:
     }
   }
 
-  // Cross-platform, thread-safe helper to eliminate C4996 'localtime' unsafe
-  // warning
   static std::tm getLocalTime(const std::time_t &time_res) {
     std::tm timeinfo;
 #if defined(_MSC_VER)
-    // MSVC secure alternative
     localtime_s(&timeinfo, &time_res);
 #elif defined(__unix__) || defined(__APPLE__) || defined(__linux__)
-    // POSIX thread-safe alternative
     localtime_r(&time_res, &timeinfo);
 #else
-    // Fallback if compilation environment is ambiguous
     if (auto *fallback = std::localtime(&time_res)) {
       timeinfo = *fallback;
     } else {
@@ -131,8 +158,19 @@ private:
   }
 
   static void ensureFileOpen(const std::string &path) {
-    if (!logFile.is_open()) {
+    std::lock_guard<std::mutex> lock(logMutex);
+
+    if (!fileLoggingActive.load(std::memory_order_relaxed)) {
+      return;
+    }
+
+    if (!logFile.is_open() || currentLogFilePath != path) {
+      if (logFile.is_open()) {
+        logFile.close();
+      }
+
       logFile.open(path, std::ios::app);
+      currentLogFilePath = path;
     }
   }
 
@@ -149,10 +187,12 @@ private:
   }
 
   static void logToFile(LogLevel level, const std::string &msg) {
-    if (!logFile.is_open())
-      return;
-
     std::lock_guard<std::mutex> lock(logMutex);
+
+    if (!logFile.is_open() ||
+        !fileLoggingActive.load(std::memory_order_relaxed)) {
+      return;
+    }
 
     std::string timestamp = getTimestamp();
     const char *levelStr = levelToString(level);

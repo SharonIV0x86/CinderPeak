@@ -33,11 +33,13 @@ public:
       std::lock_guard<std::mutex> lock(fileMutex);
       logFilePath = path;
     }
+    Logger::setFileLogging(path);
     fileLoggingEnabled.store(true, std::memory_order_relaxed);
   }
 
   void disableFileLogging() {
     fileLoggingEnabled.store(false, std::memory_order_relaxed);
+    Logger::disableFileLogging();
   }
 
   void log(const LogLevel &level, const std::string &msg) const {
@@ -50,7 +52,7 @@ public:
     std::string path;
     if (file) {
       std::lock_guard<std::mutex> lock(fileMutex);
-      path = logFilePath; // copy safely
+      path = logFilePath;
     }
 
     Logger::log(level, msg, console, file, path);
