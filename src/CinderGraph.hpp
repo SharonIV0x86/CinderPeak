@@ -364,14 +364,14 @@ public:
       -> std::enable_if_t<CinderPeak::Traits::is_weighted_v<E>,
                           UpdateEdgeResult> {
     peak_store->log(LogLevel::INFO, "API: Entering updateEdge");
-    auto [status, updatedEdge] = peak_store->updateEdge(src, dest, newWeight);
+    auto [status, previousEdge] = peak_store->updateEdge(src, dest, newWeight);
     if (!status.isOK()) {
       peak_store->log(LogLevel::WARNING, "API: Error in updateEdge");
       Exceptions::handle_exception_map(status);
-      return {newWeight, false};
+      return {EdgeType(), false};
     }
     peak_store->log(LogLevel::INFO, "API: updateEdge completed successfully");
-    return {newWeight, true};
+    return {previousEdge, true};
   }
 
   /**

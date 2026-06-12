@@ -104,10 +104,16 @@ public:
       return status;
     ctx->events.edgeAdded.emit({src, dest, weight});
     if (!op.directed) {
+      PeakStatus rev_status;
       if (op.weighted) {
-        ctx->active_storage->impl_addEdge(dest, src, weight);
+        rev_status = ctx->active_storage->impl_addEdge(dest, src, weight);
       } else {
-        ctx->active_storage->impl_addEdge(dest, src);
+        rev_status = ctx->active_storage->impl_addEdge(dest, src);
+      }
+      if (!rev_status.isOK()) {
+        // Propagate reverse-insert failure to caller so API reflects partial
+        // application rather than silently reporting full success.
+        return rev_status;
       }
       ctx->events.edgeAdded.emit({dest, src, weight});
     }
@@ -125,9 +131,13 @@ public:
           ctx->create_options->hasOption(GraphCreationOptions::Directed);
       if (!isDirected && src != dest) {
         auto rev_result = ctx->active_storage->impl_removeEdge(dest, src);
-        if (rev_result.second.isOK()) {
-          GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, dest, src);
+        if (!rev_result.second.isOK()) {
+          // If reverse removal fails, propagate that failure to caller so the
+          // API can surface the partial failure instead of silently
+          // returning success.
+          return rev_result;
         }
+        GraphEvents<VertexType, EdgeType>::onEdgeRemove(*ctx, dest, src);
       }
     }
     return result;
@@ -139,21 +149,27 @@ public:
     ctx->log(LogLevel::INFO, "Called adjacency:updateEdge() for " +
                                  weightedEdgeStr(src, dest, newWeight));
 
+    auto [currentWeight, currentStatus] =
+        ctx->active_storage->impl_getEdge(src, dest);
+    if (!currentStatus.isOK()) {
+      return {currentStatus, EdgeType()};
+    }
+
     PeakStatus resp =
         ctx->active_storage->impl_updateEdge(src, dest, newWeight);
     if (!resp.isOK()) {
-      return {resp, newWeight};
+      return {resp, EdgeType()};
     }
 
     if (ctx->create_options->hasOption(GraphCreationOptions::Undirected)) {
       PeakStatus resp2 =
           ctx->active_storage->impl_updateEdge(dest, src, newWeight);
       if (!resp2.isOK()) {
-        return {resp2, newWeight};
+        return {resp2, EdgeType()};
       }
     }
 
-    return {PeakStatus::OK(), newWeight};
+    return {PeakStatus::OK(), currentWeight};
   }
 
   std::pair<EdgeType, PeakStatus> getEdge(const VertexType &src,

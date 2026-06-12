@@ -22,7 +22,7 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgePrimitive) {
 
   auto [new_weight, status1] = intGraph.updateEdge(1, 2, 50);
   EXPECT_TRUE(status1);
-  EXPECT_EQ(new_weight, 50);
+  EXPECT_EQ(new_weight, 25);
 
   EXPECT_FALSE(intGraph.updateEdge(2, 3, 100).second); // edge doesn't exist
 }
@@ -41,7 +41,7 @@ TEST_F(CinderGraphFunctionalTest, UpdateEdgeString) {
 
   auto [new_weight, status1] = stringGraph.updateEdge("A", "B", 84);
   EXPECT_TRUE(status1);
-  EXPECT_EQ(new_weight, 84);
+  EXPECT_EQ(new_weight, 42);
 
   EXPECT_FALSE(
       stringGraph.updateEdge("B", "C", 100).second); // edge doesn't exist
@@ -64,7 +64,7 @@ TEST_F(CinderGraphFunctionalTest, UpdateCustomEdge) {
 
   auto [new_weight, status1] = customGraph.updateEdge(v1, v2, e2);
   EXPECT_TRUE(status1);
-  EXPECT_EQ(new_weight.edge_weight, 7.0f);
+  EXPECT_EQ(new_weight.edge_weight, 3.5f);
 
   EXPECT_FALSE(customGraph.updateEdge(v2, v1, e1).second); // edge doesn't exist
 }

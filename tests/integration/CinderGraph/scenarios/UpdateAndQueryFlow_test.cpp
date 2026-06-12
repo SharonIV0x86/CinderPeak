@@ -23,7 +23,7 @@ TEST_F(UpdateAndQueryFlowTest, AddUpdateQuery) {
 
   auto [newWeight, updated] = intGraph.updateEdge(1, 2, 10);
   EXPECT_TRUE(updated);
-  EXPECT_EQ(newWeight, 10);
+  EXPECT_EQ(newWeight, 5);
 
   auto weight2 = intGraph.getEdge(1, 2);
   EXPECT_TRUE(weight2.has_value());
@@ -38,15 +38,18 @@ TEST_F(UpdateAndQueryFlowTest, MultipleUpdates) {
   EXPECT_TRUE(intGraph.addEdge(10, 20, 1).second);
 
   int weights[] = {2, 5, 10, 25, 50};
+  int previousWeight = 1;
 
   for (int w : weights) {
     auto [updatedWeight, success] = intGraph.updateEdge(10, 20, w);
     EXPECT_TRUE(success);
-    EXPECT_EQ(updatedWeight, w);
+    EXPECT_EQ(updatedWeight, previousWeight);
 
     auto currentWeight = intGraph.getEdge(10, 20);
     EXPECT_TRUE(currentWeight.has_value());
     EXPECT_EQ(*currentWeight, w);
+
+    previousWeight = w;
   }
 
   auto finalWeight = intGraph.getEdge(10, 20);
